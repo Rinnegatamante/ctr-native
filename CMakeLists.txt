@@ -24,8 +24,8 @@ set(GAME_INCLUDES
     ${CMAKE_SOURCE_DIR}/include
 )
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -w -Wno-error -Wno-implicit-function-declaration -Wno-int-conversion -Wno-incompatible-pointer-types -g")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -w -Wno-error -Wno-narrowing -fpermissive -Wno-incompatible-pointer-types -g")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse -w -Wno-error -Wno-implicit-function-declaration -Wno-int-conversion -Wno-incompatible-pointer-types -g")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse -fpermissive -w -Wno-error -Wno-narrowing -Wno-incompatible-pointer-types -g")
 
 # SDL2
 set(SDL_SHARED OFF CACHE BOOL "" FORCE)
@@ -59,18 +59,23 @@ target_include_directories(psycross PRIVATE externals/SDL/include externals/open
 target_link_libraries(psycross SDL2-static OpenAL)
 
 # TODO(aalhendi): handle symbol conflict in a better way
+if(WIN32)
+    set(_P "_")
+else()
+    set(_P "")
+endif()
 add_custom_command(TARGET psycross POST_BUILD
     COMMAND ${CMAKE_OBJCOPY}
-        --redefine-sym _alGenEffects=_psx_alGenEffects
-        --redefine-sym _alEffectf=_psx_alEffectf
-        --redefine-sym _alEffecti=_psx_alEffecti
-        --redefine-sym _alGenAuxiliaryEffectSlots=_psx_alGenAuxiliaryEffectSlots
-        --redefine-sym _alDeleteAuxiliaryEffectSlots=_psx_alDeleteAuxiliaryEffectSlots
-        --redefine-sym _alDeleteEffects=_psx_alDeleteEffects
-        --redefine-sym _alAuxiliaryEffectSloti=_psx_alAuxiliaryEffectSloti
+        --redefine-sym ${_P}alGenEffects=${_P}_psx_alGenEffects
+        --redefine-sym ${_P}alEffectf=${_P}_psx_alEffectf
+        --redefine-sym ${_P}alEffecti=${_P}_psx_alEffecti
+        --redefine-sym ${_P}alGenAuxiliaryEffectSlots=${_P}_psx_alGenAuxiliaryEffectSlots
+        --redefine-sym ${_P}alDeleteAuxiliaryEffectSlots=${_P}_psx_alDeleteAuxiliaryEffectSlots
+        --redefine-sym ${_P}alDeleteEffects=${_P}_psx_alDeleteEffects
+        --redefine-sym ${_P}alAuxiliaryEffectSloti=${_P}_psx_alAuxiliaryEffectSloti
         $<TARGET_FILE:psycross> $<TARGET_FILE:psycross>.fixed
     COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:psycross>.fixed $<TARGET_FILE:psycross>
-    COMMENT "Renaming conflicting OpenAL symbols in psycross"
+    COMMENT "Renaming conflicting OpenAL EFX symbols in psycross"
 )
 
 # CTR Native
@@ -87,4 +92,8 @@ target_compile_definitions(ctr_native PRIVATE
 )
 target_compile_options(ctr_native PRIVATE -O2)
 target_link_libraries(ctr_native OpenAL psycross SDL2-static)
-target_link_options(ctr_native PRIVATE -static -static-libgcc -static-libstdc++)
+if(WIN32)
+    target_link_options(ctr_native PRIVATE -static -static-libgcc -static-libstdc++ -Wl,--image-base,0x400000 -Wl,--disable-dynamicbase -Wl,--disable-reloc-section)
+else()
+    target_link_options(ctr_native PRIVATE -static-libgcc -static-libstdc++ -Wl,--image-base,0x400000 -no-pie -Wl,--allow-multiple-definition)
+endif()

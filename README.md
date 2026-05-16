@@ -70,7 +70,30 @@ build.bat            # Rebuild everything
 
 ## Running
 
-Place a CTR NTSC-U disc image (`ctr-u.bin`) next to the executable, then run it.
+1. Create an `assets/` directory next to the source files
+2. Extract the following from a CTR NTSC-U disc image (`ctr-u.bin`):
+   - `BIGFILE.BIG`
+   - `SOUNDS/KART.HWL`
+   - `XA/ENG.XNF`
+   - `XA/ENG/EXTRA/S00.XA` through `S05.XA`
+   - `XA/ENG/GAME/S00.XA` through `S05.XA`
+   - `XA/MUSIC/S00.XA` through `S05.XA`
+3. Place `ctr-u.bin` itself in `assets/` as well
+4. Run `build/ctr_native.exe`
+
+Directory structure:
+```
+ctr_native/
+  assets/
+    ctr-u.bin
+    BIGFILE.BIG
+    SOUNDS/KART.HWL
+    XA/
+      ENG.XNF
+      ENG/EXTRA/S00.XA ... S05.XA
+      ENG/GAME/S00.XA ... S05.XA
+      MUSIC/S00.XA ... S05.XA
+```
 
 ## Architecture
 
@@ -91,7 +114,7 @@ ctr_native.c (platform layer)
 
 - `REBUILD_PC` is defined, so all existing `#ifdef REBUILD_PC` guards activate
 - `CTR_NATIVE` is also defined for our own platform-specific code
-- The build uses 32-bit mode (`-m32`) and a fixed base address (`0x00500000`) because the game stores 24-bit pointers in data structures. This constraint will be removed in a future cleanup pass.
+- The build uses 32-bit mode because the game stores 24-bit pointers in data structures. A fixed base address is not currently set (requires Clang/LLD or a custom linker script for GCC). This constraint will be removed in Phase 3.
 
 ## Roadmap
 

@@ -27,7 +27,8 @@
 /* Define XGenericEventCookie as forward declaration when
  *xinput2 is not available in order to compile */
 struct XGenericEventCookie;
-typedef struct XGenericEventCookie XGenericEventCookie;
+// TODO(aalhendi): edit made
+//typedef struct XGenericEventCookie XGenericEventCookie;
 #endif
 
 extern void X11_InitXinput2(_THIS);
