@@ -499,14 +499,7 @@
 
 #include "game/230/R230.c"
 #include "game/230/D230.c"
-
-#include "game/230/230_00_38_MM_Battle_DrawIcon_Character.c"
-#include "game/230/230_39_MM_AdvNewLoad_GetMenuPtr.c"
-#include "game/230/230_40_54_MM_Characters_AnimateColors.c"
-#include "game/230/230_55_MM_TrackSelect_Init.c"
-#include "game/230/230_56_MM_TrackSelect_MenuProc.c"
-#include "game/230/230_57_MM_TrackSelect_GetMenuPtr.c"
-#include "game/230/230_58_76_MM_CupSelect_Init.c"
+#include "game/230/230_Full.c"
 
 #include "game/231/D231.c"
 
