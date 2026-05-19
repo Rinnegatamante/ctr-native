@@ -112,10 +112,10 @@ void DECOMP_RB_Blowup_Init(struct Instance *weaponInst)
 	sps->Union.ThBuckColl.thread = weaponInst->thread;
 	sps->Union.ThBuckColl.funcCallback = DECOMP_RB_Burst_CollThBucket;
 
-	PROC_StartSearch_Self(sps);
+	DECOMP_PROC_StartSearch_Self(sps);
 
-	PROC_CollideHitboxWithBucket(gGT->threadBuckets[ROBOT].thread, sps, 0);
-	PROC_CollideHitboxWithBucket(gGT->threadBuckets[MINE].thread, sps, 0);
+	DECOMP_PROC_CollideHitboxWithBucket(gGT->threadBuckets[ROBOT].thread, sps, 0);
+	DECOMP_PROC_CollideHitboxWithBucket(gGT->threadBuckets[MINE].thread, sps, 0);
 
 	// Nitro explosion has smaller radius than TNT explosion
 	if (weaponInst->model->id != STATIC_CRATE_TNT)
@@ -126,7 +126,7 @@ void DECOMP_RB_Blowup_Init(struct Instance *weaponInst)
 	}
 
 	// check collision with player threads
-	PROC_CollideHitboxWithBucket(gGT->threadBuckets[PLAYER].thread, sps, 0);
+	DECOMP_PROC_CollideHitboxWithBucket(gGT->threadBuckets[PLAYER].thread, sps, 0);
 
 	sps->Union.ThBuckColl.funcCallback = DECOMP_RB_Burst_CollLevInst;
 	return;

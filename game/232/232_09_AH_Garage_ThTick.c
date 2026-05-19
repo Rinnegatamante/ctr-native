@@ -225,7 +225,7 @@ LAB_800aede8:
 
 #ifndef REBUILD_PS1
 	// Open garage door when player gets within radius of door
-	PROC_CollideHitboxWithBucket(gGT->threadBuckets[PLAYER].thread, SPS, 0);
+	DECOMP_PROC_CollideHitboxWithBucket(gGT->threadBuckets[PLAYER].thread, SPS, 0);
 #endif
 
 	ratio = DECOMP_MATH_Sin((int)inst->instDef->rot[1]);

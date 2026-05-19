@@ -34,5 +34,5 @@ void DECOMP_COLL_FIXED_BotsSearch(short *posCurr, short *posPrev, struct Scratch
 	sps->numInstHitboxesHit = 0;
 	*(u_int *)&sps->dataOutput[0] = 0;
 
-	COLL_SearchBSP_CallbackPARAM(sps->ptr_mesh_info->bspRoot, &sps->bbox, COLL_FIXED_BSPLEAF_TestInstance, &sps->Input1.pos[0]);
+	DECOMP_COLL_SearchBSP_CallbackPARAM(sps->ptr_mesh_info->bspRoot, &sps->bbox, DECOMP_COLL_FIXED_BSPLEAF_TestInstance, sps);
 }

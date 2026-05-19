@@ -185,9 +185,9 @@ void DECOMP_RB_Teeth_ThTick(struct Thread *t)
 	// If door wants to close, but Player or Mine
 	// is in the way, then do not force the doors to close
 
-	PROC_CollideHitboxWithBucket(gGT->threadBuckets[PLAYER].thread, SPS, 0);
+	DECOMP_PROC_CollideHitboxWithBucket(gGT->threadBuckets[PLAYER].thread, SPS, 0);
 
-	PROC_CollideHitboxWithBucket(gGT->threadBuckets[MINE].thread, SPS, 0);
+	DECOMP_PROC_CollideHitboxWithBucket(gGT->threadBuckets[MINE].thread, SPS, 0);
 
 LAB_800ba084:
 

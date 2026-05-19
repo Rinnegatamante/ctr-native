@@ -162,19 +162,19 @@ void DECOMP_RB_Burst_Init(struct Instance *weaponInst)
 	struct Thread *driverTh = tw->instParent->thread;
 
 	// check collision with all Player thread
-	PROC_CollideHitboxWithBucket(gGT->threadBuckets[PLAYER].thread, sps, driverTh);
+	DECOMP_PROC_CollideHitboxWithBucket(gGT->threadBuckets[PLAYER].thread, sps, driverTh);
 
 	// check collision with all Robotcar thread
-	PROC_CollideHitboxWithBucket(gGT->threadBuckets[ROBOT].thread, sps, driverTh);
+	DECOMP_PROC_CollideHitboxWithBucket(gGT->threadBuckets[ROBOT].thread, sps, driverTh);
 
 	// check collision with all Mine thread
-	PROC_CollideHitboxWithBucket(gGT->threadBuckets[MINE].thread, sps, 0);
+	DECOMP_PROC_CollideHitboxWithBucket(gGT->threadBuckets[MINE].thread, sps, 0);
 
 	// check collision with all Tracking thread
-	PROC_CollideHitboxWithBucket(gGT->threadBuckets[TRACKING].thread, sps, 0);
+	DECOMP_PROC_CollideHitboxWithBucket(gGT->threadBuckets[TRACKING].thread, sps, 0);
 
 	sps->Union.ThBuckColl.funcCallback = DECOMP_RB_Burst_CollLevInst;
 
-	PROC_StartSearch_Self(sps);
+	DECOMP_PROC_StartSearch_Self(sps);
 	return;
 }

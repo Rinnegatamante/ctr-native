@@ -374,11 +374,14 @@ void DECOMP_PROC_CheckAllForDead(void);
 void DECOMP_PROC_CheckBloodlineForDead(struct Thread **replaceSelf, struct Thread *th);
 void DECOMP_PROC_CollidePointWithBucket(struct Thread *th, short *vec3_pos);
 void DECOMP_PROC_CollidePointWithSelf(struct Thread *th, struct BucketSearchParams *buf);
+void DECOMP_PROC_CollideHitboxWithBucket(struct Thread *collThread, struct ScratchpadStruct *sps, struct Thread *ignoredThread);
 void DECOMP_PROC_DestroyInstance(struct Thread *t);
 void DECOMP_PROC_DestroyObject(void *object, int threadFlags);
 void DECOMP_PROC_DestroySelf(struct Thread *t);
 void DECOMP_PROC_DestroyTracker(struct Thread *t);
+void DECOMP_PROC_PerBspLeaf_CheckInstances(struct BSP *bspLeaf, struct ScratchpadStruct *sps);
 struct Thread *DECOMP_PROC_SearchForModel(struct Thread *th, short modelID);
+void DECOMP_PROC_StartSearch_Self(struct ScratchpadStruct *sps);
 
 void DECOMP_PushBuffer_Init(struct PushBuffer *pb, int id, int total);
 void DECOMP_PushBuffer_SetPsyqGeom(struct PushBuffer *pb);
@@ -845,5 +848,7 @@ void DECOMP_CAM_EndOfRace(struct CameraDC *cDC, struct Driver *d);
 u_int DECOMP_BOTS_ChangeState(struct Driver *driverVictim, int damageType, struct Driver *driverAttacker, int reason);
 void DECOMP_BOTS_Killplane(struct Thread *botThread);
 void DECOMP_COLL_FIXED_BotsSearch(short *posCurr, short *posPrev, struct ScratchpadStruct *sps);
+void DECOMP_COLL_SearchBSP_CallbackPARAM(struct BSP *root, struct BoundingBox *bbox, void (*callback)(struct BSP *, struct ScratchpadStruct *),
+                                         struct ScratchpadStruct *param);
 void DECOMP_BOTS_LevInstColl(struct Thread *param_1);
 void DECOMP_CS_LoadBoss(struct BossCutsceneData *bcd);

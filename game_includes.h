@@ -48,6 +48,7 @@
 #include "game/CDSYS/CDSYS_18_XAPauseAtEnd.c"
 
 #include "game/COLL/COLL_00_LevModelMeta.c"
+#include "game/COLL/COLL_06_SearchBSP_CallbackPARAM.c"
 
 #include "game/CTR/CTR_00_Box_DrawWirePrims.c"
 #include "game/CTR/CTR_01_Box_DrawWireBox.c"
@@ -330,6 +331,9 @@
 #include "game/PROC/PROC_08_CollidePointWithSelf.c"
 #include "game/PROC/PROC_09_CollidePointWithBucket.c"
 #include "game/PROC/PROC_10_SearchForModel.c"
+#include "game/PROC/PROC_11_PerBspLeaf_CheckInstances.c"
+#include "game/PROC/PROC_12_StartSearch_Self.c"
+#include "game/PROC/PROC_13_CollideHitboxWithBucket.c"
 
 #include "game/PushBuffer/PushBuffer_00_Init.c"
 #include "game/PushBuffer/PushBuffer_01_SetPsyqGeom.c"

@@ -30,8 +30,7 @@
 #include "231_045_RB_Explosion_InitGeneric.c"
 #include "231_047_RB_Blowup_ThTick.c"
 
-// TODO(aalhendi): PROC_CollideHitboxWithBucket and PROC_StartSearch_Self
-// TODO(aalhendi): 048 and 053
+// TODO(aalhendi): 048 and 053 still need RB_Burst_CollLevInst / Teeth dependency cleanup.
 #include "231_050_RB_Burst_ThTick.c"
 #include "231_051_RB_Burst_CollThBucket.c"
 #include "231_055_RB_GetThread_ClosestTracker.c"
@@ -42,7 +41,7 @@
 #include "231_060_RB_Bubbles_RoosTubes.c"
 
 // TODO(aalhendi): sound/voice paths and RB_MakeInstanceReflective.
-// TODO(aalhendi): 061-077 (crate, crystal, default LevInst, and CTR letters). 
+// TODO(aalhendi): 061-077 (crate, crystal, default LevInst, and CTR letters).
 
 // TODO(aalhendi):  RB_MakeInstanceReflective. Keep the temporary zGlobal stub until ported
 // TODO(aalhendi) 231_073_RB_Default_LInB
@@ -58,6 +57,5 @@
 #include "231_110_113_RB_Seal.c"
 #include "231_114_115_RB_Snowball.c"
 #include "231_116_119_RB_Spider.c"
-// TODO(aalhendi): PROC_CollideHitboxWithBucket and sound.
-// TODO(aalhendi): 122-126 Teeth
+// TODO(aalhendi): 122-126 Teeth still need sound/runtime dependency cleanup.
 #include "231_127_129_RB_Turtle.c"
