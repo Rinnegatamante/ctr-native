@@ -317,6 +317,8 @@
 
 #include "game/MixRNG/MixRNG_0_Scramble.c"
 
+#include "game/Particle/Particle_4_Init.c"
+
 #include "game/PROC/PROC_00_DestroyTracker.c"
 #include "game/PROC/PROC_01_DestroyInstance.c"
 #include "game/PROC/PROC_02_DestroyObject.c"
@@ -375,6 +377,8 @@
 #include "game/RECTMENU/RECTMENU_18_Show.c"
 #include "game/RECTMENU/RECTMENU_19_Hide.c"
 #include "game/RECTMENU/RECTMENU_20_BoolHidden.c"
+
+#include "game/TakeCupProgress/TakeCupProgress_0_Activate.c"
 
 #include "game/SubmitName/SubmitName_0_RestoreName.c"
 #include "game/SubmitName/SubmitName_1_DrawMenu.c"
@@ -497,6 +501,8 @@
 #include "game/Vehicle/VehTalkMask_3_boolNoXA.c"
 #include "game/Vehicle/VehTalkMask_4_End.c"
 
+#include "game/Vector/Vector_1_SpecLightSpin3D.c"
+
 #include "game/230/R230.c"
 #include "game/230/D230.c"
 #include "game/230/230_Full.c"
@@ -536,42 +542,6 @@
 
 #include "game/232/232_Full.c"
 
-#include "game/233/233_09_CS_Instance_GetFrameData.c"
-#include "game/233/233_02_09_CS_ScriptCmd.c"
-#include "game/233/233_10_CS_Instance_GetNumAnimFrames.c"
-#include "game/233/233_11_CS_Instance_SafeCheckAnimFrame.c"
-#include "game/233/233_12_CS_Instance_BoolPlaySound.c"
-#include "game/233/233_13_CS_DestroyPodium_StartDriving.c"
-#include "game/233/233_14_CS_Thread_UseOpcode.c"
-#include "game/233/233_15_CS_Thread_AnimateScale.c"
-#include "game/233/233_01_CS_Thread_LInB.c"
-#include "game/233/233_stubs.c"
-#include "game/233/233_24_CS_Thread_Init.c"
-#include "game/233/233_19_CS_LoadBossCallback.c"
-#include "game/233/233_20_CS_LoadBoss.c"
-#include "game/233/233_22_CS_Camera_BoolGotoBoss.c"
-#include "game/233/233_21_CS_Camera_ThTick_Boss.c"
-#include "game/233/233_36_CS_BoxScene_InstanceSplitLines.c"
-#include "game/233/233_31_CS_Podium_Stand_ThTick.c"
-#include "game/233/233_32_CS_Podium_Stand_Init.c"
-#include "game/233/233_27_CS_Podium_Prize_ThTick2.c"
-#include "game/233/233_33_CS_Podium_FullScene_Init.c"
-#include "game/233/233_25_CS_Instance_InitMatrix.c"
-#include "game/233/233_29_CS_Podium_Prize_ThDestroy.c"
-#include "game/233/233_35_CS_Cutscene_Start.c"
-#include "game/233/233_44_CS_Credits_GetNextString.c"
-#include "game/233/233_45_CS_Credits_DestroyCreditGhost.c"
-#include "game/233/233_46_CS_Credits_AnimateCreditGhost.c"
-#include "game/233/233_47_CS_Credits_Init.c"
-#include "game/233/233_48_CS_Credits_IsTextValid.c"
-#include "game/233/233_49_CS_Credits_NewDancer.c"
-#include "game/233/233_51_CS_Credits_End.c"
-#include "game/233/233_52_CS_Credits_DrawNames.c"
-#include "game/233/233_53_CS_Credits_DrawEpilogue.c"
-#include "game/233/233_54_CS_Credits_ThTick.c"
-#include "game/233/233_50_CS_Credits_NewCreditGhosts.c"
-#include "game/233/233_37_40_CS_Garage.c"
-#include "game/233/D233.c"
-#include "game/233/233_zGlobal_gGarage.c"
+#include "game/233/233_Full.c"
 
 #endif

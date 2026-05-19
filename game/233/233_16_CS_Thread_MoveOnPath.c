@@ -1,12 +1,3 @@
-// STUBS (empty implementations, pending decompilation):
-//   CS_Thread_Particles              (0x800abdd4) — particle effects in cutscenes
-//   CS_Thread_InterpolateFramesMS    (0x800ae318) — frame interpolation (GTE)
-//   CS_Podium_Prize_Spin             (0x800af7c0) — prize spinning animation
-//   CS_Podium_Prize_ThTick3          (0x800af994) — podium prize tick phase 3
-//   CS_Podium_Prize_ThTick1          (0x800afcc4) — podium prize tick phase 1
-//   CS_Podium_Prize_Init             (0x800afe90) — prize initialization
-//   CS_Camera_ThTick_Podium          (0x800aedf8) — camera for podium cutscenes
-
 #include <common.h>
 
 void DECOMP_CS_Thread_MoveOnPath(struct Thread *t)
@@ -190,32 +181,4 @@ void DECOMP_CS_Thread_MoveOnPath(struct Thread *t)
 	}
 
 	ConvertRotToMatrix(&inst->matrix, rot);
-}
-
-void DECOMP_CS_Thread_Particles(struct Thread *t)
-{
-}
-
-void DECOMP_CS_Thread_InterpolateFramesMS(struct Thread *t)
-{
-}
-
-void CS_Podium_Prize_Spin(struct Instance *inst, short *prize)
-{
-}
-
-void CS_Podium_Prize_ThTick3(struct Thread *th)
-{
-}
-
-void CS_Podium_Prize_ThTick1(struct Thread *th)
-{
-}
-
-void CS_Podium_Prize_Init(u_int param_1, char *param_2, short *param_3)
-{
-}
-
-void CS_Camera_ThTick_Podium(int param_1)
-{
 }
