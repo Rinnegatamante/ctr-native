@@ -157,23 +157,23 @@ struct Thread *DECOMP_CS_Thread_Init(short modelID, char *name, short *param_3, 
 
 		if (level == NAUGHTY_DOG_CRATE)
 		{
-			scriptPtr = &OVR_233.creditsOpcodeData[0x68];
+			scriptPtr = &OVR_233.creditsOpcodeData[0x18];
 		}
 		else if (level == OXIDE_ENDING)
 		{
-			scriptPtr = &OVR_233.introCutsceneOpcodeData[0x24];
+			scriptPtr = &OVR_233.introEndingOpcodeData[0];
 		}
 		else if (level == OXIDE_TRUE_ENDING)
 		{
-			scriptPtr = &OVR_233.introCutsceneOpcodeData[0x54];
+			scriptPtr = &OVR_233.introEndingOpcodeData[0x30];
 		}
 		else if ((gGT->gameMode2 & CREDITS) == 0)
 		{
-			scriptPtr = *(char **)&OVR_233.introCutsceneOpcodeData[(level - 30) * 4];
+			scriptPtr = OVR_233.introCutsceneOpcodes[level - INTRO_RACE_TODAY];
 		}
 		else
 		{
-			scriptPtr = *(char **)&OVR_233.creditsOpcodeData[(level - 44) * 4];
+			scriptPtr = OVR_233.creditsCutsceneOpcodes[level - CREDITS_CRASH];
 		}
 	}
 	else

@@ -9,8 +9,10 @@ void DECOMP_MainFrame_ResetDB(struct GameTracker *gGT)
 	struct DB *db;
 	int otSwapchainDB;
 
-// Dont use this in DECOMP until drivers->stepFlagSet is written
-#ifndef REBUILD_PS1
+// Dont use this in DECOMP until drivers->stepFlagSet is written.
+// NOTE(aalhendi): ctr-native uses the REBUILD_PS1 code path, but still needs
+// the retail hub swap pump for cutscene opcode 0xf level transitions.
+#if !defined(REBUILD_PS1) || defined(CTR_NATIVE)
 	// check if new adv hub should be loaded,
 	// this was a random place for ND to put it
 	DECOMP_LOAD_Hub_Main(sdata->ptrBigfile1);

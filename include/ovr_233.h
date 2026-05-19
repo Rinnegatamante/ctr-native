@@ -331,37 +331,45 @@ extern struct
 	char *introModelScripts[0x10];
 
 	// 800b45bc
-	char *introCutsceneOpcodes[0x47];
+	char introCutsceneOpcodeData[0x11c];
 
 	// 800b46d8
-	char introCutsceneOpcodeData[0x74];
+	// NOTE(aalhendi): Retail PTR_DAT_800b45bc_800b46d8.
+	char *introCutsceneOpcodes[9];
+
+	// 800b46fc
+	char introEndingOpcodeData[0x50];
 
 	// 800b474c
-	char *creditsCutsceneOpcodes[0x77];
+	char creditsCutsceneOpcodeData[0x1dc];
 
 	// 800b4928
-	// credits opcode pointers at 4-byte intervals indexed by (level-44),
-	// ND crate intro script at offset 0x68
-	char creditsOpcodeData[0x6bc];
+	// NOTE(aalhendi): Retail PTR_DAT_800b474c_800b4928.
+	char *creditsCutsceneOpcodes[20];
 
-	// 800b4fe4
-	char *advCharSelectSelectOpcodes[8];
+	// 800b4978
+	// ND crate intro script starts at offset 0x18.
+	char creditsOpcodeData[0x40];
 
-	// 800b5004
-	char fill3_afterAdvCharSelectSelectOpcodes[0x20];
-
-	// 800b5024
-	char *advCharSelectDeselectOpcodes[8];
-
-	// 800b5044
-	char fill3_beforeBoxModelScripts[0xA38];
+	// 800b49b8
+	char boxAndAdvCharSelectOpcodeData[0x10c4];
 
 	// 800b5a7c
+	// NOTE(aalhendi): Retail PTR_DAT_800b49b8_800b5a7c.
 	char *boxModelScripts[0x2b];
 
-	char fill3_afterBoxModelScripts[0x1808];
+	// 800b5b28
+	// NOTE(aalhendi): Retail PTR_DAT_800b4fe4_800b5b28.
+	char *advCharSelectSelectOpcodes[8];
+
+	// 800b5b48
+	// NOTE(aalhendi): Retail PTR_DAT_800b5024_800b5b48.
+	char *advCharSelectDeselectOpcodes[8];
+
+	char fill3_beforeInitMatrixTable[0x17c8];
 
 	// 800b7330
+	// NOTE(aalhendi): Retail PTR_DAT_800b5b70_800b7330.
 	struct
 	{
 		void *data;
