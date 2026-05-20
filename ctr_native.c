@@ -4,11 +4,27 @@
 #define USE_EXTENDED_PRIM_POINTERS 0
 #define SDL_MAIN_HANDLED
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #if __GNUC__
 #include <SDL2/SDL.h>
+#if !defined(_WIN32)
+#include <errno.h>
+#include <sys/mman.h>
+#ifndef MAP_ANONYMOUS
+#define MAP_ANONYMOUS MAP_ANON
+#endif
+#endif
 #define _EnterCriticalSection(x)
 #define EnterCriticalSection(x)
 #define ExitCriticalSection()
+#endif
+
+#if defined(_WIN32)
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
 #endif
 
 #include "psx/types.h"
@@ -23,6 +39,7 @@
 #include "PsyX/PsyX_public.h"
 #include "PsyX/PsyX_globals.h"
 #include "PsyX/PsyX_render.h"
+#include "ctr_scratchpad.h"
 
 static Uint32 startTick;
 #define ResetRCnt(x) startTick = SDL_GetTicks();
@@ -66,6 +83,46 @@ typedef enum
 static int frameGap = 2000;
 static int frameCount = 0;
 static int oldTicks = 0;
+
+void Platform_InitScratchpad(void)
+{
+#if defined(CTR_NATIVE)
+	void *scratchpad = (void *)CTR_SCRATCHPAD_ADDR;
+	size_t scratchpadSize = CTR_SCRATCHPAD_MAP_SIZE;
+
+#if defined(_WIN32)
+	void *mapped = VirtualAlloc(scratchpad, scratchpadSize, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+	if (mapped == NULL)
+	{
+		fprintf(stderr, "[CTR Native] Failed to map PS1 scratchpad at %p: GetLastError=%lu\n", scratchpad, GetLastError());
+		abort();
+	}
+#elif defined(__GNUC__)
+#ifdef MAP_FIXED_NOREPLACE
+	int fixedFlag = MAP_FIXED_NOREPLACE;
+#else
+	int fixedFlag = MAP_FIXED;
+#endif
+
+	void *mapped = mmap(scratchpad, scratchpadSize, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | fixedFlag, -1, 0);
+	if (mapped == MAP_FAILED)
+	{
+		fprintf(stderr, "[CTR Native] Failed to map PS1 scratchpad at %p: %s\n", scratchpad, strerror(errno));
+		abort();
+	}
+#else
+#error "Platform_InitScratchpad needs a fixed-address virtual-memory mapper for this platform"
+#endif
+
+	if (mapped != scratchpad)
+	{
+		fprintf(stderr, "[CTR Native] PS1 scratchpad mapped at %p, expected %p\n", mapped, scratchpad);
+		abort();
+	}
+
+	memset(mapped, 0, scratchpadSize);
+#endif
+}
 
 static void CalcFPS(void)
 {
@@ -156,6 +213,7 @@ int main(int argc, char *argv[])
 #endif
 
 	Platform_InitFilesystem("assets/ctr-u.bin");
+	Platform_InitScratchpad();
 
 	// NOTE(aalhendi): PsyCross swap interval - combined with VSync() below, locks to 30fps
 	PsyX_SetSwapInterval(2);
@@ -232,7 +290,7 @@ int VSync(int mode)
 	const Uint32 OVERRUN_THRESHOLD_MS = 8;
 	if (s_nextVBlank != 0 && now > s_nextVBlank + OVERRUN_THRESHOLD_MS)
 	{
-		fprintf(stderr, "[CTR] VSync overrun by %d ms\n", now - s_nextVBlank);
+		// fprintf(stderr, "[CTR] VSync overrun by %d ms\n", now - s_nextVBlank);
 	}
 #endif
 

@@ -3,6 +3,7 @@
 
 void Platform_Init(const char *title, int width, int height);
 void Platform_Shutdown(void);
+void Platform_InitScratchpad(void);
 void Platform_BeginFrame(void);
 void Platform_EndFrame(void);
 int Platform_PollInput(void);

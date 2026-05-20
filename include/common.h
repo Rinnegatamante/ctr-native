@@ -17,6 +17,7 @@
 // headers we wrote to simplify the code
 #include <macros.h>
 #include <ctr_math.h>
+#include <ctr_scratchpad.h>
 #include <prim.h>
 
 
