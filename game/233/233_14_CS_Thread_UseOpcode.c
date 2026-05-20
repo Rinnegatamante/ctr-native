@@ -386,30 +386,28 @@ processOpcode:
 	case 3:
 		if (instance != 0)
 		{
-			// NOTE(aalhendi): PSX-backfeed blocker: native scratchpad divergence. Retail
-			// builds this opcode 3 init data at scratchpad 0x1f800108; native keeps it
-			// on the host stack. Restore the scratchpad address contract before PSX use.
-			struct CsThreadInitData initData;
+			// Retail builds this opcode 3 init data at scratchpad 0x1f800108.
+			struct CsThreadInitData *initData = CTR_SCRATCHPAD_PTR(struct CsThreadInitData, 0x108);
 			int spawnModelID = opcodeMeta->arg1.i;
 
-			DECOMP_CS_Instance_GetFrameData(instance, (int)opcodeMeta->animIndex, opcodeMeta->arg0.i, (u_short *)initData.podiumPos, (u_short *)initData.rot,
+			DECOMP_CS_Instance_GetFrameData(instance, (int)opcodeMeta->animIndex, opcodeMeta->arg0.i, (u_short *)initData->podiumPos, (u_short *)initData->rot,
 			                                0);
 
-			initData.podiumPos[0] += (short)instance->matrix.t[0];
-			initData.podiumPos[1] += (short)instance->matrix.t[1];
-			initData.podiumPos[2] += (short)instance->matrix.t[2];
-			initData.characterPos[0] = 0;
-			initData.characterPos[1] = 0;
-			initData.characterPos[2] = 0;
+			initData->podiumPos[0] += (short)instance->matrix.t[0];
+			initData->podiumPos[1] += (short)instance->matrix.t[1];
+			initData->podiumPos[2] += (short)instance->matrix.t[2];
+			initData->characterPos[0] = 0;
+			initData->characterPos[1] = 0;
+			initData->characterPos[2] = 0;
 
 			if (spawnModelID == NDI_BOX_PARTICLES_01)
 			{
-				initData.rot[0] = 0;
-				initData.rot[1] = 0;
-				initData.rot[2] = 0;
+				initData->rot[0] = 0;
+				initData->rot[1] = 0;
+				initData->rot[2] = 0;
 			}
 
-			DECOMP_CS_Thread_Init(spawnModelID, OVR_233.s_spawn, (short *)&initData, 0, instance->thread);
+			DECOMP_CS_Thread_Init(spawnModelID, OVR_233.s_spawn, (short *)initData, 0, instance->thread);
 		}
 		break;
 
@@ -678,21 +676,19 @@ processOpcode:
 
 	case 0x24:
 	{
-		// NOTE(aalhendi): PSX-backfeed blocker: native scratchpad divergence. Retail
-		// builds this credits dancer init data at scratchpad 0x1f800108; native keeps it
-		// on the host stack. Restore the scratchpad address contract before PSX use.
-		struct CsThreadInitData initData;
+		// Retail builds this credits dancer init data at scratchpad 0x1f800108.
+		struct CsThreadInitData *initData = CTR_SCRATCHPAD_PTR(struct CsThreadInitData, 0x108);
 		int dancerModelID = opcodeMeta->arg1.i;
 
-		initData.podiumPos[0] = 0;
-		initData.podiumPos[1] = 0;
-		initData.podiumPos[2] = 0;
-		initData.rot[0] = 0;
-		initData.rot[1] = 0;
-		initData.rot[2] = 0;
-		initData.characterPos[0] = 0;
-		initData.characterPos[1] = 0;
-		initData.characterPos[2] = 0;
+		initData->podiumPos[0] = 0;
+		initData->podiumPos[1] = 0;
+		initData->podiumPos[2] = 0;
+		initData->rot[0] = 0;
+		initData->rot[1] = 0;
+		initData->rot[2] = 0;
+		initData->characterPos[0] = 0;
+		initData->characterPos[1] = 0;
+		initData->characterPos[2] = 0;
 
 		gGT->podium_modelIndex_First = (u_char)dancerModelID;
 		gGT->podium_modelIndex_Second = 0;
@@ -704,13 +700,13 @@ processOpcode:
 			gGT->podium_modelIndex_Second = STATIC_OXIDEDANCE;
 		}
 		if (dancerModelID == STATIC_CRASHDANCE)
-			initData.rot[1] += 0x800;
+			initData->rot[1] += 0x800;
 
-		initData.rot[0] += OVR_233.creditsDancerRotOffset[0];
-		initData.rot[1] += OVR_233.creditsDancerRotOffset[1];
-		initData.rot[2] += OVR_233.creditsDancerRotOffset[2];
+		initData->rot[0] += OVR_233.creditsDancerRotOffset[0];
+		initData->rot[1] += OVR_233.creditsDancerRotOffset[1];
+		initData->rot[2] += OVR_233.creditsDancerRotOffset[2];
 
-		dancerThread = (struct Thread *)DECOMP_CS_Thread_Init(dancerModelID, OVR_233.s_g_dancer, (short *)&initData, 0, 0);
+		dancerThread = (struct Thread *)DECOMP_CS_Thread_Init(dancerModelID, OVR_233.s_g_dancer, (short *)initData, 0, 0);
 		CS_Credits_NewDancer(dancerThread, (int)opcodeMetaShorts[6]);
 	}
 	break;

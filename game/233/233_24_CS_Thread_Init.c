@@ -3,9 +3,10 @@
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800ae54c-0x800ae81c
 void DECOMP_CS_Thread_ThTick(struct Thread *t)
 {
-	// NOTE(aalhendi): PSX-backfeed blocker: native scratchpad divergence; retail uses scratchpad 0x1f800108/0x1f800118 for parent frame-data temporaries.
-	short pos[3];
-	short rot[3];
+	// Retail uses scratchpad 0x1f800108/0x1f800118 for parent frame-data temporaries.
+	short *parentPos = CTR_SCRATCHPAD_PTR(short, 0x108);
+	short *parentRot = CTR_SCRATCHPAD_PTR(short, 0x118);
+	short bonePos[3];
 	struct CutsceneObj *cs = t->object;
 	struct Instance *inst = t->inst;
 	struct Instance *parentInst;
@@ -37,15 +38,15 @@ void DECOMP_CS_Thread_ThTick(struct Thread *t)
 			{
 				parentInst = parentThread->inst;
 
-				DECOMP_CS_Instance_GetFrameData(parentInst, parentInst->animIndex, parentInst->animFrame, (u_short *)pos, (u_short *)rot, 0);
+				DECOMP_CS_Instance_GetFrameData(parentInst, parentInst->animIndex, parentInst->animFrame, (u_short *)parentPos, (u_short *)parentRot, 0);
 
-				inst->matrix.t[0] = parentInst->matrix.t[0] + pos[0];
-				inst->matrix.t[1] = parentInst->matrix.t[1] + pos[1];
-				inst->matrix.t[2] = parentInst->matrix.t[2] + pos[2];
+				inst->matrix.t[0] = parentInst->matrix.t[0] + parentPos[0];
+				inst->matrix.t[1] = parentInst->matrix.t[1] + parentPos[1];
+				inst->matrix.t[2] = parentInst->matrix.t[2] + parentPos[2];
 
 				if ((cs->flags & 0x10) == 0)
 				{
-					ConvertRotToMatrix(&inst->matrix, rot);
+					ConvertRotToMatrix(&inst->matrix, parentRot);
 				}
 			}
 		}
@@ -57,9 +58,9 @@ void DECOMP_CS_Thread_ThTick(struct Thread *t)
 		// ASM: 0x800ae6b4 - flag 0x8: write bone Y to OVR_233 global
 		if ((cs->flags & 0x8) != 0)
 		{
-			DECOMP_CS_Instance_GetFrameData(inst, inst->animIndex, inst->animFrame, (u_short *)pos, 0, 0);
+			DECOMP_CS_Instance_GetFrameData(inst, inst->animIndex, inst->animFrame, (u_short *)bonePos, 0, 0);
 
-			OVR_233.VertSplitLine = pos[1];
+			OVR_233.VertSplitLine = bonePos[1];
 
 			inst = t->inst;
 			if (inst == 0)
