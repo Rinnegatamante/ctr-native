@@ -189,6 +189,8 @@ void DECOMP_MainInit_FinalizeInit(struct GameTracker *gGT)
 
 	// animates water, 1P mode
 	AnimateWater1P(gGT->timer, lev1->numWaterVertices, lev1->ptr_water, lev1->ptr_tex_waterEnvMap, lev1->unk5);
+#elif defined(CTR_NATIVE)
+	MainInit_RainBuffer(gGT);
 #endif
 
 	gGT->pushBuffer_UI.fadeFromBlack_desiredResult = 0x1000;

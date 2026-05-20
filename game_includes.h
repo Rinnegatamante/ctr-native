@@ -22,6 +22,7 @@
 #include "game/RenderTires/DrawTires_Solid.c"
 #include "game/RenderTires/DrawTires_Reflection.c"
 #include "game/RenderStars/RenderStars.c"
+#include "game/RenderWeather/RenderWeather.c"
 
 #include "game/MAIN/MAIN_AAA_BigBlock1.c"
 
@@ -379,6 +380,7 @@
 #include "game/Particle/Particle_5_UpdateAllParticles.c"
 #include "game/Particle/Particle_6_BitwiseClampByte.c"
 #include "game/Particle/Particle_7_SetColors.c"
+#include "game/Particle/Particle_8_RenderList.c"
 #include "game/Particle/Particle_4_Init.c"
 
 #include "game/PROC/PROC_00_DestroyTracker.c"

@@ -1549,7 +1549,15 @@ int ParsePrimitive(P_TAG* polyTag)
 	case 0x00:
 	{
 		const int primSubType = polyTag->code & 0x0F;
-		if (primSubType == 0x0)
+		const u_int* codePtr = (u_int*)&polyTag->pad0;
+		// NOTE(aalhendi): CTR RenderWeather can emit a retail length-2 zero
+		// packet when weather is enabled but the level has no fill-mode payload.
+		// The PSX consumes it by tag length; PsyCross must advance past it too.
+		if (polyTag->len == 2 && codePtr[0] == 0 && codePtr[1] == 0)
+		{
+			primLength = 2;
+		}
+		else if (primSubType == 0x0)
 		{
 			primLength = 3;
 		}

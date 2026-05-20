@@ -83,8 +83,10 @@ void DECOMP_MainFrame_RenderFrame(struct GameTracker *gGT, struct GamepadSystem 
 	DECOMP_DropRain_MakeSound(gGT);
 	MenuHighlight();
 
-#ifndef REBUILD_PS1
+#if !defined(REBUILD_PS1) || defined(CTR_NATIVE)
 	RenderAllWeather(gGT);
+#endif
+#ifndef REBUILD_PS1
 	RenderAllConfetti(gGT);
 #endif
 #if !defined(REBUILD_PS1) || defined(CTR_NATIVE)
@@ -111,7 +113,7 @@ void DECOMP_MainFrame_RenderFrame(struct GameTracker *gGT, struct GamepadSystem 
 	RenderBucket_QueueAllInstances(gGT);
 #endif
 
-#ifndef REBUILD_PS1
+#if !defined(REBUILD_PS1) || defined(CTR_NATIVE)
 	RenderAllNormalParticles(gGT);
 #endif
 
@@ -439,7 +441,7 @@ void MenuHighlight()
 	sdata->menuRowHighlight_Green.self = ((trig + 0xA0) * 0x100) | 0x400040;
 }
 
-#ifndef REBUILD_PS1
+#if !defined(REBUILD_PS1) || defined(CTR_NATIVE)
 void RenderAllWeather(struct GameTracker *gGT)
 {
 	int numPlyrCurrGame = gGT->numPlyrCurrGame;
@@ -455,7 +457,9 @@ void RenderAllWeather(struct GameTracker *gGT)
 
 	RenderWeather(&gGT->pushBuffer[0], &gGT->backBuffer->primMem, &gGT->rainBuffer[0], numPlyrCurrGame, gGT->gameMode1 & PAUSE_ALL);
 }
+#endif
 
+#ifndef REBUILD_PS1
 void RenderAllConfetti(struct GameTracker *gGT)
 {
 	int i;
@@ -722,7 +726,7 @@ void RenderBucket_QueueAllInstances(struct GameTracker *gGT)
 }
 #endif
 
-#ifndef REBUILD_PS1
+#if !defined(REBUILD_PS1) || defined(CTR_NATIVE)
 void RenderAllNormalParticles(struct GameTracker *gGT)
 {
 	int i;
