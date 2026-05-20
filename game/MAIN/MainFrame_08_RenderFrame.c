@@ -88,11 +88,9 @@ void DECOMP_MainFrame_RenderFrame(struct GameTracker *gGT, struct GamepadSystem 
 	RenderAllConfetti(gGT);
 #endif
 #if !defined(REBUILD_PS1) || defined(CTR_NATIVE)
-	// TODO(aalhendi): Re-enable this ASM-verified retail subrange
-	// (0x800364f8-0x80036538) after PsyCross handles RenderStars' length-2
-	// draw-env packet payload (`0xe1000a20, 0`) without desyncing the OT walker.
-	// if ((gGT->renderFlags & 8) != 0 && gGT->stars.numStars != 0)
-	// 	RenderStars(&gGT->pushBuffer[0], &gGT->backBuffer->primMem, &gGT->stars, gGT->numPlyrCurrGame);
+	// NOTE(aalhendi): ASM-verified NTSC-U 926 subrange 0x800364f8-0x80036538.
+	if ((gGT->renderFlags & 8) != 0 && gGT->stars.numStars != 0)
+		RenderStars(&gGT->pushBuffer[0], &gGT->backBuffer->primMem, &gGT->stars, gGT->numPlyrCurrGame);
 #endif
 
 	RenderAllHUD(gGT);

@@ -1447,13 +1447,14 @@ static int ProcessDrawEnv(P_TAG* polyTag)
 		switch (primSubType)
 		{
 		case 0x1:
-		{
-			// DR_TPAGE
-			activeDrawEnv.tpage = (code & 0x1FF);
-			activeDrawEnv.dtd = (code >> 9) & 1;
-			activeDrawEnv.dfe = (code >> 10) & 1;
-			break;
-		}
+			{
+				// DR_TPAGE
+				activeDrawEnv.tpage = (code & 0x1FF);
+				activeDrawEnv.dtd = (code >> 9) & 1;
+				// NOTE(aalhendi): CTR uses DR_TPAGE packets for blend changes inside the OT; PsyCross target selection must stay owned by DRAWENV.
+				// activeDrawEnv.dfe = (code >> 10) & 1;
+				break;
+			}
 		case 0x2:
 		{
 			// DR_TWIN
@@ -1496,8 +1497,11 @@ static int ProcessDrawEnv(P_TAG* polyTag)
 			break;
 		}
 		case 0:
-			// proceed to next primitive tag
-			return processedLongs;
+			// NOTE(aalhendi): A zero word can be terminal draw-env padding, or the tag word for the next primitive packed into the same OT entry.
+			// return processedLongs;
+			if (i + 1 != polyTag->len)
+				return processedLongs;
+			break;
 		}
 		++processedLongs;
 	}
