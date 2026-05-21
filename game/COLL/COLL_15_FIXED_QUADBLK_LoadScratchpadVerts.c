@@ -20,6 +20,7 @@ void COLL_FIXED_QUADBLK_LoadScratchpadVerts(struct ScratchpadStruct *sps)
 	u16 *index;
 
 	bsv = &sps->bspSearchVert[0];
+	*(u32 *)&sps->unkVecE8[2] = *(u32 *)&ptrQuad->index[2];
 
 	for (index = (u16 *)&ptrQuad->index[0]; index < (u16 *)&ptrQuad->index[9]; index++, bsv++)
 	{
