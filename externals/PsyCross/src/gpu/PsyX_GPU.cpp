@@ -1575,6 +1575,21 @@ int ParsePrimitive(P_TAG* polyTag)
 			MoveImage(&rect, x, y);
 			primLength = 5;
 		}
+		else if (primSubType == 0x2)
+		{
+			// NOTE(aalhendi): CTR emits retail FILL packets in OTs; PsyCross did
+			// not consume them, which caused zero-length primitive spam.
+			TILE* fill = (TILE*)polyTag;
+			RECT16 rect;
+
+			rect.x = fill->x0;
+			rect.y = fill->y0;
+			rect.w = fill->w;
+			rect.h = fill->h;
+
+			ClearImage(&rect, fill->r0, fill->g0, fill->b0);
+			primLength = 3;
+		}
 		break;
 	}
 	case 0x20:
