@@ -433,7 +433,10 @@ struct InstDrawPerPlayer
 	int instFlags;
 
 	// 0xbc
-	int unkbc;
+	s16 alphaScale;
+
+	// 0xbe
+	s16 splitLine;
 
 	// 0xc0 - origin of cur frame
 	// 0xc4 - origin of next frame
