@@ -1,7 +1,6 @@
 #include <common.h>
 
-// TODO(aalhendi): Source-backed damage-state dependency; audit NTSC-U 926
-// 0x80064568-0x80064be4 before ASM stamp.
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80064568-0x80064be4.
 int VehPickState_NewState(struct Driver *victimDriver, int damageType, struct Driver *attackDriver, int reason)
 {
 	int voice;
@@ -143,6 +142,11 @@ int VehPickState_NewState(struct Driver *victimDriver, int damageType, struct Dr
 		victimDriver->numTimesMotionlessPotionHitYou++;
 		break;
 
+	// hit by missile
+	case 3:
+		victimDriver->numTimesMissileHitYou++;
+		break;
+
 	default:
 		break;
 	}
@@ -203,13 +207,46 @@ int VehPickState_NewState(struct Driver *victimDriver, int damageType, struct Dr
 
 		// screenPosXY
 		attackDriver->BattleHUD.startX = pb->rect.x + posScreen[0];
-		attackDriver->BattleHUD.startY = pb->rect.y + posScreen[1];
+		attackDriver->BattleHUD.startY = pb->rect.y + posScreen[1] - 0x14;
 
 		// if-checked for Battle inside the function
 		RB_Player_KillPlayer(attackDriver, victimDriver);
 
 		// === Naughty Dog Bug ===
-		// original game has unreachable code here for QUIP data
+		// original game checks END_OF_RACE here for quip stores even though the outer guard
+		// already rejected END_OF_RACE before this block.
+
+		if ((attackDriver == victimDriver) && ((gameMode1 & POINT_LIMIT) != 0))
+		{
+			if (victimDriver->BattleHUD.cooldown == 5)
+			{
+				victimDriver->BattleHUD.scoreDelta--;
+			}
+			else
+			{
+				victimDriver->BattleHUD.scoreDelta = -1;
+			}
+		}
+		else
+		{
+			if (attackDriver->BattleHUD.cooldown == 5)
+			{
+				attackDriver->BattleHUD.scoreDelta++;
+			}
+			else
+			{
+				attackDriver->BattleHUD.scoreDelta = 1;
+			}
+		}
+
+		attackDriver->BattleHUD.cooldown = 5;
+		victimDriver->numTimesAttackedByPlayer[attackDriver->driverID]++;
+		attackDriver->numTimesAttackingPlayer[victimDriver->driverID]++;
+
+		if (attackDriver != victimDriver)
+		{
+			attackDriver->numTimesAttacking++;
+		}
 	}
 
 	// enable collision (remove flag that prevents collision)
