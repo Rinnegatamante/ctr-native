@@ -128,6 +128,11 @@ enum DrawLevelOvr1PClipBytes
 	DRAW_LEVEL_OVR1P_CLIP_BYTES_RENDERED = 1,
 };
 
+enum DrawLevelOvr1POtIndex
+{
+	DRAW_LEVEL_OVR1P_OT_INDEX_AUTO = -1,
+};
+
 static const u32 DRAW_LEVEL_OVR1P_SLOT_WORD_PRESERVE = 0xffffffff;
 
 struct DrawLevelOvr1PScratchVertex
@@ -1198,6 +1203,15 @@ static int DrawLevelOvr1P_GetProjectedOtIndex(const struct QuadBlock *block, con
 	return otIndex;
 }
 
+static int DrawLevelOvr1P_ResolveProjectedOtIndex(const struct QuadBlock *block, const struct DrawLevelOvr1PScratchVertex *projected, u32 maxDepth,
+                                                  int faceIndex, int otIndexOverride)
+{
+	if (otIndexOverride >= 0)
+		return otIndexOverride;
+
+	return DrawLevelOvr1P_GetProjectedOtIndex(block, projected, maxDepth, faceIndex);
+}
+
 static int DrawLevelOvr1P_ShouldSetSemiTransFromTpage(u16 tpage)
 {
 	// NOTE(aalhendi): Retail 226 direct/clip emit helpers use code 0x36/0x3e
@@ -1226,9 +1240,9 @@ static u32 DrawLevelOvr1P_SelectRawPrimitiveCode(u32 uv1Word, u32 semiTransCode,
 	return ((uv1Word & 0x00600000) != 0x00600000) ? semiTransCode : opaqueCode;
 }
 
-static int DrawLevelOvr1P_EmitPreparedProjectedQuadRaw(struct PushBuffer *pb, struct PrimMem *primMem, const struct QuadBlock *block,
-                                                       const struct DrawLevelOvr1PScratchVertex *projected, const int *indices, int faceIndex,
-                                                       const struct TextureLayout *texture, u32 maxDepth)
+static int DrawLevelOvr1P_EmitPreparedProjectedQuadRawAtOt(struct PushBuffer *pb, struct PrimMem *primMem, const struct QuadBlock *block,
+                                                           const struct DrawLevelOvr1PScratchVertex *projected, const int *indices, int faceIndex,
+                                                           const struct TextureLayout *texture, u32 maxDepth, int otIndexOverride)
 {
 	u32 *prim;
 	void *nextPrim;
@@ -1246,7 +1260,7 @@ static int DrawLevelOvr1P_EmitPreparedProjectedQuadRaw(struct PushBuffer *pb, st
 	uv1 = *CTR_SCRATCHPAD_PTR(u32, 0x1a4);
 	uv2 = *CTR_SCRATCHPAD_PTR(u32, 0x1a8);
 
-	otIndex = DrawLevelOvr1P_GetProjectedOtIndex(block, projected, maxDepth, faceIndex);
+	otIndex = DrawLevelOvr1P_ResolveProjectedOtIndex(block, projected, maxDepth, faceIndex, otIndexOverride);
 	code = texture != NULL ? DrawLevelOvr1P_SelectRawPrimitiveCode(uv1, 0x3e, 0x3c) : 0x3e;
 
 	prim[1] = DrawLevelOvr1P_GetProjectedColorCode(&projected[indices[0]], code);
@@ -1266,9 +1280,17 @@ static int DrawLevelOvr1P_EmitPreparedProjectedQuadRaw(struct PushBuffer *pb, st
 	return 1;
 }
 
-static int DrawLevelOvr1P_EmitPreparedProjectedTriRaw(struct PushBuffer *pb, struct PrimMem *primMem, const struct QuadBlock *block,
-                                                      const struct DrawLevelOvr1PScratchVertex *projected, const int *indices, int faceIndex,
-                                                      const struct TextureLayout *texture, u32 maxDepth)
+static int DrawLevelOvr1P_EmitPreparedProjectedQuadRaw(struct PushBuffer *pb, struct PrimMem *primMem, const struct QuadBlock *block,
+                                                       const struct DrawLevelOvr1PScratchVertex *projected, const int *indices, int faceIndex,
+                                                       const struct TextureLayout *texture, u32 maxDepth)
+{
+	return DrawLevelOvr1P_EmitPreparedProjectedQuadRawAtOt(pb, primMem, block, projected, indices, faceIndex, texture, maxDepth,
+	                                                       DRAW_LEVEL_OVR1P_OT_INDEX_AUTO);
+}
+
+static int DrawLevelOvr1P_EmitPreparedProjectedTriRawAtOt(struct PushBuffer *pb, struct PrimMem *primMem, const struct QuadBlock *block,
+                                                          const struct DrawLevelOvr1PScratchVertex *projected, const int *indices, int faceIndex,
+                                                          const struct TextureLayout *texture, u32 maxDepth, int otIndexOverride)
 {
 	u32 *prim;
 	void *nextPrim;
@@ -1286,7 +1308,7 @@ static int DrawLevelOvr1P_EmitPreparedProjectedTriRaw(struct PushBuffer *pb, str
 	uv1 = *CTR_SCRATCHPAD_PTR(u32, 0x1a4);
 	uv2 = *CTR_SCRATCHPAD_PTR(u32, 0x1a8);
 
-	otIndex = DrawLevelOvr1P_GetProjectedOtIndex(block, projected, maxDepth, faceIndex);
+	otIndex = DrawLevelOvr1P_ResolveProjectedOtIndex(block, projected, maxDepth, faceIndex, otIndexOverride);
 	code = texture != NULL ? DrawLevelOvr1P_SelectRawPrimitiveCode(uv1, 0x36, 0x34) : 0x36;
 
 	prim[1] = DrawLevelOvr1P_GetProjectedColorCode(&projected[indices[0]], code);
@@ -1301,6 +1323,13 @@ static int DrawLevelOvr1P_EmitPreparedProjectedTriRaw(struct PushBuffer *pb, str
 	DrawLevelOvr1P_AddRawPrimToOt(prim, 9, &pb->ptrOT[otIndex]);
 	primMem->curr = nextPrim;
 	return 1;
+}
+
+static int DrawLevelOvr1P_EmitPreparedProjectedTriRaw(struct PushBuffer *pb, struct PrimMem *primMem, const struct QuadBlock *block,
+                                                      const struct DrawLevelOvr1PScratchVertex *projected, const int *indices, int faceIndex,
+                                                      const struct TextureLayout *texture, u32 maxDepth)
+{
+	return DrawLevelOvr1P_EmitPreparedProjectedTriRawAtOt(pb, primMem, block, projected, indices, faceIndex, texture, maxDepth, DRAW_LEVEL_OVR1P_OT_INDEX_AUTO);
 }
 
 static int DrawLevelOvr1P_IsClipByteSet(u8 clipByte)
@@ -1514,8 +1543,9 @@ static u32 DrawLevelOvr1P_GetRenderedClipRecordHeader(const struct QuadBlock *bl
 	return header;
 }
 
-static int DrawLevelOvr1P_WriteRenderedClippedRecord(struct PushBuffer *pb, const struct QuadBlock *block, const struct DrawLevelOvr1PScratchVertex *projected,
-                                                     const int *indices, int count, int faceIndex, const struct TextureLayout *texture)
+static int DrawLevelOvr1P_WriteRenderedClippedRecordAtOt(struct PushBuffer *pb, const struct QuadBlock *block,
+                                                         const struct DrawLevelOvr1PScratchVertex *projected, const int *indices, int count, int faceIndex,
+                                                         const struct TextureLayout *texture, int otIndexOverride)
 {
 	struct DrawLevelOvr1PClipRecord *record;
 	u8 *cursor = DrawLevelOvr1P_GetClipRecordCursor();
@@ -1530,7 +1560,7 @@ static int DrawLevelOvr1P_WriteRenderedClippedRecord(struct PushBuffer *pb, cons
 		return 1;
 
 	maxDepth = DrawLevelOvr1P_GetPreparedProjectedMaxDepthCount(projected, indices, count);
-	otIndex = DrawLevelOvr1P_GetProjectedOtIndex(block, projected, maxDepth, faceIndex);
+	otIndex = DrawLevelOvr1P_ResolveProjectedOtIndex(block, projected, maxDepth, faceIndex, otIndexOverride);
 
 	record = (struct DrawLevelOvr1PClipRecord *)cursor;
 	record->header = DrawLevelOvr1P_GetRenderedClipRecordHeader(block, count);
@@ -1543,6 +1573,12 @@ static int DrawLevelOvr1P_WriteRenderedClippedRecord(struct PushBuffer *pb, cons
 
 	DrawLevelOvr1P_SetClipRecordCursor(cursor + recordSize);
 	return 1;
+}
+
+static int DrawLevelOvr1P_WriteRenderedClippedRecord(struct PushBuffer *pb, const struct QuadBlock *block, const struct DrawLevelOvr1PScratchVertex *projected,
+                                                     const int *indices, int count, int faceIndex, const struct TextureLayout *texture)
+{
+	return DrawLevelOvr1P_WriteRenderedClippedRecordAtOt(pb, block, projected, indices, count, faceIndex, texture, DRAW_LEVEL_OVR1P_OT_INDEX_AUTO);
 }
 
 static int DrawLevelOvr1P_WriteWaterRenderedClippedRecord(struct PushBuffer *pb, const struct QuadBlock *block,
@@ -1578,16 +1614,24 @@ static int DrawLevelOvr1P_WriteWaterRenderedClippedRecord(struct PushBuffer *pb,
 	return 1;
 }
 
-static int DrawLevelOvr1P_EmitRenderedClippedPolygonBridge(struct PushBuffer *pb, struct PrimMem *primMem, const struct QuadBlock *block,
-                                                           const struct DrawLevelOvr1PScratchVertex *projected, const int *indices, int count, int faceIndex,
-                                                           const struct TextureLayout *texture)
+static int DrawLevelOvr1P_EmitRenderedClippedPolygonBridgeAtOt(struct PushBuffer *pb, struct PrimMem *primMem, const struct QuadBlock *block,
+                                                               const struct DrawLevelOvr1PScratchVertex *projected, const int *indices, int count,
+                                                               int faceIndex, const struct TextureLayout *texture, int otIndexOverride)
 {
 	(void)primMem;
 
 	// TODO(aalhendi): Replace the native consumer below with retail 0x800aa790
 	// and its jump-table/GTE emit path. This side now writes retail-sized raw
 	// records matching 0x800a4dcc/0x800a4e70.
-	return DrawLevelOvr1P_WriteRenderedClippedRecord(pb, block, projected, indices, count, faceIndex, texture);
+	return DrawLevelOvr1P_WriteRenderedClippedRecordAtOt(pb, block, projected, indices, count, faceIndex, texture, otIndexOverride);
+}
+
+static int DrawLevelOvr1P_EmitRenderedClippedPolygonBridge(struct PushBuffer *pb, struct PrimMem *primMem, const struct QuadBlock *block,
+                                                           const struct DrawLevelOvr1PScratchVertex *projected, const int *indices, int count, int faceIndex,
+                                                           const struct TextureLayout *texture)
+{
+	return DrawLevelOvr1P_EmitRenderedClippedPolygonBridgeAtOt(pb, primMem, block, projected, indices, count, faceIndex, texture,
+	                                                           DRAW_LEVEL_OVR1P_OT_INDEX_AUTO);
 }
 
 static int DrawLevelOvr1P_EmitWaterRenderedClippedPolygonBridge(struct PushBuffer *pb, struct PrimMem *primMem, const struct QuadBlock *block,
@@ -2318,12 +2362,27 @@ static u32 DrawLevelOvr1P_GetDirectHandlerAddress(u32 directMask)
 static int DrawLevelOvr1P_EmitPreparedProjectedTriDirect(struct PushBuffer *pb, struct PrimMem *primMem, const struct QuadBlock *block,
                                                          const struct DrawLevelOvr1PScratchVertex *projected, const int *indices, int faceIndex,
                                                          const struct TextureLayout *texture, int writeClipBytes, int waterRenderedDirect);
+static int DrawLevelOvr1P_EmitPreparedProjectedTriDirectAtOt(struct PushBuffer *pb, struct PrimMem *primMem, const struct QuadBlock *block,
+                                                             const struct DrawLevelOvr1PScratchVertex *projected, const int *indices, int faceIndex,
+                                                             const struct TextureLayout *texture, int writeClipBytes, int waterRenderedDirect,
+                                                             int otIndexOverride);
 static int DrawLevelOvr1P_EmitPreparedProjectedQuadDirect(struct PushBuffer *pb, struct PrimMem *primMem, const struct QuadBlock *block,
                                                           const struct DrawLevelOvr1PScratchVertex *projected, const int *indices, int faceIndex,
                                                           const struct TextureLayout *texture, int writeClipBytes, int waterRenderedDirect);
+static int DrawLevelOvr1P_EmitPreparedProjectedQuadDirectAtOt(struct PushBuffer *pb, struct PrimMem *primMem, const struct QuadBlock *block,
+                                                              const struct DrawLevelOvr1PScratchVertex *projected, const int *indices, int faceIndex,
+                                                              const struct TextureLayout *texture, int writeClipBytes, int waterRenderedDirect,
+                                                              int otIndexOverride);
 static int DrawLevelOvr1P_EmitPreparedProjectedDirectMaskRaw(struct PushBuffer *pb, struct PrimMem *primMem, const struct QuadBlock *block,
                                                              const struct DrawLevelOvr1PScratchVertex *projected, const int *indices, int faceIndex,
                                                              const struct TextureLayout *texture, u32 directMask);
+static int DrawLevelOvr1P_EmitPreparedProjectedDirectMaskRawAtOt(struct PushBuffer *pb, struct PrimMem *primMem, const struct QuadBlock *block,
+                                                                 const struct DrawLevelOvr1PScratchVertex *projected, const int *indices, int faceIndex,
+                                                                 const struct TextureLayout *texture, u32 directMask, int otIndexOverride);
+static int DrawLevelOvr1P_EmitPreparedProjectedDirectMaskAtOt(struct PushBuffer *pb, struct PrimMem *primMem, const struct QuadBlock *block,
+                                                              const struct DrawLevelOvr1PScratchVertex *projected, const int *indices, int faceIndex,
+                                                              const struct TextureLayout *texture, u32 directMask, int writeClipBytes, int waterRenderedDirect,
+                                                              int otIndexOverride);
 
 static int DrawLevelOvr1P_IsListDirectHandlerAddress(u32 handlerAddress)
 {
@@ -2357,6 +2416,15 @@ static int DrawLevelOvr1P_EmitPreparedProjectedDirectMask(struct PushBuffer *pb,
                                                           const struct DrawLevelOvr1PScratchVertex *projected, const int *indices, int faceIndex,
                                                           const struct TextureLayout *texture, u32 directMask, int writeClipBytes, int waterRenderedDirect)
 {
+	return DrawLevelOvr1P_EmitPreparedProjectedDirectMaskAtOt(pb, primMem, block, projected, indices, faceIndex, texture, directMask, writeClipBytes,
+	                                                          waterRenderedDirect, DRAW_LEVEL_OVR1P_OT_INDEX_AUTO);
+}
+
+static int DrawLevelOvr1P_EmitPreparedProjectedDirectMaskAtOt(struct PushBuffer *pb, struct PrimMem *primMem, const struct QuadBlock *block,
+                                                              const struct DrawLevelOvr1PScratchVertex *projected, const int *indices, int faceIndex,
+                                                              const struct TextureLayout *texture, u32 directMask, int writeClipBytes, int waterRenderedDirect,
+                                                              int otIndexOverride)
+{
 	u32 handlerAddress = DrawLevelOvr1P_GetDirectHandlerAddress(directMask);
 
 	if (handlerAddress == 0)
@@ -2365,7 +2433,7 @@ static int DrawLevelOvr1P_EmitPreparedProjectedDirectMask(struct PushBuffer *pb,
 	// NOTE(aalhendi): Retail list-bucket direct handlers are raw packet writers
 	// after the caller's cull/direct-mask checks.
 	if (writeClipBytes == DRAW_LEVEL_OVR1P_CLIP_BYTES_LIST && !waterRenderedDirect && DrawLevelOvr1P_IsListDirectHandlerAddress(handlerAddress))
-		return DrawLevelOvr1P_EmitPreparedProjectedDirectMaskRaw(pb, primMem, block, projected, indices, faceIndex, texture, directMask);
+		return DrawLevelOvr1P_EmitPreparedProjectedDirectMaskRawAtOt(pb, primMem, block, projected, indices, faceIndex, texture, directMask, otIndexOverride);
 
 	// NOTE(aalhendi): Retail direct table offsets 4/8/12 map to GT3 primary,
 	// GT3 secondary, and GT4 handlers through scratch 0x188.
@@ -2385,8 +2453,8 @@ static int DrawLevelOvr1P_EmitPreparedProjectedDirectMask(struct PushBuffer *pb,
 	{
 		int triIndices[3] = {indices[0], indices[1], indices[2]};
 
-		return DrawLevelOvr1P_EmitPreparedProjectedTriDirect(pb, primMem, block, projected, triIndices, faceIndex, texture, writeClipBytes,
-		                                                     waterRenderedDirect);
+		return DrawLevelOvr1P_EmitPreparedProjectedTriDirectAtOt(pb, primMem, block, projected, triIndices, faceIndex, texture, writeClipBytes,
+		                                                         waterRenderedDirect, otIndexOverride);
 	}
 
 	case 0x800a1ce0:
@@ -2403,8 +2471,8 @@ static int DrawLevelOvr1P_EmitPreparedProjectedDirectMask(struct PushBuffer *pb,
 	{
 		int triIndices[3] = {indices[1], indices[3], indices[2]};
 
-		return DrawLevelOvr1P_EmitPreparedProjectedTriDirect(pb, primMem, block, projected, triIndices, faceIndex, texture, writeClipBytes,
-		                                                     waterRenderedDirect);
+		return DrawLevelOvr1P_EmitPreparedProjectedTriDirectAtOt(pb, primMem, block, projected, triIndices, faceIndex, texture, writeClipBytes,
+		                                                         waterRenderedDirect, otIndexOverride);
 	}
 
 	case 0x800a1d6c:
@@ -2418,7 +2486,8 @@ static int DrawLevelOvr1P_EmitPreparedProjectedDirectMask(struct PushBuffer *pb,
 	case 0x800a8888:
 	case 0x800a9704:
 	case 0x800aa4a8:
-		return DrawLevelOvr1P_EmitPreparedProjectedQuadDirect(pb, primMem, block, projected, indices, faceIndex, texture, writeClipBytes, waterRenderedDirect);
+		return DrawLevelOvr1P_EmitPreparedProjectedQuadDirectAtOt(pb, primMem, block, projected, indices, faceIndex, texture, writeClipBytes,
+		                                                          waterRenderedDirect, otIndexOverride);
 
 	default:
 		return 1;
@@ -2428,6 +2497,14 @@ static int DrawLevelOvr1P_EmitPreparedProjectedDirectMask(struct PushBuffer *pb,
 static int DrawLevelOvr1P_EmitPreparedProjectedDirectMaskRaw(struct PushBuffer *pb, struct PrimMem *primMem, const struct QuadBlock *block,
                                                              const struct DrawLevelOvr1PScratchVertex *projected, const int *indices, int faceIndex,
                                                              const struct TextureLayout *texture, u32 directMask)
+{
+	return DrawLevelOvr1P_EmitPreparedProjectedDirectMaskRawAtOt(pb, primMem, block, projected, indices, faceIndex, texture, directMask,
+	                                                             DRAW_LEVEL_OVR1P_OT_INDEX_AUTO);
+}
+
+static int DrawLevelOvr1P_EmitPreparedProjectedDirectMaskRawAtOt(struct PushBuffer *pb, struct PrimMem *primMem, const struct QuadBlock *block,
+                                                                 const struct DrawLevelOvr1PScratchVertex *projected, const int *indices, int faceIndex,
+                                                                 const struct TextureLayout *texture, u32 directMask, int otIndexOverride)
 {
 	u32 handlerAddress = DrawLevelOvr1P_GetDirectHandlerAddress(directMask);
 
@@ -2447,8 +2524,8 @@ static int DrawLevelOvr1P_EmitPreparedProjectedDirectMaskRaw(struct PushBuffer *
 	{
 		int triIndices[3] = {indices[0], indices[1], indices[2]};
 
-		return DrawLevelOvr1P_EmitPreparedProjectedTriRaw(pb, primMem, block, projected, triIndices, faceIndex, texture,
-		                                                  DrawLevelOvr1P_GetProjectedTriMaxDepth(projected, triIndices));
+		return DrawLevelOvr1P_EmitPreparedProjectedTriRawAtOt(pb, primMem, block, projected, triIndices, faceIndex, texture,
+		                                                      DrawLevelOvr1P_GetProjectedTriMaxDepth(projected, triIndices), otIndexOverride);
 	}
 
 	case 0x800a1ce0:
@@ -2460,8 +2537,8 @@ static int DrawLevelOvr1P_EmitPreparedProjectedDirectMaskRaw(struct PushBuffer *
 	{
 		int triIndices[3] = {indices[1], indices[3], indices[2]};
 
-		return DrawLevelOvr1P_EmitPreparedProjectedTriRaw(pb, primMem, block, projected, triIndices, faceIndex, texture,
-		                                                  DrawLevelOvr1P_GetProjectedTriMaxDepth(projected, triIndices));
+		return DrawLevelOvr1P_EmitPreparedProjectedTriRawAtOt(pb, primMem, block, projected, triIndices, faceIndex, texture,
+		                                                      DrawLevelOvr1P_GetProjectedTriMaxDepth(projected, triIndices), otIndexOverride);
 	}
 
 	case 0x800a1d6c:
@@ -2470,18 +2547,27 @@ static int DrawLevelOvr1P_EmitPreparedProjectedDirectMaskRaw(struct PushBuffer *
 	case 0x800a5d98:
 	case 0x800a7ae4:
 	case 0x800a9704:
-		return DrawLevelOvr1P_EmitPreparedProjectedQuadRaw(pb, primMem, block, projected, indices, faceIndex, texture,
-		                                                   DrawLevelOvr1P_GetProjectedMaxDepth(projected, indices));
+		return DrawLevelOvr1P_EmitPreparedProjectedQuadRawAtOt(pb, primMem, block, projected, indices, faceIndex, texture,
+		                                                       DrawLevelOvr1P_GetProjectedMaxDepth(projected, indices), otIndexOverride);
 
 	default:
-		return DrawLevelOvr1P_EmitPreparedProjectedDirectMask(pb, primMem, block, projected, indices, faceIndex, texture, directMask,
-		                                                      DRAW_LEVEL_OVR1P_CLIP_BYTES_LIST, 0);
+		return DrawLevelOvr1P_EmitPreparedProjectedDirectMaskAtOt(pb, primMem, block, projected, indices, faceIndex, texture, directMask,
+		                                                          DRAW_LEVEL_OVR1P_CLIP_BYTES_LIST, 0, otIndexOverride);
 	}
 }
 
 static int DrawLevelOvr1P_EmitPreparedProjectedTriDirect(struct PushBuffer *pb, struct PrimMem *primMem, const struct QuadBlock *block,
                                                          const struct DrawLevelOvr1PScratchVertex *projected, const int *indices, int faceIndex,
                                                          const struct TextureLayout *texture, int writeClipBytes, int waterRenderedDirect)
+{
+	return DrawLevelOvr1P_EmitPreparedProjectedTriDirectAtOt(pb, primMem, block, projected, indices, faceIndex, texture, writeClipBytes, waterRenderedDirect,
+	                                                         DRAW_LEVEL_OVR1P_OT_INDEX_AUTO);
+}
+
+static int DrawLevelOvr1P_EmitPreparedProjectedTriDirectAtOt(struct PushBuffer *pb, struct PrimMem *primMem, const struct QuadBlock *block,
+                                                             const struct DrawLevelOvr1PScratchVertex *projected, const int *indices, int faceIndex,
+                                                             const struct TextureLayout *texture, int writeClipBytes, int waterRenderedDirect,
+                                                             int otIndexOverride)
 {
 	(void)writeClipBytes;
 	(void)waterRenderedDirect;
@@ -2490,13 +2576,22 @@ static int DrawLevelOvr1P_EmitPreparedProjectedTriDirect(struct PushBuffer *pb, 
 	// the rendered/list projection paths store as 0/1, so GT3 stays direct here.
 	// Terminal direct handlers write raw packets after the caller-side cull.
 
-	return DrawLevelOvr1P_EmitPreparedProjectedTriRaw(pb, primMem, block, projected, indices, faceIndex, texture,
-	                                                  DrawLevelOvr1P_GetProjectedTriMaxDepth(projected, indices));
+	return DrawLevelOvr1P_EmitPreparedProjectedTriRawAtOt(pb, primMem, block, projected, indices, faceIndex, texture,
+	                                                      DrawLevelOvr1P_GetProjectedTriMaxDepth(projected, indices), otIndexOverride);
 }
 
 static int DrawLevelOvr1P_EmitPreparedProjectedQuadDirect(struct PushBuffer *pb, struct PrimMem *primMem, const struct QuadBlock *block,
                                                           const struct DrawLevelOvr1PScratchVertex *projected, const int *indices, int faceIndex,
                                                           const struct TextureLayout *texture, int writeClipBytes, int waterRenderedDirect)
+{
+	return DrawLevelOvr1P_EmitPreparedProjectedQuadDirectAtOt(pb, primMem, block, projected, indices, faceIndex, texture, writeClipBytes, waterRenderedDirect,
+	                                                          DRAW_LEVEL_OVR1P_OT_INDEX_AUTO);
+}
+
+static int DrawLevelOvr1P_EmitPreparedProjectedQuadDirectAtOt(struct PushBuffer *pb, struct PrimMem *primMem, const struct QuadBlock *block,
+                                                              const struct DrawLevelOvr1PScratchVertex *projected, const int *indices, int faceIndex,
+                                                              const struct TextureLayout *texture, int writeClipBytes, int waterRenderedDirect,
+                                                              int otIndexOverride)
 {
 	if (writeClipBytes && !waterRenderedDirect)
 		DrawLevelOvr1P_StoreRenderedClipRecordHeader(*CTR_SCRATCHPAD_PTR(u32, 0x194));
@@ -2511,14 +2606,14 @@ static int DrawLevelOvr1P_EmitPreparedProjectedQuadDirect(struct PushBuffer *pb,
 			if (waterRenderedDirect)
 				return DrawLevelOvr1P_EmitWaterRenderedClippedPolygonBridge(pb, primMem, block, projected, indices, 4, faceIndex);
 
-			return DrawLevelOvr1P_EmitRenderedClippedPolygonBridge(pb, primMem, block, projected, indices, 4, faceIndex, texture);
+			return DrawLevelOvr1P_EmitRenderedClippedPolygonBridgeAtOt(pb, primMem, block, projected, indices, 4, faceIndex, texture, otIndexOverride);
 		}
 	}
 
 	// NOTE(aalhendi): Retail GT4 terminal direct handlers have no second
 	// screen-space cull after the caller-side direct-mask reduction.
-	return DrawLevelOvr1P_EmitPreparedProjectedQuadRaw(pb, primMem, block, projected, indices, faceIndex, texture,
-	                                                   DrawLevelOvr1P_GetProjectedMaxDepth(projected, indices));
+	return DrawLevelOvr1P_EmitPreparedProjectedQuadRawAtOt(pb, primMem, block, projected, indices, faceIndex, texture,
+	                                                       DrawLevelOvr1P_GetProjectedMaxDepth(projected, indices), otIndexOverride);
 }
 
 static int DrawLevelOvr1P_EmitPreparedProjectedDirect(struct PushBuffer *pb, struct PrimMem *primMem, const struct QuadBlock *block,
@@ -2571,7 +2666,11 @@ static void DrawLevelOvr1P_BuildGridSubdivisionFrame4x4(struct DrawLevelOvr1PScr
 
 static int DrawLevelOvr1P_EmitDeepestProjectedDirect(struct PushBuffer *pb, struct PrimMem *primMem, const struct QuadBlock *block,
                                                      const struct DrawLevelOvr1PScratchVertex *projected, const int *indices, int faceIndex,
-                                                     const struct TextureLayout *texture, u32 tableWord, int writeClipBytes, u32 allowedMask)
+                                                     const struct TextureLayout *texture, u32 tableWord, int writeClipBytes, u32 allowedMask);
+static int DrawLevelOvr1P_EmitDeepestProjectedDirectAtOt(struct PushBuffer *pb, struct PrimMem *primMem, const struct QuadBlock *block,
+                                                         const struct DrawLevelOvr1PScratchVertex *projected, const int *indices, int faceIndex,
+                                                         const struct TextureLayout *texture, u32 tableWord, int writeClipBytes, u32 allowedMask,
+                                                         int otIndexOverride)
 {
 	u32 directMask;
 	int result;
@@ -2580,10 +2679,42 @@ static int DrawLevelOvr1P_EmitDeepestProjectedDirect(struct PushBuffer *pb, stru
 	if (texture != NULL && DrawLevelOvr1P_GetDirectHandlerAddress(directMask) != 0)
 		DrawLevelOvr1P_PrepareDeepestMosaicUv(projected, indices);
 
-	result = DrawLevelOvr1P_EmitPreparedProjectedDirectMask(pb, primMem, block, projected, indices, faceIndex, texture, directMask, writeClipBytes, 0);
+	result = DrawLevelOvr1P_EmitPreparedProjectedDirectMaskAtOt(pb, primMem, block, projected, indices, faceIndex, texture, directMask, writeClipBytes, 0,
+	                                                            otIndexOverride);
 
 	// NOTE(aalhendi): Retail 0x800a4000/0x800a4be0 restores the saved UV words
 	// after deepest-frame direct-handler dispatch.
+	DrawLevelOvr1P_RestoreProjectedUvScratch();
+
+	return result;
+}
+
+static int DrawLevelOvr1P_EmitDeepestProjectedDirect(struct PushBuffer *pb, struct PrimMem *primMem, const struct QuadBlock *block,
+                                                     const struct DrawLevelOvr1PScratchVertex *projected, const int *indices, int faceIndex,
+                                                     const struct TextureLayout *texture, u32 tableWord, int writeClipBytes, u32 allowedMask)
+{
+	return DrawLevelOvr1P_EmitDeepestProjectedDirectAtOt(pb, primMem, block, projected, indices, faceIndex, texture, tableWord, writeClipBytes, allowedMask,
+	                                                     DRAW_LEVEL_OVR1P_OT_INDEX_AUTO);
+}
+
+static int DrawLevelOvr1P_EmitDeepestProjectedDirectStoredMask(struct PushBuffer *pb, struct PrimMem *primMem, const struct QuadBlock *block,
+                                                               const struct DrawLevelOvr1PScratchVertex *projected, const int *indices, int faceIndex,
+                                                               const struct TextureLayout *texture, u32 directMask, int writeClipBytes);
+static int DrawLevelOvr1P_EmitDeepestProjectedDirectStoredMaskAtOt(struct PushBuffer *pb, struct PrimMem *primMem, const struct QuadBlock *block,
+                                                                   const struct DrawLevelOvr1PScratchVertex *projected, const int *indices, int faceIndex,
+                                                                   const struct TextureLayout *texture, u32 directMask, int writeClipBytes, int otIndexOverride)
+{
+	int result;
+
+	*CTR_SCRATCHPAD_PTR(u32, 0x70) = directMask;
+	if (texture != NULL && DrawLevelOvr1P_GetDirectHandlerAddress(directMask) != 0)
+		DrawLevelOvr1P_PrepareDeepestMosaicUv(projected, indices);
+
+	result = DrawLevelOvr1P_EmitPreparedProjectedDirectMaskAtOt(pb, primMem, block, projected, indices, faceIndex, texture, directMask, writeClipBytes, 0,
+	                                                            otIndexOverride);
+
+	// NOTE(aalhendi): Retail deepest-frame dispatch restores saved UV scratch
+	// after jumping through the current direct table mask.
 	DrawLevelOvr1P_RestoreProjectedUvScratch();
 
 	return result;
@@ -2593,24 +2724,16 @@ static int DrawLevelOvr1P_EmitDeepestProjectedDirectStoredMask(struct PushBuffer
                                                                const struct DrawLevelOvr1PScratchVertex *projected, const int *indices, int faceIndex,
                                                                const struct TextureLayout *texture, u32 directMask, int writeClipBytes)
 {
-	int result;
-
-	*CTR_SCRATCHPAD_PTR(u32, 0x70) = directMask;
-	if (texture != NULL && DrawLevelOvr1P_GetDirectHandlerAddress(directMask) != 0)
-		DrawLevelOvr1P_PrepareDeepestMosaicUv(projected, indices);
-
-	result = DrawLevelOvr1P_EmitPreparedProjectedDirectMask(pb, primMem, block, projected, indices, faceIndex, texture, directMask, writeClipBytes, 0);
-
-	// NOTE(aalhendi): Retail deepest-frame dispatch restores saved UV scratch
-	// after jumping through the current direct table mask.
-	DrawLevelOvr1P_RestoreProjectedUvScratch();
-
-	return result;
+	return DrawLevelOvr1P_EmitDeepestProjectedDirectStoredMaskAtOt(pb, primMem, block, projected, indices, faceIndex, texture, directMask, writeClipBytes,
+	                                                               DRAW_LEVEL_OVR1P_OT_INDEX_AUTO);
 }
 
 static int DrawLevelOvr1P_EmitDeepestProjectedDirectMask(struct PushBuffer *pb, struct PrimMem *primMem, const struct QuadBlock *block,
                                                          const struct DrawLevelOvr1PScratchVertex *projected, const int *indices, int faceIndex,
-                                                         const struct TextureLayout *texture, u32 directMask, int writeClipBytes)
+                                                         const struct TextureLayout *texture, u32 directMask, int writeClipBytes);
+static int DrawLevelOvr1P_EmitDeepestProjectedDirectMaskAtOt(struct PushBuffer *pb, struct PrimMem *primMem, const struct QuadBlock *block,
+                                                             const struct DrawLevelOvr1PScratchVertex *projected, const int *indices, int faceIndex,
+                                                             const struct TextureLayout *texture, u32 directMask, int writeClipBytes, int otIndexOverride)
 {
 	int result;
 
@@ -2620,12 +2743,20 @@ static int DrawLevelOvr1P_EmitDeepestProjectedDirectMask(struct PushBuffer *pb, 
 	if (texture != NULL && DrawLevelOvr1P_GetDirectHandlerAddress(directMask) != 0)
 		DrawLevelOvr1P_PrepareDeepestMosaicUv(projected, indices);
 
-	result = DrawLevelOvr1P_EmitPreparedProjectedDirectMaskRaw(pb, primMem, block, projected, indices, faceIndex, texture, directMask);
+	result = DrawLevelOvr1P_EmitPreparedProjectedDirectMaskRawAtOt(pb, primMem, block, projected, indices, faceIndex, texture, directMask, otIndexOverride);
 
 	// NOTE(aalhendi): Deepest-frame direct dispatch preserves the caller's saved UV words.
 	DrawLevelOvr1P_RestoreProjectedUvScratch();
 
 	return result;
+}
+
+static int DrawLevelOvr1P_EmitDeepestProjectedDirectMask(struct PushBuffer *pb, struct PrimMem *primMem, const struct QuadBlock *block,
+                                                         const struct DrawLevelOvr1PScratchVertex *projected, const int *indices, int faceIndex,
+                                                         const struct TextureLayout *texture, u32 directMask, int writeClipBytes)
+{
+	return DrawLevelOvr1P_EmitDeepestProjectedDirectMaskAtOt(pb, primMem, block, projected, indices, faceIndex, texture, directMask, writeClipBytes,
+	                                                         DRAW_LEVEL_OVR1P_OT_INDEX_AUTO);
 }
 
 static int DrawLevelOvr1P_GetCopiedRecursiveHandlerSlot(u32 handlerAddress)
@@ -2643,11 +2774,12 @@ static int DrawLevelOvr1P_GetCopiedRecursiveHandlerSlot(u32 handlerAddress)
 
 static int DrawLevelOvr1P_EmitProjectedGridNearClippedBridge(struct PushBuffer *pb, struct PrimMem *primMem, const struct QuadBlock *block,
                                                              const struct DrawLevelOvr1PScratchVertex *projected, const int *indices, int faceIndex,
-                                                             const struct TextureLayout *texture, u32 nearMask, int depth, int writeClipBytes, u32 allowedMask);
+                                                             const struct TextureLayout *texture, u32 nearMask, int depth, int writeClipBytes, u32 allowedMask,
+                                                             int inheritedOtIndex);
 
 static int DrawLevelOvr1P_EmitProjectedGridFaceCommon(struct PushBuffer *pb, struct PrimMem *primMem, const struct QuadBlock *block,
                                                       const struct DrawLevelOvr1PScratchVertex *projected, const int *indices, int faceIndex,
-                                                      const struct TextureLayout *texture, int depth, int writeClipBytes, u32 allowedMask)
+                                                      const struct TextureLayout *texture, int depth, int writeClipBytes, u32 allowedMask, int inheritedOtIndex)
 {
 	u32 directMask;
 	u32 nearMask;
@@ -2676,10 +2808,11 @@ static int DrawLevelOvr1P_EmitProjectedGridFaceCommon(struct PushBuffer *pb, str
 
 			DrawLevelOvr1P_SetPreviousRecursiveHandler(handlerAddress);
 			return DrawLevelOvr1P_EmitProjectedGridNearClippedBridge(pb, primMem, block, projected, indices, faceIndex, texture, nearMask, depth,
-			                                                         writeClipBytes, directMask);
+			                                                         writeClipBytes, directMask, inheritedOtIndex);
 		}
 
-		return DrawLevelOvr1P_EmitPreparedProjectedDirectMask(pb, primMem, block, projected, indices, faceIndex, texture, directMask, writeClipBytes, 0);
+		return DrawLevelOvr1P_EmitPreparedProjectedDirectMaskAtOt(pb, primMem, block, projected, indices, faceIndex, texture, directMask, writeClipBytes, 0,
+		                                                          inheritedOtIndex);
 	}
 
 	if (DrawLevelOvr1P_IsProjectedFaceOffscreen(pb, projected, indices))
@@ -2698,17 +2831,19 @@ static int DrawLevelOvr1P_EmitProjectedGridFaceCommon(struct PushBuffer *pb, str
 
 		DrawLevelOvr1P_SetPreviousRecursiveHandler(handlerAddress);
 		return DrawLevelOvr1P_EmitProjectedGridNearClippedBridge(pb, primMem, block, projected, indices, faceIndex, texture, nearMask, depth, writeClipBytes,
-		                                                         directMask);
+		                                                         directMask, inheritedOtIndex);
 	}
 
-	return DrawLevelOvr1P_EmitPreparedProjectedDirectMask(pb, primMem, block, projected, indices, faceIndex, texture, directMask, writeClipBytes, 0);
+	return DrawLevelOvr1P_EmitPreparedProjectedDirectMaskAtOt(pb, primMem, block, projected, indices, faceIndex, texture, directMask, writeClipBytes, 0,
+	                                                          inheritedOtIndex);
 }
 
 static int DrawLevelOvr1P_EmitProjectedGridFace(struct PushBuffer *pb, struct PrimMem *primMem, const struct QuadBlock *block,
                                                 const struct DrawLevelOvr1PScratchVertex *projected, const int *indices, int faceIndex,
-                                                const struct TextureLayout *texture, int depth, int writeClipBytes, u32 allowedMask)
+                                                const struct TextureLayout *texture, int depth, int writeClipBytes, u32 allowedMask, int inheritedOtIndex)
 {
-	return DrawLevelOvr1P_EmitProjectedGridFaceCommon(pb, primMem, block, projected, indices, faceIndex, texture, depth, writeClipBytes, allowedMask);
+	return DrawLevelOvr1P_EmitProjectedGridFaceCommon(pb, primMem, block, projected, indices, faceIndex, texture, depth, writeClipBytes, allowedMask,
+	                                                  inheritedOtIndex);
 }
 
 static int DrawLevelOvr1P_IsDeepestSubdivisionFrame(const struct DrawLevelOvr1PScratchVertex *projected)
@@ -2799,7 +2934,8 @@ static const struct DrawLevelOvr1PNearSubdivisionCase *DrawLevelOvr1P_GetDeepest
 
 static int DrawLevelOvr1P_DispatchProjectedGridDeepestCompact(struct PushBuffer *pb, struct PrimMem *primMem, const struct QuadBlock *block,
                                                               const struct DrawLevelOvr1PScratchVertex *projected, int faceIndex, int depth,
-                                                              const struct TextureLayout *texture, int writeClipBytes, u32 allowedMask, int slot)
+                                                              const struct TextureLayout *texture, int writeClipBytes, u32 allowedMask, int slot,
+                                                              int inheritedOtIndex)
 {
 	const struct DrawLevelOvr1PNearSubdivisionCase *subdivisionCase = DrawLevelOvr1P_GetDeepestGridCompactCase(slot);
 
@@ -2816,7 +2952,7 @@ static int DrawLevelOvr1P_DispatchProjectedGridDeepestCompact(struct PushBuffer 
 			DrawLevelOvr1P_SetGridFaceSlotWord(projected, subdivisionCase->slotWords[i]);
 
 		if (!DrawLevelOvr1P_EmitProjectedGridFace(pb, primMem, block, projected, subIndices, faceIndex, texture, depth, writeClipBytes,
-		                                          subdivisionCase->directMasks[i] & allowedMask))
+		                                          subdivisionCase->directMasks[i] & allowedMask, inheritedOtIndex))
 			return 0;
 	}
 
@@ -2825,7 +2961,8 @@ static int DrawLevelOvr1P_DispatchProjectedGridDeepestCompact(struct PushBuffer 
 
 static int DrawLevelOvr1P_DispatchProjectedGridHelper(struct PushBuffer *pb, struct PrimMem *primMem, const struct QuadBlock *block,
                                                       const struct DrawLevelOvr1PScratchVertex *projected, int faceIndex, int depth,
-                                                      const struct TextureLayout *texture, u32 handlerAddress, int writeClipBytes, u32 allowedMask)
+                                                      const struct TextureLayout *texture, u32 handlerAddress, int writeClipBytes, u32 allowedMask,
+                                                      int inheritedOtIndex)
 {
 	int slot = DrawLevelOvr1P_GetCopiedRecursiveHandlerSlot(handlerAddress);
 	const u32 allowedQuad = DRAW_LEVEL_OVR1P_DIRECT_QUAD & allowedMask;
@@ -2833,7 +2970,8 @@ static int DrawLevelOvr1P_DispatchProjectedGridHelper(struct PushBuffer *pb, str
 	const u32 allowedTriSecondary = DRAW_LEVEL_OVR1P_DIRECT_TRI_SECONDARY & allowedMask;
 
 	if (DrawLevelOvr1P_HandlerUsesDeepestCompactGrid(handlerAddress) && DrawLevelOvr1P_IsDeepestSubdivisionFrame(projected))
-		return DrawLevelOvr1P_DispatchProjectedGridDeepestCompact(pb, primMem, block, projected, faceIndex, depth, texture, writeClipBytes, allowedMask, slot);
+		return DrawLevelOvr1P_DispatchProjectedGridDeepestCompact(pb, primMem, block, projected, faceIndex, depth, texture, writeClipBytes, allowedMask, slot,
+		                                                          inheritedOtIndex);
 
 	// NOTE(aalhendi): Non-4x1 ground helper tables share the 3x3 subdivision
 	// topology used by water-rendered, but emit through ground direct handlers.
@@ -2842,112 +2980,113 @@ static int DrawLevelOvr1P_DispatchProjectedGridHelper(struct PushBuffer *pb, str
 	{
 	case 0:
 		if (!DrawLevelOvr1P_EmitProjectedGridFace(pb, primMem, block, projected, sDrawLevelOvr1PGridMixedFaceIndices[0], faceIndex, texture, depth,
-		                                          writeClipBytes, allowedQuad))
+		                                          writeClipBytes, allowedQuad, inheritedOtIndex))
 			return 0;
 		if (!DrawLevelOvr1P_EmitProjectedGridFace(pb, primMem, block, projected, sDrawLevelOvr1PGridMixedFaceIndices[1], faceIndex, texture, depth,
-		                                          writeClipBytes, allowedQuad))
+		                                          writeClipBytes, allowedQuad, inheritedOtIndex))
 			return 0;
 		return DrawLevelOvr1P_EmitProjectedGridFace(pb, primMem, block, projected, sDrawLevelOvr1PGridFaceIndices[0], faceIndex, texture, depth, writeClipBytes,
-		                                            allowedQuad);
+		                                            allowedQuad, inheritedOtIndex);
 	case 1:
 		if (!DrawLevelOvr1P_EmitProjectedGridFace(pb, primMem, block, projected, sDrawLevelOvr1PGridFaceIndices[1], faceIndex, texture, depth, writeClipBytes,
-		                                          allowedQuad))
+		                                          allowedQuad, inheritedOtIndex))
 			return 0;
 		if (!DrawLevelOvr1P_EmitProjectedGridFace(pb, primMem, block, projected, sDrawLevelOvr1PGridExtraFaceIndices[2], faceIndex, texture, depth,
-		                                          writeClipBytes, allowedQuad))
+		                                          writeClipBytes, allowedQuad, inheritedOtIndex))
 			return 0;
 		return DrawLevelOvr1P_EmitProjectedGridFace(pb, primMem, block, projected, sDrawLevelOvr1PGridExtraFaceIndices[3], faceIndex, texture, depth,
-		                                            writeClipBytes, allowedQuad);
+		                                            writeClipBytes, allowedQuad, inheritedOtIndex);
 	case 2:
 		if (!DrawLevelOvr1P_EmitProjectedGridFace(pb, primMem, block, projected, sDrawLevelOvr1PGridExtraFaceIndices[3], faceIndex, texture, depth,
-		                                          writeClipBytes, allowedQuad))
+		                                          writeClipBytes, allowedQuad, inheritedOtIndex))
 			return 0;
 		if (!DrawLevelOvr1P_EmitProjectedGridFace(pb, primMem, block, projected, sDrawLevelOvr1PGridFaceIndices[2], faceIndex, texture, depth, writeClipBytes,
-		                                          allowedTriPrimary))
+		                                          allowedTriPrimary, inheritedOtIndex))
 			return 0;
 		if (!DrawLevelOvr1P_EmitProjectedGridFace(pb, primMem, block, projected, sDrawLevelOvr1PGridFaceIndices[0], faceIndex, texture, depth, writeClipBytes,
-		                                          allowedQuad))
+		                                          allowedQuad, inheritedOtIndex))
 			return 0;
 		return DrawLevelOvr1P_EmitProjectedGridFace(pb, primMem, block, projected, sDrawLevelOvr1PGridFaceIndices[1], faceIndex, texture, depth, writeClipBytes,
-		                                            allowedQuad);
+		                                            allowedQuad, inheritedOtIndex);
 	case 3:
 		if (!DrawLevelOvr1P_EmitProjectedGridFace(pb, primMem, block, projected, sDrawLevelOvr1PGridExtraFaceIndices[0], faceIndex, texture, depth,
-		                                          writeClipBytes, allowedQuad))
+		                                          writeClipBytes, allowedQuad, inheritedOtIndex))
 			return 0;
 		if (!DrawLevelOvr1P_EmitProjectedGridFace(pb, primMem, block, projected, sDrawLevelOvr1PGridFaceIndices[2], faceIndex, texture, depth, writeClipBytes,
-		                                          allowedQuad))
+		                                          allowedQuad, inheritedOtIndex))
 			return 0;
 		return DrawLevelOvr1P_EmitProjectedGridFace(pb, primMem, block, projected, sDrawLevelOvr1PGridExtraFaceIndices[1], faceIndex, texture, depth,
-		                                            writeClipBytes, allowedQuad);
+		                                            writeClipBytes, allowedQuad, inheritedOtIndex);
 	case 4:
 		if (!DrawLevelOvr1P_EmitProjectedGridFace(pb, primMem, block, projected, sDrawLevelOvr1PGridExtraFaceIndices[1], faceIndex, texture, depth,
-		                                          writeClipBytes, allowedQuad))
+		                                          writeClipBytes, allowedQuad, inheritedOtIndex))
 			return 0;
 		if (!DrawLevelOvr1P_EmitProjectedGridFace(pb, primMem, block, projected, sDrawLevelOvr1PGridFaceIndices[1], faceIndex, texture, depth, writeClipBytes,
-		                                          allowedTriPrimary))
+		                                          allowedTriPrimary, inheritedOtIndex))
 			return 0;
 		if (!DrawLevelOvr1P_EmitProjectedGridFace(pb, primMem, block, projected, sDrawLevelOvr1PGridFaceIndices[0], faceIndex, texture, depth, writeClipBytes,
-		                                          allowedQuad))
+		                                          allowedQuad, inheritedOtIndex))
 			return 0;
 		return DrawLevelOvr1P_EmitProjectedGridFace(pb, primMem, block, projected, sDrawLevelOvr1PGridFaceIndices[2], faceIndex, texture, depth, writeClipBytes,
-		                                            allowedQuad);
+		                                            allowedQuad, inheritedOtIndex);
 	case 7:
 		if (!DrawLevelOvr1P_EmitProjectedGridFace(pb, primMem, block, projected, sDrawLevelOvr1PGridMixedFaceIndices[2], faceIndex, texture, depth,
-		                                          writeClipBytes, allowedQuad))
+		                                          writeClipBytes, allowedQuad, inheritedOtIndex))
 			return 0;
 		if (!DrawLevelOvr1P_EmitProjectedGridFace(pb, primMem, block, projected, sDrawLevelOvr1PGridMixedFaceIndices[3], faceIndex, texture, depth,
-		                                          writeClipBytes, allowedQuad))
+		                                          writeClipBytes, allowedQuad, inheritedOtIndex))
 			return 0;
 		return DrawLevelOvr1P_EmitProjectedGridFace(pb, primMem, block, projected, sDrawLevelOvr1PGridFaceIndices[3], faceIndex, texture, depth, writeClipBytes,
-		                                            allowedQuad);
+		                                            allowedQuad, inheritedOtIndex);
 	case 9:
 		if (!DrawLevelOvr1P_EmitProjectedGridFace(pb, primMem, block, projected, sDrawLevelOvr1PGridExtraFaceIndices[2], faceIndex, texture, depth,
-		                                          writeClipBytes, allowedQuad))
+		                                          writeClipBytes, allowedQuad, inheritedOtIndex))
 			return 0;
 		if (!DrawLevelOvr1P_EmitProjectedGridFace(pb, primMem, block, projected, sDrawLevelOvr1PGridFaceIndices[2], faceIndex, texture, depth, writeClipBytes,
-		                                          allowedTriSecondary))
+		                                          allowedTriSecondary, inheritedOtIndex))
 			return 0;
 		if (!DrawLevelOvr1P_EmitProjectedGridFace(pb, primMem, block, projected, sDrawLevelOvr1PGridFaceIndices[1], faceIndex, texture, depth, writeClipBytes,
-		                                          allowedQuad))
+		                                          allowedQuad, inheritedOtIndex))
 			return 0;
 		return DrawLevelOvr1P_EmitProjectedGridFace(pb, primMem, block, projected, sDrawLevelOvr1PGridFaceIndices[3], faceIndex, texture, depth, writeClipBytes,
-		                                            allowedQuad);
+		                                            allowedQuad, inheritedOtIndex);
 	case 11:
 		if (!DrawLevelOvr1P_EmitProjectedGridFace(pb, primMem, block, projected, sDrawLevelOvr1PGridExtraFaceIndices[0], faceIndex, texture, depth,
-		                                          writeClipBytes, allowedQuad))
+		                                          writeClipBytes, allowedQuad, inheritedOtIndex))
 			return 0;
 		if (!DrawLevelOvr1P_EmitProjectedGridFace(pb, primMem, block, projected, sDrawLevelOvr1PGridFaceIndices[1], faceIndex, texture, depth, writeClipBytes,
-		                                          allowedTriSecondary))
+		                                          allowedTriSecondary, inheritedOtIndex))
 			return 0;
 		if (!DrawLevelOvr1P_EmitProjectedGridFace(pb, primMem, block, projected, sDrawLevelOvr1PGridFaceIndices[2], faceIndex, texture, depth, writeClipBytes,
-		                                          allowedQuad))
+		                                          allowedQuad, inheritedOtIndex))
 			return 0;
 		return DrawLevelOvr1P_EmitProjectedGridFace(pb, primMem, block, projected, sDrawLevelOvr1PGridFaceIndices[3], faceIndex, texture, depth, writeClipBytes,
-		                                            allowedQuad);
+		                                            allowedQuad, inheritedOtIndex);
 	default:
 		break;
 	}
 
 	DrawLevelOvr1P_SetGridFaceSlotWord(projected, DrawLevelOvr1P_GetDefaultGridFaceSlotWord(handlerAddress, 0));
 	if (!DrawLevelOvr1P_EmitProjectedGridFace(pb, primMem, block, projected, sDrawLevelOvr1PGridFaceIndices[0], faceIndex, texture, depth, writeClipBytes,
-	                                          allowedQuad))
+	                                          allowedQuad, inheritedOtIndex))
 		return 0;
 	DrawLevelOvr1P_SetGridFaceSlotWord(projected, DrawLevelOvr1P_GetDefaultGridFaceSlotWord(handlerAddress, 1));
 	if (!DrawLevelOvr1P_EmitProjectedGridFace(pb, primMem, block, projected, sDrawLevelOvr1PGridFaceIndices[1], faceIndex, texture, depth, writeClipBytes,
-	                                          allowedQuad))
+	                                          allowedQuad, inheritedOtIndex))
 		return 0;
 	DrawLevelOvr1P_SetGridFaceSlotWord(projected, DrawLevelOvr1P_GetDefaultGridFaceSlotWord(handlerAddress, 2));
 	if (!DrawLevelOvr1P_EmitProjectedGridFace(pb, primMem, block, projected, sDrawLevelOvr1PGridFaceIndices[2], faceIndex, texture, depth, writeClipBytes,
-	                                          allowedQuad))
+	                                          allowedQuad, inheritedOtIndex))
 		return 0;
 	DrawLevelOvr1P_SetGridFaceSlotWord(projected, DrawLevelOvr1P_GetDefaultGridFaceSlotWord(handlerAddress, 3));
 	return DrawLevelOvr1P_EmitProjectedGridFace(pb, primMem, block, projected, sDrawLevelOvr1PGridFaceIndices[3], faceIndex, texture, depth, writeClipBytes,
-	                                            allowedQuad);
+	                                            allowedQuad, inheritedOtIndex);
 }
 
 static int DrawLevelOvr1P_EmitProjectedGridNearClippedBridge(struct PushBuffer *pb, struct PrimMem *primMem, const struct QuadBlock *block,
                                                              const struct DrawLevelOvr1PScratchVertex *projected, const int *indices, int faceIndex,
-                                                             const struct TextureLayout *texture, u32 nearMask, int depth, int writeClipBytes, u32 allowedMask)
+                                                             const struct TextureLayout *texture, u32 nearMask, int depth, int writeClipBytes, u32 allowedMask,
+                                                             int inheritedOtIndex)
 {
 	struct DrawLevelOvr1PScratchVertex *sub;
 	u32 handlerAddress;
@@ -2955,10 +3094,11 @@ static int DrawLevelOvr1P_EmitProjectedGridNearClippedBridge(struct PushBuffer *
 	if (depth >= DRAW_LEVEL_OVR1P_MAX_NEAR_SUBDIV_DEPTH)
 	{
 		if (writeClipBytes)
-			return DrawLevelOvr1P_EmitDeepestProjectedDirectStoredMask(pb, primMem, block, projected, indices, faceIndex, texture, allowedMask, writeClipBytes);
+			return DrawLevelOvr1P_EmitDeepestProjectedDirectStoredMaskAtOt(pb, primMem, block, projected, indices, faceIndex, texture, allowedMask,
+			                                                               writeClipBytes, inheritedOtIndex);
 
-		return DrawLevelOvr1P_EmitDeepestProjectedDirect(pb, primMem, block, projected, indices, faceIndex, texture, *CTR_SCRATCHPAD_PTR(u32, 0x194),
-		                                                 writeClipBytes, allowedMask);
+		return DrawLevelOvr1P_EmitDeepestProjectedDirectAtOt(pb, primMem, block, projected, indices, faceIndex, texture, *CTR_SCRATCHPAD_PTR(u32, 0x194),
+		                                                     writeClipBytes, allowedMask, inheritedOtIndex);
 	}
 
 	handlerAddress = DrawLevelOvr1P_GetNearSubdivisionHandlerAddress(nearMask, writeClipBytes);
@@ -2969,12 +3109,14 @@ static int DrawLevelOvr1P_EmitProjectedGridNearClippedBridge(struct PushBuffer *
 	else
 		DrawLevelOvr1P_BuildGridSubdivisionFrame(sub, projected, indices, writeClipBytes);
 
-	return DrawLevelOvr1P_DispatchProjectedGridHelper(pb, primMem, block, sub, faceIndex, depth + 1, texture, handlerAddress, writeClipBytes, allowedMask);
+	return DrawLevelOvr1P_DispatchProjectedGridHelper(pb, primMem, block, sub, faceIndex, depth + 1, texture, handlerAddress, writeClipBytes, allowedMask,
+	                                                  inheritedOtIndex);
 }
 
 static int DrawLevelOvr1P_EmitProjectedNearClippedBridge(struct PushBuffer *pb, struct PrimMem *primMem, const struct QuadBlock *block,
                                                          const struct DrawLevelOvr1PScratchVertex *projected, const int *indices, int faceIndex,
-                                                         const struct TextureLayout *texture, u32 nearMask, int depth, int writeClipBytes, u32 allowedMask)
+                                                         const struct TextureLayout *texture, u32 nearMask, int depth, int writeClipBytes, u32 allowedMask,
+                                                         int inheritedOtIndex)
 {
 	struct DrawLevelOvr1PScratchVertex *sub;
 	const struct DrawLevelOvr1PNearSubdivisionCase *subdivisionCase;
@@ -2986,12 +3128,13 @@ static int DrawLevelOvr1P_EmitProjectedNearClippedBridge(struct PushBuffer *pb, 
 	if (depth >= DRAW_LEVEL_OVR1P_MAX_NEAR_SUBDIV_DEPTH)
 	{
 		if (writeClipBytes)
-			return DrawLevelOvr1P_EmitDeepestProjectedDirectStoredMask(pb, primMem, block, projected, indices, faceIndex, texture, allowedMask, writeClipBytes);
+			return DrawLevelOvr1P_EmitDeepestProjectedDirectStoredMaskAtOt(pb, primMem, block, projected, indices, faceIndex, texture, allowedMask,
+			                                                               writeClipBytes, inheritedOtIndex);
 
 		// NOTE(aalhendi): At the deepest retail scratch frame, 0x800a3f74 /
 		// 0x800a4b54 stop recursing and fall through to the direct table.
-		return DrawLevelOvr1P_EmitDeepestProjectedDirect(pb, primMem, block, projected, indices, faceIndex, texture, *CTR_SCRATCHPAD_PTR(u32, 0x194),
-		                                                 writeClipBytes, allowedMask);
+		return DrawLevelOvr1P_EmitDeepestProjectedDirectAtOt(pb, primMem, block, projected, indices, faceIndex, texture, *CTR_SCRATCHPAD_PTR(u32, 0x194),
+		                                                     writeClipBytes, allowedMask, inheritedOtIndex);
 	}
 
 	handlerAddress = DrawLevelOvr1P_GetNearSubdivisionHandlerAddress(nearMask, writeClipBytes);
@@ -2999,7 +3142,7 @@ static int DrawLevelOvr1P_EmitProjectedNearClippedBridge(struct PushBuffer *pb, 
 	subdivisionCase = DrawLevelOvr1P_FindCompactNearSubdivisionCase(handlerAddress);
 	if (subdivisionCase == NULL)
 		return DrawLevelOvr1P_EmitProjectedGridNearClippedBridge(pb, primMem, block, projected, indices, faceIndex, texture, nearMask, depth, writeClipBytes,
-		                                                         allowedMask);
+		                                                         allowedMask, inheritedOtIndex);
 
 	sub = DrawLevelOvr1P_GetSubdivisionFrame(depth);
 
@@ -3037,11 +3180,11 @@ static int DrawLevelOvr1P_EmitProjectedNearClippedBridge(struct PushBuffer *pb, 
 				DrawLevelOvr1P_SetPreviousRecursiveHandler(DrawLevelOvr1P_GetNearSubdivisionHandlerAddress(subNearMask, writeClipBytes));
 
 				if (!DrawLevelOvr1P_EmitProjectedNearClippedBridge(pb, primMem, block, sub, subIndices, faceIndex, texture, subNearMask, depth + 1,
-				                                                   writeClipBytes, renderedDirectMask))
+				                                                   writeClipBytes, renderedDirectMask, inheritedOtIndex))
 					return 0;
 			}
-			else if (!DrawLevelOvr1P_EmitPreparedProjectedDirectMask(pb, primMem, block, sub, subIndices, faceIndex, texture, renderedDirectMask,
-			                                                         writeClipBytes, 0))
+			else if (!DrawLevelOvr1P_EmitPreparedProjectedDirectMaskAtOt(pb, primMem, block, sub, subIndices, faceIndex, texture, renderedDirectMask,
+			                                                             writeClipBytes, 0, inheritedOtIndex))
 			{
 				return 0;
 			}
@@ -3069,10 +3212,11 @@ static int DrawLevelOvr1P_EmitProjectedNearClippedBridge(struct PushBuffer *pb, 
 				DrawLevelOvr1P_SetPreviousRecursiveHandler(DrawLevelOvr1P_GetNearSubdivisionHandlerAddress(subNearMask, writeClipBytes));
 
 				if (!DrawLevelOvr1P_EmitProjectedNearClippedBridge(pb, primMem, block, sub, subIndices, faceIndex, texture, subNearMask, depth + 1,
-				                                                   writeClipBytes, directMask))
+				                                                   writeClipBytes, directMask, inheritedOtIndex))
 					return 0;
 			}
-			else if (!DrawLevelOvr1P_EmitPreparedProjectedDirectMask(pb, primMem, block, sub, subIndices, faceIndex, texture, directMask, writeClipBytes, 0))
+			else if (!DrawLevelOvr1P_EmitPreparedProjectedDirectMaskAtOt(pb, primMem, block, sub, subIndices, faceIndex, texture, directMask, writeClipBytes, 0,
+			                                                             inheritedOtIndex))
 			{
 				return 0;
 			}
@@ -3090,6 +3234,7 @@ static int DrawLevelOvr1P_EmitProjectedGroundQuadAllowed(struct PushBuffer *pb, 
 	u32 directMask;
 	u32 maxDepth;
 	u32 nearMask;
+	int inheritedOtIndex;
 
 	if (writeClipBytes && DrawLevelOvr1P_IsProjectedFaceFullyNear(projected, indices))
 		return 1;
@@ -3104,6 +3249,7 @@ static int DrawLevelOvr1P_EmitProjectedGroundQuadAllowed(struct PushBuffer *pb, 
 		*CTR_SCRATCHPAD_PTR(u32, 0x70) = directMask;
 
 		maxDepth = DrawLevelOvr1P_GetProjectedMaxDepth(projected, indices);
+		inheritedOtIndex = DrawLevelOvr1P_GetProjectedOtIndex(block, projected, maxDepth, faceIndex);
 		texture = DrawLevelOvr1P_GetProjectedMidTexture(block, projected, faceIndex, maxDepth);
 
 		if (texture != 0)
@@ -3112,9 +3258,10 @@ static int DrawLevelOvr1P_EmitProjectedGroundQuadAllowed(struct PushBuffer *pb, 
 		nearMask = DrawLevelOvr1P_GetProjectedNearMaskForMode(projected, indices, writeClipBytes);
 		if (nearMask != 0)
 			return DrawLevelOvr1P_EmitProjectedNearClippedBridge(pb, primMem, block, projected, indices, faceIndex, texture, nearMask, 0, writeClipBytes,
-			                                                     directMask);
+			                                                     directMask, inheritedOtIndex);
 
-		return DrawLevelOvr1P_EmitPreparedProjectedDirectMask(pb, primMem, block, projected, indices, faceIndex, texture, directMask, writeClipBytes, 0);
+		return DrawLevelOvr1P_EmitPreparedProjectedDirectMaskAtOt(pb, primMem, block, projected, indices, faceIndex, texture, directMask, writeClipBytes, 0,
+		                                                          inheritedOtIndex);
 	}
 
 	if (DrawLevelOvr1P_IsProjectedFaceOffscreen(pb, projected, indices))
@@ -3127,6 +3274,7 @@ static int DrawLevelOvr1P_EmitProjectedGroundQuadAllowed(struct PushBuffer *pb, 
 		return 1;
 
 	maxDepth = DrawLevelOvr1P_GetProjectedMaxDepth(projected, indices);
+	inheritedOtIndex = DrawLevelOvr1P_GetProjectedOtIndex(block, projected, maxDepth, faceIndex);
 	texture = DrawLevelOvr1P_GetProjectedMidTexture(block, projected, faceIndex, maxDepth);
 
 	if (texture != 0)
@@ -3135,9 +3283,10 @@ static int DrawLevelOvr1P_EmitProjectedGroundQuadAllowed(struct PushBuffer *pb, 
 	nearMask = DrawLevelOvr1P_GetProjectedNearMaskForMode(projected, indices, writeClipBytes);
 	if (nearMask != 0)
 		return DrawLevelOvr1P_EmitProjectedNearClippedBridge(pb, primMem, block, projected, indices, faceIndex, texture, nearMask, 0, writeClipBytes,
-		                                                     directMask);
+		                                                     directMask, inheritedOtIndex);
 
-	return DrawLevelOvr1P_EmitPreparedProjectedDirectMask(pb, primMem, block, projected, indices, faceIndex, texture, directMask, writeClipBytes, 0);
+	return DrawLevelOvr1P_EmitPreparedProjectedDirectMaskAtOt(pb, primMem, block, projected, indices, faceIndex, texture, directMask, writeClipBytes, 0,
+	                                                          inheritedOtIndex);
 }
 
 static int DrawLevelOvr1P_EmitProjectedGroundQuad(struct PushBuffer *pb, struct PrimMem *primMem, struct DrawLevelOvr1PScratchVertex *projected,
