@@ -1,5 +1,20 @@
 #include <common.h>
 
+#if defined(CTR_NATIVE)
+static void MainInit_InitNativeBotNavPaths(struct GameTracker *gGT)
+{
+	// TODO(aalhendi): Port full BOTS_Adv_AdjustDifficulty; native needs its
+	// nav setup tail for race-end BOTS_Driver_Convert.
+	for (s16 i = 0; i < 3; i++)
+	{
+		DECOMP_LIST_Clear(&sdata->navBotList[i]);
+		BOTS_InitNavPath(gGT, i);
+	}
+
+	BOTS_SetGlobalNavData(0);
+}
+#endif
+
 void DECOMP_MainInit_Drivers(struct GameTracker *gGT)
 {
 	char i;
@@ -14,7 +29,12 @@ void DECOMP_MainInit_Drivers(struct GameTracker *gGT)
 
 	gGT->numBotsNextGame = 0;
 
-#ifndef REBUILD_PS1
+#if defined(CTR_NATIVE)
+	if ((gameMode & (GAME_CUTSCENE | ADVENTURE_ARENA | MAIN_MENU)) == 0)
+	{
+		MainInit_InitNativeBotNavPaths(gGT);
+	}
+#elif !defined(REBUILD_PS1)
 	if ((gameMode & (GAME_CUTSCENE | ADVENTURE_ARENA | MAIN_MENU)) == 0)
 	{
 		BOTS_Adv_AdjustDifficulty();

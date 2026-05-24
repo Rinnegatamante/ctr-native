@@ -1,9 +1,10 @@
 #include <common.h>
 
-void DECOMP_BOTS_InitNavPath(struct GameTracker *gGT, s16 index)
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80012440-0x80012560
+void BOTS_InitNavPath(struct GameTracker *gGT, s16 index)
 {
 	struct NavHeader *nh = 0;
-	struct NavHeader **LevNavTable = gGT->level1->LevNavTable;
+	struct NavHeader **LevNavTable = sdata->gGT->level1->LevNavTable;
 
 	if (LevNavTable != 0)
 	{
@@ -35,8 +36,7 @@ void DECOMP_BOTS_InitNavPath(struct GameTracker *gGT, s16 index)
 
 		sdata->NavPath_ptrNavFrameArray[index] = NAVHEADER_GETFRAME(&sdata->blank_NavHeader);
 
-		// dont bother setting numNavPoints in header to zero,
-		// it's already zero
+		sdata->NavPath_ptrHeader[index]->numPoints = 0;
 	}
 
 	// save number of points
@@ -52,4 +52,9 @@ void DECOMP_BOTS_InitNavPath(struct GameTracker *gGT, s16 index)
 	sdata->nav_ptrFirstPoint = sdata->NavPath_ptrNavFrameArray[index];
 
 	return;
+}
+
+void DECOMP_BOTS_InitNavPath(struct GameTracker *gGT, s16 index)
+{
+	BOTS_InitNavPath(gGT, index);
 }

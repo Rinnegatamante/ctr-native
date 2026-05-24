@@ -1,6 +1,7 @@
 #include <common.h>
 
-void DECOMP_BOTS_SetGlobalNavData(s16 index)
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800123e0-0x80012440
+void BOTS_SetGlobalNavData(u16 index)
 {
 	sdata->lastPathIndex = index;
 
@@ -11,4 +12,9 @@ void DECOMP_BOTS_SetGlobalNavData(s16 index)
 	sdata->nav_ptrLastPoint = &sdata->nav_ptrFirstPoint[sdata->nav_NumPointsOnPath];
 
 	return;
+}
+
+void DECOMP_BOTS_SetGlobalNavData(s16 index)
+{
+	BOTS_SetGlobalNavData(index);
 }

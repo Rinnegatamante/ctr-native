@@ -1083,6 +1083,8 @@ void MultiplayerWumpaHUD(struct GameTracker *gGT)
 {
 	if ((gGT->hudFlags & 1) == 0)
 		return;
+	if (gGT->numPlyrCurrGame < 2)
+		return;
 
 	// Remove manually at end-of-race
 	for (int i = 0; i < gGT->numPlyrCurrGame; i++)

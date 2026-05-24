@@ -95,6 +95,8 @@
 #define VehFire_Audio               DECOMP_VehFire_Audio
 #define VehFire_Increment           DECOMP_VehFire_Increment
 #define VehPickupItem_MaskUseWeapon DECOMP_VehPickupItem_MaskUseWeapon
+#include "game/BOTS/BOTS_00_SetGlobalNavData.c"
+#include "game/BOTS/BOTS_01_InitNavPath.c"
 #include "game/BOTS/BOTS_06_SetRotation.c"
 #include "game/BOTS/BOTS_07_LevInstColl.c"
 #include "game/BOTS/BOTS_08_ThTick_RevEngine.c"
