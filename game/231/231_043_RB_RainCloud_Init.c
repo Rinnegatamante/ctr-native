@@ -1,5 +1,6 @@
 #include <common.h>
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b1220-0x800b1458.
 void DECOMP_RB_RainCloud_Init(struct Driver *d)
 {
 	struct Instance *cloudInst;
@@ -86,4 +87,9 @@ void DECOMP_RB_RainCloud_Init(struct Driver *d)
 		rcloud->boolScrollItem = (s16)((rng % 400) / 100);
 	}
 	return;
+}
+
+void RB_RainCloud_Init(struct Driver *d)
+{
+	DECOMP_RB_RainCloud_Init(d);
 }

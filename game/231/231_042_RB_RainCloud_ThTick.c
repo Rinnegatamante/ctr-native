@@ -1,5 +1,6 @@
 #include <common.h>
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b1000-0x800b1220.
 void DECOMP_RB_RainCloud_ThTick(struct Thread *t)
 {
 	s16 animFrame;
@@ -71,23 +72,11 @@ void DECOMP_RB_RainCloud_ThTick(struct Thread *t)
 			if (rcloud->boolScrollItem != 1)
 				return;
 
-// skip this, cause RainCloud_Init
-// already checks before setting bool
-#if 0
-      if (d->heldItemID == 0xf)
-        return;
-      if (d->noItemTimer != 0)
-        return;
-#endif
+			if (d->heldItemID == 0xf)
+				return;
 
-			// === Have weapon, have not used it yet ===
-
-
-			// === Naughty Dog Bug fixed ===
-			// Allow warpball to be found in itemRNG
-			// if the warpball "was" held, then lost
-			if (d->heldItemID == 9)
-				gGT->gameMode1 &= ~(WARPBALL_HELD);
+			if (d->noItemTimer != 0)
+				return;
 
 			// set weapon to "weapon roulette" to make it spin
 			d->heldItemID = 0x10;
@@ -120,6 +109,11 @@ void DECOMP_RB_RainCloud_ThTick(struct Thread *t)
 	rcloud->timeMS = 0;
 	d->thCloud = NULL;
 
-	ThTick_SetAndExec(t, DECOMP_RB_RainCloud_FadeAway);
+	ThTick_SetAndExec(t, RB_RainCloud_FadeAway);
 	return;
+}
+
+void RB_RainCloud_ThTick(struct Thread *t)
+{
+	DECOMP_RB_RainCloud_ThTick(t);
 }

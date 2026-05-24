@@ -2,6 +2,7 @@
 
 // budget 216/224
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b0f1c-0x800b1000.
 void RB_RainCloud_FadeAway(struct Thread *t)
 {
 	struct Instance *inst;
