@@ -1,5 +1,6 @@
 #include <common.h>
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x8003cf7c-0x8003cfc0
 void DECOMP_MainRaceTrack_StartLoad(s16 levelID)
 
 {

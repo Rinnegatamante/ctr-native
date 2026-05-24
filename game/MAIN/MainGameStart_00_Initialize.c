@@ -1,8 +1,9 @@
 #include <common.h>
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x8003aee8-0x8003af84
 void DECOMP_MainGameStart_Initialize(struct GameTracker *gGT, char boolStopAudio)
 {
-	u32 gameModeFlag = gGT->gameMode1 & ~(END_OF_RACE); // Remove end-of-race flag
+	u32 gameModeFlag;
 
 	// DotLights_AudioAndVideo wont execute
 	// if (gGT & 0x20102000 == 0), but if it did execute,
@@ -11,15 +12,13 @@ void DECOMP_MainGameStart_Initialize(struct GameTracker *gGT, char boolStopAudio
 	// when spawning in the adventure arena
 
 	// if you're not in cutscene and not in main menu
-	if ((gGT->gameMode1 & (GAME_CUTSCENE | MAIN_MENU)) == 0)
+	if ((sdata->gGT->gameMode1 & (GAME_CUTSCENE | MAIN_MENU)) == 0)
 	{
 		// traffic light countdown
 		gGT->trafficLightsTimer = 0xf00;
 
-#if !defined(REBUILD_PS1) || defined(CTR_NATIVE)
 		// fly-in camera animation
-		gameModeFlag |= START_OF_RACE;
-#endif
+		gameModeFlag = gGT->gameMode1 | START_OF_RACE;
 	}
 	// if you are:
 	else
@@ -28,11 +27,12 @@ void DECOMP_MainGameStart_Initialize(struct GameTracker *gGT, char boolStopAudio
 		gGT->trafficLightsTimer = 0;
 
 		// no fly-in camera
-		gameModeFlag &= ~(START_OF_RACE);
+		gameModeFlag = gGT->gameMode1 & ~(START_OF_RACE);
 	}
 
 	// save new game mode
 	gGT->gameMode1 = gameModeFlag;
+	gGT->gameMode1 &= ~(END_OF_RACE); // Remove end-of-race flag
 
 	// this never happens in normal gameplay
 	if (boolStopAudio == 0)

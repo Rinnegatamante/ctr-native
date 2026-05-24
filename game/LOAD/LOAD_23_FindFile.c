@@ -1,5 +1,6 @@
 #include <common.h>
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80032438-0x80032498
 int DECOMP_LOAD_FindFile(char *filename, CdlFILE *cdlFile)
 {
 	if (filename == 0)

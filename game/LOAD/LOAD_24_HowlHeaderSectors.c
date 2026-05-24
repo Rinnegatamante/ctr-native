@@ -1,19 +1,16 @@
 #include <common.h>
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80032498-0x8003254c
 int DECOMP_LOAD_HowlHeaderSectors(CdlFILE *cdlFileHWL, void *ptrDestination, int firstSector, int numSector)
 {
 	CdlLOC loc;
 
 	DECOMP_CDSYS_SetMode_StreamData();
 
-// This will never fail. HowlHeaderSectors will load 1 sector
-// for the beginning of the header, then that says how big the
-// rest of the header is, then load more sectors to complete header
-#if 0
 	// Return error, if reading out-of-bounds after the end of KART HWL
 	int sizeOver = ((firstSector + numSector) * 0x800 - cdlFileHWL->size);
-	if (sizeOver >= 0x800 ) return 0;
-#endif
+	if (sizeOver >= 0x800)
+		return 0;
 
 	CdIntToPos(CdPosToInt(&cdlFileHWL->pos) + firstSector, &loc);
 
