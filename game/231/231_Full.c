@@ -35,9 +35,10 @@
 #include "231_033_RB_Warpball_TurnAround.c"
 #include "231_034_RB_Warpball_ThTick.c"
 
-// TODO(aalhendi): 037-038 are the remaining mask / shield cluster.
 #include "231_035_RB_MaskWeapon_FadeAway.c"
 #include "231_036_RB_MaskWeapon_ThTick.c"
+#include "231_037_RB_ShieldDark_ThTick_Pop.c"
+#include "231_038_RB_ShieldDark_ThTick_Grow.c"
 #include "231_039_RB_Player_ToggleInvisible.c"
 #include "231_040_RB_Player_ToggleFlicker.c"
 #include "231_041_RB_RainCloud_FadeAway.c"

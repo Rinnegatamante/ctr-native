@@ -1,5 +1,17 @@
 #include <common.h>
 
+void DECOMP_RB_ShieldDark_ThTick_Pop(struct Thread *t);
+
+static const s16 s_shieldGrowScale[8][2] = {
+    {977, 1835}, {1792, 2936}, {2205, 2095}, {2335, 1254}, {1884, 1612}, {1433, 1971}, {1612, 1881}, {1792, 1792},
+};
+
+static const s16 s_shieldPulseScale[6][2] = {
+    {1845, 1756}, {1899, 1720}, {1971, 1684}, {1899, 1720}, {1845, 1756}, {1792, 1792},
+};
+
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b0454-0x800b0dbc.
+// NOTE(aalhendi): Native uses extracted shield scale tables from RDATA 0x800b2cf4 and 0x800b2d40.
 void DECOMP_RB_ShieldDark_ThTick_Grow(struct Thread *th)
 {
 	u16 shieldFlags;
@@ -128,8 +140,8 @@ void DECOMP_RB_ShieldDark_ThTick_Grow(struct Thread *th)
 	// if animation is not done
 	if (shield->animFrame < 8)
 	{
-		scaleXZ = ((int *)0x800b2cf4)[shield->animFrame * 2 + 0];
-		scaleY = ((int *)0x800b2cf4)[shield->animFrame * 2 + 1];
+		scaleXZ = s_shieldGrowScale[shield->animFrame][0];
+		scaleY = s_shieldGrowScale[shield->animFrame][1];
 
 		// set scale
 		shieldInst->scale[0] = scaleXZ;
@@ -150,8 +162,8 @@ void DECOMP_RB_ShieldDark_ThTick_Grow(struct Thread *th)
 	{
 		s16 timerIndex = ((gGT->timer >> 0) % 6);
 
-		scaleXZ = ((s16 *)0x800b2d40)[timerIndex * 2 + 0];
-		scaleY = ((s16 *)0x800b2d40)[timerIndex * 2 + 1];
+		scaleXZ = s_shieldPulseScale[timerIndex][0];
+		scaleY = s_shieldPulseScale[timerIndex][1];
 
 		// set scale
 		shieldInst->scale[0] = scaleXZ;
@@ -224,7 +236,6 @@ void DECOMP_RB_ShieldDark_ThTick_Grow(struct Thread *th)
 		player->instBubbleHold = NULL;
 
 		// execute, then assign per-frame funcPtr to thread
-		void DECOMP_RB_ShieldDark_ThTick_Pop();
 		ThTick_SetAndExec(th, DECOMP_RB_ShieldDark_ThTick_Pop);
 		return;
 	}
@@ -309,4 +320,9 @@ LAB_800b0d6c:
 
 	// This thread is now dead
 	th->flags |= 0x800;
+}
+
+void RB_ShieldDark_ThTick_Grow(struct Thread *th)
+{
+	DECOMP_RB_ShieldDark_ThTick_Grow(th);
 }

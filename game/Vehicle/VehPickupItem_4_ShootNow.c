@@ -3,6 +3,7 @@
 void DECOMP_RB_GenericMine_ThTick(struct Thread *t);
 u16 DECOMP_RB_Hazard_CollLevInst(struct ScratchpadStruct *sps, struct Thread *th);
 void DECOMP_RB_GenericMine_ThDestroy(struct Thread *t, struct Instance *inst, struct MineWeapon *mw);
+void RB_ShieldDark_ThTick_Grow(struct Thread *t);
 void RB_Warpball_ThTick(struct Thread *t);
 struct CheckpointNode *RB_Warpball_NewPathNode(struct CheckpointNode *ptrNodeCurr, struct Driver *victim);
 void RB_Warpball_Start(struct TrackerWeapon *tw);
@@ -457,7 +458,7 @@ void DECOMP_VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 		}
 		break;
 
-#ifndef REBUILD_PS1
+#if !defined(REBUILD_PS1) || defined(CTR_NATIVE)
 	// Shield Bubble
 	case 6:
 
@@ -472,9 +473,9 @@ void DECOMP_VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 		if (d->numWumpas >= 10)
 			modelID = DYNAMIC_SHIELD;
 
-		struct Instance *instColor = INSTANCE_Birth3D(gGT->modelPtr[modelID], 0, 0);
+		struct Instance *instColor = DECOMP_INSTANCE_Birth3D(gGT->modelPtr[modelID], 0, 0);
 
-		struct Instance *instHighlight = INSTANCE_Birth3D(gGT->modelPtr[DYNAMIC_HIGHLIGHT], 0, weaponTh);
+		struct Instance *instHighlight = DECOMP_INSTANCE_Birth3D(gGT->modelPtr[DYNAMIC_HIGHLIGHT], 0, weaponTh);
 
 		weaponInst->alphaScale = 0x400;
 
