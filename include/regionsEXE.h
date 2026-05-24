@@ -3513,8 +3513,9 @@ struct sData
 	char s_tnt1[8];
 	char s_beaker1[8];
 
-	// 8008d660
-	int boolIsMaskThreadAlive;
+	// 8008d65c
+	u8 boolIsMaskThreadAlive;
+	u8 boolIsMaskThreadAlive_pad[3];
 
 	// 8008d660
 	char s_head[8];
@@ -4429,7 +4430,8 @@ struct sData
 	// both talkMask variables
 
 	// 8008da00
-	int talkMask_boolDead;
+	u8 talkMask_boolDead;
+	u8 talkMask_boolDead_pad[3];
 
 	// 8008da04
 	// return address, from entry() back to bios,
