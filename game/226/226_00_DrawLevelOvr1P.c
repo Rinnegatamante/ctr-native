@@ -1858,7 +1858,6 @@ static void DrawLevelOvr1P_ProjectClipRecordVertex(struct DrawLevelOvr1PScratchV
 	*(u32 *)&projected->pos[0] = *(const u32 *)&src->pos[0];
 	*(u32 *)&projected->pos[2] = *(const u32 *)&src->pos[2];
 	*(u32 *)&projected->color_hi[0] = *(const u32 *)&src->color_hi[0];
-	projected->color_hi[3] = 0;
 
 	gte_ldv0(&projected->pos[0]);
 	// NOTE(aalhendi): Retail 0x800aa86c/0x800aa8b0/0x800aa8e8/0x800aaee4 uses LLV0BK for this source-vector transform.
@@ -1874,6 +1873,26 @@ static void DrawLevelOvr1P_ProjectClipRecordVertex(struct DrawLevelOvr1PScratchV
 	projected->posScreen[1] = DrawLevelOvr1P_ShiftLeft1S16Wrap(ir[1]);
 	projected->depth = (u16)DrawLevelOvr1P_ShiftLeft1S16Wrap(ir[2]);
 	DrawLevelOvr1P_SetClipRecordSourceDelta(projected, (s16)((s32)ir[2] - threshold));
+}
+
+static u32 DrawLevelOvr1P_GetClipRecordProjectedNearMask(const struct DrawLevelOvr1PScratchVertex *projected, int count)
+{
+	static const u32 bits[4] = {0x4, 0x8, 0x10, 0x20};
+	u32 mask = 0;
+
+	for (int i = 0; i < count; i++)
+	{
+		if (DrawLevelOvr1P_IsClipByteSet(projected[i].color_hi[3]))
+			mask |= bits[i];
+	}
+
+	return mask;
+}
+
+static void DrawLevelOvr1P_ClearClipRecordProjectedNearBytes(struct DrawLevelOvr1PScratchVertex *projected, int count)
+{
+	for (int i = 0; i < count; i++)
+		projected[i].color_hi[3] = 0;
 }
 
 static void DrawLevelOvr1P_InterpolateClipRecordVertex(struct DrawLevelOvr1PScratchVertex *dst, const struct DrawLevelOvr1PScratchVertex *inside,
@@ -1915,12 +1934,12 @@ static u32 DrawLevelOvr1P_GetClipRecordJumpAddress(int count, u32 nearMask)
 }
 
 static int DrawLevelOvr1P_EmitClipRecordGT3Table(struct PushBuffer *pb, struct PrimMem *primMem, u_long *otEntry,
-                                                 const struct DrawLevelOvr1PScratchVertex *projected, u32 nearMask,
-                                                 const struct DrawLevelOvr1PClipRecord *record)
+                                                 const struct DrawLevelOvr1PScratchVertex *projected, const struct DrawLevelOvr1PClipRecord *record)
 {
 	struct DrawLevelOvr1PScratchVertex *work = DrawLevelOvr1P_GetClipRecordWorkspace();
 	int indices[4];
 	u32 handlerAddress;
+	u32 nearMask;
 
 	if (work != projected)
 	{
@@ -1928,6 +1947,11 @@ static int DrawLevelOvr1P_EmitClipRecordGT3Table(struct PushBuffer *pb, struct P
 		work[1] = projected[1];
 		work[2] = projected[2];
 	}
+
+	// NOTE(aalhendi): Retail 0x800aa934..0x800aa968 reads the projected
+	// scratch near bytes to select the GT3 table, then clears those bytes.
+	nearMask = DrawLevelOvr1P_GetClipRecordProjectedNearMask(work, 3);
+	DrawLevelOvr1P_ClearClipRecordProjectedNearBytes(work, 3);
 	handlerAddress = DrawLevelOvr1P_GetClipRecordJumpAddress(3, nearMask);
 
 	// NOTE(aalhendi): Retail dispatches through scratch 0x240; native keeps the handler bodies as C cases keyed by the copied retail addresses.
@@ -2010,11 +2034,11 @@ static int DrawLevelOvr1P_EmitClipRecordTableQuad(struct PushBuffer *pb, struct 
 }
 
 static int DrawLevelOvr1P_EmitClipRecordGT4Table(struct PushBuffer *pb, struct PrimMem *primMem, u_long *otEntry,
-                                                 const struct DrawLevelOvr1PScratchVertex *projected, u32 nearMask,
-                                                 const struct DrawLevelOvr1PClipRecord *record)
+                                                 const struct DrawLevelOvr1PScratchVertex *projected, const struct DrawLevelOvr1PClipRecord *record)
 {
 	struct DrawLevelOvr1PScratchVertex *work = DrawLevelOvr1P_GetClipRecordWorkspace();
 	u32 handlerAddress;
+	u32 nearMask;
 
 	if (work != projected)
 	{
@@ -2023,6 +2047,11 @@ static int DrawLevelOvr1P_EmitClipRecordGT4Table(struct PushBuffer *pb, struct P
 		work[2] = projected[2];
 		work[3] = projected[3];
 	}
+
+	// NOTE(aalhendi): Retail 0x800aaf28..0x800aaf6c mirrors the GT3 path for
+	// GT4 records, including the table-select clear of the source near bytes.
+	nearMask = DrawLevelOvr1P_GetClipRecordProjectedNearMask(work, 4);
+	DrawLevelOvr1P_ClearClipRecordProjectedNearBytes(work, 4);
 	handlerAddress = DrawLevelOvr1P_GetClipRecordJumpAddress(4, nearMask);
 
 	// NOTE(aalhendi): Retail dispatches through scratch 0x260; native keeps the handler bodies as C cases keyed by the copied retail addresses.
@@ -2127,7 +2156,7 @@ static int DrawLevelOvr1P_EmitClipRecordGT4Table(struct PushBuffer *pb, struct P
 }
 
 static int DrawLevelOvr1P_EmitClippedRecordBridge(struct PushBuffer *pb, struct PrimMem *primMem, const struct DrawLevelOvr1PScratchVertex *projected,
-                                                  const int *indices, int count, u32 nearMask, const struct DrawLevelOvr1PClipRecord *record)
+                                                  const int *indices, int count, const struct DrawLevelOvr1PClipRecord *record)
 {
 	u_long *otEntry = (u_long *)(uintptr_t)record->otEntry;
 
@@ -2137,26 +2166,12 @@ static int DrawLevelOvr1P_EmitClippedRecordBridge(struct PushBuffer *pb, struct 
 	if (count == 3)
 	{
 		// NOTE(aalhendi): Native mirrors the GT3 jump table at 0x800aa96c..0x800aaac8 through the copied scratch table.
-		return DrawLevelOvr1P_EmitClipRecordGT3Table(pb, primMem, otEntry, projected, nearMask, record);
+		return DrawLevelOvr1P_EmitClipRecordGT3Table(pb, primMem, otEntry, projected, record);
 	}
 
 	// NOTE(aalhendi): Native mirrors the GT4 jump table at 0x800aaf70..0x800ab3d4 through the copied scratch table.
 	//  Shared emit-helper GTE side effects remain a separate audit gap.
-	return DrawLevelOvr1P_EmitClipRecordGT4Table(pb, primMem, otEntry, projected, nearMask, record);
-}
-
-static u32 DrawLevelOvr1P_GetRecordNearMask(const struct DrawLevelOvr1PClipRecord *record, int count)
-{
-	static const u32 bits[4] = {0x4, 0x8, 0x10, 0x20};
-	u32 mask = 0;
-
-	for (int i = 0; i < count; i++)
-	{
-		if (DrawLevelOvr1P_IsClipByteSet(record->vertex[i].color_hi[3]))
-			mask |= bits[i];
-	}
-
-	return mask;
+	return DrawLevelOvr1P_EmitClipRecordGT4Table(pb, primMem, otEntry, projected, record);
 }
 
 static void DrawLevelOvr1P_SetClipRecordGteState(struct PushBuffer *pb)
@@ -2246,7 +2261,6 @@ static int DrawLevelOvr1P_ConsumeClipRecords(struct PushBuffer *pb, struct PrimM
 		int indices[4] = {0, 1, 2, 3};
 		int count = (record->header & 1) != 0 ? 4 : 3;
 		size_t recordSize = DrawLevelOvr1P_GetClipRecordSize(count);
-		u32 nearMask;
 
 		if (recordSize > (size_t)(end - cursor))
 			break;
@@ -2255,13 +2269,12 @@ static int DrawLevelOvr1P_ConsumeClipRecords(struct PushBuffer *pb, struct PrimM
 		if (!DrawLevelOvr1P_HasClipRecordConsumerPrimReserve(primMem))
 			return 0;
 
-		nearMask = DrawLevelOvr1P_GetRecordNearMask(record, count);
 		DrawLevelOvr1P_SetClipRecordPageScratch(record);
 
 		for (int i = 0; i < count; i++)
 			DrawLevelOvr1P_ProjectClipRecordVertex(&projected[i], &record->vertex[i]);
 
-		if (!DrawLevelOvr1P_EmitClippedRecordBridge(pb, primMem, projected, indices, count, nearMask, record))
+		if (!DrawLevelOvr1P_EmitClippedRecordBridge(pb, primMem, projected, indices, count, record))
 			return 0;
 
 		cursor += recordSize;
