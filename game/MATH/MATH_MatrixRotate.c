@@ -2,5 +2,6 @@
 
 void MatrixRotate(MATRIX *dst, MATRIX *src, MATRIX *rot)
 {
-	MulMatrix0(rot, src, dst);
+	// NOTE(aalhendi): ASM-verified NTSC-U 926 0x8006c3b0-0x8006c430
+	MulMatrix0(src, rot, dst);
 }
