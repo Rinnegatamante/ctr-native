@@ -1,5 +1,6 @@
 #include <common.h>
 
+// NOTE(aalhendi): ASM-verified against NTSC-U 926 overlay 230 0x800ad448-0x800ad560.
 void MM_ToggleRows_PlayerCount()
 {
 	int i;
@@ -12,13 +13,11 @@ void MM_ToggleRows_PlayerCount()
 		// unlock row
 		row->stringIndex &= 0x7fff;
 
-#ifndef REBUILD_PS1
 		if ((MainFrame_HaveAllPads(i + 1) & 0xffff) == 0)
 		{
 			// lock row
 			row->stringIndex |= 0x8000;
 		}
-#endif
 	}
 
 	for (i = 0; i < 3; i++)
@@ -28,12 +27,10 @@ void MM_ToggleRows_PlayerCount()
 		// unlock row
 		row->stringIndex &= 0x7fff;
 
-#ifndef REBUILD_PS1
 		if ((MainFrame_HaveAllPads(i + 2) & 0xffff) == 0)
 		{
 			// lock row
 			row->stringIndex |= 0x8000;
 		}
-#endif
 	}
 }

@@ -378,6 +378,7 @@
 #include "game/MAIN/MainFrame_00_TogglePauseAudio.c"
 #include "game/MAIN/MainFrame_01_ResetDB.c"
 #include "game/MAIN/MainFrame_02_GameLogic.c"
+#include "game/MAIN/MainFrame_06_HaveAllPads.c"
 #include "game/MAIN/MainFrame_07_VisMemFullFrame.c"
 #include "game/MAIN/MainFrame_07_RequestMaskHint.c"
 #include "game/MAIN/MainFrame_08_RenderFrame.c"

@@ -1,5 +1,6 @@
 #include <common.h>
 
+// NOTE(aalhendi): ASM-verified against NTSC-U 926 overlay 230 0x800ac1f0-0x800ac350.
 void MM_Title_CameraMove(struct Title *title, int frameIndex)
 {
 	int result;

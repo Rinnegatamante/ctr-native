@@ -1,5 +1,6 @@
 #include <common.h>
 
+// NOTE(aalhendi): ASM-verified against NTSC-U 926 overlay 230 0x800affd0-0x800b00d4.
 void MM_TrackSelect_Init()
 {
 	struct MainMenu_LevelRow *selectMenu;

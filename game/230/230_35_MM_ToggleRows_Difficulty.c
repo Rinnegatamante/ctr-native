@@ -1,5 +1,6 @@
 #include <common.h>
 
+// NOTE(aalhendi): ASM-verified against NTSC-U 926 overlay 230 0x800ad678-0x800ad7a4.
 void MM_ToggleRows_Difficulty(void)
 {
 	char bVar1;
@@ -38,7 +39,7 @@ void MM_ToggleRows_Difficulty(void)
 				uVar6 = (int)bitIndex + iVar3;
 
 				// check what is unlocked
-				uVar6 = sdata->gameProgress.unlocks[uVar6 >> 5] >> uVar6 & 1;
+				uVar6 = (sdata->gameProgress.unlocks[uVar6 >> 5] >> (uVar6 & 0x1f)) & 1;
 			}
 		}
 
@@ -50,12 +51,8 @@ void MM_ToggleRows_Difficulty(void)
 		    // if locked
 		    (uVar6 == 0) &&
 
-// dont bother checking Arcade,
-// waste of instructions
-#if 0
-		// If you're in Arcade mode
-		((gGT->gameMode1 & ARCADE_MODE) != 0) &&
-#endif
+		    // If you're in Arcade mode
+		    ((gGT->gameMode1 & ARCADE_MODE) != 0) &&
 
 		    // if you are in Arcade or VS cup
 		    ((gGT->gameMode2 & 0x10) != 0))
