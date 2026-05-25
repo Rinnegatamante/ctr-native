@@ -244,6 +244,7 @@ void DECOMP_UI_RenderFrame_Racing()
 
 
 						// OtherFX_Play to get wumpa fruit
+						// NOTE(aalhendi): ASM-verified NTSC-U 926 0x8005347c-0x80053484 for wumpa pickup SFX.
 						DECOMP_OtherFX_Play(0x42, 1);
 
 						// initial timer value
@@ -884,6 +885,7 @@ void DECOMP_UI_RenderFrame_Racing()
 	    ((gameMode1 & ROLLING_ITEM) != 0))
 	{
 		// stop weapon shuffle sound
+		// NOTE(aalhendi): ASM-verified NTSC-U 926 0x8005423c-0x8005424c for roulette SFX stop.
 		DECOMP_OtherFX_Stop2(0x5d);
 
 		// disable the randomizing effect in the HUD
