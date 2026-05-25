@@ -396,9 +396,6 @@ u32 DECOMP_main()
 			{
 				int held = gGS->gamepad[0].buttonsHeldCurrFrame;
 
-				// TODO(aalhendi): Replace this once native XA IRQ/state handling is wired.
-				sdata->XA_State = 0;
-
 				if ((held & BTN_START) != 0)
 				{
 					if ((gGT->gameMode1 & GAME_CUTSCENE) != 0)
