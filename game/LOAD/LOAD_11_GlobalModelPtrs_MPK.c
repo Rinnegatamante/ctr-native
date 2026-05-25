@@ -1,24 +1,22 @@
 #include <common.h>
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80031b50-0x80031bdc.
 void LOAD_GlobalModelPtrs_MPK()
 {
 	struct GameTracker *gGT = sdata->gGT;
 
-	// Dead code?
-	// Driver models dont go to gGT->modelPtrs,
-	// the m->id will always be -1 for all of them
-
-#if 0
-	for(int i = 0; i < 3; i++)
+	for (int i = 0; i < 3; i++)
 	{
-		struct Model* m = data.driverModelExtras[i];
-		
-		if(m == 0) continue;
-		if(m->id != -1) continue;
-		
+		struct Model *m = (struct Model *)data.driverModelExtras[i];
+
+		if (m == NULL)
+			continue;
+
+		if (m->id == -1)
+			continue;
+
 		gGT->modelPtr[m->id] = m;
 	}
-#endif
 
 	if (sdata->PLYROBJECTLIST != 0)
 	{
