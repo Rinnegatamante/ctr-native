@@ -10,7 +10,7 @@ static const s32 s_warpballFadeY[6] = {
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800ae524-0x800ae604.
 // NOTE(aalhendi): Native uses retail fade scale/Y table bytes from 0x800b2c88 and 0x800b2cac.
-void DECOMP_RB_Warpball_FadeAway(struct Thread *t)
+void RB_Warpball_FadeAway(struct Thread *t)
 {
 	s16 frameId;
 	int iVar2;

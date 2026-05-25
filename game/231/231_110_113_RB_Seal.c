@@ -2,7 +2,7 @@
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b8c00-0x800b92ac.
 
-void DECOMP_RB_Seal_ThTick_Move(struct Thread *t);
+void RB_Seal_ThTick_Move(struct Thread *t);
 
 // one seal can not collide with more than one other thread,
 // then quits, it was like that in the original game too,
@@ -30,7 +30,7 @@ void Seal_CheckColl(struct Instance *sealInst, struct Thread *sealTh, int damage
 		kartStatePrev = hitDriver->kartState;
 
 		// attempt to harm driver (spin out)
-		boolHurt = DECOMP_RB_Hazard_HurtDriver(hitDriver, damage, 0, 0);
+		boolHurt = RB_Hazard_HurtDriver(hitDriver, damage, 0, 0);
 
 		// if failed, due to mask grab or mask weapon
 		if (boolHurt == 0)
@@ -60,7 +60,7 @@ void Seal_CheckColl(struct Instance *sealInst, struct Thread *sealTh, int damage
 		hitDriver = (struct Driver *)hitInst->thread->object;
 
 		// attempt to harm driver (spin out)
-		DECOMP_RB_Hazard_HurtDriver(hitDriver, damage, 0, 0);
+		RB_Hazard_HurtDriver(hitDriver, damage, 0, 0);
 
 		// dont check other buckets
 		return;
@@ -81,7 +81,7 @@ void Seal_CheckColl(struct Instance *sealInst, struct Thread *sealTh, int damage
 	}
 }
 
-int DECOMP_RB_Seal_ThCollide(struct Thread *sealThread, struct Thread *driverTh, void *funcThCollide, struct ScratchpadStruct *sps)
+int RB_Seal_ThCollide(struct Thread *sealThread, struct Thread *driverTh, void *funcThCollide, struct ScratchpadStruct *sps)
 {
 	(void)sealThread;
 	(void)driverTh;
@@ -90,7 +90,7 @@ int DECOMP_RB_Seal_ThCollide(struct Thread *sealThread, struct Thread *driverTh,
 	return (s16)sps->Input1.modelID == DYNAMIC_PLAYER;
 }
 
-void DECOMP_RB_Seal_ThTick_TurnAround(struct Thread *t)
+void RB_Seal_ThTick_TurnAround(struct Thread *t)
 {
 	struct Instance *sealInst;
 	struct Seal *sealObj;
@@ -127,19 +127,19 @@ void DECOMP_RB_Seal_ThTick_TurnAround(struct Thread *t)
 
 		ConvertRotToMatrix(&sealInst->matrix, &sealObj->rotCurr[0]);
 
-		ThTick_SetAndExec(t, DECOMP_RB_Seal_ThTick_Move);
+		ThTick_SetAndExec(t, RB_Seal_ThTick_Move);
 	}
 
 	else
 	{
 		// spin rotCurrY 180 degrees (turn around)
-		sealObj->rotCurr[1] = DECOMP_RB_Hazard_InterpolateValue(sealObj->rotCurr[1], sealObj->rotDesiredAlt[1], 0x80);
+		sealObj->rotCurr[1] = RB_Hazard_InterpolateValue(sealObj->rotCurr[1], sealObj->rotDesiredAlt[1], 0x80);
 
 		// negate rotCurrX (slant)
-		sealObj->rotCurr[0] = DECOMP_RB_Hazard_InterpolateValue(sealObj->rotCurr[0], -sealObj->rotDesired[0], 0x14);
+		sealObj->rotCurr[0] = RB_Hazard_InterpolateValue(sealObj->rotCurr[0], -sealObj->rotDesired[0], 0x14);
 
 		// negate rotCurrZ (slant)
-		sealObj->rotCurr[2] = DECOMP_RB_Hazard_InterpolateValue(sealObj->rotCurr[2], -sealObj->rotDesired[2], 0x14);
+		sealObj->rotCurr[2] = RB_Hazard_InterpolateValue(sealObj->rotCurr[2], -sealObj->rotDesired[2], 0x14);
 
 		sealObj->numFramesSpinning++;
 
@@ -150,7 +150,7 @@ void DECOMP_RB_Seal_ThTick_TurnAround(struct Thread *t)
 	Seal_CheckColl(sealInst, t, 1, 0x4000, 0x78);
 }
 
-void DECOMP_RB_Seal_ThTick_Move(struct Thread *t)
+void RB_Seal_ThTick_Move(struct Thread *t)
 {
 	struct Instance *sealInst;
 	struct Seal *sealObj;
@@ -225,12 +225,12 @@ void DECOMP_RB_Seal_ThTick_Move(struct Thread *t)
 	sealObj->rotDesiredAlt[1] = (sealObj->rotCurr[1] + 0x800) & 0xfff;
 
 	// turn around
-	ThTick_SetAndExec(t, DECOMP_RB_Seal_ThTick_TurnAround);
+	ThTick_SetAndExec(t, RB_Seal_ThTick_TurnAround);
 
 	Seal_CheckColl(sealInst, t, 1, 0x4000, 0x78);
 }
 
-void DECOMP_RB_Seal_LInB(struct Instance *inst)
+void RB_Seal_LInB(struct Instance *inst)
 {
 	struct Seal *sealObj;
 	struct SpawnType2 *spawnType2;
@@ -244,16 +244,16 @@ void DECOMP_RB_Seal_LInB(struct Instance *inst)
 	    // creation flags
 	    SIZE_RELATIVE_POOL_BUCKET(sizeof(struct Seal), NONE, SMALL, STATIC),
 
-	    DECOMP_RB_Seal_ThTick_Move, // behavior
-	    "seal",                     // debug name
-	    0                           // thread relative
+	    RB_Seal_ThTick_Move, // behavior
+	    "seal",              // debug name
+	    0                    // thread relative
 	);
 
 	if (t == 0)
 		return;
 	inst->thread = t;
 	t->inst = inst;
-	t->funcThCollide = (void (*)(struct Thread *))DECOMP_RB_Seal_ThCollide;
+	t->funcThCollide = (void (*)(struct Thread *))RB_Seal_ThCollide;
 
 	inst->scale[0] = 0x2000;
 	inst->scale[1] = 0x2000;
@@ -299,6 +299,6 @@ void DECOMP_RB_Seal_LInB(struct Instance *inst)
 	// converted to TEST in rebuildPS1
 	ConvertRotToMatrix(&inst->matrix, &sealObj->rotCurr[0]);
 
-	// dont call DECOMP_RB_Default_LInB(inst),
+	// dont call RB_Default_LInB(inst),
 	// we know seal is never over ice
 }

@@ -3,7 +3,7 @@
 static char s_teeth[] = "teeth";
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b9df0-0x800ba2c0.
-void DECOMP_RB_Teeth_LInB(struct Instance *inst)
+void RB_Teeth_LInB(struct Instance *inst)
 {
 	inst->unk50 += 2;
 
@@ -19,7 +19,7 @@ void DECOMP_RB_Teeth_LInB(struct Instance *inst)
 	return;
 }
 
-void DECOMP_RB_Teeth_BSP_Callback(struct ScratchpadStruct *sps, struct Thread *weaponThread)
+void RB_Teeth_BSP_Callback(struct ScratchpadStruct *sps, struct Thread *weaponThread)
 {
 	s16 model;
 	struct Thread *teethTh;
@@ -79,7 +79,7 @@ void DECOMP_RB_Teeth_BSP_Callback(struct ScratchpadStruct *sps, struct Thread *w
 	return;
 }
 
-void DECOMP_RB_Teeth_ThTick(struct Thread *t)
+void RB_Teeth_ThTick(struct Thread *t)
 {
 	int iVar1;
 	u32 flags;
@@ -183,7 +183,7 @@ void DECOMP_RB_Teeth_ThTick(struct Thread *t)
 	SPS->Input1.modelID = STATIC_TEETH;
 
 	SPS->Union.ThBuckColl.thread = t;
-	SPS->Union.ThBuckColl.funcCallback = DECOMP_RB_Teeth_BSP_Callback;
+	SPS->Union.ThBuckColl.funcCallback = RB_Teeth_BSP_Callback;
 
 	// If door wants to close, but Player or Mine
 	// is in the way, then do not force the doors to close
@@ -215,7 +215,7 @@ LAB_800ba084:
 	return;
 }
 
-int DECOMP_RB_Teeth_LInC(struct Instance *teethInst, struct Thread *t, struct ScratchpadStruct *sps)
+int RB_Teeth_LInC(struct Instance *teethInst, struct Thread *t, struct ScratchpadStruct *sps)
 {
 	int iVar1;
 	struct Thread *teethTh;
@@ -238,7 +238,7 @@ int DECOMP_RB_Teeth_LInC(struct Instance *teethInst, struct Thread *t, struct Sc
 		// 0 = no relation to param4
 		// 0x300 = SmallStackPool
 		// 0x3 = "static" thread bucket
-		teethTh = PROC_BirthWithObject(SIZE_RELATIVE_POOL_BUCKET(sizeof(struct Teeth), NONE, SMALL, STATIC), DECOMP_RB_Teeth_ThTick, s_teeth, NULL);
+		teethTh = PROC_BirthWithObject(SIZE_RELATIVE_POOL_BUCKET(sizeof(struct Teeth), NONE, SMALL, STATIC), RB_Teeth_ThTick, s_teeth, NULL);
 
 		teethInst->thread = teethTh;
 
@@ -266,7 +266,7 @@ int DECOMP_RB_Teeth_LInC(struct Instance *teethInst, struct Thread *t, struct Sc
 		// if driver is using mask weapon
 		if ((d->actionsFlagSet & 0x800000) != 0)
 		{
-			DECOMP_RB_Teeth_OpenDoor(teethInst);
+			RB_Teeth_OpenDoor(teethInst);
 		}
 
 		return 2;
@@ -294,12 +294,12 @@ int DECOMP_RB_Teeth_LInC(struct Instance *teethInst, struct Thread *t, struct Sc
 	return 2;
 }
 
-void DECOMP_RB_Teeth_OpenDoor(struct Instance *inst)
+void RB_Teeth_OpenDoor(struct Instance *inst)
 {
 	struct Thread *teethTh = inst->thread;
 	if (teethTh == NULL)
 	{
-		teethTh = PROC_BirthWithObject(SIZE_RELATIVE_POOL_BUCKET(sizeof(struct Teeth), NONE, SMALL, STATIC), DECOMP_RB_Teeth_ThTick, s_teeth, NULL);
+		teethTh = PROC_BirthWithObject(SIZE_RELATIVE_POOL_BUCKET(sizeof(struct Teeth), NONE, SMALL, STATIC), RB_Teeth_ThTick, s_teeth, NULL);
 		inst->thread = teethTh;
 		if (teethTh == NULL)
 			return;

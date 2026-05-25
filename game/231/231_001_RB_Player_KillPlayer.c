@@ -120,8 +120,3 @@ void RB_Player_KillPlayer(struct Driver *attacker, struct Driver *victim)
 
 	MainGameEnd_Initialize();
 }
-
-void DECOMP_RB_Player_KillPlayer(struct Driver *attacker, struct Driver *victim)
-{
-	RB_Player_KillPlayer(attacker, victim);
-}

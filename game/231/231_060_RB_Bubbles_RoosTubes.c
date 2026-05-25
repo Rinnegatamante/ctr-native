@@ -2,7 +2,7 @@
 
 extern struct ParticleEmitter emSet_TubeBubbles[7];
 
-void DECOMP_RB_Bubbles_RoosTubes()
+void RB_Bubbles_RoosTubes()
 {
 	struct GameTracker *gGT;
 	struct Level *level1;

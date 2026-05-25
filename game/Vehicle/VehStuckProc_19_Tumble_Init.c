@@ -39,7 +39,7 @@ void VehStuckProc_Tumble_Init(struct Thread *thread, struct Driver *driver)
 
 	if ((LOAD_IsOpen_RacingOrBattle() != 0) && ((sdata->gGT->gameMode1 & ADVENTURE_ARENA) == 0))
 	{
-		DECOMP_RB_Player_ModifyWumpa(driver, -3);
+		RB_Player_ModifyWumpa(driver, -3);
 	}
 
 	driver->instSelf->animIndex = 0;

@@ -1,7 +1,7 @@
 #include <common.h>
 
 // instance, ptr rot[6], cop registers
-void Vector_SpecLightSpin2D(int param_1, undefined4 param_2, SVECTOR *param_3) // TODO: add DECOMP_ prefix
+void Vector_SpecLightSpin2D(int param_1, undefined4 param_2, SVECTOR *param_3)
 {
 	// TODO:
 

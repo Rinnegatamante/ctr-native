@@ -98,7 +98,7 @@ static void RB_Orca_SpawnSplash(struct Instance *orcaInst)
 #endif
 }
 
-void DECOMP_RB_Orca_ThTick(struct Thread *t)
+void RB_Orca_ThTick(struct Thread *t)
 {
 	struct Orca *orcaObj;
 	struct Instance *orcaInst;
@@ -176,7 +176,7 @@ void DECOMP_RB_Orca_ThTick(struct Thread *t)
 	ConvertRotToMatrix(&orcaInst->matrix, &orcaObj->instDefRot[0]);
 }
 
-int DECOMP_RB_Orca_ThCollide(struct Thread *orcaThread, struct Thread *driverTh, void *funcThCollide, struct ScratchpadStruct *sps)
+int RB_Orca_ThCollide(struct Thread *orcaThread, struct Thread *driverTh, void *funcThCollide, struct ScratchpadStruct *sps)
 {
 	(void)orcaThread;
 	(void)driverTh;
@@ -185,7 +185,7 @@ int DECOMP_RB_Orca_ThCollide(struct Thread *orcaThread, struct Thread *driverTh,
 	return (s16)sps->Input1.modelID == DYNAMIC_PLAYER;
 }
 
-void DECOMP_RB_Orca_LInB(struct Instance *inst)
+void RB_Orca_LInB(struct Instance *inst)
 {
 	struct Orca *orcaObj;
 	struct SpawnType2 *spawnType2;
@@ -201,16 +201,16 @@ void DECOMP_RB_Orca_LInB(struct Instance *inst)
 	    // creation flags
 	    SIZE_RELATIVE_POOL_BUCKET(sizeof(struct Orca), NONE, SMALL, STATIC),
 
-	    DECOMP_RB_Orca_ThTick, // behavior
-	    "orca",                // debug name
-	    0                      // thread relative
+	    RB_Orca_ThTick, // behavior
+	    "orca",         // debug name
+	    0               // thread relative
 	);
 
 	if (t == 0)
 		return;
 
 	inst->thread = t;
-	t->funcThCollide = (void (*)(struct Thread *))DECOMP_RB_Orca_ThCollide;
+	t->funcThCollide = (void (*)(struct Thread *))RB_Orca_ThCollide;
 	t->inst = inst;
 
 	inst->scale[0] = 0xC00;

@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800ad9ac-0x800ada90.
-u16 DECOMP_RB_Hazard_CollLevInst(struct ScratchpadStruct *sps, struct Thread *th)
+u16 RB_Hazard_CollLevInst(struct ScratchpadStruct *sps, struct Thread *th)
 {
 	u16 flag;
 	s16 model;

@@ -4,7 +4,7 @@ void Seal_CheckColl(struct Instance *sealInst, struct Thread *sealTh, int damage
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b5f50-0x800b64c0.
 
-int DECOMP_RB_Fireball_ThCollide(struct Thread *fireballThread, struct Thread *driverTh, void *funcThCollide, struct ScratchpadStruct *sps)
+int RB_Fireball_ThCollide(struct Thread *fireballThread, struct Thread *driverTh, void *funcThCollide, struct ScratchpadStruct *sps)
 {
 	(void)fireballThread;
 	(void)driverTh;
@@ -128,7 +128,7 @@ struct ParticleEmitter emSet_Fireball[10] = {[0] =
                                              // null terminator
                                              [9] = {0}};
 
-void DECOMP_RB_Fireball_ThTick(struct Thread *t)
+void RB_Fireball_ThTick(struct Thread *t)
 {
 	struct Instance *fireInst;
 	struct Fireball *fireObj;
@@ -260,7 +260,7 @@ void DECOMP_RB_Fireball_ThTick(struct Thread *t)
 	}
 }
 
-void DECOMP_RB_Fireball_LInB(struct Instance *inst)
+void RB_Fireball_LInB(struct Instance *inst)
 {
 	struct Fireball *fireObj;
 	struct Thread *t;
@@ -273,16 +273,16 @@ void DECOMP_RB_Fireball_LInB(struct Instance *inst)
 	    // creation flags
 	    SIZE_RELATIVE_POOL_BUCKET(sizeof(struct Fireball), NONE, SMALL, STATIC),
 
-	    DECOMP_RB_Fireball_ThTick, // behavior
-	    "fireball",                // debug name
-	    0                          // thread relative
+	    RB_Fireball_ThTick, // behavior
+	    "fireball",         // debug name
+	    0                   // thread relative
 	);
 
 	if (t == 0)
 		return;
 	inst->thread = t;
 	t->inst = inst;
-	t->funcThCollide = (void (*)(struct Thread *))DECOMP_RB_Fireball_ThCollide;
+	t->funcThCollide = (void (*)(struct Thread *))RB_Fireball_ThCollide;
 
 	inst->scale[0] = 0x4000;
 	inst->scale[1] = 0x4000;

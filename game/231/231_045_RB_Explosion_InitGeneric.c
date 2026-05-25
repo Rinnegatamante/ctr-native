@@ -1,15 +1,15 @@
 #include <common.h>
 
-void DECOMP_RB_Explosion_ThTick(struct Thread *t);
+void RB_Explosion_ThTick(struct Thread *t);
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b1630-0x800b1714.
-void DECOMP_RB_Explosion_InitGeneric(struct Instance *inst)
+void RB_Explosion_InitGeneric(struct Instance *inst)
 {
 	struct Instance *explosion;
 	u32 color;
 
 	// create thread for explosion
-	explosion = INSTANCE_BirthWithThread(0x26, 0, SMALL, OTHER, DECOMP_RB_Explosion_ThTick, 0, 0);
+	explosion = INSTANCE_BirthWithThread(0x26, 0, SMALL, OTHER, RB_Explosion_ThTick, 0, 0);
 
 	// copy position and rotation from one instance to the other
 	*(int *)&explosion->matrix.m[0][0] = *(int *)&inst->matrix.m[0][0];
@@ -41,9 +41,4 @@ void DECOMP_RB_Explosion_InitGeneric(struct Instance *inst)
 	// set funcThDestroy to remove instance from instance pool
 	explosion->thread->funcThDestroy = PROC_DestroyInstance;
 	return;
-}
-
-void RB_Explosion_InitGeneric(struct Instance *inst)
-{
-	DECOMP_RB_Explosion_InitGeneric(inst);
 }

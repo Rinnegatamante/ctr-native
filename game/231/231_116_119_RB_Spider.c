@@ -1,7 +1,7 @@
 #include <common.h>
 
 #ifndef REBUILD_PS1
-void DECOMP_RB_Spider_DrawWebs(struct Thread *t, struct PushBuffer *pb)
+void RB_Spider_DrawWebs(struct Thread *t, struct PushBuffer *pb)
 {
 	typedef struct
 	{
@@ -171,7 +171,7 @@ s16 spiderArr[] = {
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b9848-0x800b9bc0.
 
-void DECOMP_RB_Spider_ThTick(struct Thread *t)
+void RB_Spider_ThTick(struct Thread *t)
 {
 	s16 sVar2;
 	int iVar3;
@@ -314,13 +314,13 @@ checkCollision:
 		}
 
 		victim = (struct Driver *)hitInst->thread->object;
-		DECOMP_RB_Hazard_HurtDriver(victim, 1, 0, 0);
+		RB_Hazard_HurtDriver(victim, 1, 0, 0);
 		return;
 	}
 
 	victim = (struct Driver *)hitInst->thread->object;
 	prevKartState = victim->kartState;
-	if ((DECOMP_RB_Hazard_HurtDriver(victim, 1, 0, 0) != 0) && (prevKartState != KS_SPINNING))
+	if ((RB_Hazard_HurtDriver(victim, 1, 0, 0) != 0) && (prevKartState != KS_SPINNING))
 	{
 		OtherFX_Play(0x7b, 1);
 		Voiceline_RequestPlay(1, data.characterIDs[victim->driverID], 0x10);
@@ -329,7 +329,7 @@ checkCollision:
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b9bc0-0x800b9bd4.
 
-int DECOMP_RB_Spider_ThCollide(struct Thread *spiderThread, struct Thread *driverTh, void *funcThCollide, struct ScratchpadStruct *sps)
+int RB_Spider_ThCollide(struct Thread *spiderThread, struct Thread *driverTh, void *funcThCollide, struct ScratchpadStruct *sps)
 {
 	(void)spiderThread;
 	(void)driverTh;
@@ -340,7 +340,7 @@ int DECOMP_RB_Spider_ThCollide(struct Thread *spiderThread, struct Thread *drive
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b9bd4-0x800b9dd8.
 
-void DECOMP_RB_Spider_LInB(struct Instance *inst)
+void RB_Spider_LInB(struct Instance *inst)
 {
 	struct Spider *spider;
 	s16 rot[3];
@@ -351,13 +351,13 @@ void DECOMP_RB_Spider_LInB(struct Instance *inst)
 	if (inst->thread != NULL)
 		return;
 
-	t = PROC_BirthWithObject(SIZE_RELATIVE_POOL_BUCKET(sizeof(struct Spider), NONE, SMALL, SPIDER), DECOMP_RB_Spider_ThTick, "spider", 0);
+	t = PROC_BirthWithObject(SIZE_RELATIVE_POOL_BUCKET(sizeof(struct Spider), NONE, SMALL, SPIDER), RB_Spider_ThTick, "spider", 0);
 	inst->thread = t;
 	if (t == NULL)
 		return;
 
 	spider = t->object;
-	t->funcThCollide = (void (*)(struct Thread *))DECOMP_RB_Spider_ThCollide;
+	t->funcThCollide = (void (*)(struct Thread *))RB_Spider_ThCollide;
 	t->inst = inst;
 
 	inst->scale[0] = 0x1c00;

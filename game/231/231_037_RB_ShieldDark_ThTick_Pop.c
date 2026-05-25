@@ -6,7 +6,7 @@ static const s16 s_shieldPopScale[11][2] = {
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b0278-0x800b0454.
 // NOTE(aalhendi): Native uses the extracted shield-pop scale table from RDATA 0x800b2d14.
-void DECOMP_RB_ShieldDark_ThTick_Pop(struct Thread *t)
+void RB_ShieldDark_ThTick_Pop(struct Thread *t)
 {
 	struct Shield *sh;
 	struct Instance *instDark;

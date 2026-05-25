@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b1000-0x800b1220.
-void DECOMP_RB_RainCloud_ThTick(struct Thread *t)
+void RB_RainCloud_ThTick(struct Thread *t)
 {
 	s16 animFrame;
 	int numFrames;
@@ -111,9 +111,4 @@ void DECOMP_RB_RainCloud_ThTick(struct Thread *t)
 
 	ThTick_SetAndExec(t, RB_RainCloud_FadeAway);
 	return;
-}
-
-void RB_RainCloud_ThTick(struct Thread *t)
-{
-	DECOMP_RB_RainCloud_ThTick(t);
 }

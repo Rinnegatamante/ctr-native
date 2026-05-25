@@ -1,7 +1,7 @@
 #include <common.h>
 
 // Identical to Burst, but except for i<x
-void DECOMP_RB_Blowup_ThTick(struct Thread *t)
+void RB_Blowup_ThTick(struct Thread *t)
 {
 	s16 animFrame;
 	s16 numFrames;

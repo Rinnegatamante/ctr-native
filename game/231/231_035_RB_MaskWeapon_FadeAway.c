@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800afb70-0x800afdbc.
-void DECOMP_RB_MaskWeapon_FadeAway(struct Thread *t)
+void RB_MaskWeapon_FadeAway(struct Thread *t)
 {
 	u16 uVar1;
 	s16 totalTime;

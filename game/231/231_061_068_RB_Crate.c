@@ -1,7 +1,7 @@
 #include <common.h>
 
 // add to buildList, overwrite original
-// DECOMP_RB_CrateAny_ThTick_Explode at 800b3d04,
+// RB_CrateAny_ThTick_Explode at 800b3d04,
 // and add new LinCs to zGlobalMetaModels.c
 
 void RB_CrateAny_CheckBlockage(struct Thread *crateTh, int hitModelID_cast, struct Thread *mineTh)
@@ -69,7 +69,7 @@ struct Driver *RB_CrateAny_GetDriver(struct Thread *t, struct ScratchpadStruct *
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b3d04-0x800b3d7c.
-void DECOMP_RB_CrateAny_ThTick_Explode(struct Thread *t)
+void RB_CrateAny_ThTick_Explode(struct Thread *t)
 {
 	// this is an "exploded" crate, with
 	// it's own instance, thread, and object,
@@ -108,7 +108,7 @@ void RB_CrateAny_ExplodeInit(struct Instance *crateInst, int color)
 	    0x26, 0,
 
 	    // pool, bucket, ThTick
-	    SMALL, OTHER, DECOMP_RB_CrateAny_ThTick_Explode,
+	    SMALL, OTHER, RB_CrateAny_ThTick_Explode,
 
 	    // PushBuffer and threadRelative
 	    0, 0);
@@ -135,7 +135,7 @@ void RB_CrateAny_ExplodeInit(struct Instance *crateInst, int color)
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b3d7c-0x800b3e7c.
-void DECOMP_RB_CrateAny_ThTick_Grow(struct Thread *t)
+void RB_CrateAny_ThTick_Grow(struct Thread *t)
 {
 	struct Instance *crateInst;
 	struct Crate *crateObj;
@@ -198,9 +198,9 @@ static struct Thread *RB_CrateAny_LInC_Birth(struct Instance *crateInst, void *f
 	    // creation flags
 	    SIZE_RELATIVE_POOL_BUCKET(sizeof(struct Crate), NONE, SMALL, STATIC),
 
-	    DECOMP_RB_CrateAny_ThTick_Grow, // behavior
-	    debugName,                      // debug name
-	    0                               // thread relative
+	    RB_CrateAny_ThTick_Grow, // behavior
+	    debugName,               // debug name
+	    0                        // thread relative
 	);
 
 	if (crateThread == 0)
@@ -218,7 +218,7 @@ static struct Thread *RB_CrateAny_LInC_Birth(struct Instance *crateInst, void *f
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b3e7c-0x800b4278.
-int DECOMP_RB_CrateWeapon_ThCollide(struct Thread *crateThread, struct Thread *collidingTh, void *funcThCollide, struct ScratchpadStruct *sps)
+int RB_CrateWeapon_ThCollide(struct Thread *crateThread, struct Thread *collidingTh, void *funcThCollide, struct ScratchpadStruct *sps)
 {
 	struct PushBuffer *pb;
 	s16 posScreen[2];
@@ -302,14 +302,14 @@ int DECOMP_RB_CrateWeapon_ThCollide(struct Thread *crateThread, struct Thread *c
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b4278-0x800b432c.
-int DECOMP_RB_CrateWeapon_LInC(struct Instance *crateInst, struct Thread *collidingTh, struct ScratchpadStruct *sps)
+int RB_CrateWeapon_LInC(struct Instance *crateInst, struct Thread *collidingTh, struct ScratchpadStruct *sps)
 {
 	struct Thread *crateThread;
 
 	crateThread = crateInst->thread;
 	if (crateThread == NULL)
 	{
-		crateThread = RB_CrateAny_LInC_Birth(crateInst, (void *)DECOMP_RB_CrateWeapon_ThCollide, "crate");
+		crateThread = RB_CrateAny_LInC_Birth(crateInst, (void *)RB_CrateWeapon_ThCollide, "crate");
 		if (crateThread == NULL)
 			return 0;
 	}
@@ -321,7 +321,7 @@ int DECOMP_RB_CrateWeapon_LInC(struct Instance *crateInst, struct Thread *collid
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b432c-0x800b471c.
-int DECOMP_RB_CrateFruit_ThCollide(struct Thread *crateThread, struct Thread *collidingTh, void *funcThCollide, struct ScratchpadStruct *sps)
+int RB_CrateFruit_ThCollide(struct Thread *crateThread, struct Thread *collidingTh, void *funcThCollide, struct ScratchpadStruct *sps)
 {
 	struct PushBuffer *pb;
 	s16 posScreen[2];
@@ -382,14 +382,14 @@ int DECOMP_RB_CrateFruit_ThCollide(struct Thread *crateThread, struct Thread *co
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b471c-0x800b47d0.
-int DECOMP_RB_CrateFruit_LInC(struct Instance *crateInst, struct Thread *collidingTh, struct ScratchpadStruct *sps)
+int RB_CrateFruit_LInC(struct Instance *crateInst, struct Thread *collidingTh, struct ScratchpadStruct *sps)
 {
 	struct Thread *crateThread;
 
 	crateThread = crateInst->thread;
 	if (crateThread == NULL)
 	{
-		crateThread = RB_CrateAny_LInC_Birth(crateInst, (void *)DECOMP_RB_CrateFruit_ThCollide, "fruit_crate");
+		crateThread = RB_CrateAny_LInC_Birth(crateInst, (void *)RB_CrateFruit_ThCollide, "fruit_crate");
 		if (crateThread == NULL)
 			return 0;
 	}
@@ -401,7 +401,7 @@ int DECOMP_RB_CrateFruit_LInC(struct Instance *crateInst, struct Thread *collidi
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b47d0-0x800b4ba8.
-int DECOMP_RB_CrateTime_ThCollide(struct Thread *crateThread, struct Thread *driverTh, void *funcThCollide, struct ScratchpadStruct *sps)
+int RB_CrateTime_ThCollide(struct Thread *crateThread, struct Thread *driverTh, void *funcThCollide, struct ScratchpadStruct *sps)
 {
 	struct PushBuffer *pb;
 	s16 posScreen[2];
@@ -484,14 +484,14 @@ int DECOMP_RB_CrateTime_ThCollide(struct Thread *crateThread, struct Thread *dri
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b4ba8-0x800b4c5c.
-int DECOMP_RB_CrateTime_LInC(struct Instance *crateInst, struct Thread *driverTh, struct ScratchpadStruct *sps)
+int RB_CrateTime_LInC(struct Instance *crateInst, struct Thread *driverTh, struct ScratchpadStruct *sps)
 {
 	struct Thread *crateThread;
 
 	crateThread = crateInst->thread;
 	if (crateThread == NULL)
 	{
-		crateThread = RB_CrateAny_LInC_Birth(crateInst, (void *)DECOMP_RB_CrateTime_ThCollide, "fruit_crate");
+		crateThread = RB_CrateAny_LInC_Birth(crateInst, (void *)RB_CrateTime_ThCollide, "fruit_crate");
 		if (crateThread == NULL)
 			return 0;
 	}

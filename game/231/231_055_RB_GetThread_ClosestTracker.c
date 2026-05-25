@@ -1,6 +1,6 @@
 #include <common.h>
 
-struct Thread *DECOMP_RB_GetThread_ClosestTracker(struct Driver *d)
+struct Thread *RB_GetThread_ClosestTracker(struct Driver *d)
 {
 	int distX;
 	int distZ;

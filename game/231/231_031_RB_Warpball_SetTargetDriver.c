@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800aeaac-0x800aece0.
-void DECOMP_RB_Warpball_SetTargetDriver(struct TrackerWeapon *tw)
+void RB_Warpball_SetTargetDriver(struct TrackerWeapon *tw)
 {
 	struct GameTracker *gGT = sdata->gGT;
 	struct Driver *target = tw->driverTarget;
@@ -72,9 +72,4 @@ void DECOMP_RB_Warpball_SetTargetDriver(struct TrackerWeapon *tw)
 
 		pathNode = RB_Warpball_NewPathNode(pathNode, tw->driverTarget);
 	}
-}
-
-void RB_Warpball_SetTargetDriver(struct TrackerWeapon *tw)
-{
-	DECOMP_RB_Warpball_SetTargetDriver(tw);
 }

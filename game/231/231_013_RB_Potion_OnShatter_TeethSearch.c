@@ -3,7 +3,7 @@
 void RB_Potion_OnShatter_TeethCallback(int unk, struct BSP *bspHitbox);
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800ac638-0x800ac6b4.
-void DECOMP_RB_Potion_OnShatter_TeethSearch(struct Instance *inst)
+void RB_Potion_OnShatter_TeethSearch(struct Instance *inst)
 {
 #define SPS ((struct ScratchpadStruct *)0x1f800108)
 

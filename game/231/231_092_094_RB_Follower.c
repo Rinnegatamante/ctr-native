@@ -43,7 +43,7 @@ void RB_Follower_ProcessBucket(struct Thread *t)
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b6e10-0x800b6f00.
-void DECOMP_RB_Follower_ThTick(struct Thread *t)
+void RB_Follower_ThTick(struct Thread *t)
 {
 	int kartState;
 	struct Driver *d;
@@ -85,7 +85,7 @@ void DECOMP_RB_Follower_ThTick(struct Thread *t)
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b6f00-0x800b706c.
-void DECOMP_RB_Follower_Init(struct Driver *d, struct Thread *mineTh)
+void RB_Follower_Init(struct Driver *d, struct Thread *mineTh)
 {
 	struct Thread *t;
 	struct Instance *iVar1;
@@ -105,7 +105,7 @@ void DECOMP_RB_Follower_Init(struct Driver *d, struct Thread *mineTh)
 		return;
 
 	// create a thread and an Instance
-	iVar1 = INSTANCE_BirthWithThread(mineTh->modelIndex, "follower", SMALL, FOLLOWER, DECOMP_RB_Follower_ThTick, sizeof(struct Follower), 0);
+	iVar1 = INSTANCE_BirthWithThread(mineTh->modelIndex, "follower", SMALL, FOLLOWER, RB_Follower_ThTick, sizeof(struct Follower), 0);
 
 	if (iVar1 == NULL)
 		return;

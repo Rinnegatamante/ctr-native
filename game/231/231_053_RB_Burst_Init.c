@@ -1,11 +1,11 @@
 #include <common.h>
 
-void DECOMP_RB_Burst_ThTick();
-void DECOMP_RB_Burst_CollLevInst();
-void DECOMP_RB_Burst_CollThBucket();
+void RB_Burst_ThTick();
+void RB_Burst_CollLevInst();
+void RB_Burst_CollThBucket();
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b2154-0x800b25b8.
-void DECOMP_RB_Burst_Init(struct Instance *weaponInst)
+void RB_Burst_Init(struct Instance *weaponInst)
 {
 	struct GameTracker *gGT = sdata->gGT;
 	struct ModelHeader *headers;
@@ -14,7 +14,7 @@ void DECOMP_RB_Burst_Init(struct Instance *weaponInst)
 	int *burst;
 
 	// initialize thread for burst
-	currInst = INSTANCE_BirthWithThread(0x2b, 0, SMALL, BURST, DECOMP_RB_Burst_ThTick, 0xc, 0);
+	currInst = INSTANCE_BirthWithThread(0x2b, 0, SMALL, BURST, RB_Burst_ThTick, 0xc, 0);
 
 	// get thread from instance
 	t = currInst->thread;
@@ -158,7 +158,7 @@ void DECOMP_RB_Burst_Init(struct Instance *weaponInst)
 	sps->Input1.modelID = modelID;
 
 	sps->Union.ThBuckColl.thread = weaponInst->thread;
-	sps->Union.ThBuckColl.funcCallback = DECOMP_RB_Burst_CollThBucket;
+	sps->Union.ThBuckColl.funcCallback = RB_Burst_CollThBucket;
 
 	struct Thread *driverTh = tw->driverParent->instSelf->thread;
 
@@ -174,7 +174,7 @@ void DECOMP_RB_Burst_Init(struct Instance *weaponInst)
 	// check collision with all Tracking thread
 	PROC_CollideHitboxWithBucket(gGT->threadBuckets[TRACKING].thread, sps, 0);
 
-	sps->Union.ThBuckColl.funcCallback = DECOMP_RB_Burst_CollLevInst;
+	sps->Union.ThBuckColl.funcCallback = RB_Burst_CollLevInst;
 
 	PROC_StartSearch_Self(sps);
 	return;

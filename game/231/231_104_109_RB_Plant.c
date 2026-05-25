@@ -23,11 +23,11 @@ struct HitboxDesc plantBoxDesc = {.inst = (struct Instance *)0,
 
 extern struct ParticleEmitter emSet_PlantTires[8];
 
-void DECOMP_RB_Plant_ThTick_Rest(struct Thread *t);
-void DECOMP_RB_Hazard_ThCollide_Generic_Alt(struct Thread **param_1);
+void RB_Plant_ThTick_Rest(struct Thread *t);
+void RB_Hazard_ThCollide_Generic_Alt(struct Thread **param_1);
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b81e8-0x800b84f0.
-void DECOMP_RB_Plant_ThTick_Eat(struct Thread *t)
+void RB_Plant_ThTick_Eat(struct Thread *t)
 {
 	int i;
 	struct Particle *particle;
@@ -150,13 +150,13 @@ void DECOMP_RB_Plant_ThTick_Eat(struct Thread *t)
 			plantInst->animIndex = PlantAnim_Rest;
 
 			plantObj->boolEatingPlayer = 0;
-			ThTick_SetAndExec(t, DECOMP_RB_Plant_ThTick_Rest);
+			ThTick_SetAndExec(t, RB_Plant_ThTick_Rest);
 		}
 	}
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b84f0-0x800b8650.
-void DECOMP_RB_Plant_ThTick_Grab(struct Thread *t)
+void RB_Plant_ThTick_Grab(struct Thread *t)
 {
 	struct Instance *plantInst;
 	struct HitboxDesc plantBoxDescLocal;
@@ -189,7 +189,7 @@ void DECOMP_RB_Plant_ThTick_Grab(struct Thread *t)
 				plantBoxDescLocal.threadHit = threadHit;
 				plantBoxDescLocal.funcThCollide = threadHit->funcThCollide;
 
-				DECOMP_RB_Hazard_ThCollide_Generic_Alt(&threadHit);
+				RB_Hazard_ThCollide_Generic_Alt(&threadHit);
 			}
 		}
 
@@ -197,7 +197,7 @@ void DECOMP_RB_Plant_ThTick_Grab(struct Thread *t)
 		{
 			plantInst->animFrame = 0;
 			plantInst->animIndex = PlantAnim_StartEat;
-			ThTick_SetAndExec(t, DECOMP_RB_Plant_ThTick_Eat);
+			ThTick_SetAndExec(t, RB_Plant_ThTick_Eat);
 		}
 	}
 
@@ -211,13 +211,13 @@ void DECOMP_RB_Plant_ThTick_Grab(struct Thread *t)
 		{
 			plantInst->animFrame = 0;
 			plantInst->animIndex = PlantAnim_Rest;
-			ThTick_SetAndExec(t, DECOMP_RB_Plant_ThTick_Rest);
+			ThTick_SetAndExec(t, RB_Plant_ThTick_Rest);
 		}
 	}
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b8650-0x800b86b4.
-void DECOMP_RB_Plant_ThTick_Transition_HungryToRest(struct Thread *t)
+void RB_Plant_ThTick_Transition_HungryToRest(struct Thread *t)
 {
 	struct Instance *plantInst = t->inst;
 
@@ -235,12 +235,12 @@ void DECOMP_RB_Plant_ThTick_Transition_HungryToRest(struct Thread *t)
 		plantInst->animFrame = 0;
 
 		plantInst->animIndex = PlantAnim_Rest;
-		ThTick_SetAndExec(t, DECOMP_RB_Plant_ThTick_Rest);
+		ThTick_SetAndExec(t, RB_Plant_ThTick_Rest);
 	}
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b86b4-0x800b88a8.
-void DECOMP_RB_Plant_ThTick_Hungry(struct Thread *t)
+void RB_Plant_ThTick_Hungry(struct Thread *t)
 {
 	struct Instance *plantInst;
 	struct Plant *plantObj;
@@ -280,7 +280,7 @@ void DECOMP_RB_Plant_ThTick_Hungry(struct Thread *t)
 			plantInst->animFrame = INSTANCE_GetNumAnimFrames(plantInst, PlantAnim_TransitionRestHungry);
 
 			plantInst->animIndex = PlantAnim_TransitionRestHungry;
-			ThTick_SetAndExec(t, DECOMP_RB_Plant_ThTick_Transition_HungryToRest);
+			ThTick_SetAndExec(t, RB_Plant_ThTick_Transition_HungryToRest);
 			return;
 		}
 	}
@@ -299,7 +299,7 @@ void DECOMP_RB_Plant_ThTick_Hungry(struct Thread *t)
 		hitDriver = (struct Driver *)hitInst->thread->object;
 
 		// attempt to harm driver (eat)
-		int didHit = DECOMP_RB_Hazard_HurtDriver(hitDriver, 5, 0, 0);
+		int didHit = RB_Hazard_HurtDriver(hitDriver, 5, 0, 0);
 
 		if (didHit != 0)
 		{
@@ -315,7 +315,7 @@ void DECOMP_RB_Plant_ThTick_Hungry(struct Thread *t)
 			plantObj->cycleCount = 0;
 			hitDriver->plantEatingMe = t;
 
-			ThTick_SetAndExec(t, DECOMP_RB_Plant_ThTick_Grab);
+			ThTick_SetAndExec(t, RB_Plant_ThTick_Grab);
 		}
 
 		return;
@@ -335,7 +335,7 @@ void DECOMP_RB_Plant_ThTick_Hungry(struct Thread *t)
 		// get driver from instance
 		hitDriver = (struct Driver *)hitInst->thread->object;
 
-		DECOMP_RB_Hazard_HurtDriver(hitDriver, 5, 0, 0);
+		RB_Hazard_HurtDriver(hitDriver, 5, 0, 0);
 
 		plantObj->boolEatingPlayer = 0;
 
@@ -344,7 +344,7 @@ void DECOMP_RB_Plant_ThTick_Hungry(struct Thread *t)
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b88a8-0x800b89a4.
-void DECOMP_RB_Plant_ThTick_Rest(struct Thread *t)
+void RB_Plant_ThTick_Rest(struct Thread *t)
 {
 	struct Instance *plantInst;
 	struct Plant *plantObj;
@@ -397,13 +397,13 @@ void DECOMP_RB_Plant_ThTick_Rest(struct Thread *t)
 		{
 			plantInst->animFrame = 0;
 			plantInst->animIndex = PlantAnim_Hungry;
-			ThTick_SetAndExec(t, DECOMP_RB_Plant_ThTick_Hungry);
+			ThTick_SetAndExec(t, RB_Plant_ThTick_Hungry);
 		}
 	}
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b89a4-0x800b8c00.
-void DECOMP_RB_Plant_LInB(struct Instance *inst)
+void RB_Plant_LInB(struct Instance *inst)
 {
 	struct Plant *plantObj;
 	struct SpawnType1 *ptrSpawnType1;
@@ -417,9 +417,9 @@ void DECOMP_RB_Plant_LInB(struct Instance *inst)
 	t = PROC_BirthWithObject(
 	    // creation flags
 	    SIZE_RELATIVE_POOL_BUCKET(sizeof(struct Plant), NONE, SMALL, STATIC),
-	    DECOMP_RB_Plant_ThTick_Rest, // behavior
-	    "plant",                     // debug name
-	    0                            // thread relative
+	    RB_Plant_ThTick_Rest, // behavior
+	    "plant",              // debug name
+	    0                     // thread relative
 	);
 
 	inst->thread = t;

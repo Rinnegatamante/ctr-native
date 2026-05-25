@@ -2,7 +2,7 @@
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b5334-0x800b53e0.
 
-void DECOMP_RB_CtrLetter_LInB(struct Instance *inst)
+void RB_CtrLetter_LInB(struct Instance *inst)
 {
 	struct CtrLetter *letterObj;
 	struct Thread *t;
@@ -13,16 +13,16 @@ void DECOMP_RB_CtrLetter_LInB(struct Instance *inst)
 		    // creation flags
 		    SIZE_RELATIVE_POOL_BUCKET(sizeof(struct CtrLetter), NONE, SMALL, STATIC),
 
-		    DECOMP_RB_CtrLetter_ThTick, // behavior
-		    "ctr",                      // debug name
-		    0                           // thread relative
+		    RB_CtrLetter_ThTick, // behavior
+		    "ctr",               // debug name
+		    0                    // thread relative
 		);
 
 		inst->thread = t;
 		if (t == 0)
 			return;
 
-		t->funcThCollide = (void (*)(struct Thread *))DECOMP_RB_CtrLetter_ThCollide;
+		t->funcThCollide = (void (*)(struct Thread *))RB_CtrLetter_ThCollide;
 		t->inst = inst;
 
 		letterObj = ((struct CtrLetter *)t->object);
@@ -40,5 +40,5 @@ void DECOMP_RB_CtrLetter_LInB(struct Instance *inst)
 		inst->flags |= 0x30000;
 	}
 
-	DECOMP_RB_Default_LInB(inst);
+	RB_Default_LInB(inst);
 }

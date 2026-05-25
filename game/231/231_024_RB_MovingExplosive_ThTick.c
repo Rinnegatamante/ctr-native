@@ -10,7 +10,7 @@ static void RB_MovingExplosive_CallThCollide(struct Thread *hitTh, struct Thread
 
 // function for moving bomb, shiledbomb, or missile
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800adb50-0x800ae478.
-void DECOMP_RB_MovingExplosive_ThTick(struct Thread *t)
+void RB_MovingExplosive_ThTick(struct Thread *t)
 {
 	s16 sVar1;
 	s16 sVar3;
@@ -141,7 +141,7 @@ LAB_800adc08:;
 
 		if ((modelID == DYNAMIC_BOMB) || (modelID == DYNAMIC_SHIELD))
 		{
-			tw->rotY = DECOMP_RB_Hazard_InterpolateValue(tw->rotY, (int)sVar3, 4);
+			tw->rotY = RB_Hazard_InterpolateValue(tw->rotY, (int)sVar3, 4);
 
 			tw->vel[0] = (MATH_Sin(tw->rotY) * 3) >> 7;
 			tw->vel[2] = (MATH_Cos(tw->rotY) * 3) >> 7;
@@ -160,7 +160,7 @@ LAB_800adc08:;
 			// if 10 wumpa were not used
 			if ((tw->flags & 1) == 0)
 			{
-				tw->rotY = DECOMP_RB_Hazard_InterpolateValue(tw->rotY, (int)sVar3, 0x40);
+				tw->rotY = RB_Hazard_InterpolateValue(tw->rotY, (int)sVar3, 0x40);
 
 				tw->vel[0] = (MATH_Sin(tw->rotY) * 5) >> 8;
 				tw->vel[2] = (MATH_Cos(tw->rotY) * 5) >> 8;
@@ -169,7 +169,7 @@ LAB_800adc08:;
 			// if 10 wumpa were used
 			else
 			{
-				tw->rotY = DECOMP_RB_Hazard_InterpolateValue(tw->rotY, (int)sVar3, 0x80);
+				tw->rotY = RB_Hazard_InterpolateValue(tw->rotY, (int)sVar3, 0x80);
 
 				tw->vel[0] = (MATH_Sin(tw->rotY) * 3) >> 7;
 				tw->vel[2] = (MATH_Cos(tw->rotY) * 3) >> 7;
@@ -284,7 +284,7 @@ LAB_800adc08:;
 		inst->matrix.t[1] += ((int)tw->vel[1] * elapsedTime) >> 5;
 		inst->matrix.t[2] += ((int)tw->vel[2] * elapsedTime) >> 5;
 
-		DECOMP_RB_MovingExplosive_Explode(t, inst, tw);
+		RB_MovingExplosive_Explode(t, inst, tw);
 		return;
 	}
 
@@ -347,7 +347,7 @@ LAB_800adc08:;
 		sps->Input1.modelID = modelID;
 
 		int ret;
-		ret = DECOMP_RB_Hazard_CollLevInst(sps, t);
+		ret = RB_Hazard_CollLevInst(sps, t);
 
 		// if hit bsp hitbox
 		if (ret == 1)
@@ -361,7 +361,7 @@ LAB_800adc08:;
 			    (((instDef->ptrInstance != 0) && (instDef->modelID == STATIC_TEETH))))
 			{
 #if (!defined(REBUILD_PS1) || defined(REBUILD_PC))
-				DECOMP_RB_Teeth_OpenDoor(instDef->ptrInstance);
+				RB_Teeth_OpenDoor(instDef->ptrInstance);
 #endif
 			}
 			goto LAB_800ae42c;
@@ -372,13 +372,13 @@ LAB_800adc08:;
 
 	struct Instance *hitInst;
 
-	hitInst = DECOMP_RB_Hazard_CollideWithDrivers(inst, tw->frameCount_DontHurtParent, 0x2400, tw->instParent);
+	hitInst = RB_Hazard_CollideWithDrivers(inst, tw->frameCount_DontHurtParent, 0x2400, tw->instParent);
 
 	// if no driver hit
 	if (hitInst == 0)
 	{
 		// check Mine threadbucket
-		hitInst = DECOMP_RB_Hazard_CollideWithBucket(inst, t, gGT->threadBuckets[MINE].thread, tw->frameCount_DontHurtParent, 0x2400, tw->instParent);
+		hitInst = RB_Hazard_CollideWithBucket(inst, t, gGT->threadBuckets[MINE].thread, tw->frameCount_DontHurtParent, 0x2400, tw->instParent);
 
 		// if mine was not hit
 		if (hitInst == 0)
@@ -396,7 +396,7 @@ LAB_800adc08:;
 			// === Assume Bomb ===
 
 			// check Tracking threadbucket
-			hitInst = DECOMP_RB_Hazard_CollideWithBucket(inst, t, gGT->threadBuckets[TRACKING].thread, tw->frameCount_DontHurtParent, 0x2400, tw->instParent);
+			hitInst = RB_Hazard_CollideWithBucket(inst, t, gGT->threadBuckets[TRACKING].thread, tw->frameCount_DontHurtParent, 0x2400, tw->instParent);
 
 			// if no collision
 			if (hitInst == 0)
@@ -448,6 +448,6 @@ LAB_800adc08:;
 	}
 LAB_800ae42c:
 
-	DECOMP_RB_MovingExplosive_Explode(t, inst, tw);
+	RB_MovingExplosive_Explode(t, inst, tw);
 	return;
 }

@@ -1,9 +1,9 @@
 #include <common.h>
 
-void DECOMP_RB_MaskWeapon_FadeAway(struct Thread *);
+void RB_MaskWeapon_FadeAway(struct Thread *);
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800afdbc-0x800b0278.
-void DECOMP_RB_MaskWeapon_ThTick(struct Thread *maskTh)
+void RB_MaskWeapon_ThTick(struct Thread *maskTh)
 {
 	char i;
 	char numPlyr;
@@ -147,7 +147,7 @@ void DECOMP_RB_MaskWeapon_ThTick(struct Thread *maskTh)
 	// If duration is over
 	if (mask->duration == 0)
 	{
-		ThTick_SetAndExec(maskTh, DECOMP_RB_MaskWeapon_FadeAway);
+		ThTick_SetAndExec(maskTh, RB_MaskWeapon_FadeAway);
 		return;
 	}
 

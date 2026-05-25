@@ -25,7 +25,7 @@ void RB_Fruit_GetScreenCoords(struct PushBuffer *pb, struct Instance *inst, s16 
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b706c-0x800b70a8.
-void DECOMP_RB_Fruit_ThTick(struct Thread *fruitTh)
+void RB_Fruit_ThTick(struct Thread *fruitTh)
 {
 	struct Instance *fruitInst;
 
@@ -35,7 +35,7 @@ void DECOMP_RB_Fruit_ThTick(struct Thread *fruitTh)
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b70a8-0x800b722c.
-int DECOMP_RB_Fruit_ThCollide(struct Thread *fruitTh, struct Thread *driverTh, void *funcThCollide, struct ScratchpadStruct *sps)
+int RB_Fruit_ThCollide(struct Thread *fruitTh, struct Thread *driverTh, void *funcThCollide, struct ScratchpadStruct *sps)
 {
 	struct PushBuffer *pb;
 	s16 posScreen[2];
@@ -77,15 +77,15 @@ int DECOMP_RB_Fruit_ThCollide(struct Thread *fruitTh, struct Thread *driverTh, v
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b722c-0x800b7260.
-void DECOMP_RB_Fruit_LInB(struct Instance *inst)
+void RB_Fruit_LInB(struct Instance *inst)
 {
-	DECOMP_RB_Default_LInB(inst);
+	RB_Default_LInB(inst);
 	inst->animIndex = 0;
 	inst->flags |= 0x10;
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b7260-0x800b7338.
-int DECOMP_RB_Fruit_LInC(struct Instance *fruitInst, struct Thread *driverTh, struct ScratchpadStruct *sps)
+int RB_Fruit_LInC(struct Instance *fruitInst, struct Thread *driverTh, struct ScratchpadStruct *sps)
 {
 	typedef int (*FruitCollideFunc)(struct Thread *, struct Thread *, void *, struct ScratchpadStruct *);
 	struct Thread *fruitTh;
@@ -97,9 +97,9 @@ int DECOMP_RB_Fruit_LInC(struct Instance *fruitInst, struct Thread *driverTh, st
 		    // creation flags
 		    SIZE_RELATIVE_POOL_BUCKET(sizeof(struct Fruit), NONE, SMALL, STATIC),
 
-		    DECOMP_RB_Fruit_ThTick, // behavior
-		    "fruit",                // debug name
-		    0                       // thread relative
+		    RB_Fruit_ThTick, // behavior
+		    "fruit",         // debug name
+		    0                // thread relative
 		);
 
 		fruitInst->thread = fruitTh;
@@ -107,7 +107,7 @@ int DECOMP_RB_Fruit_LInC(struct Instance *fruitInst, struct Thread *driverTh, st
 			return 0;
 
 		fruitTh->inst = fruitInst;
-		fruitTh->funcThCollide = (void (*)(struct Thread *))DECOMP_RB_Fruit_ThCollide;
+		fruitTh->funcThCollide = (void (*)(struct Thread *))RB_Fruit_ThCollide;
 		fruitTh = fruitInst->thread;
 	}
 

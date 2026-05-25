@@ -21,7 +21,7 @@ static void RB_Burst_UpdateSlot(int *slot)
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b1d2c-0x800b1e90.
-void DECOMP_RB_Burst_ThTick(struct Thread *t)
+void RB_Burst_ThTick(struct Thread *t)
 {
 	int *burst;
 	burst = t->object;

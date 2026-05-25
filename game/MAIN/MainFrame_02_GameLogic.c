@@ -246,7 +246,7 @@ void MainFrame_GameLogic(struct GameTracker *gGT, struct GamepadSystem *gGamepad
 #ifndef REBUILD_PS1
 		if ((gGT->gameMode1 & PAUSE_ALL) == 0)
 		{
-			DECOMP_RB_Bubbles_RoosTubes();
+			RB_Bubbles_RoosTubes();
 		}
 		if (gGT->threadBuckets[BURST].thread != 0)
 		{

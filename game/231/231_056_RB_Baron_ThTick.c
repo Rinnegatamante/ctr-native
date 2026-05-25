@@ -23,7 +23,7 @@ static void RB_Baron_SetPathFrame(struct Instance *inst, struct SpawnType2 *spaw
 	inst->matrix.t[2] = coord[2] + offsetZ;
 }
 
-void DECOMP_RB_Baron_ThTick(struct Thread *t)
+void RB_Baron_ThTick(struct Thread *t)
 {
 	struct Instance *baronInst;
 	struct Baron *baronObj;
@@ -79,11 +79,11 @@ void DECOMP_RB_Baron_ThTick(struct Thread *t)
 
 	if (modelID == DYNAMIC_DRUM)
 	{
-		hitInst = DECOMP_RB_Hazard_CollideWithDrivers(baronInst, 0, 0x19000, 0);
+		hitInst = RB_Hazard_CollideWithDrivers(baronInst, 0, 0x19000, 0);
 		if (hitInst != 0)
 		{
 			hitDriver = (struct Driver *)hitInst->thread->object;
-			DECOMP_RB_Hazard_HurtDriver(hitDriver, 3, 0, 0);
+			RB_Hazard_HurtDriver(hitDriver, 3, 0, 0);
 		}
 	}
 }

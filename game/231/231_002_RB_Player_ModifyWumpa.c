@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800abefc-0x800abfec.
-void DECOMP_RB_Player_ModifyWumpa(struct Driver *driver, int wumpaDelta)
+void RB_Player_ModifyWumpa(struct Driver *driver, int wumpaDelta)
 {
 	char numWumpaOriginal = driver->numWumpas;
 

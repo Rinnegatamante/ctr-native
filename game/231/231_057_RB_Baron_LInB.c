@@ -2,7 +2,7 @@
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b37d4-0x800b38dc.
 
-void DECOMP_RB_Baron_LInB(struct Instance *inst)
+void RB_Baron_LInB(struct Instance *inst)
 {
 	struct Baron *baronObj;
 	struct Thread *t;
@@ -15,9 +15,9 @@ void DECOMP_RB_Baron_LInB(struct Instance *inst)
 	    // creation flags
 	    SIZE_RELATIVE_POOL_BUCKET(sizeof(struct Baron), NONE, SMALL, STATIC),
 
-	    DECOMP_RB_Baron_ThTick, // behavior
-	    "baron",                // debug name
-	    0                       // thread relative
+	    RB_Baron_ThTick, // behavior
+	    "baron",         // debug name
+	    0                // thread relative
 	);
 
 	if (t == 0)

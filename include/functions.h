@@ -1,7 +1,5 @@
 // included from common.h, do not include common.h
 
-// remember to ctrl + f ctrl + r the DECOMP_ prefix
-
 // BOTS
 
 void BOTS_SetGlobalNavData(u16 index);
@@ -1240,7 +1238,7 @@ int VehPickState_NewState(
     int reason); // this is present (but commented out) further up the file. Idk why, also, return value was void when should have been int
 #endif
 #ifndef REBUILD_PS1 // this forward decl hoisted from 231_011_RB_Hazard_ThCollide_Generic.c
-void DECOMP_RB_Explosion_InitGeneric(struct Instance *inst);
+void RB_Explosion_InitGeneric(struct Instance *inst);
 #endif
 void RB_GenericMine_ThTick(struct Thread *);
 void RB_MakeInstanceReflective(struct ScratchpadStruct *, struct Instance *);

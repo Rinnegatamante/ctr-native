@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800ada90-0x800adb50.
-int DECOMP_RB_Hazard_InterpolateValue(s16 currRot, s16 desiredRot, s16 rotSpeed)
+int RB_Hazard_InterpolateValue(s16 currRot, s16 desiredRot, s16 rotSpeed)
 {
 	if (currRot == desiredRot)
 		return currRot;

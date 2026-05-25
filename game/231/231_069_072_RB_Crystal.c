@@ -11,7 +11,7 @@ static void RB_Crystal_RotateStep(struct Instance *crystalInst, struct Crystal *
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b4c5c-0x800b4dd8.
-int DECOMP_RB_Crystal_ThCollide(struct Thread *crystalTh, struct Thread *driverTh, void *funcThCollide, struct ScratchpadStruct *sps)
+int RB_Crystal_ThCollide(struct Thread *crystalTh, struct Thread *driverTh, void *funcThCollide, struct ScratchpadStruct *sps)
 {
 	struct PushBuffer *pb;
 	s16 posScreen[2];
@@ -63,7 +63,7 @@ int DECOMP_RB_Crystal_ThCollide(struct Thread *crystalTh, struct Thread *driverT
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b4dd8-0x800b4e7c.
-void DECOMP_RB_Crystal_ThTick(struct Thread *t)
+void RB_Crystal_ThTick(struct Thread *t)
 {
 	int sine;
 	struct Instance *crystalInst;
@@ -87,7 +87,7 @@ void DECOMP_RB_Crystal_ThTick(struct Thread *t)
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b4e7c-0x800b4f48.
-int DECOMP_RB_Crystal_LInC(struct Instance *crystalInst, struct Thread *driverTh, struct ScratchpadStruct *sps)
+int RB_Crystal_LInC(struct Instance *crystalInst, struct Thread *driverTh, struct ScratchpadStruct *sps)
 {
 	typedef int (*CrystalCollideFunc)(struct Thread *, struct Thread *, void *, struct ScratchpadStruct *);
 	struct Thread *crystalTh;
@@ -99,9 +99,9 @@ int DECOMP_RB_Crystal_LInC(struct Instance *crystalInst, struct Thread *driverTh
 		    // creation flags
 		    SIZE_RELATIVE_POOL_BUCKET(sizeof(struct Crystal), NONE, SMALL, STATIC),
 
-		    DECOMP_RB_Crystal_ThTick, // behavior
-		    "crystal",                // debug name
-		    0                         // thread relative
+		    RB_Crystal_ThTick, // behavior
+		    "crystal",         // debug name
+		    0                  // thread relative
 		);
 
 		crystalInst->thread = crystalTh;
@@ -109,7 +109,7 @@ int DECOMP_RB_Crystal_LInC(struct Instance *crystalInst, struct Thread *driverTh
 			return 0;
 
 		crystalTh->inst = crystalInst;
-		crystalTh->funcThCollide = (void (*)(struct Thread *))DECOMP_RB_Crystal_ThCollide;
+		crystalTh->funcThCollide = (void (*)(struct Thread *))RB_Crystal_ThCollide;
 		crystalTh = crystalInst->thread;
 	}
 
@@ -123,7 +123,7 @@ int DECOMP_RB_Crystal_LInC(struct Instance *crystalInst, struct Thread *driverTh
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b4f48-0x800b4fe4.
-void DECOMP_RB_Crystal_LInB(struct Instance *inst)
+void RB_Crystal_LInB(struct Instance *inst)
 {
 	struct Crystal *crystalObj;
 	struct Thread *t;
@@ -134,9 +134,9 @@ void DECOMP_RB_Crystal_LInB(struct Instance *inst)
 		    // creation flags
 		    SIZE_RELATIVE_POOL_BUCKET(sizeof(struct Crystal), NONE, SMALL, STATIC),
 
-		    DECOMP_RB_Crystal_ThTick, // behavior
-		    "crystal",                // debug name
-		    0                         // thread relative
+		    RB_Crystal_ThTick, // behavior
+		    "crystal",         // debug name
+		    0                  // thread relative
 		);
 
 		inst->thread = t;
@@ -145,7 +145,7 @@ void DECOMP_RB_Crystal_LInB(struct Instance *inst)
 
 		crystalObj = ((struct Crystal *)t->object);
 		t->inst = inst;
-		t->funcThCollide = (void (*)(struct Thread *))DECOMP_RB_Crystal_ThCollide;
+		t->funcThCollide = (void (*)(struct Thread *))RB_Crystal_ThCollide;
 
 		// rotX, rotY, rotZ
 		*(int *)&crystalObj->rot[0] = 0;
@@ -157,5 +157,5 @@ void DECOMP_RB_Crystal_LInB(struct Instance *inst)
 		inst->flags |= 0x20000;
 	}
 
-	DECOMP_RB_Default_LInB(inst);
+	RB_Default_LInB(inst);
 }

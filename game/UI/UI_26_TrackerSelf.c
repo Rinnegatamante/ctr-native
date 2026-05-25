@@ -59,7 +59,7 @@ void UI_TrackerSelf(struct Driver *d)
 	x = ptrAnim[timer * 2 + 0];
 	y = ptrAnim[timer * 2 + 1];
 
-	struct Thread *trackerTh = DECOMP_RB_GetThread_ClosestTracker(d);
+	struct Thread *trackerTh = RB_GetThread_ClosestTracker(d);
 
 	if (
 	    // timer loop ended

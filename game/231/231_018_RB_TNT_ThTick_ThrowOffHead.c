@@ -2,7 +2,7 @@
 // In air, after spamming L1 or R1,
 // will explode on impact with ground
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800ad310-0x800ad44c.
-void DECOMP_RB_TNT_ThTick_ThrowOffHead(struct Thread *t)
+void RB_TNT_ThTick_ThrowOffHead(struct Thread *t)
 {
 	struct GameTracker *gGT = sdata->gGT;
 	struct Instance *inst;
@@ -24,7 +24,7 @@ void DECOMP_RB_TNT_ThTick_ThrowOffHead(struct Thread *t)
 		// plays tnt explosion sound 3D
 		PlaySound3D(0x3d, inst);
 
-		DECOMP_RB_Blowup_Init(inst);
+		RB_Blowup_Init(inst);
 
 		// Set scale (x, y, z) to zero
 		inst->scale[0] = 0;

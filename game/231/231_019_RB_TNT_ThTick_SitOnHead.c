@@ -12,7 +12,7 @@ static const s16 s_tntSitScale[(0x5a + 1) * 2] = {
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800ad44c-0x800ad710.
 // NOTE(aalhendi): Retail frame 89 indexes one pair into the next RDATA table at 0x800b2ac4.
-void DECOMP_RB_TNT_ThTick_SitOnHead(struct Thread *t)
+void RB_TNT_ThTick_SitOnHead(struct Thread *t)
 {
 	struct Instance *inst;
 	struct MineWeapon *mw;
@@ -40,7 +40,7 @@ void DECOMP_RB_TNT_ThTick_SitOnHead(struct Thread *t)
 		// Play explosion sound
 		PlaySound3D(0x3d, inst);
 
-		DECOMP_RB_Blowup_Init(inst);
+		RB_Blowup_Init(inst);
 
 	LAB_800ad4ec:
 
@@ -67,7 +67,7 @@ void DECOMP_RB_TNT_ThTick_SitOnHead(struct Thread *t)
 			// Play explosion sound
 			PlaySound3D(0x3d, inst);
 
-			DECOMP_RB_Explosion_InitGeneric(inst);
+			RB_Explosion_InitGeneric(inst);
 
 			goto LAB_800ad4ec;
 		}
@@ -108,8 +108,8 @@ void DECOMP_RB_TNT_ThTick_SitOnHead(struct Thread *t)
 	mw->deltaPos[1] = 0;
 	mw->deltaPos[2] = 0;
 
-	// assign DECOMP_RB_TNT_ThTick_ThrowOffHead
-	ThTick_SetAndExec(t, DECOMP_RB_TNT_ThTick_ThrowOffHead);
+	// assign RB_TNT_ThTick_ThrowOffHead
+	ThTick_SetAndExec(t, RB_TNT_ThTick_ThrowOffHead);
 	return;
 
 LAB_800ad5f8:
@@ -145,7 +145,7 @@ LAB_800ad5f8:
 	{
 		// Blow up
 
-		DECOMP_RB_Hazard_HurtDriver(mw->driverTarget, 2, mw->instParent->thread->object, 0);
+		RB_Hazard_HurtDriver(mw->driverTarget, 2, mw->instParent->thread->object, 0);
 
 		// icon damage timer, draw icon as red
 		mw->driverTarget->damageColorTimer = 0x1e;
@@ -153,7 +153,7 @@ LAB_800ad5f8:
 		// play 3D sound for TNT explosion
 		PlaySound3D(0x3d, inst);
 
-		DECOMP_RB_Blowup_Init(inst);
+		RB_Blowup_Init(inst);
 
 		// this thread is now dead
 		t->flags |= 0x800;

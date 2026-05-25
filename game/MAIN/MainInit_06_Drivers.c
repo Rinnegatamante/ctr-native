@@ -25,7 +25,7 @@ void MainInit_Drivers(struct GameTracker *gGT)
 
 	if (LOAD_IsOpen_RacingOrBattle())
 	{
-		DECOMP_RB_MinePool_Init();
+		RB_MinePool_Init();
 	}
 
 	// Spawn all players,

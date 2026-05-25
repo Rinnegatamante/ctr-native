@@ -2,7 +2,7 @@
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800ac42c-0x800ac4b8.
 // NOTE(aalhendi): Native ThCollide ABI is void; retail returns v0=1.
-void DECOMP_RB_Hazard_ThCollide_Missile(struct Thread *thread)
+void RB_Hazard_ThCollide_Missile(struct Thread *thread)
 {
 	struct TrackerWeapon *tw;
 	struct Driver *driver;

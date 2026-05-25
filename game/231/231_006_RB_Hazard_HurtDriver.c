@@ -2,7 +2,7 @@
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800ac1b0-0x800ac204.
 
-int DECOMP_RB_Hazard_HurtDriver(struct Driver *driverVictim, int damageType, struct Driver *driverAttacker, int reason)
+int RB_Hazard_HurtDriver(struct Driver *driverVictim, int damageType, struct Driver *driverAttacker, int reason)
 {
 	struct GameTracker *gGT = sdata->gGT;
 	int result = 0;

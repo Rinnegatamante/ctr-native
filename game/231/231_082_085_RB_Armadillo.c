@@ -4,9 +4,9 @@ void Seal_CheckColl(struct Instance *sealInst, struct Thread *sealTh, int damage
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b5984-0x800b5f50.
 
-void DECOMP_RB_Armadillo_ThTick_Rolling(struct Thread *t);
+void RB_Armadillo_ThTick_Rolling(struct Thread *t);
 
-int DECOMP_RB_Armadillo_ThCollide(struct Thread *armadilloThread, struct Thread *driverTh, void *funcThCollide, struct ScratchpadStruct *sps)
+int RB_Armadillo_ThCollide(struct Thread *armadilloThread, struct Thread *driverTh, void *funcThCollide, struct ScratchpadStruct *sps)
 {
 	(void)armadilloThread;
 	(void)driverTh;
@@ -15,7 +15,7 @@ int DECOMP_RB_Armadillo_ThCollide(struct Thread *armadilloThread, struct Thread 
 	return (s16)sps->Input1.modelID == DYNAMIC_PLAYER;
 }
 
-void DECOMP_RB_Armadillo_ThTick_TurnAround(struct Thread *t)
+void RB_Armadillo_ThTick_TurnAround(struct Thread *t)
 {
 	struct Instance *armInst;
 	struct Armadillo *armObj;
@@ -48,14 +48,14 @@ void DECOMP_RB_Armadillo_ThTick_TurnAround(struct Thread *t)
 			armInst->animIndex = 1;
 			armInst->animFrame = 0;
 
-			ThTick_SetAndExec(t, DECOMP_RB_Armadillo_ThTick_Rolling);
+			ThTick_SetAndExec(t, RB_Armadillo_ThTick_Rolling);
 		}
 	}
 
 	else
 	{
 		// spin rotCurrY 180 degrees (turn around)
-		armObj->rotCurr[1] = DECOMP_RB_Hazard_InterpolateValue(armObj->rotCurr[1], armObj->rotDesired[1], 0x100);
+		armObj->rotCurr[1] = RB_Hazard_InterpolateValue(armObj->rotCurr[1], armObj->rotDesired[1], 0x100);
 
 		// converted to TEST in rebuildPS1
 		ConvertRotToMatrix(&armInst->matrix, &armObj->rotCurr[0]);
@@ -67,7 +67,7 @@ void DECOMP_RB_Armadillo_ThTick_TurnAround(struct Thread *t)
 	Seal_CheckColl(armInst, t, 1, 0x2400, 0x71);
 }
 
-void DECOMP_RB_Armadillo_ThTick_Rolling(struct Thread *t)
+void RB_Armadillo_ThTick_Rolling(struct Thread *t)
 {
 	struct Instance *armInst;
 	struct Armadillo *armObj;
@@ -131,10 +131,10 @@ void DECOMP_RB_Armadillo_ThTick_Rolling(struct Thread *t)
 
 	armObj->rotDesired[1] = (armObj->rotCurr[1] + 0x800) & 0xfff;
 
-	ThTick_SetAndExec(t, DECOMP_RB_Armadillo_ThTick_TurnAround);
+	ThTick_SetAndExec(t, RB_Armadillo_ThTick_TurnAround);
 }
 
-void DECOMP_RB_Armadillo_LInB(struct Instance *inst)
+void RB_Armadillo_LInB(struct Instance *inst)
 {
 	struct Armadillo *armObj;
 	SVECTOR rot;
@@ -149,16 +149,16 @@ void DECOMP_RB_Armadillo_LInB(struct Instance *inst)
 	    // creation flags
 	    SIZE_RELATIVE_POOL_BUCKET(sizeof(struct Armadillo), NONE, SMALL, STATIC),
 
-	    DECOMP_RB_Armadillo_ThTick_Rolling, // behavior
-	    "armadillo",                        // debug name
-	    0                                   // thread relative
+	    RB_Armadillo_ThTick_Rolling, // behavior
+	    "armadillo",                 // debug name
+	    0                            // thread relative
 	);
 
 	if (t == 0)
 		return;
 	inst->thread = t;
 	t->inst = inst;
-	t->funcThCollide = (void (*)(struct Thread *))DECOMP_RB_Armadillo_ThCollide;
+	t->funcThCollide = (void (*)(struct Thread *))RB_Armadillo_ThCollide;
 
 	// rolling animation
 	inst->animIndex = 1;

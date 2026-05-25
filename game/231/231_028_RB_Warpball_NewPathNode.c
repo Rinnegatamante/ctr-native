@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800ae668-0x800ae778.
-struct CheckpointNode *DECOMP_RB_Warpball_NewPathNode(struct CheckpointNode *cn, struct Driver *d)
+struct CheckpointNode *RB_Warpball_NewPathNode(struct CheckpointNode *cn, struct Driver *d)
 {
 	struct GameTracker *gGT = sdata->gGT;
 	u8 pathIndex;
@@ -53,9 +53,4 @@ struct CheckpointNode *DECOMP_RB_Warpball_NewPathNode(struct CheckpointNode *cn,
 	}
 
 	return &gGT->level1->ptr_restart_points[cn->nextIndex_forward];
-}
-
-struct CheckpointNode *RB_Warpball_NewPathNode(struct CheckpointNode *cn, struct Driver *d)
-{
-	return DECOMP_RB_Warpball_NewPathNode(cn, d);
 }

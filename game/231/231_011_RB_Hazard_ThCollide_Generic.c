@@ -3,7 +3,7 @@
 // I think this function should return void?
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800ac4b8-0x800ac5e8.
-void DECOMP_RB_Hazard_ThCollide_Generic(struct Thread *thread)
+void RB_Hazard_ThCollide_Generic(struct Thread *thread)
 {
 	struct Instance *inst;
 	struct MineWeapon *mw;
@@ -41,7 +41,7 @@ void DECOMP_RB_Hazard_ThCollide_Generic(struct Thread *thread)
 	{
 		PlaySound3D(0x3f, inst);
 
-		DECOMP_RB_MinePool_Remove(mw);
+		RB_MinePool_Remove(mw);
 	}
 
 	else
@@ -78,9 +78,9 @@ void DECOMP_RB_Hazard_ThCollide_Generic(struct Thread *thread)
 
 		PlaySound3D(soundID, inst);
 
-		DECOMP_RB_MinePool_Remove(mw);
+		RB_MinePool_Remove(mw);
 
-		DECOMP_RB_Explosion_InitGeneric(inst);
+		RB_Explosion_InitGeneric(inst);
 
 		inst->scale[0] = 0;
 		inst->scale[1] = 0;

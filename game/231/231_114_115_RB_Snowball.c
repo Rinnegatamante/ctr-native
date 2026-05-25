@@ -4,7 +4,7 @@ void RB_Minecart_CheckColl(struct Instance *minecartInst, struct Thread *minecar
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b92ac-0x800b95fc.
 
-void DECOMP_RB_Snowball_ThTick(struct Thread *t)
+void RB_Snowball_ThTick(struct Thread *t)
 {
 	struct Instance *snowInst;
 	struct Snowball *snowObj;
@@ -57,7 +57,7 @@ void DECOMP_RB_Snowball_ThTick(struct Thread *t)
 	snowObj->pointIndex = (snowObj->pointIndex + 1) % (snowObj->numPoints * 2);
 }
 
-void DECOMP_RB_Snowball_LInB(struct Instance *inst)
+void RB_Snowball_LInB(struct Instance *inst)
 {
 	struct Snowball *snowObj;
 	struct Thread *t;
@@ -69,9 +69,9 @@ void DECOMP_RB_Snowball_LInB(struct Instance *inst)
 	    // creation flags
 	    SIZE_RELATIVE_POOL_BUCKET(sizeof(struct Snowball), NONE, SMALL, STATIC),
 
-	    DECOMP_RB_Snowball_ThTick, // behavior
-	    "snowball",                // debug name
-	    0                          // thread relative
+	    RB_Snowball_ThTick, // behavior
+	    "snowball",         // debug name
+	    0                   // thread relative
 	);
 
 	if (t == 0)

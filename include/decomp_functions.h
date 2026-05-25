@@ -714,63 +714,63 @@ u32 MM_Video_DecodeFrame(s16 offsetX, s16 offsetY);
 u32 MM_Video_CheckIfFinished(int param_1);
 
 // 231 (undone)
-void DECOMP_RB_Player_ModifyWumpa(struct Driver *driver, int wumpaDelta);
-void DECOMP_RB_MinePool_Init(void);
-void DECOMP_RB_MinePool_Remove(struct MineWeapon *mw);
-void DECOMP_RB_MinePool_Add(struct MineWeapon *mw);
+void RB_Player_ModifyWumpa(struct Driver *driver, int wumpaDelta);
+void RB_MinePool_Init(void);
+void RB_MinePool_Remove(struct MineWeapon *mw);
+void RB_MinePool_Add(struct MineWeapon *mw);
 
-void DECOMP_RB_MaskWeapon_FadeAway(struct Thread *t);
-void DECOMP_RB_MaskWeapon_ThTick(struct Thread *maskTh);
+void RB_MaskWeapon_FadeAway(struct Thread *t);
+void RB_MaskWeapon_ThTick(struct Thread *maskTh);
 
-struct Instance *DECOMP_RB_Hazard_CollideWithDrivers(struct Instance *weaponInst, char boolCanSkipParent, int hitRadius, struct Instance *mineDriverInst);
+struct Instance *RB_Hazard_CollideWithDrivers(struct Instance *weaponInst, char boolCanSkipParent, int hitRadius, struct Instance *mineDriverInst);
 
-struct Instance *DECOMP_RB_Hazard_CollideWithBucket(struct Instance *weaponInst, struct Thread *weaponTh, struct Thread *bucket, char boolCanSkipParent,
-                                                    int hitRadius, struct Instance *mineDriverInst);
+struct Instance *RB_Hazard_CollideWithBucket(struct Instance *weaponInst, struct Thread *weaponTh, struct Thread *bucket, char boolCanSkipParent, int hitRadius,
+                                             struct Instance *mineDriverInst);
 
-void DECOMP_RB_Hazard_ThCollide_Missile(struct Thread *thread);
-void DECOMP_RB_Hazard_ThCollide_Generic(struct Thread *thread);
+void RB_Hazard_ThCollide_Missile(struct Thread *thread);
+void RB_Hazard_ThCollide_Generic(struct Thread *thread);
 
-int DECOMP_RB_Hazard_InterpolateValue(s16 currRot, s16 desiredRot, s16 rotSpeed);
+int RB_Hazard_InterpolateValue(s16 currRot, s16 desiredRot, s16 rotSpeed);
 
-void DECOMP_RB_MovingExplosive_ThTick(struct Thread *t);
+void RB_MovingExplosive_ThTick(struct Thread *t);
 
-void DECOMP_RB_MovingExplosive_Explode(struct Thread *t, struct Instance *inst, struct TrackerWeapon *tw);
+void RB_MovingExplosive_Explode(struct Thread *t, struct Instance *inst, struct TrackerWeapon *tw);
 
-void DECOMP_RB_RainCloud_FadeAway(struct Thread *t);
 void RB_RainCloud_FadeAway(struct Thread *t);
-void DECOMP_RB_RainCloud_ThTick(struct Thread *t);
-void DECOMP_RB_RainCloud_Init(struct Driver *d);
+void RB_RainCloud_FadeAway(struct Thread *t);
+void RB_RainCloud_ThTick(struct Thread *t);
+void RB_RainCloud_Init(struct Driver *d);
 
-struct Thread *DECOMP_RB_GetThread_ClosestTracker(struct Driver *d);
-void DECOMP_RB_Baron_LInB(struct Instance *inst);
+struct Thread *RB_GetThread_ClosestTracker(struct Driver *d);
+void RB_Baron_LInB(struct Instance *inst);
 
-void DECOMP_RB_Blade_ThTick(struct Thread *t);
-void DECOMP_RB_Blade_LInB(struct Instance *inst);
+void RB_Blade_ThTick(struct Thread *t);
+void RB_Blade_LInB(struct Instance *inst);
 
-void DECOMP_RB_Armadillo_ThTick_TurnAround(struct Thread *t);
-void DECOMP_RB_Armadillo_ThTick_Rolling(struct Thread *t);
-void DECOMP_RB_Armadillo_LInB(struct Instance *inst);
+void RB_Armadillo_ThTick_TurnAround(struct Thread *t);
+void RB_Armadillo_ThTick_Rolling(struct Thread *t);
+void RB_Armadillo_LInB(struct Instance *inst);
 
-void DECOMP_RB_Fireball_ThTick(struct Thread *t);
-void DECOMP_RB_Fireball_LInB(struct Instance *inst);
+void RB_Fireball_ThTick(struct Thread *t);
+void RB_Fireball_LInB(struct Instance *inst);
 
-void DECOMP_RB_Minecart_ThTick(struct Thread *t);
-void DECOMP_RB_Minecart_LInB(struct Instance *inst);
+void RB_Minecart_ThTick(struct Thread *t);
+void RB_Minecart_LInB(struct Instance *inst);
 
-void DECOMP_RB_Plant_LInB(struct Instance *inst);
+void RB_Plant_LInB(struct Instance *inst);
 
-void DECOMP_RB_Seal_ThTick_Move(struct Thread *t);
-void DECOMP_RB_Seal_ThTick_TurnAround(struct Thread *t);
-void DECOMP_RB_Seal_LInB(struct Instance *inst);
+void RB_Seal_ThTick_Move(struct Thread *t);
+void RB_Seal_ThTick_TurnAround(struct Thread *t);
+void RB_Seal_LInB(struct Instance *inst);
 
-void DECOMP_RB_Snowball_ThTick(struct Thread *t);
-void DECOMP_RB_Snowball_LInB(struct Instance *inst);
+void RB_Snowball_ThTick(struct Thread *t);
+void RB_Snowball_LInB(struct Instance *inst);
 
-void DECOMP_RB_Spider_LInB(struct Instance *inst);
+void RB_Spider_LInB(struct Instance *inst);
 
-void DECOMP_RB_Turtle_ThTick(struct Thread *t);
-int DECOMP_RB_Turtle_LInC(struct Instance *inst, struct Thread *driverTh, struct ScratchpadStruct *sps);
-void DECOMP_RB_Turtle_LInB(struct Instance *inst);
+void RB_Turtle_ThTick(struct Thread *t);
+int RB_Turtle_LInC(struct Instance *inst, struct Thread *driverTh, struct ScratchpadStruct *sps);
+void RB_Turtle_LInB(struct Instance *inst);
 
 // 232
 s16 *AH_WarpPad_GetSpawnPosRot(s16 *posData);
@@ -888,15 +888,15 @@ void DecalHUD_Arrow2D(struct Icon *icon, s16 posX, s16 posY, struct PrimMem *pri
 void RaceFlag_SetDrawOrder(int drawOrder);
 int RaceFlag_IsFullyOnScreen(void);
 int RaceFlag_IsFullyOffScreen(void);
-void DECOMP_RB_Teeth_OpenDoor(struct Instance *teethInst);
+void RB_Teeth_OpenDoor(struct Instance *teethInst);
 int VehCalc_InterpBySpeed(int val, int speed, int desired);
 int VehCalc_MapToRange(int val, int oldMin, int oldMax, int newMin, int newMax);
 // void VehStuckProc_Tumble_Animate(struct Thread* thread, struct Driver* driver);
 int VehPickupItem_MaskBoolGoodGuy(struct Driver *d);
-int DECOMP_RB_Hazard_HurtDriver(struct Driver *driverVictim, int damageType, struct Driver *driverAttacker, int reason);
+int RB_Hazard_HurtDriver(struct Driver *driverVictim, int damageType, struct Driver *driverAttacker, int reason);
 void VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags);
 int VehPickState_NewState(struct Driver *victimDriver, int damageType, struct Driver *attackDriver, int reason);
-void DECOMP_RB_Follower_Init(struct Driver *d, struct Thread *mineTh);
+void RB_Follower_Init(struct Driver *d, struct Thread *mineTh);
 void VehPhysForce_CounterSteer(struct Driver *driver);
 int LOAD_IsOpen_AdvHub(void);
 int VehPhysJoystick_ReturnToRest(int stickVal, int half, struct RacingWheelData *rwd);
@@ -912,7 +912,7 @@ void GAMEPAD_ShockForce1(struct Driver *d, int frame, int val);
 u32 *RaceFlag_GetOT(void);
 void RaceFlag_DrawLoadingString(void);
 int DecalFont_GetLineWidthStrlen(char *character, int len, int fontType);
-void DECOMP_RB_Burst_Init(struct Instance *weaponInst);
+void RB_Burst_Init(struct Instance *weaponInst);
 void GAMEPAD_ShockFreq(struct Driver *d, int frame, int val);
 int RaceFlag_IsTransitioning(void);
 void LOAD_Robots1P(int characterID);
@@ -952,9 +952,9 @@ void LOAD_DriverMPK(u32 param_1, int levelLOD);
 void LibraryOfModels_Clear(struct GameTracker *gGT);
 void DecalGlobal_Store(struct GameTracker *gGT, struct LevTexLookup *LTL);
 void DebugFont_Init(struct GameTracker *gGT);
-void DECOMP_RB_Bubbles_RoosTubes(void);
+void RB_Bubbles_RoosTubes(void);
 int LOAD_IsOpen_Podiums(void);
-void DECOMP_RB_Spider_DrawWebs(struct Thread *t, struct PushBuffer *pb);
+void RB_Spider_DrawWebs(struct Thread *t, struct PushBuffer *pb);
 int LOAD_IsOpen_MainMenu(void);
 int Particle_BitwiseClampByte(int *value);
 void PROC_DestroyBloodline(struct Thread *t);
@@ -993,7 +993,7 @@ void MainLoadVLC(void);
 void MainKillGame_StopCTR(void);
 void VehStuckProc_MaskGrab_Particles(struct Driver *d);
 int MainFrame_HaveAllPads(s16 numPlyrNextGame);
-void DECOMP_RB_CtrLetter_ThTick(struct Thread *t);
+void RB_CtrLetter_ThTick(struct Thread *t);
 void BOTS_ThTick_Drive(struct Thread *botThread);
 void BOTS_ThTick_RevEngine(struct Thread *botThread);
 void BOTS_SetRotation(struct Driver *driver, int param_2);

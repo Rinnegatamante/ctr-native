@@ -26,7 +26,7 @@ void RB_Minecart_CheckColl(struct Instance *minecartInst, struct Thread *minecar
 		hitDriver = (struct Driver *)hitInst->thread->object;
 
 		// attempt to harm driver (squish or spin-out)
-		DECOMP_RB_Hazard_HurtDriver(hitDriver, (minecartInst->model->id == DYNAMIC_SKUNK) ? 1 : 3, 0, 0);
+		RB_Hazard_HurtDriver(hitDriver, (minecartInst->model->id == DYNAMIC_SKUNK) ? 1 : 3, 0, 0);
 	}
 }
 
@@ -53,7 +53,7 @@ void RB_Minecart_NewPoint(struct Instance *minecartInst, struct Minecart *mineca
 	minecartObj->rotDesired[1] = ratan2(minecartObj->dir[0], minecartObj->dir[2]) - 0x800;
 }
 
-void DECOMP_RB_Minecart_ThTick(struct Thread *t)
+void RB_Minecart_ThTick(struct Thread *t)
 {
 	struct Instance *minecartInst;
 	struct Minecart *minecartObj;
@@ -132,8 +132,8 @@ void DECOMP_RB_Minecart_ThTick(struct Thread *t)
 		    minecartObj->posStart[i] - ((minecartObj->betweenPoints_currFrame * minecartObj->dir[i]) / minecartObj->betweenPoints_numFrames);
 	}
 
-	minecartObj->rotCurr[1] = DECOMP_RB_Hazard_InterpolateValue(minecartObj->rotCurr[1], minecartObj->rotDesired[1], minecartObj->rotSpeed);
-	minecartObj->rotCurr[0] = DECOMP_RB_Hazard_InterpolateValue(minecartObj->rotCurr[0], minecartObj->rotDesired[0], minecartObj->rotSpeed);
+	minecartObj->rotCurr[1] = RB_Hazard_InterpolateValue(minecartObj->rotCurr[1], minecartObj->rotDesired[1], minecartObj->rotSpeed);
+	minecartObj->rotCurr[0] = RB_Hazard_InterpolateValue(minecartObj->rotCurr[0], minecartObj->rotDesired[0], minecartObj->rotSpeed);
 
 	// converted to TEST in rebuildPS1
 	ConvertRotToMatrix(&minecartInst->matrix, &minecartObj->rotCurr[0]);
@@ -145,7 +145,7 @@ void DECOMP_RB_Minecart_ThTick(struct Thread *t)
 	RB_Minecart_CheckColl(minecartInst, t);
 }
 
-void DECOMP_RB_Minecart_LInB(struct Instance *inst)
+void RB_Minecart_LInB(struct Instance *inst)
 {
 	struct Minecart *minecartObj;
 	struct SpawnType2 *spawnType2;
@@ -160,9 +160,9 @@ void DECOMP_RB_Minecart_LInB(struct Instance *inst)
 	    // creation flags
 	    SIZE_RELATIVE_POOL_BUCKET(sizeof(struct Minecart), NONE, SMALL, STATIC),
 
-	    DECOMP_RB_Minecart_ThTick, // behavior
-	    "minecart",                // debug name
-	    0                          // thread relative
+	    RB_Minecart_ThTick, // behavior
+	    "minecart",         // debug name
+	    0                   // thread relative
 	);
 
 	if (t == 0)

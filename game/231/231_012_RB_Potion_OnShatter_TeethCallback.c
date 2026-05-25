@@ -11,5 +11,5 @@ void RB_Potion_OnShatter_TeethCallback(int unk, struct BSP *bspHitbox)
 	if (instDef != NULL)
 		if (teethInst = instDef->ptrInstance, teethInst != NULL)
 			if (instDef->modelID == STATIC_TEETH) // tiger temple door
-				DECOMP_RB_Teeth_OpenDoor(teethInst);
+				RB_Teeth_OpenDoor(teethInst);
 }

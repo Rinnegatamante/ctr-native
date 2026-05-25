@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800ae7dc-0x800aeaac.
-struct Driver *DECOMP_RB_Warpball_GetDriverTarget(struct TrackerWeapon *tw, struct Instance *inst)
+struct Driver *RB_Warpball_GetDriverTarget(struct TrackerWeapon *tw, struct Instance *inst)
 {
 	struct GameTracker *gGT = sdata->gGT;
 	struct Driver *bestDriver = NULL;
@@ -67,9 +67,4 @@ struct Driver *DECOMP_RB_Warpball_GetDriverTarget(struct TrackerWeapon *tw, stru
 	}
 
 	return bestDriver;
-}
-
-struct Driver *RB_Warpball_GetDriverTarget(struct TrackerWeapon *tw, struct Instance *inst)
-{
-	return DECOMP_RB_Warpball_GetDriverTarget(tw, inst);
 }

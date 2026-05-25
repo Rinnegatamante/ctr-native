@@ -6,33 +6,33 @@
 // Signatures of LInC changed to return int instead of void as per this conversation:
 // https://discord.com/channels/527135227546435584/637616020177289236/1312155337545093130
 
-void DECOMP_RB_Default_LInB();
-void DECOMP_RB_Fruit_LInB();
-int DECOMP_RB_Fruit_LInC();
+void RB_Default_LInB();
+void RB_Fruit_LInB();
+int RB_Fruit_LInC();
 void RB_GenericMine_LInB(struct Instance *inst);
-int DECOMP_RB_CrateFruit_LInC();
-int DECOMP_RB_CrateWeapon_LInC();
-int DECOMP_RB_CrateTime_LInC();
-void DECOMP_RB_FlameJet_LInB();
-// void DECOMP_RB_Plant_LInB();		-- DONE
-// void DECOMP_RB_Minecart_LInB();	-- DONE
-// void DECOMP_RB_Snowball_LInB();	-- DONE
-// void DECOMP_RB_Armadillo_LInB();	-- DONE
-// void DECOMP_RB_Blade_LInB();		-- DONE
-// void DECOMP_RB_Seal_LInB();		-- DONE
-void DECOMP_RB_Orca_LInB();
-// void DECOMP_RB_Baron_LInB();		-- DONE
-// void DECOMP_RB_Turtle_LInB();		-- DONE
-// void DECOMP_RB_Turtle_LInC();		-- DONE
-// void DECOMP_RB_Spider_LInB();		-- DONE
-// void DECOMP_RB_Fireball_LInB();	-- DONE
+int RB_CrateFruit_LInC();
+int RB_CrateWeapon_LInC();
+int RB_CrateTime_LInC();
+void RB_FlameJet_LInB();
+// void RB_Plant_LInB();		-- DONE
+// void RB_Minecart_LInB();	-- DONE
+// void RB_Snowball_LInB();	-- DONE
+// void RB_Armadillo_LInB();	-- DONE
+// void RB_Blade_LInB();		-- DONE
+// void RB_Seal_LInB();		-- DONE
+void RB_Orca_LInB();
+// void RB_Baron_LInB();		-- DONE
+// void RB_Turtle_LInB();		-- DONE
+// void RB_Turtle_LInC();		-- DONE
+// void RB_Spider_LInB();		-- DONE
+// void RB_Fireball_LInB();	-- DONE
 void RB_Banner_LInB();
-void DECOMP_RB_CtrLetter_LInB();
-int DECOMP_RB_CtrLetter_LInC();
-void DECOMP_RB_Crystal_LInB();
-int DECOMP_RB_Crystal_LInC();
-void DECOMP_RB_Teeth_LInB();
-int DECOMP_RB_Teeth_LInC();
+void RB_CtrLetter_LInB();
+int RB_CtrLetter_LInC();
+void RB_Crystal_LInB();
+int RB_Crystal_LInC();
+void RB_Teeth_LInB();
+int RB_Teeth_LInC();
 
 void AH_Sign_LInB();
 // void AH_Door_LInB();		-- DONE
@@ -44,35 +44,35 @@ void AH_Sign_LInB();
 
 // temporary, until 231 compiles into PC port
 #ifdef REBUILD_PC
-// void DECOMP_RB_Default_LInB() {}	-- DONE
-// void DECOMP_RB_Fruit_LInB() {}	-- DONE
-// int DECOMP_RB_Fruit_LInC() {}		-- DONE
+// void RB_Default_LInB() {}	-- DONE
+// void RB_Fruit_LInB() {}	-- DONE
+// int RB_Fruit_LInC() {}		-- DONE
 // void RB_GenericMine_LInB() {}		-- DONE
-// int DECOMP_RB_CrateFruit_LInC() {}	-- DONE
-// int DECOMP_RB_CrateWeapon_LInC() {}	-- DONE
-// int DECOMP_RB_CrateTime_LInC() {}		-- DONE
-// void DECOMP_RB_FlameJet_LInB() {}	-- DONE
-// void DECOMP_RB_Plant_LInB() {}	-- DONE
-// void DECOMP_RB_Minecart_LInB() {}	-- DONE
-// void DECOMP_RB_Snowball_LInB() {}	-- DONE
-// void DECOMP_RB_Armadillo_LInB() {}-- DONE
-// void DECOMP_RB_Blade_LInB() {}	-- DONE
-// void DECOMP_RB_Seal_LInB() {}		-- DONE
-// void DECOMP_RB_Orca_LInB() {}	-- DONE
-// void DECOMP_RB_Baron_LInB() {}	-- DONE
-// void DECOMP_RB_Turtle_LInB() {}	-- DONE
-// void DECOMP_RB_Turtle_LInC() {}	-- DONE
-// void DECOMP_RB_Spider_LInB() {}	-- DONE
-// void DECOMP_RB_Fireball_LInB() {}	-- DONE
+// int RB_CrateFruit_LInC() {}	-- DONE
+// int RB_CrateWeapon_LInC() {}	-- DONE
+// int RB_CrateTime_LInC() {}		-- DONE
+// void RB_FlameJet_LInB() {}	-- DONE
+// void RB_Plant_LInB() {}	-- DONE
+// void RB_Minecart_LInB() {}	-- DONE
+// void RB_Snowball_LInB() {}	-- DONE
+// void RB_Armadillo_LInB() {}-- DONE
+// void RB_Blade_LInB() {}	-- DONE
+// void RB_Seal_LInB() {}		-- DONE
+// void RB_Orca_LInB() {}	-- DONE
+// void RB_Baron_LInB() {}	-- DONE
+// void RB_Turtle_LInB() {}	-- DONE
+// void RB_Turtle_LInC() {}	-- DONE
+// void RB_Spider_LInB() {}	-- DONE
+// void RB_Fireball_LInB() {}	-- DONE
 void RB_Banner_LInB()
 {
 }
-// void DECOMP_RB_CtrLetter_LInB() {}	-- DONE
-// int DECOMP_RB_CtrLetter_LInC() {}	-- DONE
-// void DECOMP_RB_Crystal_LInB() {}	-- DONE
-// int DECOMP_RB_Crystal_LInC() {}	-- DONE
-// void DECOMP_RB_Teeth_LInB() {}	-- DONE
-// int DECOMP_RB_Teeth_LInC() {}		-- DONE
+// void RB_CtrLetter_LInB() {}	-- DONE
+// int RB_CtrLetter_LInC() {}	-- DONE
+// void RB_Crystal_LInB() {}	-- DONE
+// int RB_Crystal_LInC() {}	-- DONE
+// void RB_Teeth_LInB() {}	-- DONE
+// int RB_Teeth_LInC() {}		-- DONE
 
 void AH_Sign_LInB()
 {
@@ -1191,7 +1191,7 @@ struct Data
                     SET_MDM(NULL, NULL, NULL),
 
                     // 0x02 - PU_WUMPA_FRUIT
-                    SET_MDM(NULL, DECOMP_RB_Fruit_LInB, DECOMP_RB_Fruit_LInC),
+                    SET_MDM(NULL, RB_Fruit_LInB, RB_Fruit_LInC),
 
                     // 0x03 - PU_SMALL_BOMB
                     SET_MDM(NULL, NULL, NULL),
@@ -1209,10 +1209,10 @@ struct Data
                     SET_MDM(NULL, RB_GenericMine_LInB, NULL),
 
                     // 0x07 - PU_FRUIT_CRATE
-                    SET_MDM(NULL, DECOMP_RB_Default_LInB, DECOMP_RB_CrateFruit_LInC),
+                    SET_MDM(NULL, RB_Default_LInB, RB_CrateFruit_LInC),
 
                     // 0x08 - PU_RANDOM_CRATE (Weapon Box)
-                    SET_MDM(NULL, DECOMP_RB_Default_LInB, DECOMP_RB_CrateWeapon_LInC),
+                    SET_MDM(NULL, RB_Default_LInB, RB_CrateWeapon_LInC),
 
                     // 0x09 - PU_TIME_CRATE_1 (unused duplicate of 0x5C)
                     SET_MDM(NULL, NULL, NULL),
@@ -1242,10 +1242,10 @@ struct Data
                     SET_MDM(NULL, NULL, NULL),
 
                     // 0x12 - FLAME_JET (tiger temple)
-                    SET_MDM(NULL, DECOMP_RB_FlameJet_LInB, NULL),
+                    SET_MDM(NULL, RB_FlameJet_LInB, NULL),
 
                     // 0x13 - PIRANHA_PLANT (papu pyramid)
-                    SET_MDM(NULL, DECOMP_RB_Plant_LInB, NULL),
+                    SET_MDM(NULL, RB_Plant_LInB, NULL),
 
                     // 0x14 - GATE
                     SET_MDM(NULL, NULL, NULL),
@@ -1287,19 +1287,19 @@ struct Data
                     SET_MDM(NULL, NULL, NULL),
 
                     // 0x21 - DYNAMIC_MINE_CART
-                    SET_MDM(NULL, DECOMP_RB_Minecart_LInB, NULL),
+                    SET_MDM(NULL, RB_Minecart_LInB, NULL),
 
                     // 0x22 - TEMP_SNOWBALL (blizzard bluff boulder)
-                    SET_MDM(NULL, DECOMP_RB_Snowball_LInB, NULL),
+                    SET_MDM(NULL, RB_Snowball_LInB, NULL),
 
                     // 0x23 - FINISH_LINE
                     SET_MDM(NULL, NULL, NULL),
 
                     // 0x24 - ARMADILLO (armadillo)
-                    SET_MDM(NULL, DECOMP_RB_Armadillo_LInB, NULL),
+                    SET_MDM(NULL, RB_Armadillo_LInB, NULL),
 
                     // 0x25 - BLADE
-                    SET_MDM(NULL, DECOMP_RB_Blade_LInB, NULL),
+                    SET_MDM(NULL, RB_Blade_LInB, NULL),
 
                     // 0x26 - STATIC_CRATE_EXPLOSION
                     SET_MDM(NULL, NULL, NULL),
@@ -1419,35 +1419,35 @@ struct Data
                     SET_MDM(NULL, NULL, NULL),
 
                     // 0x4c - DYNAMIC_SEAL (polar pass)
-                    SET_MDM(NULL, DECOMP_RB_Seal_LInB, NULL),
+                    SET_MDM(NULL, RB_Seal_LInB, NULL),
 
                     // 0x4d - DYNAMIC_ORCA (unused, polar pass)
-                    SET_MDM(NULL, DECOMP_RB_Orca_LInB, NULL),
+                    SET_MDM(NULL, RB_Orca_LInB, NULL),
 
                     // 0x4e - DYNAMIC_BARREL (sewer speedway)
-                    SET_MDM(NULL, DECOMP_RB_Snowball_LInB, NULL),
+                    SET_MDM(NULL, RB_Snowball_LInB, NULL),
 
                     // 0x4f - DYNAMIC_VONLABASS (unused, hot air skyway)
-                    SET_MDM(NULL, DECOMP_RB_Baron_LInB, NULL),
+                    SET_MDM(NULL, RB_Baron_LInB, NULL),
 
                     // 0x50 - DYNAMIC_SKUNK (unused, unknown track)
                     SET_MDM(NULL, NULL /*RB_Minecart_LInB*/, NULL),
 
                     // 0x51 - DYNAMIC_TURTLE (mystery caves)
-                    SET_MDM(NULL, DECOMP_RB_Turtle_LInB, DECOMP_RB_Turtle_LInC),
+                    SET_MDM(NULL, RB_Turtle_LInB, RB_Turtle_LInC),
 
                     // 0x52 - DYNAMIC_SPIDER (cortex castle)
-                    SET_MDM(NULL, DECOMP_RB_Spider_LInB, NULL),
+                    SET_MDM(NULL, RB_Spider_LInB, NULL),
 
                     // 0x53 - DYNAMIC_SPIDERSHADOW
                     SET_MDM(NULL, NULL, NULL),
 
                     // 0x54 - DYNAMIC_FIREBALL (mystery caves fireball)
                     // DECOMP version removed LInC, it does nothing
-                    SET_MDM(NULL, DECOMP_RB_Fireball_LInB, NULL),
+                    SET_MDM(NULL, RB_Fireball_LInB, NULL),
 
                     // 0x55 - DYNAMIC_DRUM (n gin labs barrel)
-                    SET_MDM(NULL, DECOMP_RB_Baron_LInB, NULL),
+                    SET_MDM(NULL, RB_Baron_LInB, NULL),
 
                     // 0x56 - DYNAMIC_SHIELD (blue shield)
                     SET_MDM(NULL, NULL, NULL),
@@ -1468,7 +1468,7 @@ struct Data
                     SET_MDM(NULL, NULL, NULL),
 
                     // 0x5c - STATIC_TIME_CRATE_01
-                    SET_MDM(NULL, DECOMP_RB_Default_LInB, DECOMP_RB_CrateTime_LInC),
+                    SET_MDM(NULL, RB_Default_LInB, RB_CrateTime_LInC),
 
                     // 0x5d - DYNAMIC_HIGHLIGHT
                     SET_MDM(NULL, NULL, NULL),
@@ -1482,7 +1482,7 @@ struct Data
                     // 0x60 - STATIC_CRYSTAL
                     // LInC should not birth a thread, nor call ThCollide,
                     // LInC should only kill LInB's thread and trigger HUD
-                    SET_MDM(NULL, DECOMP_RB_Crystal_LInB, DECOMP_RB_Crystal_LInC),
+                    SET_MDM(NULL, RB_Crystal_LInB, RB_Crystal_LInC),
 
                     // 0x61 - STATIC_RELIC
                     SET_MDM(NULL, NULL, NULL),
@@ -1494,10 +1494,10 @@ struct Data
                     SET_MDM(NULL, NULL, NULL),
 
                     // 0x64 - STATIC_TIME_CRATE_02
-                    SET_MDM(NULL, DECOMP_RB_Default_LInB, DECOMP_RB_CrateTime_LInC),
+                    SET_MDM(NULL, RB_Default_LInB, RB_CrateTime_LInC),
 
                     // 0x65 - STATIC_TIME_CRATE_03
-                    SET_MDM(NULL, DECOMP_RB_Default_LInB, DECOMP_RB_CrateTime_LInC),
+                    SET_MDM(NULL, RB_Default_LInB, RB_CrateTime_LInC),
 
                     // 0x66 - STATIC_INTRO_TROPHY
                     SET_MDM(NULL, NULL, NULL),
@@ -1530,7 +1530,7 @@ struct Data
                     SET_MDM(NULL, NULL, NULL),
 
                     // 0x70 - STATIC_TEETH
-                    SET_MDM(NULL, DECOMP_RB_Teeth_LInB, DECOMP_RB_Teeth_LInC),
+                    SET_MDM(NULL, RB_Teeth_LInB, RB_Teeth_LInC),
 
                     // 0x71 - STATIC_STARTTEXT
                     SET_MDM(NULL, NULL /*RB_StartText_LInB*/, NULL),
@@ -1636,15 +1636,15 @@ struct Data
 
                     // 0x93 - STATIC_C
                     // Retail LInC births a thread if missing, then calls ThCollide.
-                    SET_MDM(NULL, DECOMP_RB_CtrLetter_LInB, DECOMP_RB_CtrLetter_LInC),
+                    SET_MDM(NULL, RB_CtrLetter_LInB, RB_CtrLetter_LInC),
 
                     // 0x94 - STATIC_T
                     // Retail LInC births a thread if missing, then calls ThCollide.
-                    SET_MDM(NULL, DECOMP_RB_CtrLetter_LInB, DECOMP_RB_CtrLetter_LInC),
+                    SET_MDM(NULL, RB_CtrLetter_LInB, RB_CtrLetter_LInC),
 
                     // 0x95 - STATIC_R
                     // Retail LInC births a thread if missing, then calls ThCollide.
-                    SET_MDM(NULL, DECOMP_RB_CtrLetter_LInB, DECOMP_RB_CtrLetter_LInC),
+                    SET_MDM(NULL, RB_CtrLetter_LInB, RB_CtrLetter_LInC),
 
                     // 0x96 - STATIC_CRASHINTRO
                     SET_MDM(NULL, CS_Thread_LInB, NULL),

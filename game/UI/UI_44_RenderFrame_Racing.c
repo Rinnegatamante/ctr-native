@@ -239,7 +239,7 @@ void UI_RenderFrame_Racing()
 						    // If you're not in Adventure Arena
 						    ((gameMode1 & ADVENTURE_ARENA) == 0))
 						{
-							DECOMP_RB_Player_ModifyWumpa(playerStruct, 1);
+							RB_Player_ModifyWumpa(playerStruct, 1);
 						}
 
 

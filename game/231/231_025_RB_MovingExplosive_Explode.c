@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800ae478-0x800ae524.
-void DECOMP_RB_MovingExplosive_Explode(struct Thread *t, struct Instance *inst, struct TrackerWeapon *tw)
+void RB_MovingExplosive_Explode(struct Thread *t, struct Instance *inst, struct TrackerWeapon *tw)
 {
 	s16 soundId;
 	struct Driver *d;
@@ -33,7 +33,7 @@ void DECOMP_RB_MovingExplosive_Explode(struct Thread *t, struct Instance *inst, 
 	// stop audio of rolling
 	OtherFX_RecycleMute(&tw->audioPtr);
 
-	DECOMP_RB_Burst_Init(inst);
+	RB_Burst_Init(inst);
 
 	// This thread is now dead
 	t->flags |= 0x800;

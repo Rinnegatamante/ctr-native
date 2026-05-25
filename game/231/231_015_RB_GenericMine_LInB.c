@@ -1,9 +1,9 @@
 #include <common.h>
 
-void DECOMP_RB_GenericMine_ThTick(struct Thread *t);
+void RB_GenericMine_ThTick(struct Thread *t);
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800aca50-0x800acb60.
-void DECOMP_RB_GenericMine_LInB(struct Instance *inst)
+void RB_GenericMine_LInB(struct Instance *inst)
 {
 	struct Thread *t;
 	struct GameTracker *gGT;
@@ -12,7 +12,7 @@ void DECOMP_RB_GenericMine_LInB(struct Instance *inst)
 
 	gGT = sdata->gGT;
 
-	DECOMP_RB_Default_LInB(inst);
+	RB_Default_LInB(inst);
 
 	if (inst->thread != NULL)
 		return;
@@ -26,9 +26,9 @@ void DECOMP_RB_GenericMine_LInB(struct Instance *inst)
 	    // creation flags
 	    SIZE_RELATIVE_POOL_BUCKET(sizeof(struct MineWeapon), NONE, SMALL, MINE),
 
-	    DECOMP_RB_GenericMine_ThTick, // behavior
-	    "nitro",                      // debug name
-	    0                             // thread relative
+	    RB_GenericMine_ThTick, // behavior
+	    "nitro",               // debug name
+	    0                      // thread relative
 	);
 
 	if (t == 0)
@@ -40,7 +40,7 @@ void DECOMP_RB_GenericMine_LInB(struct Instance *inst)
 	// why are these paired to P1 in Crystal Challenge?
 	parentInst = gGT->drivers[0]->instSelf;
 
-	t->funcThCollide = DECOMP_RB_Hazard_ThCollide_Generic;
+	t->funcThCollide = RB_Hazard_ThCollide_Generic;
 	t->parentThread = parentInst->thread;
 	t->modelIndex = inst->model->id;
 
@@ -56,10 +56,5 @@ void DECOMP_RB_GenericMine_LInB(struct Instance *inst)
 	mw->extraFlags = 0;
 	mw->stopFallAtY = inst->matrix.t[1];
 
-	DECOMP_RB_MinePool_Add(mw);
-}
-
-void RB_GenericMine_LInB(struct Instance *inst)
-{
-	DECOMP_RB_GenericMine_LInB(inst);
+	RB_MinePool_Add(mw);
 }

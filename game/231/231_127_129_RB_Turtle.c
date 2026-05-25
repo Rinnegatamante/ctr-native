@@ -2,7 +2,7 @@
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800ba2c0-0x800ba548 (ThTick, LInC, LInB).
 
-void DECOMP_RB_Turtle_ThTick(struct Thread *t)
+void RB_Turtle_ThTick(struct Thread *t)
 {
 	struct Turtle *turtleObj;
 	struct Instance *turtleInst;
@@ -126,7 +126,7 @@ void DECOMP_RB_Turtle_ThTick(struct Thread *t)
 	}
 }
 
-int DECOMP_RB_Turtle_LInC(struct Instance *inst, struct Thread *driverTh, struct ScratchpadStruct *sps) // unused 3rd param?
+int RB_Turtle_LInC(struct Instance *inst, struct Thread *driverTh, struct ScratchpadStruct *sps) // unused 3rd param?
 {
 	int speed;
 	int jumpType;
@@ -161,7 +161,7 @@ int DECOMP_RB_Turtle_LInC(struct Instance *inst, struct Thread *driverTh, struct
 	return 1;
 }
 
-void DECOMP_RB_Turtle_LInB(struct Instance *inst)
+void RB_Turtle_LInB(struct Instance *inst)
 {
 	int turtleID;
 	struct Thread *t;
@@ -176,9 +176,9 @@ void DECOMP_RB_Turtle_LInB(struct Instance *inst)
 	    // creation flags
 	    SIZE_RELATIVE_POOL_BUCKET(sizeof(struct Turtle), NONE, SMALL, STATIC),
 
-	    DECOMP_RB_Turtle_ThTick, // behavior
-	    "turtle",                // debug name
-	    0                        // thread relative
+	    RB_Turtle_ThTick, // behavior
+	    "turtle",         // debug name
+	    0                 // thread relative
 	);
 
 	if (t == 0)

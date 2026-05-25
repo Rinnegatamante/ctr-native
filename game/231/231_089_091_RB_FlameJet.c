@@ -225,7 +225,7 @@ struct ParticleEmitter emSet_fjFire[0x8] = {[0] =
                                             {}};
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b64c0-0x800b6728.
-void DECOMP_RB_FlameJet_Particles(struct Instance *inst, struct FlameJet *fjObj)
+void RB_FlameJet_Particles(struct Instance *inst, struct FlameJet *fjObj)
 {
 	int result;
 	struct Particle *particle1;
@@ -297,7 +297,7 @@ void DECOMP_RB_FlameJet_Particles(struct Instance *inst, struct FlameJet *fjObj)
 	}
 }
 
-void DECOMP_RB_FlameJet_ThTick(struct Thread *t)
+void RB_FlameJet_ThTick(struct Thread *t)
 {
 	struct Instance *fjInst;
 	struct FlameJet *fjObj;
@@ -325,7 +325,7 @@ void DECOMP_RB_FlameJet_ThTick(struct Thread *t)
 		// [unused variable?]
 		fjObj->unk += 0x100;
 
-		DECOMP_RB_FlameJet_Particles(fjInst, fjObj);
+		RB_FlameJet_Particles(fjInst, fjObj);
 
 		// === Collision ===
 
@@ -356,7 +356,7 @@ void DECOMP_RB_FlameJet_ThTick(struct Thread *t)
 					fjBoxDesc.funcThCollide = threadHit->funcThCollide;
 
 					// optimization
-					DECOMP_RB_Hazard_ThCollide_Generic(threadHit);
+					RB_Hazard_ThCollide_Generic(threadHit);
 				}
 
 				// if no player or robot was hit,
@@ -369,7 +369,7 @@ void DECOMP_RB_FlameJet_ThTick(struct Thread *t)
 
 		// get driver from instance
 		hitDriver = (struct Driver *)hitInst->thread->object;
-		DECOMP_RB_Hazard_HurtDriver(hitDriver, 4, 0, 0);
+		RB_Hazard_HurtDriver(hitDriver, 4, 0, 0);
 	}
 
 	// on 45th frame (1.5s)
@@ -390,7 +390,7 @@ EndFjThTick:
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b6938-0x800b6d58.
-void DECOMP_RB_FlameJet_LInB(struct Instance *inst)
+void RB_FlameJet_LInB(struct Instance *inst)
 {
 	int fjID;
 	struct Thread *t;
@@ -410,9 +410,9 @@ void DECOMP_RB_FlameJet_LInB(struct Instance *inst)
 	    // creation flags
 	    SIZE_RELATIVE_POOL_BUCKET(sizeof(struct FlameJet), NONE, SMALL, STATIC),
 
-	    DECOMP_RB_FlameJet_ThTick, // behavior
-	    "flamejet",                // debug name
-	    0                          // thread relative
+	    RB_FlameJet_ThTick, // behavior
+	    "flamejet",         // debug name
+	    0                   // thread relative
 	);
 
 	if (t == 0)

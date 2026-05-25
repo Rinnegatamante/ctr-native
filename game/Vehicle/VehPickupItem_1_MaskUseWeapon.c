@@ -31,7 +31,7 @@ struct MaskHeadWeapon *VehPickupItem_MaskUseWeapon(struct Driver *driver, int bo
 		if ((u32)(currThread->modelIndex - STATIC_AKUAKU) >= 2)
 			continue;
 
-		currThread->funcThTick = DECOMP_RB_MaskWeapon_ThTick;
+		currThread->funcThTick = RB_MaskWeapon_ThTick;
 
 		maskObj = currThread->object;
 		maskObj->duration = (driver->numWumpas < 10) ? 0x1e00 : 0x2d00;
@@ -64,7 +64,7 @@ struct MaskHeadWeapon *VehPickupItem_MaskUseWeapon(struct Driver *driver, int bo
 	int modelID = STATIC_UKAUKA - boolGoodGuy;
 
 	// 0x3a: uka head model idx in modelPtr array
-	instance = INSTANCE_BirthWithThread(modelID, sdata->s_doctor1, SMALL, OTHER, DECOMP_RB_MaskWeapon_ThTick, sizeof(struct MaskHeadWeapon), t);
+	instance = INSTANCE_BirthWithThread(modelID, sdata->s_doctor1, SMALL, OTHER, RB_MaskWeapon_ThTick, sizeof(struct MaskHeadWeapon), t);
 
 	soundID = modelID + 0x1A;
 

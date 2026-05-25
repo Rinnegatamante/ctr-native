@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_RB_Explosion_ThTick();
+void RB_Explosion_ThTick();
 
 static const u32 s_potionShatterEmitter[] = {
     0x000c0001, 0x00000000, 0x001400a1, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000001, 0x00000001, 0x00000000,
@@ -14,7 +14,7 @@ static const u32 s_potionShatterEmitter[] = {
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b1458-0x800b1630.
 // NOTE(aalhendi): Native uses retail emitter bytes from 0x800b2d58.
-void DECOMP_RB_Explosion_InitPotion(struct Instance *inst)
+void RB_Explosion_InitPotion(struct Instance *inst)
 {
 	struct Instance *shatterInst;
 	struct Particle *p;
@@ -28,7 +28,7 @@ void DECOMP_RB_Explosion_InitPotion(struct Instance *inst)
 		shatterColor = STATIC_SHOCKWAVE_RED;
 
 	// create thread for shatter
-	shatterInst = INSTANCE_BirthWithThread(shatterColor, 0, SMALL, OTHER, DECOMP_RB_Explosion_ThTick, 0, 0);
+	shatterInst = INSTANCE_BirthWithThread(shatterColor, 0, SMALL, OTHER, RB_Explosion_ThTick, 0, 0);
 
 	shatterInst->flags |= 0xa00;
 
@@ -81,6 +81,6 @@ void DECOMP_RB_Explosion_InitPotion(struct Instance *inst)
 		p->funcPtr = Particle_FuncPtr_PotionShatter;
 	}
 
-	DECOMP_RB_Potion_OnShatter_TeethSearch(inst);
+	RB_Potion_OnShatter_TeethSearch(inst);
 	return;
 }

@@ -43,8 +43,3 @@ void RB_RainCloud_FadeAway(struct Thread *t)
 	}
 	return;
 }
-
-void DECOMP_RB_RainCloud_FadeAway(struct Thread *t)
-{
-	RB_RainCloud_FadeAway(t);
-}

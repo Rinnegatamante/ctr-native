@@ -37,7 +37,7 @@ void VehStuckProc_PlantEaten_Init(struct Thread *t, struct Driver *d)
 
 	if ((LOAD_IsOpen_RacingOrBattle() != 0) && ((sdata->gGT->gameMode1 & ADVENTURE_ARENA) == 0))
 	{
-		DECOMP_RB_Player_ModifyWumpa(d, -2);
+		RB_Player_ModifyWumpa(d, -2);
 	}
 
 	// allow this thread to ignore all collisions

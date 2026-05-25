@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800aede0-0x800aef9c.
-void DECOMP_RB_Warpball_TurnAround(struct Thread *t)
+void RB_Warpball_TurnAround(struct Thread *t)
 {
 	struct TrackerWeapon *tw;
 	struct Instance *inst;
@@ -49,7 +49,7 @@ void DECOMP_RB_Warpball_TurnAround(struct Thread *t)
 			// play sound warpball death
 			PlaySound3D(0x4f, inst);
 
-			DECOMP_RB_Warpball_Death(t);
+			RB_Warpball_Death(t);
 		}
 
 		// if attempted to turn around 3 times

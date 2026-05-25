@@ -783,7 +783,7 @@ void RenderAllFlag0x40(struct GameTracker *gGT)
 		RB_Burst_ProcessBucket(gGT->threadBuckets[BURST].thread);
 		RB_Blowup_ProcessBucket(gGT->threadBuckets[BLOWUP].thread);
 
-		DECOMP_RB_Spider_DrawWebs(gGT->threadBuckets[SPIDER].thread, &gGT->pushBuffer[0]);
+		RB_Spider_DrawWebs(gGT->threadBuckets[SPIDER].thread, &gGT->pushBuffer[0]);
 		RB_Follower_ProcessBucket(gGT->threadBuckets[FOLLOWER].thread);
 		RB_StartText_ProcessBucket(gGT->threadBuckets[STARTTEXT].thread);
 	}

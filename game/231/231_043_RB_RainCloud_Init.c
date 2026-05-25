@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b1220-0x800b1458.
-void DECOMP_RB_RainCloud_Init(struct Driver *d)
+void RB_RainCloud_Init(struct Driver *d)
 {
 	struct Instance *cloudInst;
 	struct RainCloud *rcloud;
@@ -11,7 +11,7 @@ void DECOMP_RB_RainCloud_Init(struct Driver *d)
 	// if driver -> cloudTh is invalid
 	if (d->thCloud == NULL)
 	{
-		cloudInst = INSTANCE_BirthWithThread(0x42, 0, SMALL, OTHER, DECOMP_RB_RainCloud_ThTick, sizeof(struct RainCloud), d->instSelf->thread);
+		cloudInst = INSTANCE_BirthWithThread(0x42, 0, SMALL, OTHER, RB_RainCloud_ThTick, sizeof(struct RainCloud), d->instSelf->thread);
 
 		cloudInst->thread->funcThDestroy = PROC_DestroyInstance;
 
@@ -87,9 +87,4 @@ void DECOMP_RB_RainCloud_Init(struct Driver *d)
 		rcloud->boolScrollItem = (s16)((rng % 400) / 100);
 	}
 	return;
-}
-
-void RB_RainCloud_Init(struct Driver *d)
-{
-	DECOMP_RB_RainCloud_Init(d);
 }

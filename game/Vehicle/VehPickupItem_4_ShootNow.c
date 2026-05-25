@@ -1,8 +1,8 @@
 #include <common.h>
 
-void DECOMP_RB_GenericMine_ThTick(struct Thread *t);
-u16 DECOMP_RB_Hazard_CollLevInst(struct ScratchpadStruct *sps, struct Thread *th);
-void DECOMP_RB_GenericMine_ThDestroy(struct Thread *t, struct Instance *inst, struct MineWeapon *mw);
+void RB_GenericMine_ThTick(struct Thread *t);
+u16 RB_Hazard_CollLevInst(struct ScratchpadStruct *sps, struct Thread *th);
+void RB_GenericMine_ThDestroy(struct Thread *t, struct Instance *inst, struct MineWeapon *mw);
 void RB_ShieldDark_ThTick_Grow(struct Thread *t);
 void RB_Warpball_ThTick(struct Thread *t);
 struct CheckpointNode *RB_Warpball_NewPathNode(struct CheckpointNode *ptrNodeCurr, struct Driver *victim);
@@ -126,7 +126,7 @@ void VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 		}
 
 		// medium stack pool
-		weaponInst = INSTANCE_BirthWithThread(modelID, weaponName, MEDIUM, bucket, DECOMP_RB_MovingExplosive_ThTick, sizeof(struct TrackerWeapon), parentTh);
+		weaponInst = INSTANCE_BirthWithThread(modelID, weaponName, MEDIUM, bucket, RB_MovingExplosive_ThTick, sizeof(struct TrackerWeapon), parentTh);
 
 		// copy matrix
 		*(int *)&weaponInst->matrix.m[0][0] = *(int *)&dInst->matrix.m[0][0];
@@ -142,7 +142,7 @@ void VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 
 		weaponTh = weaponInst->thread;
 		weaponTh->funcThDestroy = PROC_DestroyTracker;
-		weaponTh->funcThCollide = DECOMP_RB_Hazard_ThCollide_Missile;
+		weaponTh->funcThCollide = RB_Hazard_ThCollide_Missile;
 
 		tw = weaponTh->object;
 		tw->flags = 0;
@@ -180,7 +180,7 @@ void VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 
 			if (victim != 0)
 				if (victim->thTrackingMe == 0)
-					victim->thTrackingMe = DECOMP_RB_GetThread_ClosestTracker(victim);
+					victim->thTrackingMe = RB_GetThread_ClosestTracker(victim);
 
 			PlaySound3D(0x4a, weaponInst);
 		}
@@ -251,7 +251,7 @@ void VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 			mineName = sdata->s_nitro1;
 		}
 
-		weaponInst = INSTANCE_BirthWithThread(modelID, mineName, SMALL, MINE, DECOMP_RB_GenericMine_ThTick, sizeof(struct MineWeapon), 0);
+		weaponInst = INSTANCE_BirthWithThread(modelID, mineName, SMALL, MINE, RB_GenericMine_ThTick, sizeof(struct MineWeapon), 0);
 
 		dInst = d->instSelf;
 
@@ -271,7 +271,7 @@ void VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 
 		weaponTh = weaponInst->thread;
 		weaponTh->funcThDestroy = PROC_DestroyInstance;
-		weaponTh->funcThCollide = DECOMP_RB_Hazard_ThCollide_Generic;
+		weaponTh->funcThCollide = RB_Hazard_ThCollide_Generic;
 
 		PlaySound3D(0x52, weaponInst);
 
@@ -292,7 +292,7 @@ void VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 		mw->tntSpinY = 0;
 		mw->extraFlags = 0;
 
-		DECOMP_RB_MinePool_Add(mw);
+		RB_MinePool_Add(mw);
 		VehPickupItem_PotionThrow(mw, weaponInst, flags);
 		mineHitModel = weaponInst->model->id | 0x8000;
 		mineShouldInitFollower = (flags == 0);
@@ -327,7 +327,7 @@ void VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 		{
 			sps->Input1.modelID = mineHitModel;
 
-			DECOMP_RB_Hazard_CollLevInst(sps, weaponTh);
+			RB_Hazard_CollLevInst(sps, weaponTh);
 
 			struct InstDef *instDef = sps->bspHitbox->data.hitbox.instDef;
 
@@ -341,7 +341,7 @@ void VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 
 			else
 			{
-				DECOMP_RB_GenericMine_ThDestroy(weaponTh, weaponInst, mw);
+				RB_GenericMine_ThDestroy(weaponTh, weaponInst, mw);
 			}
 
 			sps->Union.QuadBlockColl.searchFlags = 0;
@@ -376,7 +376,7 @@ void VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 
 		if (mineShouldInitFollower != 0)
 		{
-			DECOMP_RB_Follower_Init(d, weaponTh);
+			RB_Follower_Init(d, weaponTh);
 		}
 		break;
 
@@ -387,7 +387,7 @@ void VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 		{
 			modelID = STATIC_BEAKER_GREEN;
 
-			weaponInst = INSTANCE_BirthWithThread(modelID, sdata->s_beaker1, SMALL, MINE, DECOMP_RB_GenericMine_ThTick, sizeof(struct MineWeapon), 0);
+			weaponInst = INSTANCE_BirthWithThread(modelID, sdata->s_beaker1, SMALL, MINE, RB_GenericMine_ThTick, sizeof(struct MineWeapon), 0);
 			if (weaponInst == 0)
 				return;
 		}
@@ -395,7 +395,7 @@ void VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 		{
 			modelID = STATIC_BEAKER_RED;
 
-			weaponInst = INSTANCE_BirthWithThread(modelID, sdata->s_beaker1, SMALL, MINE, DECOMP_RB_GenericMine_ThTick, sizeof(struct MineWeapon), 0);
+			weaponInst = INSTANCE_BirthWithThread(modelID, sdata->s_beaker1, SMALL, MINE, RB_GenericMine_ThTick, sizeof(struct MineWeapon), 0);
 		}
 
 		dInst = d->instSelf;
@@ -415,7 +415,7 @@ void VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 
 		weaponTh = weaponInst->thread;
 		weaponTh->funcThDestroy = PROC_DestroyInstance;
-		weaponTh->funcThCollide = DECOMP_RB_Hazard_ThCollide_Generic;
+		weaponTh->funcThCollide = RB_Hazard_ThCollide_Generic;
 
 		PlaySound3D(0x52, weaponInst);
 
@@ -441,7 +441,7 @@ void VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 		if ((gb->buttonsHeldCurrFrame & BTN_UP) != 0)
 			flags |= 4;
 
-		DECOMP_RB_MinePool_Add(mw);
+		RB_MinePool_Add(mw);
 		int ret = VehPickupItem_PotionThrow(mw, weaponInst, flags);
 
 		if (ret == 0)
@@ -561,7 +561,7 @@ void VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 			}
 
 			// if spin out driver
-			if (DECOMP_RB_Hazard_HurtDriver(victim, 1, 0, 0) != 0)
+			if (RB_Hazard_HurtDriver(victim, 1, 0, 0) != 0)
 			{
 				victim->clockReceive = hurtVal;
 			}

@@ -28,7 +28,7 @@ static void RB_Warpball_SetQuadblockIndex(struct TrackerWeapon *tw, struct Scrat
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800aef9c-0x800afb70.
 // NOTE(aalhendi): Native uses the extracted warpball particle-height halfword from RDATA 0x800b2c84.
-void DECOMP_RB_Warpball_ThTick(struct Thread *t)
+void RB_Warpball_ThTick(struct Thread *t)
 {
 	struct GameTracker *gGT;
 	struct TrackerWeapon *tw;
@@ -96,7 +96,7 @@ void DECOMP_RB_Warpball_ThTick(struct Thread *t)
 		distY = (target->posCurr.y >> 8) - inst->matrix.t[1];
 		distXZ = (distX * distX) + (distZ * distZ);
 		tw->distanceToTarget = distXZ;
-		target->thTrackingMe = DECOMP_RB_GetThread_ClosestTracker(target);
+		target->thTrackingMe = RB_GetThread_ClosestTracker(target);
 
 		if ((tw->flags & 0xc) != 0)
 		{
@@ -137,7 +137,7 @@ void DECOMP_RB_Warpball_ThTick(struct Thread *t)
 			}
 
 			tw->dir[0] = 0;
-			tw->dir[1] = DECOMP_RB_Hazard_InterpolateValue(tw->dir[1], ratan2(distX, distZ), rotSpeed);
+			tw->dir[1] = RB_Hazard_InterpolateValue(tw->dir[1], ratan2(distX, distZ), rotSpeed);
 			tw->dir[2] = 0;
 			tw->vel[0] = (MATH_Sin(tw->dir[1]) * 7) >> 8;
 			tw->vel[2] = (MATH_Cos(tw->dir[1]) * 7) >> 8;
@@ -257,16 +257,16 @@ void DECOMP_RB_Warpball_ThTick(struct Thread *t)
 
 	if ((*(int *)&sps->dataOutput[0] & 4) != 0)
 	{
-		DECOMP_RB_Warpball_TurnAround(t);
+		RB_Warpball_TurnAround(t);
 	}
 
 	if (sps->boolDidTouchHitbox != 0)
 	{
 		sps->Input1.modelID = 0x36;
 
-		if (DECOMP_RB_Hazard_CollLevInst(sps, t) == 1)
+		if (RB_Hazard_CollLevInst(sps, t) == 1)
 		{
-			DECOMP_RB_Warpball_TurnAround(t);
+			RB_Warpball_TurnAround(t);
 		}
 	}
 
@@ -297,7 +297,7 @@ void DECOMP_RB_Warpball_ThTick(struct Thread *t)
 
 		if ((sps->boolDidTouchQuadblock == 0) && (((tw->flags & 0xc) != 0) || (tw->driverTarget == NULL)))
 		{
-			DECOMP_RB_Warpball_TurnAround(t);
+			RB_Warpball_TurnAround(t);
 		}
 	}
 
@@ -315,7 +315,7 @@ void DECOMP_RB_Warpball_ThTick(struct Thread *t)
 		p->framesLeftInLife = -1;
 	}
 
-	hitInst = DECOMP_RB_Hazard_CollideWithDrivers(inst, tw->frameCount_DontHurtParent, 0x9000, tw->instParent);
+	hitInst = RB_Hazard_CollideWithDrivers(inst, tw->frameCount_DontHurtParent, 0x9000, tw->instParent);
 
 	if (hitInst != NULL)
 	{
@@ -326,7 +326,7 @@ void DECOMP_RB_Warpball_ThTick(struct Thread *t)
 			u16 hadTargetPathFlag = tw->flags & 4;
 			u16 flagsBeforeHit;
 
-			DECOMP_RB_Hazard_HurtDriver(hitDriver, 2, tw->driverParent, 0);
+			RB_Hazard_HurtDriver(hitDriver, 2, tw->driverParent, 0);
 			hitDriver->damageColorTimer = 0x1e;
 
 			flagsBeforeHit = tw->flags | 0x40;
@@ -335,7 +335,7 @@ void DECOMP_RB_Warpball_ThTick(struct Thread *t)
 			if ((((flagsBeforeHit & 1) == 0) && (tw->driverTarget == hitDriver)) || (hitDriver->driverRank == 0))
 			{
 				tw->driverParent->instBombThrow = NULL;
-				DECOMP_RB_Warpball_Death(t);
+				RB_Warpball_Death(t);
 				return;
 			}
 
@@ -359,7 +359,7 @@ void DECOMP_RB_Warpball_ThTick(struct Thread *t)
 				if (tw->driverTarget == NULL)
 				{
 					tw->driverParent->instBombThrow = NULL;
-					DECOMP_RB_Warpball_Death(t);
+					RB_Warpball_Death(t);
 				}
 				else
 				{
@@ -388,7 +388,7 @@ void DECOMP_RB_Warpball_ThTick(struct Thread *t)
 	}
 	else
 	{
-		hitInst = DECOMP_RB_Hazard_CollideWithBucket(inst, t, gGT->threadBuckets[MINE].thread, tw->frameCount_DontHurtParent, 0x2400, tw->instParent);
+		hitInst = RB_Hazard_CollideWithBucket(inst, t, gGT->threadBuckets[MINE].thread, tw->frameCount_DontHurtParent, 0x2400, tw->instParent);
 
 		if (hitInst != NULL)
 		{
@@ -402,9 +402,4 @@ void DECOMP_RB_Warpball_ThTick(struct Thread *t)
 	{
 		tw->frameCount_DontHurtParent--;
 	}
-}
-
-void RB_Warpball_ThTick(struct Thread *t)
-{
-	DECOMP_RB_Warpball_ThTick(t);
 }

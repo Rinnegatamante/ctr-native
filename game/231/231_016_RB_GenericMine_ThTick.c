@@ -1,10 +1,10 @@
 #include <common.h>
 
-void DECOMP_RB_TNT_ThTick_ThrowOffHead(struct Thread *t);
-void DECOMP_RB_TNT_ThTick_ThrowOnHead(struct Thread *t);
+void RB_TNT_ThTick_ThrowOffHead(struct Thread *t);
+void RB_TNT_ThTick_ThrowOnHead(struct Thread *t);
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800acb60-0x800ad250.
-void DECOMP_RB_GenericMine_ThTick(struct Thread *t)
+void RB_GenericMine_ThTick(struct Thread *t)
 {
 	struct GameTracker *gGT;
 	struct Instance *inst;
@@ -32,7 +32,7 @@ void DECOMP_RB_GenericMine_ThTick(struct Thread *t)
 	{
 		if (model == STATIC_CRATE_TNT)
 		{
-			func = DECOMP_RB_TNT_ThTick_ThrowOffHead;
+			func = RB_TNT_ThTick_ThrowOffHead;
 
 			// set scale (x, y, z)
 			inst->scale[0] = 0x800;
@@ -44,7 +44,7 @@ void DECOMP_RB_GenericMine_ThTick(struct Thread *t)
 			// cooldown of 0.24s
 			mw->cooldown = 0xf0;
 
-			func = DECOMP_RB_Potion_ThTick_InAir;
+			func = RB_Potion_ThTick_InAir;
 		}
 
 		// this also quits the function
@@ -114,7 +114,7 @@ void DECOMP_RB_GenericMine_ThTick(struct Thread *t)
 		param = 0x1900;
 	}
 
-	coll = DECOMP_RB_Hazard_CollideWithDrivers(inst, mw->frameCount_DontHurtParent, param, mw->instParent);
+	coll = RB_Hazard_CollideWithDrivers(inst, mw->frameCount_DontHurtParent, param, mw->instParent);
 
 	// if no collision
 	if (coll == 0)
@@ -144,12 +144,12 @@ void DECOMP_RB_GenericMine_ThTick(struct Thread *t)
 		}
 
 		// spin driver
-		coll = (struct Instance *)DECOMP_RB_Hazard_HurtDriver(d, 1, mw->instParent->thread->object, param);
+		coll = (struct Instance *)RB_Hazard_HurtDriver(d, 1, mw->instParent->thread->object, param);
 
 		// if collision, and if this was a red potion
 		if ((coll != 0) && (mw->extraFlags & 1) != 0)
 		{
-			DECOMP_RB_RainCloud_Init(d);
+			RB_RainCloud_Init(d);
 		}
 
 		// if this driver is not an AI
@@ -183,7 +183,7 @@ void DECOMP_RB_GenericMine_ThTick(struct Thread *t)
 
 	LAB_800ad174:
 
-		DECOMP_RB_GenericMine_ThDestroy(t, inst, mw);
+		RB_GenericMine_ThDestroy(t, inst, mw);
 	}
 
 	// TNT/Nitro
@@ -193,7 +193,7 @@ void DECOMP_RB_GenericMine_ThTick(struct Thread *t)
 		if (d->instTntRecv != NULL)
 		{
 			// blasted driver
-			DECOMP_RB_Hazard_HurtDriver(d, 2, 0, 2);
+			RB_Hazard_HurtDriver(d, 2, 0, 2);
 
 			// icon damage timer, draw icon as red
 			d->damageColorTimer = 0x1e;
@@ -218,7 +218,7 @@ void DECOMP_RB_GenericMine_ThTick(struct Thread *t)
 		// if driver has squished timer
 		if (d->squishTimer != 0)
 		{
-			DECOMP_RB_Hazard_HurtDriver(d, 2, 0, 2);
+			RB_Hazard_HurtDriver(d, 2, 0, 2);
 
 			param = 0x1e;
 			goto LAB_800ace88;
@@ -227,7 +227,7 @@ void DECOMP_RB_GenericMine_ThTick(struct Thread *t)
 		// if model is Nitro
 		if (model == 6)
 		{
-			DECOMP_RB_Hazard_HurtDriver(d, 2, mw->instParent->thread->object, 2);
+			RB_Hazard_HurtDriver(d, 2, mw->instParent->thread->object, 2);
 
 			// Why does icon turn red in gameplay?
 
@@ -240,8 +240,8 @@ void DECOMP_RB_GenericMine_ThTick(struct Thread *t)
 		// if model is TNT
 		if (model == 0x27)
 		{
-			// DECOMP_RB_Hazard_HurtDriver (keep driving?)
-			crate = (struct Crate *)DECOMP_RB_Hazard_HurtDriver(d, 0, mw->instParent->thread->object, 2);
+			// RB_Hazard_HurtDriver (keep driving?)
+			crate = (struct Crate *)RB_Hazard_HurtDriver(d, 0, mw->instParent->thread->object, 2);
 
 			if (crate == 0)
 				goto LAB_800ad174;
@@ -260,7 +260,7 @@ void DECOMP_RB_GenericMine_ThTick(struct Thread *t)
 				// driver -> instTntRecv
 				d->instTntRecv = inst;
 
-				DECOMP_RB_MinePool_Remove(mw);
+				RB_MinePool_Remove(mw);
 
 				// play Hit TNT "bounce" sound
 				PlaySound3D(0x50, inst);
@@ -275,7 +275,7 @@ void DECOMP_RB_GenericMine_ThTick(struct Thread *t)
 				mw->deltaPos[2] = 0;
 				mw->stopFallAtY = 0x3fff;
 
-				ThTick_SetAndExec(t, DECOMP_RB_TNT_ThTick_ThrowOnHead);
+				ThTick_SetAndExec(t, RB_TNT_ThTick_ThrowOnHead);
 				return;
 			}
 
@@ -287,13 +287,13 @@ void DECOMP_RB_GenericMine_ThTick(struct Thread *t)
 				// "tnt1"
 
 				// create thread for TNT, get an Instance
-				instCrate = INSTANCE_BirthWithThread(0x27, sdata->s_tnt1, SMALL, MINE, DECOMP_RB_GenericMine_ThTick, sizeof(struct MineWeapon), 0);
+				instCrate = INSTANCE_BirthWithThread(0x27, sdata->s_tnt1, SMALL, MINE, RB_GenericMine_ThTick, sizeof(struct MineWeapon), 0);
 
 				instCrate->matrix = inst->matrix;
 
 				instCrate->thread->funcThDestroy = PROC_DestroyInstance;
 
-				instCrate->thread->funcThCollide = DECOMP_RB_Hazard_ThCollide_Generic;
+				instCrate->thread->funcThCollide = RB_Hazard_ThCollide_Generic;
 
 				// Get object from thread
 				tnt = instCrate->thread->object;
@@ -326,9 +326,9 @@ void DECOMP_RB_GenericMine_ThTick(struct Thread *t)
 				tnt->deltaPos[0] = 0;
 				tnt->deltaPos[1] = 0;
 				tnt->deltaPos[2] = 0;
-				instCrate->thread->funcThTick = DECOMP_RB_TNT_ThTick_ThrowOnHead;
+				instCrate->thread->funcThTick = RB_TNT_ThTick_ThrowOnHead;
 
-				DECOMP_RB_MinePool_Remove(mw);
+				RB_MinePool_Remove(mw);
 
 				// set scale (x, y, z) to zero
 				inst->scale[0] = 0;
@@ -371,21 +371,21 @@ LAB_800ad17c:
 		// glass shatter sound
 		PlaySound3D(0x3f, inst);
 
-		DECOMP_RB_Blowup_Init(inst);
+		RB_Blowup_Init(inst);
 	}
 	else if (model == STATIC_CRATE_TNT)
 	{
 		// tnt explosion sound
 		PlaySound3D(0x3d, inst);
 
-		DECOMP_RB_Blowup_Init(inst);
+		RB_Blowup_Init(inst);
 	}
 	else if (boolPotion != 0)
 	{
 		// glass shatter sound
 		PlaySound3D(0x3f, inst);
 
-		DECOMP_RB_Explosion_InitPotion(inst);
+		RB_Explosion_InitPotion(inst);
 	}
 
 	// this thread is now dead

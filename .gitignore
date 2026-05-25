@@ -2,6 +2,7 @@ build/
 assets/
 *.exe
 *.o
+*.gch
 *.a
 *.obj
 *.pdb

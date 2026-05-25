@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_RB_ShieldDark_ThTick_Pop(struct Thread *t);
+void RB_ShieldDark_ThTick_Pop(struct Thread *t);
 
 static const s16 s_shieldGrowScale[8][2] = {
     {977, 1835}, {1792, 2936}, {2205, 2095}, {2335, 1254}, {1884, 1612}, {1433, 1971}, {1612, 1881}, {1792, 1792},
@@ -12,7 +12,7 @@ static const s16 s_shieldPulseScale[6][2] = {
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b0454-0x800b0dbc.
 // NOTE(aalhendi): Native uses extracted shield scale tables from RDATA 0x800b2cf4 and 0x800b2d40.
-void DECOMP_RB_ShieldDark_ThTick_Grow(struct Thread *th)
+void RB_ShieldDark_ThTick_Grow(struct Thread *th)
 {
 	u16 shieldFlags;
 	s16 sVar4;
@@ -236,7 +236,7 @@ void DECOMP_RB_ShieldDark_ThTick_Grow(struct Thread *th)
 		player->instBubbleHold = NULL;
 
 		// execute, then assign per-frame funcPtr to thread
-		ThTick_SetAndExec(th, DECOMP_RB_ShieldDark_ThTick_Pop);
+		ThTick_SetAndExec(th, RB_ShieldDark_ThTick_Pop);
 		return;
 	}
 
@@ -259,7 +259,7 @@ void DECOMP_RB_ShieldDark_ThTick_Grow(struct Thread *th)
 	}
 
 	// create a thread, get an instance
-	struct Instance *bombInst = INSTANCE_BirthWithThread(model, 0, MEDIUM, OTHER, DECOMP_RB_MovingExplosive_ThTick, sizeof(struct TrackerWeapon), playerTh);
+	struct Instance *bombInst = INSTANCE_BirthWithThread(model, 0, MEDIUM, OTHER, RB_MovingExplosive_ThTick, sizeof(struct TrackerWeapon), playerTh);
 
 	struct Thread *bombTh = bombInst->thread;
 	bombTh->funcThDestroy = PROC_DestroyInstance;
@@ -319,9 +319,4 @@ LAB_800b0d6c:
 
 	// This thread is now dead
 	th->flags |= 0x800;
-}
-
-void RB_ShieldDark_ThTick_Grow(struct Thread *th)
-{
-	DECOMP_RB_ShieldDark_ThTick_Grow(th);
 }

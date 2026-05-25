@@ -1,9 +1,9 @@
 #include <common.h>
 
-void DECOMP_RB_GenericMine_ThTick(struct Thread *t);
+void RB_GenericMine_ThTick(struct Thread *t);
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800ac6b4-0x800aca50.
-void DECOMP_RB_Potion_ThTick_InAir(struct Thread *t)
+void RB_Potion_ThTick_InAir(struct Thread *t)
 {
 	struct GameTracker *gGT;
 	struct Instance *inst;
@@ -63,7 +63,7 @@ void DECOMP_RB_Potion_ThTick_InAir(struct Thread *t)
 
 	if ((*(int *)&SPS->dataOutput[0] & 4) != 0)
 	{
-		DECOMP_RB_GenericMine_ThDestroy(t, inst, mw);
+		RB_GenericMine_ThDestroy(t, inst, mw);
 	}
 
 	int iVar4;
@@ -95,7 +95,7 @@ void DECOMP_RB_Potion_ThTick_InAir(struct Thread *t)
 				mw->velocity[2] = 0;
 				mw->extraFlags &= 0xfffd; // remove "thrown" flag
 
-				ThTick_SetAndExec(t, DECOMP_RB_GenericMine_ThTick);
+				ThTick_SetAndExec(t, RB_GenericMine_ThTick);
 				return;
 			}
 
@@ -148,13 +148,13 @@ void DECOMP_RB_Potion_ThTick_InAir(struct Thread *t)
 
 			// open door if door is closed,
 			// then destroy mine right after
-			DECOMP_RB_Teeth_OpenDoor(instDef->ptrInstance);
+			RB_Teeth_OpenDoor(instDef->ptrInstance);
 		}
 	}
 
 	// hit TEETH door,
 	// or no quadblock exists within 0x900 units of Y axis
-	DECOMP_RB_GenericMine_ThDestroy(t, inst, mw);
+	RB_GenericMine_ThDestroy(t, inst, mw);
 
 	return;
 }

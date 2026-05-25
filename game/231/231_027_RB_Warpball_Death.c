@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800ae604-0x800ae668.
-void DECOMP_RB_Warpball_Death(struct Thread *t)
+void RB_Warpball_Death(struct Thread *t)
 {
 	struct TrackerWeapon *tw;
 
@@ -17,12 +17,7 @@ void DECOMP_RB_Warpball_Death(struct Thread *t)
 	// stop audio of moving
 	OtherFX_RecycleMute(&tw->audioPtr);
 
-	void DECOMP_RB_Warpball_FadeAway();
-	ThTick_SetAndExec(t, &DECOMP_RB_Warpball_FadeAway);
+	void RB_Warpball_FadeAway();
+	ThTick_SetAndExec(t, &RB_Warpball_FadeAway);
 	return;
-}
-
-void RB_Warpball_Death(struct Thread *t)
-{
-	DECOMP_RB_Warpball_Death(t);
 }

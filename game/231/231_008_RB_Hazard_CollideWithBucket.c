@@ -1,7 +1,7 @@
 #include <common.h>
 
-struct Instance *DECOMP_RB_Hazard_CollideWithBucket(struct Instance *weaponInst, struct Thread *weaponTh, struct Thread *bucket, char boolCanSkipParent,
-                                                    int hitRadius, struct Instance *mineDriverInst)
+struct Instance *RB_Hazard_CollideWithBucket(struct Instance *weaponInst, struct Thread *weaponTh, struct Thread *bucket, char boolCanSkipParent, int hitRadius,
+                                             struct Instance *mineDriverInst)
 {
 	int i;
 	struct Instance *threadInst;

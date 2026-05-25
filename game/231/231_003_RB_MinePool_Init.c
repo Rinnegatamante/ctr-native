@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_RB_MinePool_Init(void)
+void RB_MinePool_Init(void)
 {
 	int i;
 	int numMines;

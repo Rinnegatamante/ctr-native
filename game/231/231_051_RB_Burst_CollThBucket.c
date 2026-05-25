@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b1e90-0x800b20a4.
-void DECOMP_RB_Burst_CollThBucket(struct ScratchpadStruct *sps, struct Thread *t)
+void RB_Burst_CollThBucket(struct ScratchpadStruct *sps, struct Thread *t)
 {
 	struct GameTracker *gGT;
 	struct TrackerWeapon *tw;
@@ -30,7 +30,7 @@ void DECOMP_RB_Burst_CollThBucket(struct ScratchpadStruct *sps, struct Thread *t
 			attacker = ((struct MineWeapon *)weaponObj)->instParent->thread->object;
 
 			// blasted anyone?
-			DECOMP_RB_Hazard_HurtDriver(victim, 2, attacker, 2);
+			RB_Hazard_HurtDriver(victim, 2, attacker, 2);
 		}
 		else
 		{
@@ -47,7 +47,7 @@ void DECOMP_RB_Burst_CollThBucket(struct ScratchpadStruct *sps, struct Thread *t
 			attacker = ((struct TrackerWeapon *)weaponObj)->instParent->thread->object;
 
 			// blasted anyone?
-			DECOMP_RB_Hazard_HurtDriver(victim, 2, attacker, reason);
+			RB_Hazard_HurtDriver(victim, 2, attacker, reason);
 
 			if (attacker->longestShot < tw->timeAlive)
 				attacker->longestShot = tw->timeAlive;

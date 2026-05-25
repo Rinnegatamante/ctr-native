@@ -1,6 +1,6 @@
 #include <common.h>
 
-// don't use this until all functions are decompiled and all calls are made to DECOMP_ variants.
+// don't use this until all functions are decompiled and all calls use native names.
 
 #include "BOTS_00_SetGlobalNavData.c"
 #include "BOTS_01_InitNavPath.c"

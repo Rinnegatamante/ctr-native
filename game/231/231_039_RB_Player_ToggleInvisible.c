@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_RB_Player_ToggleInvisible(void)
+void RB_Player_ToggleInvisible(void)
 {
 	struct GameTracker *gGT = sdata->gGT;
 	struct Driver *d;

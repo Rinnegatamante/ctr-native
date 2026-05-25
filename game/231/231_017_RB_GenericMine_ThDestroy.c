@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800ad250-0x800ad310.
-void DECOMP_RB_GenericMine_ThDestroy(struct Thread *t, struct Instance *inst, struct MineWeapon *mw)
+void RB_GenericMine_ThDestroy(struct Thread *t, struct Instance *inst, struct MineWeapon *mw)
 {
 	u32 model;
 	u16 param;
@@ -15,7 +15,7 @@ void DECOMP_RB_GenericMine_ThDestroy(struct Thread *t, struct Instance *inst, st
 
 		PlaySound3D(param, inst);
 
-		DECOMP_RB_Blowup_Init(inst);
+		RB_Blowup_Init(inst);
 	}
 	else if (model == STATIC_CRATE_TNT)
 	{
@@ -24,14 +24,14 @@ void DECOMP_RB_GenericMine_ThDestroy(struct Thread *t, struct Instance *inst, st
 
 		PlaySound3D(param, inst);
 
-		DECOMP_RB_Blowup_Init(inst);
+		RB_Blowup_Init(inst);
 	}
 	else
 	{
 		// play sound of glass shatter
 		PlaySound3D(0x3f, inst);
 
-		DECOMP_RB_Explosion_InitPotion(inst);
+		RB_Explosion_InitPotion(inst);
 	}
 
 	// Set scale (x, y, z) to zero
@@ -42,7 +42,7 @@ void DECOMP_RB_GenericMine_ThDestroy(struct Thread *t, struct Instance *inst, st
 	// make invisible
 	inst->flags |= 0x80;
 
-	DECOMP_RB_MinePool_Remove(mw);
+	RB_MinePool_Remove(mw);
 
 	// this thread is now dead
 	t->flags |= 0x800;

@@ -66,7 +66,7 @@ s16 bubbleScaleArr3[] =
 // === WARNING ===
 // All the MinePool stuff is now double-allocated
 // because the block compiles to Baron instead of
-// DECOMP_RB_GetThread_ClosestTracker
+// RB_GetThread_ClosestTracker
 
 
 // OG game allocated 50 of these,

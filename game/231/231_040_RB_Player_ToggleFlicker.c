@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_RB_Player_ToggleFlicker(void)
+void RB_Player_ToggleFlicker(void)
 {
 	struct GameTracker *gGT = sdata->gGT;
 	struct Thread *t;

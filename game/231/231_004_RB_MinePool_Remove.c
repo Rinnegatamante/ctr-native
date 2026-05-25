@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_RB_MinePool_Remove(struct MineWeapon *mw)
+void RB_MinePool_Remove(struct MineWeapon *mw)
 {
 	struct WeaponSlot231 *ws = mw->weaponSlot231;
 

@@ -2,7 +2,7 @@
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b5210-0x800b52dc.
 
-int DECOMP_RB_CtrLetter_LInC(struct Instance *letterInst, struct Thread *driverTh, struct ScratchpadStruct *sps)
+int RB_CtrLetter_LInC(struct Instance *letterInst, struct Thread *driverTh, struct ScratchpadStruct *sps)
 {
 	typedef int (*CtrLetterCollideFunc)(struct Thread *, struct Thread *, void *, struct ScratchpadStruct *);
 	struct Thread *letterTh;
@@ -10,14 +10,14 @@ int DECOMP_RB_CtrLetter_LInC(struct Instance *letterInst, struct Thread *driverT
 	letterTh = letterInst->thread;
 	if (letterTh == NULL)
 	{
-		letterTh = PROC_BirthWithObject(SIZE_RELATIVE_POOL_BUCKET(4, NONE, SMALL, STATIC), DECOMP_RB_CtrLetter_ThTick, "ctr", NULL);
+		letterTh = PROC_BirthWithObject(SIZE_RELATIVE_POOL_BUCKET(4, NONE, SMALL, STATIC), RB_CtrLetter_ThTick, "ctr", NULL);
 
 		letterInst->thread = letterTh;
 		if (letterTh == NULL)
 			return 0;
 
 		letterTh->inst = letterInst;
-		letterTh->funcThCollide = (void (*)(struct Thread *))DECOMP_RB_CtrLetter_ThCollide;
+		letterTh->funcThCollide = (void (*)(struct Thread *))RB_CtrLetter_ThCollide;
 		letterTh = letterInst->thread;
 	}
 
