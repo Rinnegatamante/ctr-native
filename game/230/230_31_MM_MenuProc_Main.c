@@ -1,8 +1,6 @@
 #include <common.h>
 
-// byte budget
-// 840/1108
-
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800acff4-0x800ad448.
 void MM_MenuProc_Main(struct RectMenu *mainMenu)
 {
 	s16 choose;
@@ -144,15 +142,15 @@ void MM_MenuProc_Main(struct RectMenu *mainMenu)
 		return;
 	}
 
-	// DONT change, should only work in Arcade, and VS
-	if ((gGT->gameMode2 & CHEAT_ONELAP) != 0)
-	{
-		gGT->numLaps = 1;
-	}
-
 	// Arcade Mode
 	if (choose == 0x4e)
 	{
+		// DONT change, should only work in Arcade, and VS
+		if ((gGT->gameMode2 & CHEAT_ONELAP) != 0)
+		{
+			gGT->numLaps = 1;
+		}
+
 		// set game mode to Arcade Mode
 		gGT->gameMode1 |= ARCADE_MODE;
 
@@ -165,6 +163,12 @@ void MM_MenuProc_Main(struct RectMenu *mainMenu)
 	// Versus
 	if (choose == 0x4f)
 	{
+		// DONT change, should only work in Arcade, and VS
+		if ((gGT->gameMode2 & CHEAT_ONELAP) != 0)
+		{
+			gGT->numLaps = 1;
+		}
+
 		// next menu is choosing single+cup
 		mainMenu->ptrNextBox_InHierarchy = &D230.menuRaceType;
 		mainMenu->state |= DRAW_NEXT_MENU_IN_HIERARCHY;
