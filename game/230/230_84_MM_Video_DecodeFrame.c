@@ -1,7 +1,7 @@
 #include <common.h>
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b64f4-0x800b6674.
 u32 MM_Video_DecodeFrame(s16 offsetX, s16 offsetY)
-
 {
 	int iVar1;
 	u32 boolDraw;

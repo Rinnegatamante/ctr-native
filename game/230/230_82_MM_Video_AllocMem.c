@@ -1,5 +1,6 @@
 #include <common.h>
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b62d8-0x800b64d4.
 void MM_Video_AllocMem(u32 width, u16 height, u32 flags, int size, int param_5)
 {
 	char isRGB24;
@@ -50,5 +51,7 @@ void MM_Video_AllocMem(u32 width, u16 height, u32 flags, int size, int param_5)
 	DecDCTReset(0);
 
 	DecDCTvlcSize2(V230.field25_0x48);
+	EnterCriticalSection();
 	DecDCToutCallback(&MM_Video_DecDCToutCallbackFunc);
+	ExitCriticalSection();
 }
