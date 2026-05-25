@@ -1,5 +1,6 @@
 #include <common.h>
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80046534-0x8004680c
 int DECOMP_RECTMENU_ProcessInput(struct RectMenu *m)
 {
 	struct MenuRow *currMenuRow;
@@ -10,10 +11,7 @@ int DECOMP_RECTMENU_ProcessInput(struct RectMenu *m)
 
 	int returnVal = 0;
 
-#if 0
-	// do we need this?
-	RngDeadCoed();
-#endif
+	RngDeadCoed(&sdata->const_0x30215400);
 
 	// button from any player
 	button = sdata->AnyPlayerTap;
@@ -114,14 +112,13 @@ int DECOMP_RECTMENU_ProcessInput(struct RectMenu *m)
 		// if Cross or Circle
 		else
 		{
-			// "womp" sound for LOCKED row
-			int sound = 5;
-
 			// unlocked row
 			if ((m->rows[m->rowSelected].stringIndex & 0x8000) == 0)
 			{
-				// "enter" sound
-				sound = 1;
+				if ((m->state & MUTE_SOUND_OF_MOVING_CURSOR) == 0)
+				{
+					DECOMP_OtherFX_Play(1, 1);
+				}
 
 				m->unk1e = 0;
 
@@ -138,11 +135,10 @@ int DECOMP_RECTMENU_ProcessInput(struct RectMenu *m)
 					m->funcPtr(m);
 				}
 			}
-
-			// if menu is not muted
-			if ((m->state & MUTE_SOUND_OF_MOVING_CURSOR) == 0)
+			else if ((m->state & MUTE_SOUND_OF_MOVING_CURSOR) == 0)
 			{
-				DECOMP_OtherFX_Play(sound, 1);
+				// "womp" sound for LOCKED row
+				DECOMP_OtherFX_Play(5, 1);
 			}
 		}
 
