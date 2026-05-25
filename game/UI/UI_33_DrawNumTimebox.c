@@ -14,13 +14,7 @@ void UI_DrawNumTimebox(s16 posX, s16 posY, struct Driver *d)
 	numCratesOwned = d->numTimeCrates;
 	numCratesTotal = gGT->timeCratesInLEV;
 
-	sprintf(&string[0],
-#ifndef REBUILD_PS1
-	        &rdata.s_lapString[0],
-#else
-	        "%2.02d/%ld",
-#endif
-	        numCratesOwned, numCratesTotal);
+	sprintf(&string[0], "%2.02d/%ld", numCratesOwned, numCratesTotal);
 
 	DecalFont_DrawLine(&string[0], posX + 0x21, posY - 0xe, FONT_BIG, ORANGE);
 }
