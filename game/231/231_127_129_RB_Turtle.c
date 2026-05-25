@@ -1,6 +1,6 @@
 #include <common.h>
 
-// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800ba2c0-0x800ba548.
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800ba2c0-0x800ba548 (ThTick, LInC, LInB).
 
 void DECOMP_RB_Turtle_ThTick(struct Thread *t)
 {
