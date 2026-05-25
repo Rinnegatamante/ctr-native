@@ -1,5 +1,6 @@
 #include <common.h>
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b3dd8-0x800b3f88.
 void AH_MaskHint_Start(s16 hintId, u16 bool_interruptWarppad)
 {
 	int iVar3;
@@ -30,7 +31,7 @@ void AH_MaskHint_Start(s16 hintId, u16 bool_interruptWarppad)
 	// If Aku / Uka model pointer is nullptr
 	if (sdata->modelMaskHints3D == NULL)
 	{
-		LOAD_TalkingMask(LOAD_GetAdvPackIndex(), !VehPickupItem_MaskBoolGoodGuy(d));
+		LOAD_TalkingMask(LOAD_GetAdvPackIndex(), (VehPickupItem_MaskBoolGoodGuy(d) & 0xffff) == 0);
 
 		// 3.0s to spawn mask
 		D232.maskSpawnFrame = 90;

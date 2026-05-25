@@ -4047,7 +4047,8 @@ struct sData
 	// 8008dc3c -- EurRetail
 	// 80090cac -- JpnRetail
 	// used by 232, talking mask that gives hints
-	int boolDraw3D_AdvMask;
+	s16 boolDraw3D_AdvMask;
+	s16 padding_boolDraw3D_AdvMask;
 
 #if BUILD >= UsaRetail
 	// does not exist in SepReview

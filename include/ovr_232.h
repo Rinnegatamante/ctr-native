@@ -396,7 +396,8 @@ struct OverlayDATA_232
 	s16 padding3;
 
 	// 800b5558
-	int maskHintID;
+	s16 maskHintID;
+	s16 padding_maskHintID;
 
 	// 800b555c
 	int maskAngle;
@@ -411,7 +412,8 @@ struct OverlayDATA_232
 	int maskWarppadDelayFrames;
 
 	// 800b5574
-	int maskWarppadBoolInterrupt;
+	s16 maskWarppadBoolInterrupt;
+	s16 padding_maskWarppadBoolInterrupt;
 
 	// 800b5578
 	struct PauseObject *ptrPauseObject;
