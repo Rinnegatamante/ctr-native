@@ -1,7 +1,7 @@
 #include <common.h>
 
+// NOTE(aalhendi): ASM-verified against NTSC-U 926 overlay 230 0x800ad828-0x800ad8f0.
 void MM_MenuProc_SingleCup(struct RectMenu *menu)
-
 {
 	s16 row;
 	struct GameTracker *gGT;
@@ -15,8 +15,7 @@ void MM_MenuProc_SingleCup(struct RectMenu *menu)
 		return;
 	}
 
-
-	if ((u8)row < 2)
+	if ((row >= 0) && (row < 2))
 	{
 		// disable Cup mode
 		gGT->gameMode2 &= ~(CUP_ANY_KIND);

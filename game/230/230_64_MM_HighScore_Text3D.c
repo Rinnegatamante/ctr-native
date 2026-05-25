@@ -1,5 +1,6 @@
 #include <common.h>
 
+// NOTE(aalhendi): ASM-verified against NTSC-U 926 overlay 230 0x800b2f0c-0x800b2fbc.
 void MM_HighScore_Text3D(char *string, int posX, int posY, s16 font, u32 flags)
 {
 	// draw a string

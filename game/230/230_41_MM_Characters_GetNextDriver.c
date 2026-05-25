@@ -1,5 +1,6 @@
 #include <common.h>
 
+// NOTE(aalhendi): ASM-verified against NTSC-U 926 overlay 230 0x800ada4c-0x800adae4.
 int MM_Characters_GetNextDriver(s16 dpad, char characterID)
 {
 	char nextDriver;
