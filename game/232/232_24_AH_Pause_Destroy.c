@@ -1,17 +1,12 @@
 #include <common.h>
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b1ef8-0x800b1f78.
 void AH_Pause_Destroy(void)
 {
 	int i;
-	struct Instance *inst;
-	struct Thread *t;
-	int iVar3;
 
 	// global -> register
 	struct PauseObject *ptrPauseObject = D232.ptrPauseObject;
-
-	// set global
-	D232.ptrPauseObject = 0;
 
 	// check register
 	if (ptrPauseObject == 0)
@@ -24,5 +19,6 @@ void AH_Pause_Destroy(void)
 	}
 
 	// kill thread
+	D232.ptrPauseObject = 0;
 	ptrPauseObject->t->flags |= 0x800;
 }
