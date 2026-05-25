@@ -329,9 +329,13 @@ checkCollision:
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b9bc0-0x800b9bd4.
 
-int DECOMP_RB_Spider_ThCollide(struct Thread *thread)
+int DECOMP_RB_Spider_ThCollide(struct Thread *spiderThread, struct Thread *driverTh, void *funcThCollide, struct ScratchpadStruct *sps)
 {
-	return thread->modelIndex == DYNAMIC_PLAYER;
+	(void)spiderThread;
+	(void)driverTh;
+	(void)funcThCollide;
+
+	return (s16)sps->Input1.modelID == DYNAMIC_PLAYER;
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b9bd4-0x800b9dd8.
