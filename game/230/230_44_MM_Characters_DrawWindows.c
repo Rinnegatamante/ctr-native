@@ -66,7 +66,7 @@ void MM_Characters_DrawWindows(int boolShowDrivers)
 			pb->rect.x = 0x200;
 			pb->rect.w = 0;
 
-#ifdef REBUILD_PC
+#ifdef CTR_NATIVE
 			// PsyCross can't handle w==0
 			pb->rect.w = 1;
 #endif
@@ -78,7 +78,7 @@ void MM_Characters_DrawWindows(int boolShowDrivers)
 			pb->rect.y = 0xd8;
 			pb->rect.h = 0;
 
-#ifdef REBUILD_PC
+#ifdef CTR_NATIVE
 			// PsyCross can't handle h==0
 			pb->rect.h = 1;
 #endif

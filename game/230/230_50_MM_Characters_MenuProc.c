@@ -32,7 +32,7 @@ void MM_Characters_MenuProc(struct RectMenu *unused)
 
 	u8 colorRGBA[4];
 
-#ifdef REBUILD_PC
+#ifdef CTR_NATIVE
 	RECT r1;
 	RECT *r = &r1;
 #else

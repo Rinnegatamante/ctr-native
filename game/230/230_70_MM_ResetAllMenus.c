@@ -9,7 +9,7 @@ void MM_ResetAllMenus(void)
 
 // NOTE(aalhendi): Retail resets one menu per array slot; native walks chained
 // menus because overlay 230 data is not reloaded.
-#ifdef REBUILD_PC
+#ifdef CTR_NATIVE
 		do
 		{
 			struct RectMenu *next = menu->ptrNextBox_InHierarchy;
@@ -23,7 +23,7 @@ void MM_ResetAllMenus(void)
 			menu->ptrNextBox_InHierarchy = 0;
 			menu->ptrPrevBox_InHierarchy = 0;
 
-#ifdef REBUILD_PC
+#ifdef CTR_NATIVE
 			menu = next;
 		} while (menu != 0);
 #endif
