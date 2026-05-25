@@ -55,6 +55,7 @@
 #include "230_75_MM_JumpTo_Characters.c"
 #include "230_76_MM_JumpTo_Scrapbook.c"
 
+// NOTE(aalhendi): Video helpers are source-verified, but stay out of the build until V230 and STR/DCT native symbols are wired.
 // #include "230_77_MM_Video_DecDCToutCallbackFunc.c"
 // #include "230_78_MM_Video_KickCD.c"
 // #include "230_79_MM_Video_VLC_Decode.c"

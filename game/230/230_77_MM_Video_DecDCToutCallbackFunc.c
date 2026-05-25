@@ -2,6 +2,7 @@
 
 void MM_Video_DecDCToutCallbackFunc(void)
 {
+	// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b5a64-0x800b5b7c.
 // part of PSYQ BSS
 #define StCdIntrFlag *(u32 *)0x8009ebf8
 

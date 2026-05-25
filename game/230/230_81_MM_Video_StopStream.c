@@ -2,6 +2,7 @@
 
 void MM_Video_StopStream(void)
 {
+	// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b6260-0x800b62d8.
 	int iVar1;
 
 	iVar1 = CdDiskReady(1);

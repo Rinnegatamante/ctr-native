@@ -2,9 +2,10 @@
 
 void MM_Video_KickCD(CdlLOC *location)
 {
+	// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b5b7c-0x800b5c8c.
 	int iVar1;
 	int CdlMode;
-	int local_18[2];
+	u8 mode[4];
 
 	if ((location != NULL) && (V230.ptrCdLoc != &V230.cdLocation2))
 	{
@@ -27,10 +28,10 @@ void MM_Video_KickCD(CdlLOC *location)
 
 	case 1:
 		// CdlModeSpeed
-		local_18[0] = 0x80;
+		mode[0] = 0x80;
 
 		// 0xe = CdlSetmode
-		iVar1 = CdControl(0xe, local_18, 0);
+		iVar1 = CdControl(0xe, mode, 0);
 		if (iVar1 == 0)
 			return;
 

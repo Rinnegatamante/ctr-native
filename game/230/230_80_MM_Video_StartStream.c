@@ -2,6 +2,7 @@
 
 void MM_Video_StartStream(int param_1, int numFrames)
 {
+	// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b615c-0x800b6260.
 	V230.field3_0xc = 0;
 	V230.field8_0x18 = 0;
 	V230.field9_0x1a = 1;
