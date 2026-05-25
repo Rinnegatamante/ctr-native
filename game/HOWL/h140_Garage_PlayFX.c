@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80030404-0x800304b8.
-void DECOMP_Garage_PlayFX(u32 soundId, char charId)
+void Garage_PlayFX(u32 soundId, char charId)
 {
 	if (charId < PINSTRIPE)
 	{

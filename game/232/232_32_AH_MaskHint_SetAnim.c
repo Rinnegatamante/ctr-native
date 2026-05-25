@@ -29,7 +29,7 @@ void DECOMP_AH_MaskHint_SetAnim(int scale)
 
 	s16 posCurr[3];
 	s16 rotCurr[3];
-	DECOMP_CAM_ProcessTransition(&posCurr[0], &rotCurr[0], &D232.maskCamPosStart[0], &D232.maskCamRotStart[0], &posEnd[0], &rotEnd[0], scale);
+	CAM_ProcessTransition(&posCurr[0], &rotCurr[0], &D232.maskCamPosStart[0], &D232.maskCamRotStart[0], &posEnd[0], &rotEnd[0], scale);
 
 	int rot = 0x1000;
 	if (D232.maskSpawnFrame - 20 < D232.maskFrameCurr)

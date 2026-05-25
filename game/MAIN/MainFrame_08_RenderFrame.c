@@ -49,7 +49,7 @@ u32 MM_Video_CheckIfFinished(int param_1);
 volatile int gCtrDebugSkipLevelGeometry = 0;
 #endif
 
-void DECOMP_MainFrame_RenderFrame(struct GameTracker *gGT, struct GamepadSystem *gGamepads)
+void MainFrame_RenderFrame(struct GameTracker *gGT, struct GamepadSystem *gGamepads)
 {
 	struct Level *lev = gGT->level1;
 
@@ -57,7 +57,7 @@ void DECOMP_MainFrame_RenderFrame(struct GameTracker *gGT, struct GamepadSystem 
 	DrawUnpluggedMsg(gGT, gGamepads);
 	DrawFinalLap(gGT);
 
-	DECOMP_ElimBG_HandleState(gGT);
+	ElimBG_HandleState(gGT);
 
 #if !defined(REBUILD_PS1) || defined(CTR_NATIVE)
 	if ((gGT->renderFlags & 0x21) != 0)
@@ -68,7 +68,7 @@ void DECOMP_MainFrame_RenderFrame(struct GameTracker *gGT, struct GamepadSystem 
 	if ((gGT->renderFlags & 1) != 0)
 		if (gGT->visMem1 != 0)
 			if (lev != 0)
-				DECOMP_CTR_CycleTex_LEV(lev->ptr_anim_tex, gGT->timer);
+				CTR_CycleTex_LEV(lev->ptr_anim_tex, gGT->timer);
 
 	if ((sdata->ptrActiveMenu != 0) || ((gGT->gameMode1 & END_OF_RACE) != 0))
 	{
@@ -80,7 +80,7 @@ void DECOMP_MainFrame_RenderFrame(struct GameTracker *gGT, struct GamepadSystem 
 			DECOMP_RECTMENU_ProcessState();
 
 	RainLogic(gGT);
-	DECOMP_DropRain_MakeSound(gGT);
+	DropRain_MakeSound(gGT);
 	MenuHighlight();
 
 #if !defined(REBUILD_PS1) || defined(CTR_NATIVE)
@@ -155,7 +155,7 @@ void DECOMP_MainFrame_RenderFrame(struct GameTracker *gGT, struct GamepadSystem 
 	}
 #endif
 
-	DECOMP_PushBuffer_FadeAllWindows();
+	PushBuffer_FadeAllWindows();
 
 	if ((gGT->renderFlags & 1) != 0)
 	{
@@ -205,7 +205,7 @@ void DECOMP_MainFrame_RenderFrame(struct GameTracker *gGT, struct GamepadSystem 
 		    // if loading is 100% finished
 		    (sdata->Loading.stage != -4))
 		{
-			DECOMP_DotLights_AudioAndVideo(gGT);
+			DotLights_AudioAndVideo(gGT);
 
 			if ((gGT->renderFlags & 0x8000) != 0)
 			{
@@ -253,12 +253,12 @@ void DECOMP_MainFrame_RenderFrame(struct GameTracker *gGT, struct GamepadSystem 
 	// clear swapchain
 	if (((gGT->renderFlags & 0x2000) != 0) && ((lev->clearColor[0].enable != 0) || (lev->clearColor[1].enable != 0)))
 	{
-		DECOMP_CAM_ClearScreen(gGT);
+		CAM_ClearScreen(gGT);
 	}
 
 	if ((gGT->renderFlags & 0x1000) != 0)
 	{
-		DECOMP_RaceFlag_DrawSelf();
+		RaceFlag_DrawSelf();
 	}
 
 	RenderDispEnv_UI(gGT);
@@ -287,7 +287,7 @@ void DrawUnpluggedMsg(struct GameTracker *gGT, struct GamepadSystem *gGamepads)
 		return;
 
 #ifndef REBUILD_PS1
-	if (DECOMP_MainFrame_HaveAllPads(gGT->numPlyrNextGame) == 1)
+	if (MainFrame_HaveAllPads(gGT->numPlyrNextGame) == 1)
 		return;
 #else
 	// assume all connected on PC
@@ -597,8 +597,8 @@ void RenderAllHUD(struct GameTracker *gGT)
 					// except relic, until we rewrite MainGameEnd_Initialize
 					else
 					{
-						void DECOMP_RR_EndEvent_DrawMenu();
-						DECOMP_RR_EndEvent_DrawMenu();
+						void RR_EndEvent_DrawMenu();
+						RR_EndEvent_DrawMenu();
 					}
 #endif
 
@@ -766,7 +766,7 @@ void RenderDispEnv_World(struct GameTracker *gGT)
 	for (i = 0; i < gGT->numPlyrCurrGame; i++)
 	{
 		pb = &gGT->pushBuffer[i];
-		DECOMP_PushBuffer_SetDrawEnv_Normal(&pb->ptrOT[0x3ff], pb, gGT->backBuffer, 0, 0);
+		PushBuffer_SetDrawEnv_Normal(&pb->ptrOT[0x3ff], pb, gGT->backBuffer, 0, 0);
 	}
 }
 
@@ -1244,7 +1244,7 @@ void RenderDispEnv_UI(struct GameTracker *gGT)
 {
 	struct PushBuffer *pb = &gGT->pushBuffer_UI;
 
-	DECOMP_PushBuffer_SetDrawEnv_Normal(&pb->ptrOT[4], pb, gGT->backBuffer, 0, 0);
+	PushBuffer_SetDrawEnv_Normal(&pb->ptrOT[4], pb, gGT->backBuffer, 0, 0);
 }
 
 __attribute__((optimize("O0"))) int ReadyToFlip(struct GameTracker *gGT)

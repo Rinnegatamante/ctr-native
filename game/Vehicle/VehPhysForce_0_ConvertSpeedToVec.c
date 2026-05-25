@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8005e104-0x8005e214
-void VehPhysForce_ConvertSpeedToVec(struct Driver *driver, Vec3 *vel)
+void VehPhysForce_ConvertSpeedToVecOut(struct Driver *driver, Vec3 *vel)
 {
 	int yAngle = driver->axisRotationY;
 	int ySine = MATH_Sin(yAngle);
@@ -17,7 +17,7 @@ void VehPhysForce_ConvertSpeedToVec(struct Driver *driver, Vec3 *vel)
 	vel->z = FP_MULT(yComponent, xCos);
 }
 
-void DECOMP_VehPhysForce_ConvertSpeedToVec(struct Driver *driver)
+void VehPhysForce_ConvertSpeedToVec(struct Driver *driver)
 {
-	VehPhysForce_ConvertSpeedToVec(driver, &driver->velocity);
+	VehPhysForce_ConvertSpeedToVecOut(driver, &driver->velocity);
 }

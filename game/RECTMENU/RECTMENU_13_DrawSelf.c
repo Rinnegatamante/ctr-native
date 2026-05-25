@@ -191,7 +191,7 @@ LAB_80045e94:
 		}
 		background.w = menuWidth;
 
-		DECOMP_CTR_Box_DrawClearBox(&background, rgb, 1, gGT->backBuffer->otMem.startPlusFour);
+		CTR_Box_DrawClearBox(&background, rgb, 1, gGT->backBuffer->otMem.startPlusFour);
 	}
 	if ((menu->state & 0x10) != 0)
 	{

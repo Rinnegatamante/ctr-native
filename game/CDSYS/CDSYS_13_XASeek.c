@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8001cc18-0x8001cd20.
-int DECOMP_CDSYS_XASeek(int boolCdControl, int categoryID, int xaID)
+int CDSYS_XASeek(int boolCdControl, int categoryID, int xaID)
 {
 	CdlLOC loc;
 	int com;
@@ -15,11 +15,11 @@ int DECOMP_CDSYS_XASeek(int boolCdControl, int categoryID, int xaID)
 	if (categoryID >= CDSYS_XA_NUM_TYPES)
 		return 0;
 
-	if (xaID >= DECOMP_CDSYS_XAGetNumTracks(categoryID))
+	if (xaID >= CDSYS_XAGetNumTracks(categoryID))
 		return 0;
 
 	if (sdata->discMode != DM_AUDIO)
-		DECOMP_CDSYS_SetMode_StreamAudio();
+		CDSYS_SetMode_StreamAudio();
 
 	struct XaSize *xas = &sdata->ptrArray_XaSize[sdata->ptrArray_firstSongIndex[categoryID] + xaID];
 	int sum = sdata->ptrArray_XaCdPos[sdata->ptrArray_firstXaIndex[categoryID] + xas->XaPrefix];

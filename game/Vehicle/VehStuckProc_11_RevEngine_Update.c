@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80067960-0x80067a74.
-void DECOMP_VehStuckProc_RevEngine_Update(struct Thread *t, struct Driver *d)
+void VehStuckProc_RevEngine_Update(struct Thread *t, struct Driver *d)
 {
 	int revFireLevel;
 
@@ -54,7 +54,7 @@ void DECOMP_VehStuckProc_RevEngine_Update(struct Thread *t, struct Driver *d)
 		}
 
 		// one full second of reserves
-		DECOMP_VehFire_Increment(d, 960, 0, revFireLevel);
+		VehFire_Increment(d, 960, 0, revFireLevel);
 	}
 
 	// full meter

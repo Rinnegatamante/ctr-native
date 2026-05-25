@@ -3214,13 +3214,12 @@ struct Data
                                    0xC4D0, 0xC8B0, 0xCC92, 0xD074, 0xD457, 0xD83B, 0xDC1F, 0xE005, 0xE3EC, 0xE7D3, 0xEBBC, 0xEFA5},
 #endif
 
-            .opcodeFunc = {DECOMP_cseq_opcode00_empty, // should remove
-                           DECOMP_cseq_opcode01_noteoff,
-                           DECOMP_cseq_opcode02_empty, // should remove
-                           DECOMP_cseq_opcode03,
-                           DECOMP_cseq_opcode04_empty, // should remove
-                           DECOMP_cseq_opcode05_noteon, DECOMP_cseq_opcode06, DECOMP_cseq_opcode07, DECOMP_cseq_opcode08, DECOMP_cseq_opcode09,
-                           DECOMP_cseq_opcode0a},
+            .opcodeFunc = {cseq_opcode00_empty, // should remove
+                           cseq_opcode01_noteoff,
+                           cseq_opcode02_empty, // should remove
+                           cseq_opcode03,
+                           cseq_opcode04_empty, // should remove
+                           cseq_opcode05_noteon, cseq_opcode06, cseq_opcode07, cseq_opcode08, cseq_opcode09, cseq_opcode0a},
 
             .opcodeOffset = {0x01, 0x02, 0x02, 0x01, 0x02, 0x03, 0x02, 0x02, 0x02, 0x02, 0x02},
 
@@ -4377,7 +4376,7 @@ struct Data
                     .unk1 = 0,
                     .state = 0x8C83,
                     .rows = &data.rowsQuit[0],
-                    .funcPtr = DECOMP_MainFreeze_MenuPtrQuit,
+                    .funcPtr = MainFreeze_MenuPtrQuit,
                     .drawStyle = 4,
 
                     // the rest initializes as zeros
@@ -4509,7 +4508,7 @@ struct Data
                     .unk1 = 0,
                     .state = 0x8C83,
                     .rows = &data.rowsAdvHub[0],
-                    .funcPtr = DECOMP_MainFreeze_MenuPtrDefault,
+                    .funcPtr = MainFreeze_MenuPtrDefault,
                     .drawStyle = 4,
                 },
 
@@ -4530,7 +4529,7 @@ struct Data
                     .unk1 = 0,
                     .state = 0xc883,
                     .rows = &data.rowsAdvRace[0],
-                    .funcPtr = DECOMP_MainFreeze_MenuPtrDefault,
+                    .funcPtr = MainFreeze_MenuPtrDefault,
                     .drawStyle = 4,
                 },
 
@@ -4550,7 +4549,7 @@ struct Data
                     .unk1 = 0,
                     .state = 0xc883,
                     .rows = &data.rowsAdvCup[0],
-                    .funcPtr = DECOMP_MainFreeze_MenuPtrDefault,
+                    .funcPtr = MainFreeze_MenuPtrDefault,
                     .drawStyle = 6,
                 },
 
@@ -4574,7 +4573,7 @@ struct Data
                     .unk1 = 0,
                     .state = 0xcc83,
                     .rows = &data.rowsBattle[0],
-                    .funcPtr = DECOMP_MainFreeze_MenuPtrDefault,
+                    .funcPtr = MainFreeze_MenuPtrDefault,
                     .drawStyle = 4,
                 },
 
@@ -4594,7 +4593,7 @@ struct Data
                     .unk1 = 0,
                     .state = 0xcc83,
                     .rows = &data.rowsArcadeCup[0],
-                    .funcPtr = DECOMP_MainFreeze_MenuPtrDefault,
+                    .funcPtr = MainFreeze_MenuPtrDefault,
                     .drawStyle = 4,
                 },
 
@@ -4617,7 +4616,7 @@ struct Data
                     .unk1 = 0,
                     .state = 0xcc83,
                     .rows = &data.rowsArcadeRace[0],
-                    .funcPtr = DECOMP_MainFreeze_MenuPtrDefault,
+                    .funcPtr = MainFreeze_MenuPtrDefault,
                     .drawStyle = 4,
                 },
 
@@ -4929,7 +4928,7 @@ struct Data
 
             .menuQueueLoadTrack = {.stringIndexTitle = 0xFFFF,
                                    .state = 0x20, // no input, just funcPtr
-                                   .funcPtr = DECOMP_QueueLoadTrack_MenuProc},
+                                   .funcPtr = QueueLoadTrack_MenuProc},
 
             .matrixTitleFlag = {.m =
                                     {
@@ -5011,7 +5010,7 @@ struct Data
                 {
                     .stringIndexTitle = -1,
                     .state = 0x820,
-                    .funcPtr = DECOMP_SubmitName_MenuProc,
+                    .funcPtr = SubmitName_MenuProc,
                 },
 
             .menuQueueLoadHub =

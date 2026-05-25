@@ -21,7 +21,7 @@ extern char numWeapons[7];
 
 // Itemset infographic (outdated):
 // https://discord.com/channels/330945093416779787/550106151887568906/734368526294450267
-void DECOMP_VehPhysGeneral_SetHeldItem(struct Driver *driver)
+void VehPhysGeneral_SetHeldItem(struct Driver *driver)
 {
 	u32 rng;
 	int itemSet;
@@ -83,7 +83,7 @@ void DECOMP_VehPhysGeneral_SetHeldItem(struct Driver *driver)
 				if (driver->driverRank == 1)
 				{
 					itemSet = ITEMSET_Race3;
-					rng = DECOMP_MixRNG_Scramble();
+					rng = MixRNG_Scramble();
 					if (rng & 1)
 						goto Itemset2;
 				}
@@ -145,7 +145,7 @@ void DECOMP_VehPhysGeneral_SetHeldItem(struct Driver *driver)
 	}
 
 	// Decide item for Driver
-	rng = (DECOMP_MixRNG_Scramble() >> 0x3) % 0xc8;
+	rng = (MixRNG_Scramble() >> 0x3) % 0xc8;
 
 	// number of weapons for RNG
 	numWeapons[ITEMSET_BattleCustom] = gGT->battleSetup.numWeapons;
@@ -178,7 +178,7 @@ void DECOMP_VehPhysGeneral_SetHeldItem(struct Driver *driver)
 
 	// "-1st place": Undecided rank
 	default:
-		rng = DECOMP_MixRNG_Scramble();
+		rng = MixRNG_Scramble();
 		item = (char)rng + -0xc * ((char)(rng / 6 + (rng >> 0x1f) >> 1) - (char)(rng >> 0x1f));
 	SetItem:
 		driver->heldItemID = item;

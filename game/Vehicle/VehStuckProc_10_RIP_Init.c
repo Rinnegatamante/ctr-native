@@ -7,8 +7,3 @@ void VehStuckProc_RIP_Init(struct Thread *t, struct Driver *d)
 	d->funcPtrs[1] = NULL;
 	d->funcPtrs[11] = NULL;
 }
-
-void DECOMP_VehStuckProc_RIP_Init(struct Thread *t, struct Driver *d)
-{
-	VehStuckProc_RIP_Init(t, d);
-}

@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80066e8c-0x800671b0.
-void DECOMP_VehStuckProc_MaskGrab_Animate(struct Thread *t, struct Driver *d)
+void VehStuckProc_MaskGrab_Animate(struct Thread *t, struct Driver *d)
 {
 	char frame;
 	s16 sVar2;
@@ -16,9 +16,9 @@ void DECOMP_VehStuckProc_MaskGrab_Animate(struct Thread *t, struct Driver *d)
 		d->matrixIndex = 0;
 		inst->animIndex = 0;
 
-		numFrames = DECOMP_VehFrameInst_GetNumAnimFrames(inst, 0);
+		numFrames = VehFrameInst_GetNumAnimFrames(inst, 0);
 
-		inst->animFrame = DECOMP_VehFrameInst_GetStartFrame(0, numFrames);
+		inst->animFrame = VehFrameInst_GetStartFrame(0, numFrames);
 
 		d->AxisAngle2_normalVec[0] = d->KartStates.MaskGrab.AngleAxis_NormalVec[0];
 		d->AxisAngle2_normalVec[1] = d->KartStates.MaskGrab.AngleAxis_NormalVec[1];
@@ -99,7 +99,7 @@ void DECOMP_VehStuckProc_MaskGrab_Animate(struct Thread *t, struct Driver *d)
 				// if particles are not spawned
 				if (d->KartStates.MaskGrab.boolParticlesSpawned == false)
 				{
-					DECOMP_VehStuckProc_MaskGrab_Particles(d);
+					VehStuckProc_MaskGrab_Particles(d);
 
 					// now they are spawned
 					d->KartStates.MaskGrab.boolParticlesSpawned = true;

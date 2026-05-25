@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002a9f0-0x8002aa44
-void DECOMP_SongPool_AdvHub1(struct Song *song, int seqID, int vol, int boolImm)
+void SongPool_AdvHub1(struct Song *song, int seqID, int vol, int boolImm)
 {
 	struct SongSeq *seq;
 

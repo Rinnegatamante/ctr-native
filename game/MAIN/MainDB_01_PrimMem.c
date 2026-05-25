@@ -1,10 +1,10 @@
 #include <common.h>
 
-void DECOMP_MainDB_PrimMem(struct PrimMem *primMem, u32 size)
+void MainDB_PrimMem(struct PrimMem *primMem, u32 size)
 {
 	void *pvVar1;
 
-	pvVar1 = DECOMP_MEMPACK_AllocMem(size);
+	pvVar1 = MEMPACK_AllocMem(size);
 	primMem->size = size;
 	primMem->unk2 = (int)pvVar1;
 	primMem->curr = pvVar1;

@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80018ba0-0x80018d20
-u8 DECOMP_CAM_Path_Move(int frameIndex, s16 *position, s16 *rotation, s16 *getPath)
+u8 CAM_Path_Move(int frameIndex, s16 *position, s16 *rotation, s16 *getPath)
 {
 	s16 frame;
 	s16 numPos;
@@ -13,7 +13,7 @@ u8 DECOMP_CAM_Path_Move(int frameIndex, s16 *position, s16 *rotation, s16 *getPa
 	frame = (s16)frameIndex;
 
 	// get number of position on track
-	numPos = DECOMP_CAM_Path_GetNumPoints();
+	numPos = CAM_Path_GetNumPoints();
 
 	if (frame < 0)
 		return 0;

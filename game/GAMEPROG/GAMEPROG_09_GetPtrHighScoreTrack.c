@@ -11,8 +11,3 @@ void GAMEPROG_GetPtrHighScoreTrack(void)
 
 	sdata->ptrActiveHighScoreEntry = &sdata->gameProgress.highScoreTracks[gGT->levelID].scoreEntry[6 * ((gameMode1 & RELIC_RACE) != 0)];
 }
-
-void DECOMP_GAMEPROG_GetPtrHighScoreTrack(void)
-{
-	GAMEPROG_GetPtrHighScoreTrack();
-}

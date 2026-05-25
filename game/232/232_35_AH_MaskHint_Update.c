@@ -100,7 +100,7 @@ void DECOMP_AH_MaskHint_Update()
 		D232.maskCamPosStart[1] = dInst->matrix.t[1];
 		D232.maskCamPosStart[2] = dInst->matrix.t[2];
 
-		sdata->instMaskHints3D = DECOMP_VehTalkMask_Init();
+		sdata->instMaskHints3D = VehTalkMask_Init();
 		struct Instance *mhInst = sdata->instMaskHints3D;
 		((struct MaskHint *)mhInst->thread->object)->scale = 0;
 
@@ -171,7 +171,7 @@ void DECOMP_AH_MaskHint_Update()
 
 			DECOMP_AH_MaskHint_SpawnParticles(0x18, &D232.emSet_maskLeave[0], 0x1000);
 
-			DECOMP_VehTalkMask_PlayXA((struct Instance *)sdata->modelMaskHints3D, D232.maskHintID);
+			VehTalkMask_PlayXA((struct Instance *)sdata->modelMaskHints3D, D232.maskHintID);
 
 			if (((gGT->gameMode1 & ADVENTURE_ARENA) != 0) &&
 
@@ -211,7 +211,7 @@ void DECOMP_AH_MaskHint_Update()
 #if 1
 
 			// Code that shipped in 1999
-			if (DECOMP_VehPickupItem_MaskBoolGoodGuy(d))
+			if (VehPickupItem_MaskBoolGoodGuy(d))
 				lngIndex = 0x177;
 			else
 				lngIndex = 0x232;
@@ -240,7 +240,7 @@ void DECOMP_AH_MaskHint_Update()
 		int bVar8;
 		int uVar3 = D232.maskWarppadDelayFrames - 1;
 		if ((((D232.maskWarppadDelayFrames == 0) || (bVar8 = D232.maskWarppadDelayFrames == 1, D232.maskWarppadDelayFrames = uVar3, bVar8)) &&
-		     (((DECOMP_VehTalkMask_boolNoXA() != 0) || ((sdata->gGamepads->gamepad[0].buttonsTapped & BTN_TRIANGLE) != 0)))) &&
+		     (((VehTalkMask_boolNoXA() != 0) || ((sdata->gGamepads->gamepad[0].buttonsTapped & BTN_TRIANGLE) != 0)))) &&
 		    (sdata->AkuAkuHintState++,
 
 		     // If you're in Adventure Arena
@@ -260,7 +260,7 @@ void DECOMP_AH_MaskHint_Update()
 		// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b4b24-0x800b4b2c for mask vanish SFX.
 		DECOMP_OtherFX_Play(0x101, 1);
 
-		DECOMP_VehTalkMask_End();
+		VehTalkMask_End();
 
 		if ((D232.maskWarppadBoolInterrupt & 1) == 0)
 		{

@@ -46,7 +46,7 @@ void *PlayerDriftingFuncTable[13] = {DECOMP_VehPhysProc_PowerSlide_InitSetUpdate
                                      DECOMP_VehPhysProc_PowerSlide_PhysLinear,
                                      DECOMP_VehPhysProc_Driving_Audio,
                                      DECOMP_VehPhysProc_PowerSlide_PhysAngular,
-                                     DECOMP_VehPhysForce_OnApplyForces,
+                                     VehPhysForce_OnApplyForces,
 
 #ifndef REBUILD_PS1
                                      COLL_MOVED_PlayerSearch,

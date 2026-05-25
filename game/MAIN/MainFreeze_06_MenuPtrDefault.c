@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80039a44-0x80039dcc.
-void DECOMP_MainFreeze_MenuPtrDefault(struct RectMenu *menu)
+void MainFreeze_MenuPtrDefault(struct RectMenu *menu)
 {
 	int levID = 0; // dingo canyon
 	u16 stringID;
@@ -84,7 +84,7 @@ void DECOMP_MainFreeze_MenuPtrDefault(struct RectMenu *menu)
 	// get rid of pause flag
 	gGT->gameMode1 &= ~PAUSE_1;
 
-	DECOMP_MainFreeze_SafeAdvDestroy();
+	MainFreeze_SafeAdvDestroy();
 
 	// careful, it's stringID MINUS one
 	switch (stringID)
@@ -98,10 +98,10 @@ void DECOMP_MainFreeze_MenuPtrDefault(struct RectMenu *menu)
 		// restart race
 		sdata->Loading.stage = -5;
 
-		if (DECOMP_RaceFlag_IsFullyOffScreen() == 1)
+		if (RaceFlag_IsFullyOffScreen() == 1)
 		{
 			// checkered flag, begin transition on-screen
-			DECOMP_RaceFlag_BeginTransition(1);
+			RaceFlag_BeginTransition(1);
 		}
 
 		// if you are not showing a ghost during a race
@@ -121,10 +121,10 @@ void DECOMP_MainFreeze_MenuPtrDefault(struct RectMenu *menu)
 	case 2:
 
 		// unpause game
-		DECOMP_ElimBG_Deactivate(gGT);
+		ElimBG_Deactivate(gGT);
 
 		// unpause audio
-		DECOMP_MainFrame_TogglePauseAudio(0);
+		MainFrame_TogglePauseAudio(0);
 
 		// play pause/unpause sound
 		DECOMP_OtherFX_Play(1, 1);
@@ -134,7 +134,7 @@ void DECOMP_MainFreeze_MenuPtrDefault(struct RectMenu *menu)
 	case 5:
 
 		// erase ghost of previous race from RAM
-		DECOMP_GhostTape_Destroy();
+		GhostTape_Destroy();
 
 		// set level ID to main menu
 		levID = MAIN_MENU_LEVEL;
@@ -150,7 +150,7 @@ void DECOMP_MainFreeze_MenuPtrDefault(struct RectMenu *menu)
 	case 6:
 
 		// erase ghost of previous race from RAM
-		DECOMP_GhostTape_Destroy();
+		GhostTape_Destroy();
 
 		// level ID of main mb
 		levID = MAIN_MENU_LEVEL;
@@ -225,6 +225,6 @@ void DECOMP_MainFreeze_MenuPtrDefault(struct RectMenu *menu)
 		break;
 	}
 
-	DECOMP_MainRaceTrack_RequestLoad(levID);
+	MainRaceTrack_RequestLoad(levID);
 	return;
 }

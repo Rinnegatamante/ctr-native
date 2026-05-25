@@ -12,8 +12,3 @@ void PushBuffer_FadeAllWindows()
 
 	PushBuffer_FadeOneWindow(&gGT->pushBuffer_UI);
 }
-
-void DECOMP_PushBuffer_FadeAllWindows()
-{
-	PushBuffer_FadeAllWindows();
-}

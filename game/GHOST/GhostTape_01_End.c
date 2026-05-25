@@ -15,7 +15,7 @@ void GhostTape_End(void)
 	sdata->boolCanSaveGhost = 0;
 
 	// Write the last chunk of ghost data
-	DECOMP_GhostTape_WriteMoves(1);
+	GhostTape_WriteMoves(1);
 
 	d = gGT->drivers[0];
 	gh = sdata->GhostRecording.ptrGhost;
@@ -24,9 +24,4 @@ void GhostTape_End(void)
 	gh->speedApprox = d->speedApprox;
 	gh->timeElapsedInRace = d->timeElapsedInRace;
 	gh->size = (u32)sdata->GhostRecording.ptrCurrOffset - (u32)sdata->GhostRecording.ptrStartOffset;
-}
-
-void DECOMP_GhostTape_End(void)
-{
-	GhostTape_End();
 }

@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80018d20-0x80018d9c
-void DECOMP_CAM_StartOfRace(struct CameraDC *cDC)
+void CAM_StartOfRace(struct CameraDC *cDC)
 {
 	struct GameTracker *gGT = sdata->gGT;
 	struct Level *level1 = gGT->level1;

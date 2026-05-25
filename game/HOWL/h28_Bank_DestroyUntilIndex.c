@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80029870-0x800298e4
-void DECOMP_Bank_DestroyUntilIndex(int index)
+void Bank_DestroyUntilIndex(int index)
 {
 	struct Bank *ptrLastBank;
 	u16 bankID = index;
@@ -13,6 +13,6 @@ void DECOMP_Bank_DestroyUntilIndex(int index)
 		if ((u16)ptrLastBank->bankID == bankID)
 			return;
 
-		DECOMP_Bank_DestroyLast();
+		Bank_DestroyLast();
 	}
 }

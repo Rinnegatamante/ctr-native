@@ -51,7 +51,7 @@ void DECOMP_CS_Thread_LInB(struct Instance *inst)
 	cs->unk18 = *(int *)(cs->metadata + 2);
 
 	{
-		int rng = DECOMP_MixRNG_Scramble();
+		int rng = MixRNG_Scramble();
 		s16 *meta = (s16 *)cs->metadata;
 		s16 frameStart = meta[2];
 		s16 frameEnd = meta[3];

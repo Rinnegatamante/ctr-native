@@ -123,14 +123,14 @@ void DECOMP_MM_Title_MenuUpdate(void)
 	case 0:
 
 		DECOMP_MM_Title_KillThread();
-		DECOMP_GAMEPROG_NewProfile_InsideAdv(&sdata->advProgress);
+		GAMEPROG_NewProfile_InsideAdv(&sdata->advProgress);
 
 		sdata->advProfileIndex = 0xffff;
 
 		// go to adventure character select screen
 		sdata->mainMenuState = 4;
 
-		DECOMP_MainRaceTrack_RequestLoad(ADVENTURE_GARAGE);
+		MainRaceTrack_RequestLoad(ADVENTURE_GARAGE);
 		break;
 
 	// adventure save/load
@@ -221,7 +221,7 @@ void DECOMP_MM_Title_MenuUpdate(void)
 	LAB_800abfc0:
 
 		// Load level
-		DECOMP_MainRaceTrack_RequestLoad(cutsceneLev);
+		MainRaceTrack_RequestLoad(cutsceneLev);
 
 		// make main menu disappear
 		DECOMP_RECTMENU_Hide(&D230.menuMainMenu);

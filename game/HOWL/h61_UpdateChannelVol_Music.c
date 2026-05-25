@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002ad70-0x8002ae64
-void DECOMP_UpdateChannelVol_Music(struct SongSeq *songSeq, struct ChannelAttr *attr, int index, int vol)
+void UpdateChannelVol_Music(struct SongSeq *songSeq, struct ChannelAttr *attr, int index, int vol)
 {
 	int sampleVol;
 
@@ -17,5 +17,5 @@ void DECOMP_UpdateChannelVol_Music(struct SongSeq *songSeq, struct ChannelAttr *
 		sampleVol = sdata->ptrCseqShortSamples[index].volume;
 	}
 
-	DECOMP_Channel_SetVolume(attr, (newVol * sampleVol * vol) >> 0xf, songSeq->LR);
+	Channel_SetVolume(attr, (newVol * sampleVol * vol) >> 0xf, songSeq->LR);
 }

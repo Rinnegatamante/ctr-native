@@ -12,19 +12,19 @@ void OVR_Region1(void)
 	switch (gGT->overlayIndex_EndOfRace)
 	{
 	case 0:
-		DECOMP_CC_EndEvent_DrawMenu();
+		CC_EndEvent_DrawMenu();
 		return;
 	case 1:
-		DECOMP_AA_EndEvent_DrawMenu();
+		AA_EndEvent_DrawMenu();
 		return;
 	case 2:
-		DECOMP_RR_EndEvent_DrawMenu();
+		RR_EndEvent_DrawMenu();
 		return;
 	case 3:
 		TT_EndEvent_DrawMenu();
 		return;
 	case 4:
-		DECOMP_VB_EndEvent_DrawMenu();
+		VB_EndEvent_DrawMenu();
 		return;
 	default:
 		return;

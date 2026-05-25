@@ -114,7 +114,7 @@ static int VehBirth_ScaleTrig(int trig, int scale)
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80057c8c-0x80058898
-void DECOMP_VehBirth_TeleportSelf(struct Driver *d, u8 spawnFlag, int spawnPosY)
+void VehBirth_TeleportSelf(struct Driver *d, u8 spawnFlag, int spawnPosY)
 {
 	s16 posTop[3];
 	s16 posBottom[3];
@@ -344,7 +344,7 @@ void DECOMP_VehBirth_TeleportSelf(struct Driver *d, u8 spawnFlag, int spawnPosY)
 	// set animation to zero
 	dInst->animIndex = 0;
 
-	dInst->animFrame = DECOMP_VehFrameInst_GetStartFrame(0, DECOMP_VehFrameInst_GetNumAnimFrames(dInst, 0));
+	dInst->animFrame = VehFrameInst_GetStartFrame(0, VehFrameInst_GetNumAnimFrames(dInst, 0));
 
 	// Set Scale (x, y, z)
 	dInst->scale[0] = 0xCCC;
@@ -362,12 +362,12 @@ void DECOMP_VehBirth_TeleportSelf(struct Driver *d, u8 spawnFlag, int spawnPosY)
 		for (int i = 0; i < 0xd; i++)
 			d->funcPtrs[i] = NULL;
 
-		DECOMP_CAM_StartOfRace(&gGT->cameraDC[d->driverID]);
+		CAM_StartOfRace(&gGT->cameraDC[d->driverID]);
 
-		dInst->thread->funcThTick = ((gGT->gameMode1 & (GAME_CUTSCENE | MAIN_MENU)) == 0) ? NULL : DECOMP_VehBirth_NullThread;
+		dInst->thread->funcThTick = ((gGT->gameMode1 & (GAME_CUTSCENE | MAIN_MENU)) == 0) ? NULL : VehBirth_NullThread;
 
 		// set OnInit function
-		d->funcPtrs[0] = ((gGT->gameMode1 & ADVENTURE_ARENA) == 0) ? DECOMP_VehStuckProc_RevEngine_Init : DECOMP_VehPhysProc_Driving_Init;
+		d->funcPtrs[0] = ((gGT->gameMode1 & ADVENTURE_ARENA) == 0) ? VehStuckProc_RevEngine_Init : DECOMP_VehPhysProc_Driving_Init;
 	}
 
 	d->lapIndex = 0;

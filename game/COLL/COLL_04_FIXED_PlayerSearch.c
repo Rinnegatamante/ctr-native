@@ -229,7 +229,7 @@ void COLL_FIXED_PlayerSearch(struct Thread *t, struct Driver *d)
 
 	if ((sps->boolDidTouchQuadblock == 0) && (sps->ptr_mesh_info != NULL) && (sps->ptr_mesh_info->bspRoot != NULL))
 	{
-		DECOMP_COLL_SearchBSP_CallbackPARAM(sps->ptr_mesh_info->bspRoot, &sps->bbox, COLL_FIXED_BSPLEAF_TestQuadblocks, sps);
+		COLL_SearchBSP_CallbackPARAM(sps->ptr_mesh_info->bspRoot, &sps->bbox, COLL_FIXED_BSPLEAF_TestQuadblocks, sps);
 	}
 
 	inst = t->inst;
@@ -310,7 +310,7 @@ void COLL_FIXED_PlayerSearch(struct Thread *t, struct Driver *d)
 
 	if (d->quadBlockHeight + 0x8000 < d->posCurr.y)
 	{
-		d->terrainMeta2 = DECOMP_VehAfterColl_GetTerrain(TERRAIN_NONE);
+		d->terrainMeta2 = VehAfterColl_GetTerrain(TERRAIN_NONE);
 	}
 
 	if (d->posCurr.y < ((s32)level->ptr_mesh_info->bspRoot->box.min[1] - 0x40) * 0x100)
@@ -367,7 +367,7 @@ void COLL_FIXED_PlayerSearch(struct Thread *t, struct Driver *d)
 		d->currentTerrain = terrainType;
 	}
 
-	d->terrainMeta1 = DECOMP_VehAfterColl_GetTerrain(d->currentTerrain);
+	d->terrainMeta1 = VehAfterColl_GetTerrain(d->currentTerrain);
 	d->terrainMeta2 = d->terrainMeta1;
 	d->jump_CoyoteTimerMS = 0xa0;
 
@@ -384,7 +384,7 @@ void COLL_FIXED_PlayerSearch(struct Thread *t, struct Driver *d)
 			d->actionsFlagSet = actions | 0x83;
 			d->filler_short = 0x140;
 
-			volume = DECOMP_VehCalc_MapToRange(absLanding, 0x100, 0x3c00, 0x78, 0xfa);
+			volume = VehCalc_MapToRange(absLanding, 0x100, 0x3c00, 0x78, 0xfa);
 
 			if (d->kartState != KS_MASK_GRABBED)
 			{
@@ -418,7 +418,7 @@ DriverAirborne:
 		d->actionsFlagSet |= 0x40;
 	}
 
-	d->terrainMeta1 = DECOMP_VehAfterColl_GetTerrain(TERRAIN_NONE);
+	d->terrainMeta1 = VehAfterColl_GetTerrain(TERRAIN_NONE);
 	d->currentTerrain = TERRAIN_NONE;
 	d->actionsFlagSet &= ~1u;
 
@@ -552,6 +552,6 @@ UpdateGroundOffset:
 	if ((d->kartState != KS_MASK_GRABBED) && ((d->unkAA & 1) != 0) && (d->lastValid != NULL) && ((sdata->HudAndDebugFlags & 0x1000) == 0) &&
 	    ((d->stepFlagSet & 8) == 0))
 	{
-		DECOMP_VehStuckProc_MaskGrab_Init(t, d);
+		VehStuckProc_MaskGrab_Init(t, d);
 	}
 }

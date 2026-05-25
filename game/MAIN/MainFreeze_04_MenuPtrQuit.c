@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_MainFreeze_MenuPtrQuit(struct RectMenu *menu)
+void MainFreeze_MenuPtrQuit(struct RectMenu *menu)
 {
 	s16 row;
 	struct GameTracker *gGT = sdata->gGT;
@@ -11,7 +11,7 @@ void DECOMP_MainFreeze_MenuPtrQuit(struct RectMenu *menu)
 		if (row == 0)
 		{
 			// Erase ghost of previous race from RAM
-			DECOMP_GhostTape_Destroy();
+			GhostTape_Destroy();
 
 			// Add bit for "in menu" when loading is done
 			sdata->Loading.OnBegin.AddBitsConfig0 |= MAIN_MENU;
@@ -26,13 +26,13 @@ void DECOMP_MainFreeze_MenuPtrQuit(struct RectMenu *menu)
 			gGT->gameMode1 &= ~1;
 
 			// Level ID for main menu (39)
-			DECOMP_MainRaceTrack_RequestLoad(0x27);
+			MainRaceTrack_RequestLoad(0x27);
 			return;
 		}
 
 		// row == 1
 
-		sdata->ptrActiveMenu = DECOMP_MainFreeze_GetMenuPtr();
+		sdata->ptrActiveMenu = MainFreeze_GetMenuPtr();
 	}
 	else
 	{
@@ -44,7 +44,7 @@ void DECOMP_MainFreeze_MenuPtrQuit(struct RectMenu *menu)
 			menu->drawStyle |= 0x100;
 		}
 
-		DECOMP_MainFreeze_SafeAdvDestroy();
+		MainFreeze_SafeAdvDestroy();
 	}
 	return;
 }

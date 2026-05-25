@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_GAMEPAD_ShockForce2(struct Driver *d, int frame, int val)
+void GAMEPAD_ShockForce2(struct Driver *d, int frame, int val)
 {
 	// if AI
 	if ((d->actionsFlagSet & 0x100000) != 0)

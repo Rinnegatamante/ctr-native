@@ -13,7 +13,7 @@ void DECOMP_SelectProfile_QueueLoadHub_MenuProc(struct RectMenu *menu)
 #endif
 
 	data.characterIDs[0] = sdata->advProgress.characterID;
-	DECOMP_MainRaceTrack_RequestLoad(gGT->currLEV);
+	MainRaceTrack_RequestLoad(gGT->currLEV);
 	DECOMP_RECTMENU_Hide(menu);
 	return;
 }

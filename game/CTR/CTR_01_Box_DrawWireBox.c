@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_CTR_Box_DrawWireBox(RECT *r, Color color, void *ot)
+void CTR_Box_DrawWireBox(RECT *r, Color color, void *ot)
 {
 	LineF3 *p;
 	GetPrimMem(p);

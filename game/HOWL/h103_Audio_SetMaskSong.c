@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002d554-0x8002d67c
-void DECOMP_Audio_SetMaskSong(u32 tempo)
+void Audio_SetMaskSong(u32 tempo)
 {
 	char i;
 	u8 isMaskUsed;
@@ -39,14 +39,14 @@ void DECOMP_Audio_SetMaskSong(u32 tempo)
 		        // If Aku song is playing
 		        (gameMode & AKU_SONG) != 0))
 		{
-			DECOMP_Music_Adjust(songID, tempo, 0, 0);
+			Music_Adjust(songID, tempo, 0, 0);
 		}
 	}
 
 	// If no players are using mask
 	else
 	{
-		DECOMP_Music_Adjust(0, tempo, 0, 0);
+		Music_Adjust(0, tempo, 0, 0);
 
 		if ((gameMode & (UKA_SONG | AKU_SONG)) != 0)
 		{

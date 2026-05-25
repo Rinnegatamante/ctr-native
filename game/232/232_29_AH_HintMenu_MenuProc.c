@@ -23,7 +23,7 @@ void DECOMP_AH_HintMenu_MenuProc(struct RectMenu *menu)
 	bVar3 = false;
 
 	iVar11 = 0;
-	DECOMP_MainFreeze_SafeAdvDestroy();
+	MainFreeze_SafeAdvDestroy();
 
 	iVar10 = 0;
 	sdata->advProgress.rewards[3] |= 0x400000;
@@ -70,16 +70,16 @@ void DECOMP_AH_HintMenu_MenuProc(struct RectMenu *menu)
 
 		    ((
 		        // if no XA is playing anymore
-		        uVar6 = DECOMP_VehTalkMask_boolNoXA(), (uVar6 & 0xffff) != 0 ||
+		        uVar6 = VehTalkMask_boolNoXA(), (uVar6 & 0xffff) != 0 ||
 
-		                                                   // allowed to leave hint
-		                                                   (D232.maskCooldown == 0))))
+		                                            // allowed to leave hint
+		                                            (D232.maskCooldown == 0))))
 		{
 			D232.hintMenu_boolViewHint = 0;
 
 			DECOMP_RECTMENU_ClearInput();
 
-			DECOMP_VehTalkMask_End();
+			VehTalkMask_End();
 		}
 
 		DECOMP_DecalFont_DrawLine(sdata->lngStrings[lngIndex + 0], 0x100, 0x2c, 1, 0xffff8000);
@@ -101,7 +101,7 @@ void DECOMP_AH_HintMenu_MenuProc(struct RectMenu *menu)
 		box.h = 0x11;
 
 		u_long *ot = gGT->backBuffer->otMem.startPlusFour;
-		DECOMP_CTR_Box_DrawClearBox(&box, &sdata->menuRowHighlight_Normal, TRANS_50_DECAL, ot);
+		CTR_Box_DrawClearBox(&box, &sdata->menuRowHighlight_Normal, TRANS_50_DECAL, ot);
 
 		box.y = 0x3c;
 		box.x = -0xe;
@@ -171,11 +171,11 @@ void DECOMP_AH_HintMenu_MenuProc(struct RectMenu *menu)
 					// If there is no loading in progress
 					if ((sdata->load_inProgress == 0) && (sdata->XA_State == 0))
 					{
-						sdata->instMaskHints3D = DECOMP_VehTalkMask_Init();
+						sdata->instMaskHints3D = VehTalkMask_Init();
 
 						D232.maskCooldown = 30;
 
-						DECOMP_VehTalkMask_PlayXA(sdata->instMaskHints3D, (lngIndex + -0x17b) / 2);
+						VehTalkMask_PlayXA(sdata->instMaskHints3D, (lngIndex + -0x17b) / 2);
 
 						DECOMP_AH_HintMenu_MaskPosRot();
 
@@ -232,7 +232,7 @@ void DECOMP_AH_HintMenu_MenuProc(struct RectMenu *menu)
 
 LAB_800b38cc:
 
-	uVar6 = DECOMP_VehPickupItem_MaskBoolGoodGuy(gGT->drivers[0]);
+	uVar6 = VehPickupItem_MaskBoolGoodGuy(gGT->drivers[0]);
 
 	// Draw the "Hints" string
 	DECOMP_DecalFont_DrawLine(sdata->lngStrings[0x178 + (uVar6 == 0)], 0x100, 0x2c, 1, 0xffff8000);
@@ -294,7 +294,7 @@ LAB_800b38cc:
 	box.h = 0x11;
 
 	u_long *ot = gGT->backBuffer->otMem.startPlusFour;
-	DECOMP_CTR_Box_DrawClearBox(&box, &sdata->menuRowHighlight_Normal, TRANS_50_DECAL, ot);
+	CTR_Box_DrawClearBox(&box, &sdata->menuRowHighlight_Normal, TRANS_50_DECAL, ot);
 
 	box.y = 0x3c;
 	box.h = 2;
@@ -317,7 +317,7 @@ LAB_800b38cc:
 	    ((sdata->buttonTapPerPlayer[0] & 0x41020) != 0))
 	{
 		DECOMP_RECTMENU_ClearInput();
-		sdata->ptrDesiredMenu = DECOMP_MainFreeze_GetMenuPtr();
+		sdata->ptrDesiredMenu = MainFreeze_GetMenuPtr();
 	}
 	return;
 }

@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_GhostReplay_ThTick(struct Thread *t)
+void GhostReplay_ThTick(struct Thread *t)
 {
 	struct GhostTape *tape;
 	struct GameTracker *gGT;
@@ -355,12 +355,12 @@ void DECOMP_GhostReplay_ThTick(struct Thread *t)
 			break;
 
 			case 0x82: // Boost
-				if (gGT->trafficLightsTimer < 1 && ((gGT->gameMode1 & START_OF_RACE) == 0) && (DECOMP_RaceFlag_IsFullyOnScreen() == 0))
+				if (gGT->trafficLightsTimer < 1 && ((gGT->gameMode1 & START_OF_RACE) == 0) && (RaceFlag_IsFullyOnScreen() == 0))
 				{
-					DECOMP_VehFire_Increment(d,
-					                         (int)(buffer[1] << 8 | buffer[2]), // endian flip
-					                         buffer[3],
-					                         (int)(buffer[4] << 8 | buffer[5]) // endian flip
+					VehFire_Increment(d,
+					                  (int)(buffer[1] << 8 | buffer[2]), // endian flip
+					                  buffer[3],
+					                  (int)(buffer[4] << 8 | buffer[5]) // endian flip
 					);
 				}
 				buffer += 6;

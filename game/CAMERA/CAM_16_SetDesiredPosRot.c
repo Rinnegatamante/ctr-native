@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8001a054-0x8001a0bc
-void DECOMP_CAM_SetDesiredPosRot(struct CameraDC *cDC, s16 *pos, s16 *rot)
+void CAM_SetDesiredPosRot(struct CameraDC *cDC, s16 *pos, s16 *rot)
 {
 	int i;
 

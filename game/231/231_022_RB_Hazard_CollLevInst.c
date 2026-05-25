@@ -19,7 +19,7 @@ u16 DECOMP_RB_Hazard_CollLevInst(struct ScratchpadStruct *sps, struct Thread *th
 		model = inst->model->id;
 
 		// Get the metadata for the model
-		meta = DECOMP_COLL_LevModelMeta(model);
+		meta = COLL_LevModelMeta(model);
 
 		// Check if LInC is not nullptr
 		if ((meta != NULL) && (meta->LInC != NULL))

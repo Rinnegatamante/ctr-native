@@ -124,7 +124,7 @@ void PlayLevel_UpdateLapStats(void)
 				if (currDriver == firstRank)
 				{
 					DECOMP_OtherFX_Play(0x66, 1);
-					DECOMP_Voiceline_ClearTimeStamp();
+					Voiceline_ClearTimeStamp();
 				}
 
 				lapCounter = currDriver->lapIndex;
@@ -435,9 +435,4 @@ void PlayLevel_UpdateLapStats(void)
 
 		MainGameEnd_Initialize();
 	}
-}
-
-void DECOMP_PlayLevel_UpdateLapStats(void)
-{
-	PlayLevel_UpdateLapStats();
 }

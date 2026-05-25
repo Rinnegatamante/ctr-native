@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80029e18-0x80029f1c
-void DECOMP_cseq_opcode01_noteoff(struct SongSeq *seq)
+void cseq_opcode01_noteoff(struct SongSeq *seq)
 {
 	struct ChannelStats *curr, *backupNext;
 	u8 *currNote = seq->currNote;
@@ -38,7 +38,7 @@ void DECOMP_cseq_opcode01_noteoff(struct SongSeq *seq)
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80029f1c-0x80029f24
-void DECOMP_cseq_opcode02_empty(struct SongSeq *seq)
+void cseq_opcode02_empty(struct SongSeq *seq)
 {
 	// left empty by ND
 }

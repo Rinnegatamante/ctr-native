@@ -89,7 +89,7 @@ void DECOMP_RB_TNT_ThTick_SitOnHead(struct Thread *t)
 	}
 	else
 	{
-		rng = DECOMP_MixRNG_Scramble();
+		rng = MixRNG_Scramble();
 		if (rng != (rng / 0x10e) * 0x10e)
 			goto LAB_800ad5f8;
 	}

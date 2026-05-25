@@ -203,7 +203,7 @@ LAB_800aec34:
 	}
 
 	if (uVar8 != 0)
-		DECOMP_MainFrame_RequestMaskHint(uVar8, 0);
+		MainFrame_RequestMaskHint(uVar8, 0);
 
 LAB_800aede0:
 
@@ -272,8 +272,8 @@ LAB_800aede8:
 		// Set the boss character (P2)
 		data.characterIDs[1] = data.metaDataLEV[levelID].characterID_Boss;
 
-		DECOMP_RaceFlag_SetDrawOrder(1);
-		DECOMP_MainRaceTrack_RequestLoad(levelID);
+		RaceFlag_SetDrawOrder(1);
+		MainRaceTrack_RequestLoad(levelID);
 	}
 	return;
 }

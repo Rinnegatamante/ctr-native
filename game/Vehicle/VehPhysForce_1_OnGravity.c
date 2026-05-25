@@ -329,8 +329,8 @@ void VehPhysForce_OnGravity(struct Driver *driver, Vec3 *velocity)
 			}
 		}
 
-		localX = DECOMP_VehCalc_InterpBySpeed(localX, xFriction, 0);
-		localZ = DECOMP_VehCalc_InterpBySpeed(localZ, forwardFriction, 0);
+		localX = VehCalc_InterpBySpeed(localX, xFriction, 0);
+		localZ = VehCalc_InterpBySpeed(localZ, forwardFriction, 0);
 	}
 	}
 

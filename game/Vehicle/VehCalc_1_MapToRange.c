@@ -1,6 +1,6 @@
 #include <common.h>
 
-int DECOMP_VehCalc_MapToRange(int val, int oldMin, int oldMax, int newMin, int newMax)
+int VehCalc_MapToRange(int val, int oldMin, int oldMax, int newMin, int newMax)
 {
 	if (val <= oldMin)
 		return newMin;

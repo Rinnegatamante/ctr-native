@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002e84c-0x8002e994
-void DECOMP_CalculateVolumeFromDistance(u32 *soundIDCount, u32 soundID, int distance)
+void CalculateVolumeFromDistance(u32 *soundIDCount, u32 soundID, int distance)
 {
 	u32 volume;
 
@@ -16,7 +16,7 @@ void DECOMP_CalculateVolumeFromDistance(u32 *soundIDCount, u32 soundID, int dist
 		if (distance < 301)
 			volume = 0xff;
 		else
-			volume = DECOMP_VehCalc_MapToRange(distance, 300, 6000, 0xff, 0);
+			volume = VehCalc_MapToRange(distance, 300, 6000, 0xff, 0);
 
 		if (soundID != (u32)-1)
 		{
@@ -48,9 +48,4 @@ void DECOMP_CalculateVolumeFromDistance(u32 *soundIDCount, u32 soundID, int dist
 		DECOMP_OtherFX_Stop1(*soundIDCount);
 		*soundIDCount = 0;
 	}
-}
-
-void CalculateVolumeFromDistance(u32 *soundIDCount, u32 soundID, int distance)
-{
-	DECOMP_CalculateVolumeFromDistance(soundIDCount, soundID, distance);
 }

@@ -3,7 +3,7 @@
 extern void *PlayerMaskGrabFuncTable[13];
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800671b0-0x8006749c.
-void DECOMP_VehStuckProc_MaskGrab_Init(struct Thread *t, struct Driver *d)
+void VehStuckProc_MaskGrab_Init(struct Thread *t, struct Driver *d)
 {
 	struct GameTracker *gGT = sdata->gGT;
 	struct Instance *inst = t->inst;
@@ -14,7 +14,7 @@ void DECOMP_VehStuckProc_MaskGrab_Init(struct Thread *t, struct Driver *d)
 
 	*(int *)&d->KartStates.MaskGrab.boolParticlesSpawned = 0;
 
-	d->KartStates.MaskGrab.maskObj = DECOMP_VehPickupItem_MaskUseWeapon(d, 1);
+	d->KartStates.MaskGrab.maskObj = VehPickupItem_MaskUseWeapon(d, 1);
 
 	d->matrixArray = 0;
 	d->matrixIndex = 0;
@@ -89,16 +89,16 @@ void DECOMP_VehStuckProc_MaskGrab_Init(struct Thread *t, struct Driver *d)
 	mask->pos[2] = d->posCurr.z >> 8;
 }
 
-void DECOMP_VehStuckProc_MaskGrab_Update(struct Thread *t, struct Driver *d);
-void DECOMP_VehStuckProc_MaskGrab_PhysLinear(struct Thread *t, struct Driver *d);
-void DECOMP_VehStuckProc_MaskGrab_Animate(struct Thread *t, struct Driver *d);
+void VehStuckProc_MaskGrab_Update(struct Thread *t, struct Driver *d);
+void VehStuckProc_MaskGrab_PhysLinear(struct Thread *t, struct Driver *d);
+void VehStuckProc_MaskGrab_Animate(struct Thread *t, struct Driver *d);
 
 void *PlayerMaskGrabFuncTable[13] = {NULL,
-                                     DECOMP_VehStuckProc_MaskGrab_Update,
-                                     DECOMP_VehStuckProc_MaskGrab_PhysLinear,
+                                     VehStuckProc_MaskGrab_Update,
+                                     VehStuckProc_MaskGrab_PhysLinear,
                                      DECOMP_VehPhysProc_Driving_Audio,
-                                     DECOMP_VehPhysGeneral_PhysAngular,
-                                     DECOMP_VehPhysForce_OnApplyForces,
+                                     VehPhysGeneral_PhysAngular,
+                                     VehPhysForce_OnApplyForces,
 
 #ifndef REBUILD_PS1
                                      COLL_MOVED_PlayerSearch,
@@ -118,7 +118,7 @@ void *PlayerMaskGrabFuncTable[13] = {NULL,
                                      VehPhysGeneral_JumpAndFriction,
                                      VehPhysForce_TranslateMatrix,
 #endif
-                                     DECOMP_VehStuckProc_MaskGrab_Animate,
+                                     VehStuckProc_MaskGrab_Animate,
 #ifndef REBUILD_PS1
                                      VehEmitter_DriverMain
 #else

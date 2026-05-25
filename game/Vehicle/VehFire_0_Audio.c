@@ -62,8 +62,3 @@ Skip:
 	// turbo audio cooldown 0.24s
 	driver->VehFire_AudioCooldown = 0xf0;
 }
-
-void DECOMP_VehFire_Audio(struct Driver *driver, int speed_cap)
-{
-	VehFire_Audio(driver, speed_cap);
-}

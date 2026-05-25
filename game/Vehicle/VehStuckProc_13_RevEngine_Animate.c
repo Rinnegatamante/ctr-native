@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80067b7c-0x80067f4c.
-void DECOMP_VehStuckProc_RevEngine_Animate(struct Thread *t, struct Driver *d)
+void VehStuckProc_RevEngine_Animate(struct Thread *t, struct Driver *d)
 {
 	char bVar1;
 	u8 bVar2;
@@ -45,7 +45,7 @@ void DECOMP_VehStuckProc_RevEngine_Animate(struct Thread *t, struct Driver *d)
 			iVar7 = 0x100;
 		}
 
-		iVar4 = DECOMP_VehCalc_InterpBySpeed(d->KartStates.RevEngine.fireLevel, iVar7, d->KartStates.RevEngine.boostMeter);
+		iVar4 = VehCalc_InterpBySpeed(d->KartStates.RevEngine.fireLevel, iVar7, d->KartStates.RevEngine.boostMeter);
 
 		// Set new curr rev
 		d->KartStates.RevEngine.fireLevel = iVar4;
@@ -93,8 +93,8 @@ void DECOMP_VehStuckProc_RevEngine_Animate(struct Thread *t, struct Driver *d)
 	{
 		d->KartStates.RevEngine.unk[0] = 0;
 
-		uVar6 = DECOMP_VehCalc_InterpBySpeed(d->KartStates.RevEngine.boostMeter, d->const_SacredFireSpeed / 3 + 3,
-		                                     d->const_SacredFireSpeed + d->const_AccelSpeed_ClassStat);
+		uVar6 = VehCalc_InterpBySpeed(d->KartStates.RevEngine.boostMeter, d->const_SacredFireSpeed / 3 + 3,
+		                              d->const_SacredFireSpeed + d->const_AccelSpeed_ClassStat);
 
 		d->KartStates.RevEngine.boostMeter = uVar6;
 	}
@@ -219,7 +219,7 @@ LAB_80067dec:
 		iVar9 = iVar4 + d->const_SacredFireSpeed;
 	}
 
-	uVar3 = DECOMP_VehCalc_MapToRange(d->KartStates.RevEngine.fireLevel, iVar7, iVar9, (u32)bVar1 << 5, local_18);
+	uVar3 = VehCalc_MapToRange(d->KartStates.RevEngine.fireLevel, iVar7, iVar9, (u32)bVar1 << 5, local_18);
 
 	d->turbo_MeterRoomLeft = uVar3;
 

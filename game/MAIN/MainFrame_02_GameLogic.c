@@ -2,7 +2,7 @@
 
 typedef void (*VehicleFuncPtr)(struct Thread *thread, struct Driver *driver);
 
-void DECOMP_MainFrame_GameLogic(struct GameTracker *gGT, struct GamepadSystem *gGamepads)
+void MainFrame_GameLogic(struct GameTracker *gGT, struct GamepadSystem *gGamepads)
 {
 	char bVar1;
 	s16 sVar2;
@@ -73,7 +73,7 @@ void DECOMP_MainFrame_GameLogic(struct GameTracker *gGT, struct GamepadSystem *g
 		gGT->framesInThisLEV = gGT->framesInThisLEV + 1;
 		gGT->unk1cc4[4] = 0;
 
-		iVar4 = DECOMP_Timer_GetTime_Elapsed(gGT->clockFrameStart, &gGT->clockFrameStart);
+		iVar4 = Timer_GetTime_Elapsed(gGT->clockFrameStart, &gGT->clockFrameStart);
 		iVar4 = (iVar4 << 5) / 100;
 
 		gGT->elapsedTimeMS = iVar4;
@@ -133,8 +133,8 @@ void DECOMP_MainFrame_GameLogic(struct GameTracker *gGT, struct GamepadSystem *g
 			gGT->elapsedEventTime = 0;
 		}
 
-		DECOMP_CTR_CycleTex_AllModels(-1, (struct Model **)sdata->PLYROBJECTLIST, gGT->timer);
-		DECOMP_CTR_CycleTex_AllModels(gGT->level1->numModels, gGT->level1->ptrModelsPtrArray, gGT->timer);
+		CTR_CycleTex_AllModels(-1, (struct Model **)sdata->PLYROBJECTLIST, gGT->timer);
+		CTR_CycleTex_AllModels(gGT->level1->numModels, gGT->level1->ptrModelsPtrArray, gGT->timer);
 
 		psVar8 = 0;
 		psVar9 = 0;
@@ -178,7 +178,7 @@ void DECOMP_MainFrame_GameLogic(struct GameTracker *gGT, struct GamepadSystem *g
 				{
 					for (psVar12 = gGT->threadBuckets[iVar4].thread; psVar12 != 0; psVar12 = psVar12->siblingThread)
 					{
-						DECOMP_VehPickupItem_ShootOnCirclePress((struct Driver *)psVar12->object);
+						VehPickupItem_ShootOnCirclePress((struct Driver *)psVar12->object);
 					}
 
 					// run all driver funcPtrs,
@@ -217,7 +217,7 @@ void DECOMP_MainFrame_GameLogic(struct GameTracker *gGT, struct GamepadSystem *g
 #ifndef REBUILD_PS1
 		BOTS_UpdateGlobals();
 #endif
-		DECOMP_GhostTape_WriteMoves(0);
+		GhostTape_WriteMoves(0);
 		gGT->unk1cc4[4] = (u32)(gGT->unk1cc4[4] * 10000) / 0x147e;
 
 #if !defined(REBUILD_PS1) || defined(CTR_NATIVE)
@@ -259,11 +259,11 @@ void DECOMP_MainFrame_GameLogic(struct GameTracker *gGT, struct GamepadSystem *g
 
 	if ((gGT->gameMode1 & PAUSE_ALL) == 0)
 	{
-		DECOMP_Audio_Update1();
+		Audio_Update1();
 	}
 
 	gGT->gameMode1_prevFrame = gGT->gameMode1;
-	uVar5 = DECOMP_GAMEPAD_GetNumConnected(gGamepads);
+	uVar5 = GAMEPAD_GetNumConnected(gGamepads);
 	uVar3 = gGT->gameMode1;
 
 	if ((uVar3 & END_OF_RACE) == 0)
@@ -280,11 +280,11 @@ void DECOMP_MainFrame_GameLogic(struct GameTracker *gGT, struct GamepadSystem *g
 					gGT->gameMode1 &= ~PAUSE_1;
 
 					// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800354dc-0x80035508 for unpause audio side effects.
-					DECOMP_MainFrame_TogglePauseAudio(0);
+					MainFrame_TogglePauseAudio(0);
 					DECOMP_OtherFX_Play(1, 1);
 
-					DECOMP_MainFreeze_SafeAdvDestroy();
-					DECOMP_ElimBG_Deactivate(gGT);
+					MainFreeze_SafeAdvDestroy();
+					ElimBG_Deactivate(gGT);
 
 					DECOMP_RECTMENU_Hide(sdata->ptrActiveMenu);
 					gGT->cooldownFromUnpauseUntilPause = 5;
@@ -300,7 +300,7 @@ void DECOMP_MainFrame_GameLogic(struct GameTracker *gGT, struct GamepadSystem *g
 			if ((uVar3 & (GAME_CUTSCENE | END_OF_RACE | MAIN_MENU)) == 0)
 				if (sdata->ptrActiveMenu == 0)
 					if (sdata->AkuAkuHintState == 0)
-						if (DECOMP_RaceFlag_IsFullyOnScreen() == 0)
+						if (RaceFlag_IsFullyOnScreen() == 0)
 						{
 							for (iVar4 = 0; iVar4 < gGT->numPlyrCurrGame; iVar4++)
 							{
@@ -318,7 +318,7 @@ void DECOMP_MainFrame_GameLogic(struct GameTracker *gGT, struct GamepadSystem *g
 						gGT->gameModeEnd = (gGT->gameMode1 & 0x3e0020) | PAUSE_1;
 #endif
 
-									DECOMP_MainFreeze_IfPressStart();
+									MainFreeze_IfPressStart();
 
 									gGT->cooldownfromPauseUntilUnpause = 5;
 								}
@@ -349,7 +349,7 @@ void DECOMP_MainFrame_GameLogic(struct GameTracker *gGT, struct GamepadSystem *g
 					return;
 				}
 
-				sVar2 = DECOMP_SubmitName_DrawMenu(0x140);
+				sVar2 = SubmitName_DrawMenu(0x140);
 
 				// if not done yet
 				if (sVar2 == 0)

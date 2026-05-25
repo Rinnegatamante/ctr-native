@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800291a0-0x80029258
-void DECOMP_CseqMusic_Stop(u16 songID)
+void CseqMusic_Stop(u16 songID)
 {
 	int i;
 	struct Song *song;
@@ -13,7 +13,7 @@ void DECOMP_CseqMusic_Stop(u16 songID)
 	if (sdata->ptrCseqHeader->numSongs <= songID)
 		return;
 
-	DECOMP_Smart_EnterCriticalSection();
+	Smart_EnterCriticalSection();
 
 	for (i = 0; i < 2; i++)
 	{
@@ -22,9 +22,9 @@ void DECOMP_CseqMusic_Stop(u16 songID)
 		// if pool is taken
 		if (((song->flags & 1) != 0) && (song->id == songID))
 		{
-			DECOMP_SongPool_StopAllCseq(song);
+			SongPool_StopAllCseq(song);
 		}
 	}
 
-	DECOMP_Smart_ExitCriticalSection();
+	Smart_ExitCriticalSection();
 }

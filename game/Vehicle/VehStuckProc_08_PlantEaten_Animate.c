@@ -63,8 +63,3 @@ void VehStuckProc_PlantEaten_Animate(struct Thread *t, struct Driver *d)
 		pb->rot[2] = 0;
 	}
 }
-
-void DECOMP_VehStuckProc_PlantEaten_Animate(struct Thread *t, struct Driver *d)
-{
-	VehStuckProc_PlantEaten_Animate(t, d);
-}

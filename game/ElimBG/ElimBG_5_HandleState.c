@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_ElimBG_HandleState(struct GameTracker *gGT)
+void ElimBG_HandleState(struct GameTracker *gGT)
 {
 	s16 sVar1;
 	s16 sVar2;
@@ -35,7 +35,7 @@ void DECOMP_ElimBG_HandleState(struct GameTracker *gGT)
 		gGT->db[1].primMem.end = (void *)((int)gGT->db[1].primMem.end + 0xc800);
 
 		// Enable all instances
-		DECOMP_ElimBG_ToggleAllInstances(gGT, 0);
+		ElimBG_ToggleAllInstances(gGT, 0);
 
 		// game is not paused anymore
 		sdata->pause_state = 0;
@@ -54,11 +54,11 @@ void DECOMP_ElimBG_HandleState(struct GameTracker *gGT)
 
 			gGT->hudFlags &= 0xf6;
 
-			DECOMP_ElimBG_SaveScreenshot_Full(gGT);
+			ElimBG_SaveScreenshot_Full(gGT);
 
 			// Disable all instances
 			// (prevent PrimMem from overwriting VRAM backup)
-			DECOMP_ElimBG_ToggleAllInstances(gGT, 1);
+			ElimBG_ToggleAllInstances(gGT, 1);
 
 			// you are now ready to draw the screenshot
 			sdata->pause_state = 2;

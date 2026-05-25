@@ -55,7 +55,7 @@ void DECOMP_UI_JumpMeter_Update(struct Driver *d)
 					param = 0x100;
 
 				// add one second reserves
-				DECOMP_VehFire_Increment(d, 960, POWER_SLIDE_HANG_TIME, param);
+				VehFire_Increment(d, 960, POWER_SLIDE_HANG_TIME, param);
 			}
 		}
 	}

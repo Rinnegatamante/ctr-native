@@ -4,7 +4,7 @@
 void VehFrameProc_Spinning(struct Thread *t, struct Driver *d)
 {
 	struct Instance *inst = t->inst;
-	int numFrames = DECOMP_VehFrameInst_GetNumAnimFrames(inst, inst->animIndex);
+	int numFrames = VehFrameInst_GetNumAnimFrames(inst, inst->animIndex);
 	int targetFrame;
 
 	if (numFrames <= 0)
@@ -14,7 +14,7 @@ void VehFrameProc_Spinning(struct Thread *t, struct Driver *d)
 
 	if (inst->animIndex != 0)
 	{
-		targetFrame = DECOMP_VehFrameInst_GetStartFrame(inst->animIndex, numFrames);
+		targetFrame = VehFrameInst_GetStartFrame(inst->animIndex, numFrames);
 
 		if ((u32)(inst->animIndex - 2) < 2)
 		{
@@ -24,7 +24,7 @@ void VehFrameProc_Spinning(struct Thread *t, struct Driver *d)
 
 		if (inst->animFrame == targetFrame)
 		{
-			numFrames = DECOMP_VehFrameInst_GetNumAnimFrames(inst, 0);
+			numFrames = VehFrameInst_GetNumAnimFrames(inst, 0);
 			if (numFrames <= 0)
 			{
 				return;
@@ -35,7 +35,7 @@ void VehFrameProc_Spinning(struct Thread *t, struct Driver *d)
 
 		if (inst->animIndex != 0)
 		{
-			inst->animFrame = DECOMP_VehCalc_InterpBySpeed(inst->animFrame, 4, targetFrame);
+			inst->animFrame = VehCalc_InterpBySpeed(inst->animFrame, 4, targetFrame);
 			return;
 		}
 	}
@@ -46,10 +46,5 @@ void VehFrameProc_Spinning(struct Thread *t, struct Driver *d)
 		targetFrame = numFrames - 1;
 	}
 
-	inst->animFrame = DECOMP_VehCalc_InterpBySpeed(inst->animFrame, 4, targetFrame);
-}
-
-void DECOMP_VehFrameProc_Spinning(struct Thread *t, struct Driver *d)
-{
-	VehFrameProc_Spinning(t, d);
+	inst->animFrame = VehCalc_InterpBySpeed(inst->animFrame, 4, targetFrame);
 }

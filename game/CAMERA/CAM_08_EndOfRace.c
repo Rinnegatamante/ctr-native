@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_CAM_EndOfRace(struct CameraDC *cDC, struct Driver *d)
+void CAM_EndOfRace(struct CameraDC *cDC, struct Driver *d)
 {
 	struct GameTracker *gGT = sdata->gGT;
 

@@ -6,7 +6,7 @@ static s32 CAM_MulLo(s32 a, s32 b)
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80018fec-0x80019128
-void DECOMP_CAM_ProcessTransition(s16 *currPos, s16 *currRot, s16 *startPos, s16 *startRot, s16 *endPos, s16 *endRot, int frame)
+void CAM_ProcessTransition(s16 *currPos, s16 *currRot, s16 *startPos, s16 *startRot, s16 *endPos, s16 *endRot, int frame)
 {
 	int deltaRot;
 

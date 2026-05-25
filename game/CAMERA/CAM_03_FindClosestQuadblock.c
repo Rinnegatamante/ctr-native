@@ -70,8 +70,8 @@ void CAM_FindClosestQuadblock(s16 *scratchpad, struct CameraDC *cDC, struct Driv
 
 	if (scratchpad[0x1f] == 0)
 	{
-		DECOMP_COLL_SearchBSP_CallbackPARAM(meshInfo->bspRoot, (struct BoundingBox *)(scratchpad + 0x18), COLL_FIXED_BSPLEAF_TestQuadblocks,
-		                                    (struct ScratchpadStruct *)scratchpad);
+		COLL_SearchBSP_CallbackPARAM(meshInfo->bspRoot, (struct BoundingBox *)(scratchpad + 0x18), COLL_FIXED_BSPLEAF_TestQuadblocks,
+		                             (struct ScratchpadStruct *)scratchpad);
 	}
 
 	if (scratchpad[0x1f] == 0)

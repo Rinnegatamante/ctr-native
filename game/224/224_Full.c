@@ -29,7 +29,7 @@ void TT_EndEvent_DrawMenu(void)
 	sdata->flags_timeTrialEndOfRace |= 1;
 
 	// If you just beat N Tropy && N Tropy was beaten on all tracks
-	if (((gameModeEnd & NTROPY_JUST_BEAT) != 0) && ((DECOMP_GAMEPROG_CheckGhostsBeaten(1) & 0xffff) != 0))
+	if (((gameModeEnd & NTROPY_JUST_BEAT) != 0) && ((GAMEPROG_CheckGhostsBeaten(1) & 0xffff) != 0))
 	{
 		sdata->gameProgress.unlocks[0] |= 0x20; // Unlock N Tropy
 	}
@@ -393,7 +393,7 @@ void TT_EndEvent_DrawHighScore(s16 startX, int startY, s16 scoreMode)
 			box.h = 0x1a;
 
 			// Draw a rectangle to highlight your time on the "Best Times" list
-			DECOMP_CTR_Box_DrawClearBox(&box, &sdata->menuRowHighlight_Normal, TRANS_50_DECAL, gGT->pushBuffer_UI.ptrOT);
+			CTR_Box_DrawClearBox(&box, &sdata->menuRowHighlight_Normal, TRANS_50_DECAL, gGT->pushBuffer_UI.ptrOT);
 		}
 		currRowY += 0x1a;
 	}

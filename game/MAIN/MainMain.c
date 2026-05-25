@@ -38,7 +38,7 @@ u32 DECOMP_main()
 
 		DECOMP_LOAD_NextQueuedFile();
 		// NOTE(aalhendi): ASM-verified NTSC-U 926 0x8003c5d0-0x8003c5dc for per-frame XA pause handling.
-		DECOMP_CDSYS_XAPauseAtEnd();
+		CDSYS_XAPauseAtEnd();
 
 		switch (sdata->mainGameState)
 		{
@@ -50,7 +50,7 @@ u32 DECOMP_main()
 		// Happens on first frame that loading ends
 		case 1:
 
-			DECOMP_ElimBG_Deactivate(gGT);
+			ElimBG_Deactivate(gGT);
 
 #ifndef REBUILD_PS1
 			MainStats_RestartRaceCountLoss();
@@ -63,24 +63,24 @@ u32 DECOMP_main()
 
 			if (gGT->levelID == MAIN_MENU_LEVEL)
 			{
-				if (DECOMP_RaceFlag_IsFullyOffScreen() != 0)
-					DECOMP_RaceFlag_SetFullyOnScreen();
+				if (RaceFlag_IsFullyOffScreen() != 0)
+					RaceFlag_SetFullyOnScreen();
 			}
 
 			else
 			{
-				if (DECOMP_RaceFlag_IsFullyOnScreen() != 0)
-					DECOMP_RaceFlag_BeginTransition(2);
+				if (RaceFlag_IsFullyOnScreen() != 0)
+					RaceFlag_BeginTransition(2);
 			}
 
-			DECOMP_DropRain_Reset(gGT);
-			DECOMP_GAMEPROG_GetPtrHighScoreTrack();
-			DECOMP_MainInit_FinalizeInit(gGT);
-			DECOMP_GAMEPAD_GetNumConnected(gGS);
+			DropRain_Reset(gGT);
+			GAMEPROG_GetPtrHighScoreTrack();
+			MainInit_FinalizeInit(gGT);
+			GAMEPAD_GetNumConnected(gGS);
 
 			sdata->boolSoundPaused = 0;
 			// NOTE(aalhendi): ASM-verified NTSC-U 926 0x8003caa4-0x8003cab4 for load-complete engine audio init.
-			DECOMP_VehBirth_EngineAudio_AllPlayers();
+			VehBirth_EngineAudio_AllPlayers();
 
 			// 9 = intro cutscene
 			// 10 = traffic lights
@@ -98,7 +98,7 @@ u32 DECOMP_main()
 			                                        // Battle tracks
 			                                        gGT->levelID - NITRO_COURT < 7))
 			{
-				DECOMP_Audio_SetState_Safe(uVar12);
+				Audio_SetState_Safe(uVar12);
 			}
 			sdata->mainGameState = 3;
 			gGT->clockEffectEnabled &= 0xfffe;
@@ -106,12 +106,12 @@ u32 DECOMP_main()
 
 		// Reset stage, reset music
 		case 2:
-			DECOMP_Audio_SetState_Safe(1);
-			DECOMP_MEMPACK_PopState();
+			Audio_SetState_Safe(1);
+			MEMPACK_PopState();
 
 			// ignore threads, because we PopState,
 			// so the threadpool will reset anyway
-			DECOMP_LevInstDef_RePack(gGT->level1->ptr_mesh_info, 0);
+			LevInstDef_RePack(gGT->level1->ptr_mesh_info, 0);
 
 			sdata->mainGameState = 1;
 			break;
@@ -123,7 +123,7 @@ u32 DECOMP_main()
 			// if loading, or gameplay interrupted
 			if (sdata->Loading.stage != -1)
 			{
-				if ((DECOMP_RaceFlag_IsFullyOnScreen() == 1) || (gGT->levelID == NAUGHTY_DOG_CRATE) || (sdata->pause_state != 0))
+				if ((RaceFlag_IsFullyOnScreen() == 1) || (gGT->levelID == NAUGHTY_DOG_CRATE) || (sdata->pause_state != 0))
 				{
 					gGT->gameMode1 |= LOADING;
 				}
@@ -149,7 +149,7 @@ u32 DECOMP_main()
 				// if restarting race
 				if (iVar8 == -5)
 				{
-					if (DECOMP_RaceFlag_IsFullyOnScreen() == 1)
+					if (RaceFlag_IsFullyOnScreen() == 1)
 					{
 						// reinitialize world,
 						// does not reinitialize pools
@@ -176,7 +176,7 @@ u32 DECOMP_main()
 					RemBitsConfig0 = sdata->Loading.OnBegin.RemBitsConfig0;
 					AddBitsConfig0 = sdata->Loading.OnBegin.AddBitsConfig0;
 
-					if (DECOMP_RaceFlag_IsFullyOnScreen() == 1)
+					if (RaceFlag_IsFullyOnScreen() == 1)
 					{
 						sdata->Loading.OnBegin.AddBitsConfig0 = 0;
 						sdata->Loading.OnBegin.RemBitsConfig0 = 0;
@@ -193,11 +193,11 @@ u32 DECOMP_main()
 						gGT->gameMode1 = (gameMode1 | AddBitsConfig0) & ~RemBitsConfig0;
 						gGT->gameMode2 = (gameMode2 | AddBitsConfig8) & ~RemBitsConfig8;
 
-						DECOMP_MainRaceTrack_StartLoad(sdata->Loading.Lev_ID_To_Load);
+						MainRaceTrack_StartLoad(sdata->Loading.Lev_ID_To_Load);
 					}
 
-					else if (DECOMP_RaceFlag_IsFullyOffScreen() == 1)
-						DECOMP_RaceFlag_BeginTransition(1);
+					else if (RaceFlag_IsFullyOffScreen() == 1)
+						RaceFlag_BeginTransition(1);
 
 					// do not BREAK,
 					// keep rendering the scene
@@ -213,7 +213,7 @@ u32 DECOMP_main()
 					{
 						if ((gGT->levelID == MAIN_MENU_LEVEL) || (gGT->levelID == SCRAPBOOK))
 						{
-							DECOMP_MainLoadVLC();
+							MainLoadVLC();
 
 							// start loading VLC (scroll up to iVar8 == -6)
 							sdata->Loading.stage = -6;
@@ -279,7 +279,7 @@ u32 DECOMP_main()
 			sdata->frameCounter++;
 
 			// Process all gamepad input
-			DECOMP_GAMEPAD_ProcessAnyoneVars(gGS);
+			GAMEPAD_ProcessAnyoneVars(gGS);
 
 #ifdef FastBoot
 			// disable spawn
@@ -313,7 +313,7 @@ u32 DECOMP_main()
 #endif
 
 			// Start new frame (ClearOTagR)
-			DECOMP_MainFrame_ResetDB(gGT);
+			MainFrame_ResetDB(gGT);
 
 			if (
 			    // If you're in Demo Mode
@@ -340,7 +340,7 @@ u32 DECOMP_main()
 					sdata->mainMenuState = 0;
 
 				LAB_8003ce08:
-					DECOMP_MainRaceTrack_RequestLoad(MAIN_MENU_LEVEL);
+					MainRaceTrack_RequestLoad(MAIN_MENU_LEVEL);
 				}
 
 				// if time remains on the timer
@@ -375,7 +375,7 @@ u32 DECOMP_main()
 
 			if ((gGT->gameMode1 & LOADING) == 0)
 			{
-				DECOMP_MainFrame_GameLogic(gGT, gGS);
+				MainFrame_GameLogic(gGT, gGS);
 			}
 
 			// If you are in demo mode
@@ -400,7 +400,7 @@ u32 DECOMP_main()
 				{
 					if ((gGT->gameMode1 & GAME_CUTSCENE) != 0)
 					{
-						DECOMP_MainRaceTrack_RequestLoad(MAIN_MENU_LEVEL);
+						MainRaceTrack_RequestLoad(MAIN_MENU_LEVEL);
 					}
 				}
 			}
@@ -410,7 +410,7 @@ u32 DECOMP_main()
 #ifdef REBUILD_PC
 			Platform_BeginFrame();
 #endif
-			DECOMP_MainFrame_RenderFrame(gGT, gGS);
+			MainFrame_RenderFrame(gGT, gGS);
 #ifdef REBUILD_PC
 			Platform_EndFrame();
 #endif
@@ -443,7 +443,7 @@ u32 DECOMP_main()
 				Bank_DestroyAll();
 				howl_Disable();
 
-				DECOMP_GAMEPAD_SetMainMode(gGS);
+				GAMEPAD_SetMainMode();
 
 				// Set vsync to 2 FPS
 				VSync(30);
@@ -486,15 +486,15 @@ void StateZero()
 
 #define MEMPACK_SIZE 0x200000 // 2mb
 
-	DECOMP_MEMPACK_Init(MEMPACK_SIZE);
+	MEMPACK_Init(MEMPACK_SIZE);
 	DECOMP_LOAD_InitCD();
-	DECOMP_RaceFlag_SetFullyOffScreen();
+	RaceFlag_SetFullyOffScreen();
 
 	ResetGraph(0);
 	SetGraphDebug(0);
 
 #ifndef REBUILD_PS1
-	DECOMP_MainInit_VRAMClear();
+	MainInit_VRAMClear();
 #endif
 
 	SetDispMask(1);
@@ -542,14 +542,14 @@ void StateZero()
 	// traffic light countdown timer, set to negative one second
 	gGT->trafficLightsTimer = 0xfffffc40;
 
-	DECOMP_Timer_Init();
-	DrawSyncCallback(&DECOMP_MainDrawCb_DrawSync);
+	Timer_Init();
+	DrawSyncCallback(&MainDrawCb_DrawSync);
 
 	DECOMP_MEMCARD_InitCard();
 	VSync(0);
-	DECOMP_GAMEPAD_Init(gGS);
+	GAMEPAD_Init(gGS);
 	VSync(0);
-	DECOMP_GAMEPAD_GetNumConnected(gGS);
+	GAMEPAD_GetNumConnected(gGS);
 
 #ifndef REBUILD_PC
 #define BIGPATH rdata.s_PathTo_Bigfile
@@ -583,7 +583,7 @@ void StateZero()
 	// English=1
 	// PAL SCES02105 calls it multiple times
 	DECOMP_LOAD_LangFile((int)sdata->ptrBigfile1, 1);
-	DECOMP_GAMEPROG_NewGame_OnBoot();
+	GAMEPROG_NewGame_OnBoot();
 	gGT->overlayIndex_null_notUsed = 0;
 #endif
 
@@ -625,33 +625,33 @@ void StateZero()
 #ifndef FastBoot
 	// Load Intro TIM for "SCEA Presents" from VRAM file
 	DECOMP_LOAD_VramFile(sdata->ptrBigfile1, 0x1fd, NULL, &vramSize, -1);
-	DECOMP_MainInit_VRAMDisplay();
+	MainInit_VRAMDisplay();
 #endif
 
 	// \SOUNDS\KART.HWL;1
 	// NOTE(aalhendi): ASM-verified NTSC-U 926 0x8003c8e0-0x8003c928 for startup HOWL/music/XA setup.
 	DECOMP_howl_InitGlobals(data.kartHwlPath);
 
-	VSyncCallback(DECOMP_MainDrawCb_Vsync);
+	VSyncCallback(MainDrawCb_Vsync);
 
 #if !defined(FastBoot)
-	DECOMP_Music_SetIntro();
-	DECOMP_CseqMusic_StopAll();
-	DECOMP_CseqMusic_Start(0, 0, NULL, 0, 0);
-	DECOMP_Music_Start(0);
+	Music_SetIntro();
+	CseqMusic_StopAll();
+	CseqMusic_Start(0, 0, NULL, 0, 0);
+	Music_Start(0);
 
 	// "Start your engines, for Sony Computer..."
-	DECOMP_CDSYS_XAPlay(CDSYS_XA_TYPE_EXTRA, 0x50);
+	CDSYS_XAPlay(CDSYS_XA_TYPE_EXTRA, 0x50);
 
 	while (sdata->XA_State != 0)
 	{
 		// WARNING: Read-only address (ram, 0x8008d888) is written
 		// NOTE(aalhendi): ASM-verified NTSC-U 926 0x8003c940-0x8003c948 for startup XA pause polling.
-		DECOMP_CDSYS_XAPauseAtEnd();
+		CDSYS_XAPauseAtEnd();
 	}
 #endif
 
-	DECOMP_DecalGlobal_Clear(gGT);
+	DecalGlobal_Clear(gGT);
 
 	// This loads UI textures (shared.vrm)
 	// This includes traffic lights, font, and more

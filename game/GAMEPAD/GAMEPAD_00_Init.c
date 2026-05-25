@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_GAMEPAD_Init(struct GamepadSystem *gGamepads)
+void GAMEPAD_Init(struct GamepadSystem *gGamepads)
 {
 	int i;
 	struct GamepadBuffer *pad;

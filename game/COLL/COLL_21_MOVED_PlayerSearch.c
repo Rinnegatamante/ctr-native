@@ -61,7 +61,7 @@ static int CollMoved_PlayerSearch_RunHitboxLInC(struct ScratchpadStruct *sps, st
 		modelID = instDef->model->id;
 	}
 
-	meta = DECOMP_COLL_LevModelMeta(modelID);
+	meta = COLL_LevModelMeta(modelID);
 	if ((meta != NULL) && (meta->LInC != NULL))
 	{
 		return meta->LInC(inst, t, sps);
@@ -187,7 +187,7 @@ void COLL_MOVED_PlayerSearch(struct Thread *t, struct Driver *d)
 
 		if ((gGT->level1 != NULL) && (gGT->level1->ptr_mesh_info != NULL) && (gGT->level1->ptr_mesh_info->bspRoot != NULL))
 		{
-			DECOMP_COLL_SearchBSP_CallbackPARAM(gGT->level1->ptr_mesh_info->bspRoot, &sps->bbox, COLL_MOVED_BSPLEAF_TestQuadblocks, sps);
+			COLL_SearchBSP_CallbackPARAM(gGT->level1->ptr_mesh_info->bspRoot, &sps->bbox, COLL_MOVED_BSPLEAF_TestQuadblocks, sps);
 		}
 
 		if (sps->boolDidTouchQuadblock != 0)

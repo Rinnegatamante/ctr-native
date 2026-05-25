@@ -120,7 +120,7 @@ static void VehPhysForce_TranslateMatrix_UpdateSquashStretch(struct Instance *in
 
 	if (((d->actionsFlagSet & ACTION_TOUCH_GROUND) == 0) && (jumpHeightCurr < 0))
 	{
-		int mapped = DECOMP_VehCalc_MapToRange(-jumpHeightCurr, 0, 0xa00, 0x280, 0x320);
+		int mapped = VehCalc_MapToRange(-jumpHeightCurr, 0, 0xa00, 0x280, 0x320);
 
 		if (targetSquish < mapped)
 		{
@@ -140,7 +140,7 @@ static void VehPhysForce_TranslateMatrix_UpdateSquashStretch(struct Instance *in
 		d->jumpSquishStretch = targetSquish;
 	}
 
-	d->jumpSquishStretch = DECOMP_VehCalc_InterpBySpeed(d->jumpSquishStretch, 300, 0);
+	d->jumpSquishStretch = VehCalc_InterpBySpeed(d->jumpSquishStretch, 300, 0);
 	d->jumpSquishStretch2 = (d->jumpSquishStretch2 * 9 + jumpHeightCurr * 7) >> 4;
 
 	if (d->squishTimer != 0)
@@ -160,12 +160,12 @@ static void VehPhysForce_TranslateMatrix_UpdateSquashStretch(struct Instance *in
 	}
 	else
 	{
-		inst->scale[1] = DECOMP_VehCalc_InterpBySpeed(inst->scale[1], 0xa0, d->jumpSquishStretch + 0xccc);
+		inst->scale[1] = VehCalc_InterpBySpeed(inst->scale[1], 0xa0, d->jumpSquishStretch + 0xccc);
 	}
 
 	int scaleXZ = 0xccc - VehPhysForce_TranslateMatrix_Div256TowardZero(d->jumpSquishStretch * 0xa0);
-	inst->scale[0] = DECOMP_VehCalc_InterpBySpeed(inst->scale[0], 0xa0, scaleXZ);
-	inst->scale[2] = DECOMP_VehCalc_InterpBySpeed(inst->scale[2], 0xa0, scaleXZ);
+	inst->scale[0] = VehCalc_InterpBySpeed(inst->scale[0], 0xa0, scaleXZ);
+	inst->scale[2] = VehCalc_InterpBySpeed(inst->scale[2], 0xa0, scaleXZ);
 }
 
 static void VehPhysForce_TranslateMatrix_UpdateMatrixAnimation(struct Driver *d)
@@ -386,9 +386,4 @@ void VehPhysForce_TranslateMatrix(struct Thread *thread, struct Driver *driver)
 	VehPhysForce_TranslateMatrix_UpdateMatrixAnimation(driver);
 	VehPhysForce_TranslateMatrix_UpdateInstanceMatrix(inst, driver);
 	VehPhysForce_TranslateMatrix_UpdateWake(inst, driver);
-}
-
-void DECOMP_VehPhysForce_TranslateMatrix(struct Thread *thread, struct Driver *driver)
-{
-	VehPhysForce_TranslateMatrix(thread, driver);
 }

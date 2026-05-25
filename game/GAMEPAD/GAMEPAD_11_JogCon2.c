@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_GAMEPAD_JogCon2(struct Driver *d, char val, s16 timeMS)
+void GAMEPAD_JogCon2(struct Driver *d, char val, s16 timeMS)
 {
 	// if AI
 	if ((d->actionsFlagSet & 0x100000) != 0)

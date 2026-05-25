@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_DISPLAY_Swap(void)
+void DISPLAY_Swap(void)
 {
 	struct GameTracker *gGT;
 	struct DB *db;

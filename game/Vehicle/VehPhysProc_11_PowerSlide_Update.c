@@ -74,9 +74,9 @@ void DECOMP_VehPhysProc_PowerSlide_Update(struct Thread *t, struct Driver *d)
 				// the more room remaining to fill, the less boost you get
 				// old minMax: [zero -> const_turboLowRoomWarning]
 				// new minMax: [const_turboFullBarReserveGain, -> zero]
-				incrementReserves = DECOMP_VehCalc_MapToRange(meterLeft, 0, highMeter, d->const_turboFullBarReserveGain * ELAPSED_MS, 0);
+				incrementReserves = VehCalc_MapToRange(meterLeft, 0, highMeter, d->const_turboFullBarReserveGain * ELAPSED_MS, 0);
 
-				DECOMP_VehFire_Increment(
+				VehFire_Increment(
 
 				    // driver
 				    d,

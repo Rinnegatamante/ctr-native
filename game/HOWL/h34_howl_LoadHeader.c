@@ -11,10 +11,10 @@ int DECOMP_howl_LoadHeader(char *filename)
 	if (DECOMP_LOAD_FindFile(filename, &sdata->KartHWL_CdFile) == 0)
 		return 0;
 
-	DECOMP_MEMPACK_PushState();
+	MEMPACK_PushState();
 
 	// allocate room for one sector
-	alloc = DECOMP_MEMPACK_AllocMem(0x800 /*, filename*/);
+	alloc = MEMPACK_AllocMem(0x800 /*, filename*/);
 
 	if (alloc != 0)
 	{
@@ -31,7 +31,7 @@ int DECOMP_howl_LoadHeader(char *filename)
 
 			// align up for sector size
 			numSector = (howlHeaderSize + 0x800 - 1) >> 0xb;
-			DECOMP_MEMPACK_ReallocMem(numSector << 0xb);
+			MEMPACK_ReallocMem(numSector << 0xb);
 
 			// if header needs more sectors loaded, like CTR-U which needs 3 sectors
 			if (numSector < 2 || DECOMP_LOAD_HowlHeaderSectors(&sdata->KartHWL_CdFile, (void *)((int)alloc + 0x800), 1, numSector - 1) != 0)
@@ -41,7 +41,7 @@ int DECOMP_howl_LoadHeader(char *filename)
 
 				// reallocate room just howlHeader + pointerTable,
 				// deallocate sector-alignment padding
-				DECOMP_MEMPACK_ReallocMem(howlHeaderSize);
+				MEMPACK_ReallocMem(howlHeaderSize);
 
 				// do NOT PopState
 				return 1;
@@ -49,6 +49,6 @@ int DECOMP_howl_LoadHeader(char *filename)
 		}
 	}
 
-	DECOMP_MEMPACK_PopState();
+	MEMPACK_PopState();
 	return 0;
 }

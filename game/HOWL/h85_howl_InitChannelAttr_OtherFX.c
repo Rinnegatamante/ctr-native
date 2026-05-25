@@ -10,7 +10,7 @@ void DECOMP_howl_InitChannelAttr_OtherFX(struct OtherFX *otherFX, struct Channel
 	if ((otherFX->flags & 4) != 0)
 		otherVol = sdata->vol_Voice;
 
-	DECOMP_Channel_SetVolume(attr, (otherVol * otherFX->volume * vol) >> 10, LR);
+	Channel_SetVolume(attr, (otherVol * otherFX->volume * vol) >> 10, LR);
 
 	s16 pitch = otherFX->pitch;
 

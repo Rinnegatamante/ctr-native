@@ -48,8 +48,3 @@ void PushBuffer_SetDrawEnv_Normal(void *ot, struct PushBuffer *pb, struct DB *ba
 		AddPrim(ot, p);
 	}
 }
-
-void DECOMP_PushBuffer_SetDrawEnv_Normal(void *ot, struct PushBuffer *pb, struct DB *backBuffer, DRAWENV *copyDrawEnvNULL, int isbg)
-{
-	PushBuffer_SetDrawEnv_Normal(ot, pb, backBuffer, (s16 *)copyDrawEnvNULL, isbg);
-}

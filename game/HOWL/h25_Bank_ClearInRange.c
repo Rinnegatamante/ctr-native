@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80029730-0x800297a0
-void DECOMP_Bank_ClearInRange(u16 min, u16 max)
+void Bank_ClearInRange(u16 min, u16 max)
 {
 	int i;
 	u16 end = min + max;

@@ -1,6 +1,6 @@
 #include <common.h>
 
-struct Instance *DECOMP_LinkedCollide_Radius(struct Instance *objInst, struct Thread *_objTh, struct Thread *thBucket, u32 hitRadius)
+struct Instance *LinkedCollide_Radius(struct Instance *objInst, struct Thread *_objTh, struct Thread *thBucket, u32 hitRadius)
 {
 	int diff_z, diff_y, diff_x;
 	u32 diff_dist;

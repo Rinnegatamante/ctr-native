@@ -6,7 +6,7 @@ void Channel_DestroySelf(struct ChannelStats *stats);
 //	16-bit soundID, which destroys all of this type of sound
 //	32-bit soundID_count, which destroys specific instance of sound
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002b9b8-0x8002ba90
-struct ChannelStats *DECOMP_Channel_SearchFX_Destroy(int type, int soundID, int flags)
+struct ChannelStats *Channel_SearchFX_Destroy(int type, int soundID, int flags)
 {
 	struct ChannelStats *curr, *backupNext;
 

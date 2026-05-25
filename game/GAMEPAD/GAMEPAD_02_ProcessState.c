@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_GAMEPAD_ProcessState(struct GamepadBuffer *pad, int padState, s16 id)
+void GAMEPAD_ProcessState(struct GamepadBuffer *pad, int padState, s16 id)
 {
 	char uVar1;
 	int iVar2;

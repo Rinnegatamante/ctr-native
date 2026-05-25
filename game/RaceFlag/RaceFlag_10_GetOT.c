@@ -1,6 +1,6 @@
 #include <common.h>
 
-u32 *DECOMP_RaceFlag_GetOT(void)
+u32 *RaceFlag_GetOT(void)
 {
 	s16 sVar1;
 	int iVar2;

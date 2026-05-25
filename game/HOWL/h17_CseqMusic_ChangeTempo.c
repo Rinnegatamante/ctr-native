@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80029008-0x800290cc
-void DECOMP_CseqMusic_ChangeTempo(u16 songID, int p2)
+void CseqMusic_ChangeTempo(u16 songID, int p2)
 {
 	int i;
 	struct Song *song;
@@ -13,7 +13,7 @@ void DECOMP_CseqMusic_ChangeTempo(u16 songID, int p2)
 	if (sdata->ptrCseqHeader->numSongs <= songID)
 		return;
 
-	DECOMP_Smart_EnterCriticalSection();
+	Smart_EnterCriticalSection();
 
 	for (i = 0; i < 2; i++)
 	{
@@ -22,9 +22,9 @@ void DECOMP_CseqMusic_ChangeTempo(u16 songID, int p2)
 		// if pool is taken
 		if (((song->flags & 1) != 0) && (song->id == songID))
 		{
-			DECOMP_SongPool_ChangeTempo(song, p2);
+			SongPool_ChangeTempo(song, p2);
 		}
 	}
 
-	DECOMP_Smart_ExitCriticalSection();
+	Smart_ExitCriticalSection();
 }

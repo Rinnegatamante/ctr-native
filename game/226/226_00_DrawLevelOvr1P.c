@@ -822,7 +822,7 @@ static u8 *DrawLevelOvr1P_GetClipRecordEnd(void)
 	if (start == NULL || gGT == NULL)
 		return start;
 
-	return start + ((size_t)DECOMP_MainDB_GetClipSize(gGT->levelID, gGT->numPlyrCurrGame) << 2);
+	return start + ((size_t)MainDB_GetClipSize(gGT->levelID, gGT->numPlyrCurrGame) << 2);
 }
 
 static size_t DrawLevelOvr1P_GetClipRecordSize(int count)

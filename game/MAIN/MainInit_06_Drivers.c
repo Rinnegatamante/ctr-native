@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_MainInit_Drivers(struct GameTracker *gGT)
+void MainInit_Drivers(struct GameTracker *gGT)
 {
 	char i;
 	char numPlyrCurrGame = gGT->numPlyrCurrGame;
@@ -21,7 +21,7 @@ void DECOMP_MainInit_Drivers(struct GameTracker *gGT)
 	}
 #endif
 
-	DECOMP_GhostReplay_Init1();
+	GhostReplay_Init1();
 
 	if (DECOMP_LOAD_IsOpen_RacingOrBattle())
 	{
@@ -33,7 +33,7 @@ void DECOMP_MainInit_Drivers(struct GameTracker *gGT)
 	// because of threadBucket linked list order
 	for (i = numPlyrCurrGame - 1; i >= 0; i--)
 	{
-		gGT->drivers[i] = DECOMP_VehBirth_Player(i);
+		gGT->drivers[i] = VehBirth_Player(i);
 	}
 
 #ifndef REBUILD_PS1
@@ -102,7 +102,7 @@ void DECOMP_MainInit_Drivers(struct GameTracker *gGT)
 		// fill up 4 players
 		for (i = numPlyrCurrGame; i < 4; i++)
 		{
-			gGT->drivers[i] = DECOMP_VehBirth_Player(i);
+			gGT->drivers[i] = VehBirth_Player(i);
 		}
 	}
 
@@ -174,9 +174,9 @@ void DECOMP_MainInit_Drivers(struct GameTracker *gGT)
 	// basically, if you're in time trial gameplay
 	if ((gameMode & 0x20022000) == TIME_TRIAL)
 	{
-		DECOMP_GhostReplay_Init2();
+		GhostReplay_Init2();
 
-		DECOMP_GhostTape_Start();
+		GhostTape_Start();
 
 #ifdef REBUILD_PS1
 

@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_RaceFlag_DrawLoadingString(void)
+void RaceFlag_DrawLoadingString(void)
 {
 	struct GameTracker *gGT = sdata->gGT;
 	int iVar2;

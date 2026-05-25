@@ -18,15 +18,15 @@ volatile int gCtrDebugPadTap = 0;
 
 /// @brief Main gamepad processing function. Polls every connected gamepad and generates global state flags.
 /// @param gGamepads - gamepad input system
-void DECOMP_GAMEPAD_ProcessAnyoneVars(struct GamepadSystem *gGamepads)
+void GAMEPAD_ProcessAnyoneVars(struct GamepadSystem *gGamepads)
 {
 	struct GamepadBuffer *pad;
 
 	// process gamepads
-	DECOMP_GAMEPAD_ProcessHold(gGamepads);
-	DECOMP_GAMEPAD_ProcessSticks(gGamepads);
-	DECOMP_GAMEPAD_ProcessTapRelease(gGamepads);
-	DECOMP_GAMEPAD_ProcessMotors(gGamepads);
+	GAMEPAD_ProcessHold(gGamepads);
+	GAMEPAD_ProcessSticks(gGamepads);
+	GAMEPAD_ProcessTapRelease(gGamepads);
+	GAMEPAD_ProcessMotors(gGamepads);
 
 	// These are used to see if any button is pressed by anyone
 	// during this frame. Reset them all to zero

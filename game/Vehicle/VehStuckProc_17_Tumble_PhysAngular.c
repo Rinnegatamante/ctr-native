@@ -23,12 +23,7 @@ void VehStuckProc_Tumble_PhysAngular(struct Thread *thread, struct Driver *drive
 
 	(driver->rotCurr).y = driver->unk3D4[0] + driver->angle + driver->turnAngleCurr;
 
-	(driver->rotCurr).w = DECOMP_VehCalc_InterpBySpeed((int)(driver->rotCurr).w, (elapsedTimeMS << 5) >> 5, 0);
+	(driver->rotCurr).w = VehCalc_InterpBySpeed((int)(driver->rotCurr).w, (elapsedTimeMS << 5) >> 5, 0);
 
 	VehPhysForce_RotAxisAngle(&driver->matrixMovingDir, (s16 *)&driver->AxisAngle1_normalVec, driver->angle);
-}
-
-void DECOMP_VehStuckProc_Tumble_PhysAngular(struct Thread *thread, struct Driver *driver)
-{
-	VehStuckProc_Tumble_PhysAngular(thread, driver);
 }

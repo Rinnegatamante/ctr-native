@@ -19,7 +19,7 @@ void UI_VsQuipAssign(struct Driver *driver, struct QuipMeta *meta, struct Driver
 			continue;
 		}
 
-		if ((curr->priority == selected->priority) && (((DECOMP_MixRNG_Scramble() >> 3) & 0xff) < 0x40))
+		if ((curr->priority == selected->priority) && (((MixRNG_Scramble() >> 3) & 0xff) < 0x40))
 		{
 			selected = curr;
 		}
@@ -36,7 +36,7 @@ void UI_VsQuipAssign(struct Driver *driver, struct QuipMeta *meta, struct Driver
 			if (selected->priority != oldPriority)
 				return;
 
-			if (((DECOMP_MixRNG_Scramble() >> 3) & 0xff) > 0x3f)
+			if (((MixRNG_Scramble() >> 3) & 0xff) > 0x3f)
 				return;
 		}
 

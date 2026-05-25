@@ -12,8 +12,3 @@ void VehTurbo_ThDestroy(struct Thread *t)
 	DECOMP_INSTANCE_Death(t->inst);
 	DECOMP_INSTANCE_Death(turboObj->inst);
 }
-
-void DECOMP_VehTurbo_ThDestroy(struct Thread *t)
-{
-	VehTurbo_ThDestroy(t);
-}

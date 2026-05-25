@@ -1,7 +1,7 @@
 #include <common.h>
 
 // animate rotation and scale in warppad
-void DECOMP_VehStuckProc_Warp_PhysAngular(struct Thread *th, struct Driver *d)
+void VehStuckProc_Warp_PhysAngular(struct Thread *th, struct Driver *d)
 {
 	int uVar1;
 	s16 sVar2;

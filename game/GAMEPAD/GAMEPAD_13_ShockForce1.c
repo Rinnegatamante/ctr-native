@@ -22,8 +22,3 @@ void GAMEPAD_ShockForce1(struct Driver *d, int frame, int val)
 	gb->shockFrameForce1 = frame;
 	gb->shockValForce1 = val;
 }
-
-void DECOMP_GAMEPAD_ShockForce1(struct Driver *d, int frame, int val)
-{
-	GAMEPAD_ShockForce1(d, frame, val);
-}

@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002af6c-0x8002b030
-void DECOMP_UpdateChannelVol_Music_All()
+void UpdateChannelVol_Music_All()
 {
 	struct ChannelStats *curr, *backupNext;
 
@@ -16,6 +16,6 @@ void DECOMP_UpdateChannelVol_Music_All()
 		// update volume
 		sdata->ChannelUpdateFlags[curr->channelID] |= 0x40;
 
-		DECOMP_UpdateChannelVol_Music(&sdata->songSeq[curr->soundID & 0xffff], &sdata->channelAttrNew[curr->channelID], curr->drumIndex_pitchIndex, curr->vol);
+		UpdateChannelVol_Music(&sdata->songSeq[curr->soundID & 0xffff], &sdata->channelAttrNew[curr->channelID], curr->drumIndex_pitchIndex, curr->vol);
 	}
 }

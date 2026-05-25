@@ -7,7 +7,7 @@ static int DotLights_TweenPos(int value)
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800242b8-0x80024464.
-void DECOMP_DotLights_AudioAndVideo(struct GameTracker *gGT)
+void DotLights_AudioAndVideo(struct GameTracker *gGT)
 {
 	int timer = gGT->trafficLightsTimer;
 	int red1;
@@ -71,7 +71,7 @@ void DECOMP_DotLights_AudioAndVideo(struct GameTracker *gGT)
 			posY = DotLights_TweenPos((0xf00 - gGT->trafficLightsTimer) * 0x1000);
 		}
 
-		DECOMP_DotLights_Video(gGT, red1, red2, red3, green, posY);
+		DotLights_Video(gGT, red1, red2, red3, green, posY);
 	}
 
 	sdata->trafficLightsTimer_prevFrame = gGT->trafficLightsTimer;

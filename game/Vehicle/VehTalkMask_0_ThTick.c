@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80068f90-0x80069178
-void DECOMP_VehTalkMask_ThTick(struct Thread *t)
+void VehTalkMask_ThTick(struct Thread *t)
 {
 	struct GameTracker *gGT = sdata->gGT;
 
@@ -20,7 +20,7 @@ void DECOMP_VehTalkMask_ThTick(struct Thread *t)
 
 		if (gGT->drivers[0] != 0)
 		{
-			int boolGoodGuy = DECOMP_VehPickupItem_MaskBoolGoodGuy(gGT->drivers[0]);
+			int boolGoodGuy = VehPickupItem_MaskBoolGoodGuy(gGT->drivers[0]);
 
 			// 0x3A for Uka, 0x39 for Aku
 			int modelID = STATIC_UKAUKA - boolGoodGuy;
@@ -72,7 +72,7 @@ void DECOMP_VehTalkMask_ThTick(struct Thread *t)
 		}
 	}
 
-	mhInst->animFrame = DECOMP_EngineSound_VolumeAdjust(iVar6, iVar5, 1);
+	mhInst->animFrame = EngineSound_VolumeAdjust(iVar6, iVar5, 1);
 
 SkipLerp:
 
@@ -88,7 +88,7 @@ SkipLerp:
 
 	if (iVar4 < 6)
 	{
-		mhInst->animFrame = DECOMP_EngineSound_VolumeAdjust(iVar6, iVar5, 1);
+		mhInst->animFrame = EngineSound_VolumeAdjust(iVar6, iVar5, 1);
 	}
 	else
 	{
@@ -99,7 +99,7 @@ SkipLerp:
 	// 0x00: mouth close
 	// 0x0C: mouth open
 
-	u32 lastFrame = DECOMP_VehFrameInst_GetNumAnimFrames(mhInst, 0) - 1;
+	u32 lastFrame = VehFrameInst_GetNumAnimFrames(mhInst, 0) - 1;
 
 	if (mhInst->animFrame < 0)
 		mhInst->animFrame = 0;

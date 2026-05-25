@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80064be4-0x80064c38.
-int DECOMP_VehPickupItem_MaskBoolGoodGuy(struct Driver *d)
+int VehPickupItem_MaskBoolGoodGuy(struct Driver *d)
 {
 	int charID;
 	charID = data.characterIDs[d->driverID];

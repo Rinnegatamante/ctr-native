@@ -8,7 +8,7 @@ void *DECOMP_LOAD_VramFile(void *bigfilePtr, int subfileIndex, void *ptrDestinat
 	void *loadedFile;
 
 	if (ptrDestination == NULL)
-		DECOMP_MEMPACK_PushState();
+		MEMPACK_PushState();
 
 	if (sizePtr != NULL)
 		*sizePtr = 0;
@@ -39,7 +39,7 @@ void *DECOMP_LOAD_VramFile(void *bigfilePtr, int subfileIndex, void *ptrDestinat
 		sdata->frameFinishedVRAM = 0;
 
 		if (ptrDestination == NULL)
-			DECOMP_MEMPACK_PopState();
+			MEMPACK_PopState();
 	}
 
 	return loadedFile;

@@ -459,7 +459,7 @@ void Particle_RenderList(struct PushBuffer *pb, void *particleList)
 	u32 *primPayload = prim + 8;
 	char cameraID;
 
-	DECOMP_PushBuffer_SetPsyqGeom(pb);
+	PushBuffer_SetPsyqGeom(pb);
 
 	scratch[0] = Particle_RenderList_ReadWord(&pb->matrix_ViewProj, 0x00);
 	scratch[1] = Particle_RenderList_ReadWord(&pb->matrix_ViewProj, 0x04);

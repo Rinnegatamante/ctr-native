@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_DecalGlobal_Store(struct GameTracker *gGT, struct LevTexLookup *LTL)
+void DecalGlobal_Store(struct GameTracker *gGT, struct LevTexLookup *LTL)
 {
 	struct Icon *currIcon;
 	struct IconGroup **currGroup;

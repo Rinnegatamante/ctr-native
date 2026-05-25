@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002e658-0x8002e690
-int DECOMP_GTE_GetSquaredLength(s32 *vec)
+int GTE_GetSquaredLength(s32 *vec)
 {
 	MTC2(vec[0], 9);
 	MTC2(vec[1], 10);
@@ -9,9 +9,4 @@ int DECOMP_GTE_GetSquaredLength(s32 *vec)
 	gte_sqr0();
 
 	return MFC2(25) + MFC2(26) + MFC2(27);
-}
-
-int GTE_GetSquaredLength(s32 *vec)
-{
-	return DECOMP_GTE_GetSquaredLength(vec);
 }

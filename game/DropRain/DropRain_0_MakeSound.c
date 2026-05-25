@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80024464-0x8002451c.
-void DECOMP_DropRain_MakeSound(struct GameTracker *gGT)
+void DropRain_MakeSound(struct GameTracker *gGT)
 {
 	int i, lev;
 	u32 rained;

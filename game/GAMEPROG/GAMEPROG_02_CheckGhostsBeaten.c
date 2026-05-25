@@ -25,8 +25,3 @@ int GAMEPROG_CheckGhostsBeaten(int ghostID)
 
 	return result;
 }
-
-int DECOMP_GAMEPROG_CheckGhostsBeaten(int ghostID)
-{
-	return GAMEPROG_CheckGhostsBeaten(ghostID);
-}

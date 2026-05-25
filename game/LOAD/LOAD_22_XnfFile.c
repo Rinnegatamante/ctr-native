@@ -7,7 +7,7 @@ void *DECOMP_LOAD_XnfFile(char *filename, void *ptrDestination, int *size)
 	CdlFILE cdlFile;
 
 	DECOMP_LOAD_StringToUpper(filename);
-	DECOMP_CDSYS_SetMode_StreamData();
+	CDSYS_SetMode_StreamData();
 
 	if (CdSearchFile(&cdlFile, filename) == 0)
 		return 0;
@@ -19,11 +19,11 @@ void *DECOMP_LOAD_XnfFile(char *filename, void *ptrDestination, int *size)
 		// allocate room for all sectors,
 		// remove alignment before next Read
 		int sectorSize = (cdlFile.size + 0x7ffU) & 0xfffff800;
-		ptrDestination = DECOMP_MEMPACK_AllocMem(sectorSize /*, fileName*/);
+		ptrDestination = MEMPACK_AllocMem(sectorSize /*, fileName*/);
 		if (ptrDestination == NULL)
 			return NULL;
 
-		DECOMP_MEMPACK_ReallocMem(cdlFile.size);
+		MEMPACK_ReallocMem(cdlFile.size);
 	}
 
 	char buf[8];

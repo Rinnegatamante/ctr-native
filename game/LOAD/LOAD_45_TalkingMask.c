@@ -14,8 +14,8 @@ void DECOMP_LOAD_TalkingMask(int packID, int maskID)
 
 	// Swap to pack of hub you're NOT on,
 	// wipe the pack to reload the new MASK
-	DECOMP_MEMPACK_SwapPacks(packID);
-	DECOMP_MEMPACK_ClearLowMem();
+	MEMPACK_SwapPacks(packID);
+	MEMPACK_ClearLowMem();
 
 	int offset = maskID * 4 + (packID - 1) * 2;
 

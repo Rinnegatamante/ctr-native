@@ -90,7 +90,7 @@ void CS_Camera_ThTick_Boss(struct Thread *t)
 			}
 		}
 
-		DECOMP_MEMPACK_SwapPacks(gGT->activeMempackIndex);
+		MEMPACK_SwapPacks(gGT->activeMempackIndex);
 
 		struct CsThreadInitData initData;
 		initData.podiumPos[0] = bcd->bossPos[0];

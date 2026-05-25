@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_ElimBG_ToggleInstance(struct Instance *inst, char boolGameIsPaused)
+void ElimBG_ToggleInstance(struct Instance *inst, char boolGameIsPaused)
 {
 	u32 flags;
 

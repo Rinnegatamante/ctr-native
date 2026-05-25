@@ -7,7 +7,7 @@ static u32 Level_RandomFX_NextAudioRNG(void)
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002eab8-0x8002ebe4
-void DECOMP_Level_RandomFX(int *cooldown, u32 soundID, int baseCooldown, u32 randomRange, int volumeScale)
+void Level_RandomFX(int *cooldown, u32 soundID, int baseCooldown, u32 randomRange, int volumeScale)
 {
 	int cooldownValue = *cooldown;
 
@@ -26,9 +26,4 @@ void DECOMP_Level_RandomFX(int *cooldown, u32 soundID, int baseCooldown, u32 ran
 		rng = Level_RandomFX_NextAudioRNG();
 		*cooldown = rng % randomRange + baseCooldown;
 	}
-}
-
-void Level_RandomFX(int *cooldown, u32 soundID, int baseCooldown, u32 randomRange, int volumeScale)
-{
-	DECOMP_Level_RandomFX(cooldown, soundID, baseCooldown, randomRange, volumeScale);
 }

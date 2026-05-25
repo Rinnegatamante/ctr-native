@@ -5,7 +5,7 @@ int PsyX_SPUAL_IsXAPlaying(void);
 #endif
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8001d06c-0x8001d094.
-void DECOMP_CDSYS_XAPauseAtEnd()
+void CDSYS_XAPauseAtEnd()
 {
 	if (sdata->boolUseDisc == 0)
 	{
@@ -22,5 +22,5 @@ void DECOMP_CDSYS_XAPauseAtEnd()
 	if (sdata->XA_boolFinished == 0)
 		return;
 
-	DECOMP_CDSYS_XAPauseForce();
+	CDSYS_XAPauseForce();
 }

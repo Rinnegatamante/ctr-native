@@ -22,8 +22,3 @@ void VehStuckProc_Tumble_Animate(struct Thread *thread, struct Driver *driver)
 
 	driver->matrixIndex = matrixIndex;
 }
-
-void DECOMP_VehStuckProc_Tumble_Animate(struct Thread *thread, struct Driver *driver)
-{
-	VehStuckProc_Tumble_Animate(thread, driver);
-}

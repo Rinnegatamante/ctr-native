@@ -10,9 +10,9 @@ void DECOMP_howl_VolumeSet(int type, u8 vol)
 
 		sdata->vol_Music = vol;
 
-		DECOMP_Smart_EnterCriticalSection();
+		Smart_EnterCriticalSection();
 
-		DECOMP_UpdateChannelVol_Music_All();
+		UpdateChannelVol_Music_All();
 	}
 	else if (type == 0)
 	{
@@ -21,9 +21,9 @@ void DECOMP_howl_VolumeSet(int type, u8 vol)
 
 		sdata->vol_FX = vol;
 
-		DECOMP_Smart_EnterCriticalSection();
+		Smart_EnterCriticalSection();
 
-		DECOMP_UpdateChannelVol_EngineFX_All();
+		UpdateChannelVol_EngineFX_All();
 	}
 	else
 	{
@@ -35,10 +35,10 @@ void DECOMP_howl_VolumeSet(int type, u8 vol)
 
 		sdata->vol_Voice = vol;
 
-		DECOMP_Smart_EnterCriticalSection();
+		Smart_EnterCriticalSection();
 
-		DECOMP_UpdateChannelVol_OtherFX_All();
+		UpdateChannelVol_OtherFX_All();
 	}
 
-	DECOMP_Smart_ExitCriticalSection();
+	Smart_ExitCriticalSection();
 }

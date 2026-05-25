@@ -112,7 +112,7 @@ int DECOMP_CS_Thread_UseOpcode(struct Instance *instance, struct CutsceneObj *cs
 					CS_SaveDecodedOpcode(cs, metadataBackup);
 				reloadAdvCharSelectOpcodeState:
 					cs->unk18 = ((int *)&cs->decodedOpcode)[2];
-					iVar8 = DECOMP_MixRNG_Scramble();
+					iVar8 = MixRNG_Scramble();
 					opcodeMeta = (struct CsOpcodeMeta *)cs->metadata;
 					opcodeMetaShorts = (s16 *)opcodeMeta;
 					cs->unk14 =
@@ -142,13 +142,13 @@ int DECOMP_CS_Thread_UseOpcode(struct Instance *instance, struct CutsceneObj *cs
 
 	if (instance == 0)
 	{
-		numCamPathPoints = DECOMP_CAM_Path_GetNumPoints();
+		numCamPathPoints = CAM_Path_GetNumPoints();
 		if ((int)numCamPathPoints != 0)
 		{
 			iVar10 = ((s32)((u32)gGT->msInThisLEV << 11)) >> 16;
 			if (iVar10 < (int)numCamPathPoints + -1)
 			{
-				DECOMP_CAM_Path_Move(iVar10, camPos, camRot, camPathFlags);
+				CAM_Path_Move(iVar10, camPos, camRot, camPathFlags);
 				gGT->pushBuffer[0].pos[0] = camPos[0];
 				gGT->pushBuffer[0].pos[1] = camPos[1];
 				gGT->pushBuffer[0].pos[2] = camPos[2];
@@ -160,7 +160,7 @@ int DECOMP_CS_Thread_UseOpcode(struct Instance *instance, struct CutsceneObj *cs
 			{
 				if (opcodeMeta->opcode == 0x14)
 					DECOMP_CS_ScriptCmd_OpcodeNext(cs);
-				DECOMP_CAM_Path_Move((int)(s16)(numCamPathPoints + -1), gGT->pushBuffer[0].pos, gGT->pushBuffer[0].rot, camPathFlags);
+				CAM_Path_Move((int)(s16)(numCamPathPoints + -1), gGT->pushBuffer[0].pos, gGT->pushBuffer[0].rot, camPathFlags);
 			}
 
 			clockEffectFlags = gGT->clockEffectEnabled;
@@ -181,9 +181,9 @@ int DECOMP_CS_Thread_UseOpcode(struct Instance *instance, struct CutsceneObj *cs
 					gGT->pushBuffer[0].distanceToScreen_PREV = 0x14d;
 			}
 
-			if (((camPathFlags[0] & 0x10) != 0) && ((DECOMP_MixRNG_Scramble() & 0xf) == 0))
+			if (((camPathFlags[0] & 0x10) != 0) && ((MixRNG_Scramble() & 0xf) == 0))
 			{
-				DECOMP_CTR_Box_DrawClearBox(&OVR_233.introClearBoxRect, &OVR_233.introClearBoxColor, 1, gGT->backBuffer->otMem.startPlusFour);
+				CTR_Box_DrawClearBox(&OVR_233.introClearBoxRect, &OVR_233.introClearBoxColor, 1, gGT->backBuffer->otMem.startPlusFour);
 			}
 
 			if (gGT->levelID == 0x29)
@@ -201,27 +201,27 @@ int DECOMP_CS_Thread_UseOpcode(struct Instance *instance, struct CutsceneObj *cs
 				{
 					if ((u32)gGT->msInThisLEV >> 5 < 0xb5)
 						goto afterCameraAndSkipChecks;
-					DECOMP_RaceFlag_SetCanDraw(1);
-					iVar8 = DECOMP_RaceFlag_IsTransitioning();
-					if ((iVar8 == 0) && (iVar8 = DECOMP_RaceFlag_IsFullyOnScreen(), iVar8 == 0))
-						DECOMP_RaceFlag_SetFullyOffScreen();
+					RaceFlag_SetCanDraw(1);
+					iVar8 = RaceFlag_IsTransitioning();
+					if ((iVar8 == 0) && (iVar8 = RaceFlag_IsFullyOnScreen(), iVar8 == 0))
+						RaceFlag_SetFullyOffScreen();
 				}
 				else
 				{
-					DECOMP_RaceFlag_SetCanDraw(1);
-					iVar8 = DECOMP_RaceFlag_IsTransitioning();
-					if ((iVar8 == 0) && (iVar8 = DECOMP_RaceFlag_IsFullyOnScreen(), iVar8 == 0))
-						DECOMP_RaceFlag_SetFullyOffScreen();
+					RaceFlag_SetCanDraw(1);
+					iVar8 = RaceFlag_IsTransitioning();
+					if ((iVar8 == 0) && (iVar8 = RaceFlag_IsFullyOnScreen(), iVar8 == 0))
+						RaceFlag_SetFullyOffScreen();
 					levelToLoad = CREDITS_CRASH;
 					if (gGT->levelID - 0x2aU < 2)
 						goto requestSkipLevelLoad;
 				}
-				DECOMP_CseqMusic_StopAll();
-				DECOMP_CDSYS_XAPauseRequest();
-				DECOMP_RaceFlag_SetDrawOrder(0);
+				CseqMusic_StopAll();
+				CDSYS_XAPauseRequest();
+				RaceFlag_SetDrawOrder(0);
 				levelToLoad = MAIN_MENU_LEVEL;
 			requestSkipLevelLoad:
-				DECOMP_MainRaceTrack_RequestLoad(levelToLoad);
+				MainRaceTrack_RequestLoad(levelToLoad);
 				OVR_233.isCutsceneOver = 1;
 				gGT->gameMode2 &= ~VEH_FREEZE_PODIUM;
 				CS_RestoreDecodedOpcode(cs, metadataBackup);
@@ -319,7 +319,7 @@ processOpcode:
 			animIndex = (int)opcodeMeta->animIndex;
 			iVar12 = DECOMP_CS_Instance_SafeCheckAnimFrame(instance, animIndex, iVar8, opcodeMeta->arg0.i);
 			iVar12 = iVar12 << 5;
-			iVar10 = DECOMP_MixRNG_Scramble();
+			iVar10 = MixRNG_Scramble();
 			opcodeChanged = 0;
 			opcodeDuration =
 			    ((int)((iVar10 >> 2 & 0xfff) * (((int)opcodeMeta->frameEnd - (int)opcodeMeta->frameStart) + 1)) >> 0xc) + (int)opcodeMeta->frameStart;
@@ -411,7 +411,7 @@ processOpcode:
 		break;
 
 	case 4:
-		iVar10 = DECOMP_MixRNG_Scramble();
+		iVar10 = MixRNG_Scramble();
 		if (opcodeMeta->arg0.i < (int)(iVar10 >> 2 & 0xff))
 			DECOMP_CS_ScriptCmd_OpcodeNext(cs);
 		else
@@ -423,7 +423,7 @@ processOpcode:
 		if (gGT->levelID == 0x28)
 		{
 			if (instance != 0)
-				DECOMP_Garage_PlayFX(opcodeMeta->arg1.u, (int)instance->model->id + -0xce);
+				Garage_PlayFX(opcodeMeta->arg1.u, (int)instance->model->id + -0xce);
 		}
 		else
 		{
@@ -438,11 +438,11 @@ processOpcode:
 		break;
 
 	case 7:
-		DECOMP_CseqMusic_Start((u32)(u16)opcodeMetaShorts[6], 0, 0, 0, opcodeMeta->arg0.i);
+		CseqMusic_Start((u32)(u16)opcodeMetaShorts[6], 0, 0, 0, opcodeMeta->arg0.i);
 		break;
 
 	case 8:
-		DECOMP_CseqMusic_Restart((u32)(u16)opcodeMetaShorts[6], 1);
+		CseqMusic_Restart((u32)(u16)opcodeMetaShorts[6], 1);
 		break;
 
 	case 9:
@@ -522,10 +522,10 @@ processOpcode:
 		gGT->levelID = iVar10;
 		if (iVar10 == 0x1e)
 		{
-			DECOMP_RaceFlag_SetCanDraw(0);
+			RaceFlag_SetCanDraw(0);
 		requestDirectLevelLoad:
 			gGT->gameMode2 &= ~VEH_FREEZE_PODIUM;
-			DECOMP_MainRaceTrack_RequestLoad((int)(s16)iVar10);
+			MainRaceTrack_RequestLoad((int)(s16)iVar10);
 		}
 		else
 		{
@@ -536,7 +536,7 @@ processOpcode:
 					levelToLoad = GEM_STONE_VALLEY;
 				requestMappedLevelLoad:
 					gGT->gameMode2 &= ~VEH_FREEZE_PODIUM;
-					DECOMP_MainRaceTrack_RequestLoad(levelToLoad);
+					MainRaceTrack_RequestLoad(levelToLoad);
 					break;
 				}
 			}
@@ -544,7 +544,7 @@ processOpcode:
 			{
 				if (iVar10 == 0x27)
 				{
-					DECOMP_RaceFlag_SetDrawOrder(0);
+					RaceFlag_SetDrawOrder(0);
 					levelToLoad = MAIN_MENU_LEVEL;
 					goto requestMappedLevelLoad;
 				}
@@ -562,7 +562,7 @@ processOpcode:
 		break;
 
 	case 0x12:
-		DECOMP_CDSYS_XAPlay(opcodeMeta->arg0.i, opcodeMeta->arg1.i);
+		CDSYS_XAPlay(opcodeMeta->arg0.i, opcodeMeta->arg1.i);
 		if (sdata->XA_State != 0)
 			cs->flags = cs->flags & 0xfbff | 0x200;
 		break;
@@ -588,22 +588,22 @@ processOpcode:
 		goto finishOpcodeStep;
 
 	case 0x16:
-		iVar10 = DECOMP_RaceFlag_IsFullyOffScreen();
+		iVar10 = RaceFlag_IsFullyOffScreen();
 		if (iVar10 == 1)
 		{
-			DECOMP_RaceFlag_SetCanDraw(1);
-			DECOMP_RaceFlag_BeginTransition(1);
+			RaceFlag_SetCanDraw(1);
+			RaceFlag_BeginTransition(1);
 		}
 		break;
 
 	case 0x17:
-		conditionMet = DECOMP_RaceFlag_IsFullyOnScreen();
+		conditionMet = RaceFlag_IsFullyOnScreen();
 		goto advanceIfConditionMet;
 
 	case 0x18:
-		iVar10 = DECOMP_RaceFlag_IsFullyOnScreen();
+		iVar10 = RaceFlag_IsFullyOnScreen();
 		if (iVar10 == 1)
-			DECOMP_RaceFlag_BeginTransition(2);
+			RaceFlag_BeginTransition(2);
 		break;
 
 	case 0x19:

@@ -1,6 +1,6 @@
 #include <common.h>
 
-int DECOMP_VehCalc_SteerAccel(int param_1, int param_2, int param_3, int param_4, int param_5, int param_6)
+int VehCalc_SteerAccel(int param_1, int param_2, int param_3, int param_4, int param_5, int param_6)
 {
 	// Crash Bandicoot:
 	// param_2: 0x4	SteerAccel_Stage2_FirstFrame
@@ -16,7 +16,7 @@ int DECOMP_VehCalc_SteerAccel(int param_1, int param_2, int param_3, int param_4
 	{
 		// map "frame" from [0,4] -> [0x800,0xC00]
 
-		param_6 = DECOMP_VehCalc_MapToRange(param_1, 0, param_2, param_5, param_6);
+		param_6 = VehCalc_MapToRange(param_1, 0, param_2, param_5, param_6);
 	}
 
 	else
@@ -28,7 +28,7 @@ int DECOMP_VehCalc_SteerAccel(int param_1, int param_2, int param_3, int param_4
 		{
 			// map "frame" from [12,64] -> [0xC00,0]
 
-			param_6 = DECOMP_VehCalc_MapToRange(param_1, param_2 + param_3, param_4, param_6, 0);
+			param_6 = VehCalc_MapToRange(param_1, param_2 + param_3, param_4, param_6, 0);
 		}
 	}
 

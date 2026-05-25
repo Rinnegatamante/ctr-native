@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002e5cc-0x8002e658
-void DECOMP_GTE_AudioLR_Driver(MATRIX *matrix, struct Driver *driver, s32 *out)
+void GTE_AudioLR_Driver(MATRIX *matrix, struct Driver *driver, s32 *out)
 {
 	SVECTOR input;
 
@@ -14,9 +14,4 @@ void DECOMP_GTE_AudioLR_Driver(MATRIX *matrix, struct Driver *driver, s32 *out)
 	gte_ldv0(&input);
 	gte_rtv0();
 	gte_stlvnl((VECTOR *)out);
-}
-
-void GTE_AudioLR_Driver(MATRIX *matrix, struct Driver *driver, u32 *out)
-{
-	DECOMP_GTE_AudioLR_Driver(matrix, driver, (s32 *)out);
 }

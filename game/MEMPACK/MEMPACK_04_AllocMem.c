@@ -1,6 +1,6 @@
 #include <common.h>
 
-void *DECOMP_MEMPACK_AllocMem(int allocSize)
+void *MEMPACK_AllocMem(int allocSize)
 {
 	int firstFreeByte;
 	int newAllocSize;
@@ -10,9 +10,9 @@ void *DECOMP_MEMPACK_AllocMem(int allocSize)
 	ptrMempack = sdata->PtrMempack;
 
 	// if out of memory
-	if (DECOMP_MEMPACK_GetFreeBytes() < allocSize)
+	if (MEMPACK_GetFreeBytes() < allocSize)
 	{
-		DECOMP_CTR_ErrorScreen(0xFF, 0, 0);
+		CTR_ErrorScreen(0xFF, 0, 0);
 
 		// infinite loop
 		for (;;)

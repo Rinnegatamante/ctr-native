@@ -86,8 +86,3 @@ CheckOxideAllTracks:
 		sdata->gameProgress.unlocks[1] |= 0x10;
 	}
 }
-
-void DECOMP_MainGameEnd_SoloRaceGetReward(int subtractTimeCrateBonus)
-{
-	MainGameEnd_SoloRaceGetReward(subtractTimeCrateBonus);
-}

@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_RaceFlag_BeginTransition(int direction)
+void RaceFlag_BeginTransition(int direction)
 {
 	// Begin Transition on-screen
 	if (direction == 1)
@@ -15,7 +15,7 @@ void DECOMP_RaceFlag_BeginTransition(int direction)
 	// Begin Transition off-screen
 	else if (direction == 2)
 	{
-		DECOMP_RaceFlag_SetDrawOrder(0);
+		RaceFlag_SetDrawOrder(0);
 
 		sdata->RaceFlag_Position = 0;
 

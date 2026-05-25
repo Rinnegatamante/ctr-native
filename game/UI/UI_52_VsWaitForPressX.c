@@ -138,7 +138,7 @@ void DECOMP_UI_VsWaitForPressX(void)
 
 			// 4-byte RGBA = black
 			*(int *)0x1f800000 = 0;
-			DECOMP_CTR_Box_DrawClearBox(r, 0x1f800000, 0, gGT->backBuffer->otMem.startPlusFour);
+			CTR_Box_DrawClearBox(r, 0x1f800000, 0, gGT->backBuffer->otMem.startPlusFour);
 
 			// Allow Go-Back option to YouHit/HitYou
 			if ((tap & BTN_SQUARE) != 0)

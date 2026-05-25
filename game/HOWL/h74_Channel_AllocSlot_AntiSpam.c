@@ -3,7 +3,7 @@
 void Channel_DestroySelf(struct ChannelStats *stats);
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002b608-0x8002b7d0
-struct ChannelStats *DECOMP_Channel_AllocSlot_AntiSpam(s16 soundID, char boolUseAntiSpam, int flags, struct ChannelAttr *attr)
+struct ChannelStats *Channel_AllocSlot_AntiSpam(s16 soundID, char boolUseAntiSpam, int flags, struct ChannelAttr *attr)
 {
 	struct ChannelAttr *newAttr;
 	struct ChannelStats *curr, *backupNext;
@@ -39,7 +39,7 @@ struct ChannelStats *DECOMP_Channel_AllocSlot_AntiSpam(s16 soundID, char boolUse
 		}
 	}
 
-	return DECOMP_Channel_AllocSlot(flags, attr);
+	return Channel_AllocSlot(flags, attr);
 }
 
 void Channel_DestroySelf(struct ChannelStats *stats)

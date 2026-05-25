@@ -21,13 +21,13 @@ void DECOMP_LOAD_LangFile(int bigfilePtr, int lang)
 
 #if BUILD == EurRetail
 	// This is to turn the screen black for a bit (optional)
-	DECOMP_CTR_ErrorScreen(0, 0, 0);
+	CTR_ErrorScreen(0, 0, 0);
 	VSync(0);
 #endif
 
 	if (sdata->lngFile == 0)
 	{
-		sdata->lngFile = DECOMP_MEMPACK_AllocMem(sdata->langBufferSize /* "lang buffer" */);
+		sdata->lngFile = MEMPACK_AllocMem(sdata->langBufferSize /* "lang buffer" */);
 	}
 
 	lngFile = sdata->lngFile;
@@ -48,6 +48,6 @@ void DECOMP_LOAD_LangFile(int bigfilePtr, int lang)
 	}
 #if BUILD == EurRetail
 	// set voicelines to new lang
-	DECOMP_CDSYS_SetXAToLang(lang);
+	CDSYS_SetXAToLang(lang);
 #endif
 }

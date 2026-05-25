@@ -17,8 +17,8 @@ void DECOMP_UI_Map_DrawRawIcon(int ptrMap, int *param_2, int iconID, int colorID
 
 	struct Icon **iconPtrArray = ICONGROUP_GETICONS(sdata->gGT->iconGroup[5]);
 
-	DECOMP_DecalHUD_DrawPolyGT4(iconPtrArray[iconID], posX, posY, &gGT->backBuffer->primMem, gGT->pushBuffer_UI.ptrOT, ptrColor[0], ptrColor[1], ptrColor[2],
-	                            ptrColor[3], 0, (int)scale);
+	DecalHUD_DrawPolyGT4(iconPtrArray[iconID], posX, posY, &gGT->backBuffer->primMem, gGT->pushBuffer_UI.ptrOT, ptrColor[0], ptrColor[1], ptrColor[2],
+	                     ptrColor[3], 0, (int)scale);
 
 	return;
 }

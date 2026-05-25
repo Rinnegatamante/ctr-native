@@ -30,7 +30,7 @@ void DECOMP_AH_MaskHint_Start(s16 hintId, u16 bool_interruptWarppad)
 	// If Aku / Uka model pointer is nullptr
 	if (sdata->modelMaskHints3D == NULL)
 	{
-		DECOMP_LOAD_TalkingMask(DECOMP_LOAD_GetAdvPackIndex(), !DECOMP_VehPickupItem_MaskBoolGoodGuy(d));
+		DECOMP_LOAD_TalkingMask(DECOMP_LOAD_GetAdvPackIndex(), !VehPickupItem_MaskBoolGoodGuy(d));
 
 		// 3.0s to spawn mask
 		D232.maskSpawnFrame = 90;

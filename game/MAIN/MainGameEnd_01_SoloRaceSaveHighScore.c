@@ -42,8 +42,3 @@ void MainGameEnd_SoloRaceSaveHighScore(void)
 	entry->characterID = data.characterIDs[player->driverID];
 	memmove(entry->name, gGT->prevNameEntered, 0x11);
 }
-
-void DECOMP_MainGameEnd_SoloRaceSaveHighScore(void)
-{
-	MainGameEnd_SoloRaceSaveHighScore();
-}

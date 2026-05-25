@@ -75,7 +75,7 @@ void BOTS_Driver_Convert(struct Driver *d)
 
 	BOTS_SetRotation(d, 0);
 
-	DECOMP_GAMEPAD_JogCon2(d, 0, 0);
+	GAMEPAD_JogCon2(d, 0, 0);
 
 	u32 oldActionFlagsSet = d->actionsFlagSet;
 
@@ -83,7 +83,7 @@ void BOTS_Driver_Convert(struct Driver *d)
 
 	if ((oldActionFlagsSet & 0x2000000) != 0)
 	{
-		DECOMP_CAM_EndOfRace(&sdata->gGT->cameraDC[d->driverID], d);
+		CAM_EndOfRace(&sdata->gGT->cameraDC[d->driverID], d);
 	}
 
 	int damageType;

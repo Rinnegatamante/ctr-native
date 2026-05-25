@@ -50,8 +50,3 @@ void VehEmitter_Sparks_Ground(struct Driver *d, struct ParticleEmitter *emSet)
 		p->unk18 = d->instSelf->unk50;
 	}
 }
-
-void DECOMP_VehEmitter_Sparks_Ground(struct Driver *d, struct ParticleEmitter *emSet)
-{
-	VehEmitter_Sparks_Ground(d, emSet);
-}

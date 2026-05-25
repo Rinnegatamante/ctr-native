@@ -3,7 +3,7 @@
 // less bytes, less instructions, than original
 extern struct RacingWheelData rwd_default;
 
-int DECOMP_VehPhysJoystick_ReturnToRest(int stickVal, int half, struct RacingWheelData *rwd)
+int VehPhysJoystick_ReturnToRest(int stickVal, int half, struct RacingWheelData *rwd)
 {
 	if (rwd == 0)
 		rwd = &rwd_default;
@@ -12,10 +12,10 @@ int DECOMP_VehPhysJoystick_ReturnToRest(int stickVal, int half, struct RacingWhe
 
 	if (stickVal < 0)
 	{
-		return -DECOMP_VehCalc_MapToRange(-stickVal, rwd->deadZone, rwd->range, 0, half);
+		return -VehCalc_MapToRange(-stickVal, rwd->deadZone, rwd->range, 0, half);
 	}
 
-	return DECOMP_VehCalc_MapToRange(stickVal, rwd->deadZone, rwd->range, 0, half);
+	return VehCalc_MapToRange(stickVal, rwd->deadZone, rwd->range, 0, half);
 }
 
 struct RacingWheelData rwd_default = {.gamepadCenter = 0x80,

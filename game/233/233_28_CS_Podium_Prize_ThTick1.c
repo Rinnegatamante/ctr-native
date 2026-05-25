@@ -12,8 +12,8 @@ void CS_Podium_Prize_ThTick1(struct Thread *th)
 		if (th->modelIndex != STATIC_BIG1)
 			inst->flags &= ~HIDE_MODEL;
 
-		prize[0x12] = DECOMP_VehCalc_InterpBySpeed(prize[0x12], 0x14, 0);
-		prize[0x11] = DECOMP_VehCalc_InterpBySpeed(prize[0x11], 1, 0);
+		prize[0x12] = VehCalc_InterpBySpeed(prize[0x12], 0x14, 0);
+		prize[0x11] = VehCalc_InterpBySpeed(prize[0x11], 1, 0);
 	}
 
 	trig = MATH_Sin(prize[5]);

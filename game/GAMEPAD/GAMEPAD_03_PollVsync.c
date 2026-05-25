@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_GAMEPAD_PollVsync(struct GamepadSystem *gGamepads)
+void GAMEPAD_PollVsync(struct GamepadSystem *gGamepads)
 {
 	u32 uVar2;
 	u32 uVar4;
@@ -58,7 +58,7 @@ void DECOMP_GAMEPAD_PollVsync(struct GamepadSystem *gGamepads)
 				// and many more...
 				uVar2 = PadGetState(uVar4);
 
-				DECOMP_GAMEPAD_ProcessState(pad, uVar2, uVar4);
+				GAMEPAD_ProcessState(pad, uVar2, uVar4);
 			}
 
 			// increment gamepad counter

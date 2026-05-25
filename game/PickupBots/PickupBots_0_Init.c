@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_PickupBots_Init(void)
+void PickupBots_Init(void)
 {
 	int hub;
 	int lev = sdata->gGT->levelID;

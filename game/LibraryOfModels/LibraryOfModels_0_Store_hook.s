@@ -1,3 +1,3 @@
 .set noreorder
-j DECOMP_LibraryOfModels_Store
+j LibraryOfModels_Store
 nop

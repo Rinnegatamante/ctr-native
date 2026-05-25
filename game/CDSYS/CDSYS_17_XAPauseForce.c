@@ -5,7 +5,7 @@ void PsyX_SPUAL_StopXA(void);
 #endif
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8001cfec-0x8001d06c.
-void DECOMP_CDSYS_XAPauseForce()
+void CDSYS_XAPauseForce()
 {
 	if (sdata->boolUseDisc == 0)
 	{
@@ -26,7 +26,7 @@ void DECOMP_CDSYS_XAPauseForce()
 	sdata->XA_State = 0;
 
 	SpuSetIRQ(0);
-	DECOMP_CDSYS_SpuDisableIRQ();
+	CDSYS_SpuDisableIRQ();
 
 	CdControl(CdlPause, 0, 0);
 

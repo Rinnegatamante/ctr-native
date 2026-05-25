@@ -178,8 +178,3 @@ void PushBuffer_SetMatrixVP(struct PushBuffer *pb)
 
 	return;
 }
-
-void DECOMP_PushBuffer_SetMatrixVP(struct PushBuffer *pb)
-{
-	PushBuffer_SetMatrixVP(pb);
-}

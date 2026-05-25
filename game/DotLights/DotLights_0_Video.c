@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002406c-0x800242b8.
-void DECOMP_DotLights_Video(struct GameTracker *gGT, int red1, int red2, int red3, int green, int posY)
+void DotLights_Video(struct GameTracker *gGT, int red1, int red2, int red3, int green, int posY)
 {
 	struct Icon *icon;
 	struct PushBuffer *pb;
@@ -39,8 +39,8 @@ void DECOMP_DotLights_Video(struct GameTracker *gGT, int red1, int red2, int red
 
 		for (lightIndex = 0; lightIndex < 4; lightIndex++)
 		{
-			DECOMP_DecalHUD_DrawPolyFT4(gGT->trafficLightIcon[iconState[lightIndex] + (2 * (lightIndex == 3))], newPosX + (sizeX * lightIndex), newPosY,
-			                            &gGT->backBuffer->primMem, pb->ptrOT, 0, scale);
+			DecalHUD_DrawPolyFT4(gGT->trafficLightIcon[iconState[lightIndex] + (2 * (lightIndex == 3))], newPosX + (sizeX * lightIndex), newPosY,
+			                     &gGT->backBuffer->primMem, pb->ptrOT, 0, scale);
 		}
 	}
 }

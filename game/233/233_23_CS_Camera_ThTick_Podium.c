@@ -7,7 +7,7 @@ void CS_Camera_ThTick_Podium(struct Thread *th)
 	u16 *podium = th->object;
 
 	if (podium[0] == 0)
-		gGT->drivers[0]->funcPtrs[0] = DECOMP_VehStuckProc_RIP_Init;
+		gGT->drivers[0]->funcPtrs[0] = VehStuckProc_RIP_Init;
 
 	if (gGT->cameraDC[0].cameraMode != 3)
 	{
@@ -24,13 +24,13 @@ void CS_Camera_ThTick_Podium(struct Thread *th)
 		if ((gGT->gameMode2 & CUP_NEW_BATTLE) != 0)
 			stringIndex = 0x237;
 
-		DECOMP_TakeCupProgress_Activate(stringIndex);
+		TakeCupProgress_Activate(stringIndex);
 		gGT->gameMode2 &= ~(CUP_NEW_WIN | CUP_NEW_BATTLE);
 	}
 
 	if (OVR_233.cutsceneState == 0 || sdata->ptrActiveMenu != NULL)
 	{
-		int numPoints = DECOMP_CAM_Path_GetNumPoints();
+		int numPoints = CAM_Path_GetNumPoints();
 		int maxFrame = (numPoints << 0x15) >> 0x10;
 
 		if (maxFrame != 0)
@@ -57,7 +57,7 @@ void CS_Camera_ThTick_Podium(struct Thread *th)
 			OVR_233.PodiumInitUnk2 = frame;
 			podium[0] = frameTime;
 
-			DECOMP_CAM_Path_Move(frame, pos, rot, camPath);
+			CAM_Path_Move(frame, pos, rot, camPath);
 
 			gGT->pushBuffer[0].pos[0] = pos[0];
 			gGT->pushBuffer[0].pos[1] = pos[1];
@@ -93,8 +93,8 @@ void CS_Camera_ThTick_Podium(struct Thread *th)
 			gGT->podiumRewardID = NOFUNC;
 			gGT->gameMode2 &= ~VEH_FREEZE_PODIUM;
 
-			DECOMP_RaceFlag_SetDrawOrder(0);
-			DECOMP_MainRaceTrack_RequestLoad(MAIN_MENU_LEVEL);
+			RaceFlag_SetDrawOrder(0);
+			MainRaceTrack_RequestLoad(MAIN_MENU_LEVEL);
 			return;
 		}
 
@@ -133,11 +133,11 @@ void CS_Camera_ThTick_Podium(struct Thread *th)
 					break;
 				}
 
-				if ((DECOMP_VehPickupItem_MaskBoolGoodGuy(gGT->drivers[0]) & 0xffff) == 0)
+				if ((VehPickupItem_MaskBoolGoodGuy(gGT->drivers[0]) & 0xffff) == 0)
 					hintID += 0x1f;
 
-				DECOMP_CDSYS_XAPauseForce();
-				DECOMP_CDSYS_XAPlay(1, hintID);
+				CDSYS_XAPauseForce();
+				CDSYS_XAPlay(1, hintID);
 
 				gGT->podiumRewardID = NOFUNC;
 				return;
@@ -165,7 +165,7 @@ void CS_Camera_ThTick_Podium(struct Thread *th)
 		gGT->gameMode1 &= ~ADVENTURE_ARENA;
 		gGT->gameMode2 &= ~VEH_FREEZE_PODIUM;
 
-		DECOMP_MainRaceTrack_RequestLoad((sdata->advProgress.rewards[2] & 0x100000) ? OXIDE_TRUE_ENDING : OXIDE_ENDING);
+		MainRaceTrack_RequestLoad((sdata->advProgress.rewards[2] & 0x100000) ? OXIDE_TRUE_ENDING : OXIDE_ENDING);
 		return;
 	}
 

@@ -25,7 +25,7 @@ void DECOMP_RB_Burst_CollLevInst(struct ScratchpadStruct *sps, struct BSP *bspHi
 	// 8: PU_RANDOM_CRATE (weapon box)
 	if (model < PU_TIME_CRATE_1)
 	{
-		meta = DECOMP_COLL_LevModelMeta(model);
+		meta = COLL_LevModelMeta(model);
 		if (meta == NULL)
 			return;
 

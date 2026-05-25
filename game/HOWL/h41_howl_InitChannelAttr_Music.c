@@ -49,7 +49,7 @@ void DECOMP_howl_InitChannelAttr_Music(struct SongSeq *seq, struct ChannelAttr *
 		sampleVol *= (u32)shortSample->volume;
 	}
 
-	DECOMP_Channel_SetVolume(attr, (u32)(sampleVol * channelVol) >> 0xf, seq->LR);
+	Channel_SetVolume(attr, (u32)(sampleVol * channelVol) >> 0xf, seq->LR);
 
 	attr->pitch = pitch;
 	attr->reverb = seq->reverb;

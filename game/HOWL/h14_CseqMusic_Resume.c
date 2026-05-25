@@ -2,7 +2,7 @@
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80028de0-0x80028e5c
 // resume all songs
-void DECOMP_CseqMusic_Resume()
+void CseqMusic_Resume()
 {
 	int i;
 	struct Song *song;
@@ -12,7 +12,7 @@ void DECOMP_CseqMusic_Resume()
 	if (sdata->ptrCseqHeader == 0)
 		return;
 
-	DECOMP_Smart_EnterCriticalSection();
+	Smart_EnterCriticalSection();
 
 	for (i = 0; i < 2; i++)
 	{
@@ -26,5 +26,5 @@ void DECOMP_CseqMusic_Resume()
 		}
 	}
 
-	DECOMP_Smart_ExitCriticalSection();
+	Smart_ExitCriticalSection();
 }

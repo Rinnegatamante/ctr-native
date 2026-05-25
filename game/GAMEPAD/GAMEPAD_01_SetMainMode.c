@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_GAMEPAD_SetMainMode()
+void GAMEPAD_SetMainMode()
 {
 	PadSetMainMode(0, 0, 0);
 	PadSetMainMode(1, 0, 0);

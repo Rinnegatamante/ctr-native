@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_MainFreeze_SafeAdvDestroy(void)
+void MainFreeze_SafeAdvDestroy(void)
 {
 // byte budget
 #if 0

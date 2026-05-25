@@ -91,8 +91,3 @@ struct Particle *VehEmitter_Exhaust(struct Driver *d, VECTOR *param_2, VECTOR *p
 
 	return p;
 }
-
-struct Particle *DECOMP_VehEmitter_Exhaust(struct Driver *d, VECTOR *param_2, VECTOR *param_3)
-{
-	return VehEmitter_Exhaust(d, param_2, param_3);
-}

@@ -203,7 +203,7 @@ u32 COLL_MOVED_ScrubImpact(struct Driver *d, struct Thread *t, struct Scratchpad
 			{
 				if (d->kartState != KS_MASK_GRABBED)
 				{
-					DECOMP_GAMEPAD_JogCon1(d, (d->simpTurnState < 1) ? 0x1f : 0x2f, 0x60);
+					GAMEPAD_JogCon1(d, (d->simpTurnState < 1) ? 0x1f : 0x2f, 0x60);
 				}
 
 				if (scrub->unk_angle != 0)
@@ -225,8 +225,8 @@ u32 COLL_MOVED_ScrubImpact(struct Driver *d, struct Thread *t, struct Scratchpad
 
 					DECOMP_OtherFX_Play_LowLevel(6, 1, soundFlags);
 					Voiceline_RequestPlay(6, data.characterIDs[d->driverID], 0x10);
-					DECOMP_GAMEPAD_ShockFreq(d, 8, 0);
-					DECOMP_GAMEPAD_ShockForce1(d, 8, 0x7f);
+					GAMEPAD_ShockFreq(d, 8, 0);
+					GAMEPAD_ShockForce1(d, 8, 0x7f);
 
 					if (d->kartState == KS_DRIFTING)
 					{

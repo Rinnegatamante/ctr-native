@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002b030-0x8002b0e0
-void DECOMP_UpdateChannelVol_OtherFX_All()
+void UpdateChannelVol_OtherFX_All()
 {
 	struct ChannelStats *curr, *backupNext;
 
@@ -16,6 +16,6 @@ void DECOMP_UpdateChannelVol_OtherFX_All()
 		// update volume
 		sdata->ChannelUpdateFlags[curr->channelID] |= 0x40;
 
-		DECOMP_UpdateChannelVol_OtherFX(&sdata->howl_metaOtherFX[curr->soundID & 0xffff], &sdata->channelAttrNew[curr->channelID], curr->vol, curr->LR);
+		UpdateChannelVol_OtherFX(&sdata->howl_metaOtherFX[curr->soundID & 0xffff], &sdata->channelAttrNew[curr->channelID], curr->vol, curr->LR);
 	}
 }

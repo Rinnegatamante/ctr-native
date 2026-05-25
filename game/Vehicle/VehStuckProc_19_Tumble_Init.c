@@ -5,7 +5,7 @@ void *PlayerBlastedFuncTable[0xD] = {(void *)0x0,
                                      VehStuckProc_Tumble_PhysLinear,
                                      DECOMP_VehPhysProc_Driving_Audio,
                                      VehStuckProc_Tumble_PhysAngular,
-                                     DECOMP_VehPhysForce_OnApplyForces,
+                                     VehPhysForce_OnApplyForces,
 
 #if !defined(REBUILD_PS1) || defined(CTR_NATIVE)
                                      COLL_MOVED_PlayerSearch,
@@ -49,7 +49,7 @@ void VehStuckProc_Tumble_Init(struct Thread *thread, struct Driver *driver)
 
 	driver->instSelf->animFrame = (s16)iVar2;
 
-	iVar2 = DECOMP_MixRNG_Scramble();
+	iVar2 = MixRNG_Scramble();
 	driver->KartStates.Blasted.boolPlayBackwards = iVar2 & 4;
 
 	simpTurnState = driver->simpTurnState;
@@ -67,10 +67,5 @@ void VehStuckProc_Tumble_Init(struct Thread *thread, struct Driver *driver)
 		driver->funcPtrs[i] = PlayerBlastedFuncTable[i];
 	}
 
-	DECOMP_GAMEPAD_JogCon1(driver, bVar3, 0x60);
-}
-
-void DECOMP_VehStuckProc_Tumble_Init(struct Thread *thread, struct Driver *driver)
-{
-	VehStuckProc_Tumble_Init(thread, driver);
+	GAMEPAD_JogCon1(driver, bVar3, 0x60);
 }

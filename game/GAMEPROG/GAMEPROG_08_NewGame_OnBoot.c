@@ -1,8 +1,8 @@
 #include <common.h>
 
-void DECOMP_GAMEPROG_NewGame_OnBoot()
+void GAMEPROG_NewGame_OnBoot()
 {
-	DECOMP_GAMEPROG_NewProfile_OutsideAdv(&sdata->gameProgress);
-	DECOMP_GAMEPROG_NewProfile_InsideAdv(&sdata->advProgress);
-	DECOMP_GAMEPROG_GetPtrHighScoreTrack();
+	GAMEPROG_NewProfile_OutsideAdv(&sdata->gameProgress);
+	GAMEPROG_NewProfile_InsideAdv(&sdata->advProgress);
+	GAMEPROG_GetPtrHighScoreTrack();
 }

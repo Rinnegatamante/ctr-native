@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002cb44-0x8002cbb4
-void DECOMP_Voiceline_StopAll(void)
+void Voiceline_StopAll(void)
 {
 	while (sdata->Voiceline2.last != 0)
 	{

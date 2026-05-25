@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_MEMPACK_PopToState(int id)
+void MEMPACK_PopToState(int id)
 {
 	struct Mempack *ptrMempack;
 	int numBookmarks;

@@ -333,19 +333,19 @@ void DECOMP_RB_FlameJet_ThTick(struct Thread *t)
 		fjBoxDesc.thread = t;
 
 		fjBoxDesc.bucket = gGT->threadBuckets[PLAYER].thread;
-		hitInst = DECOMP_LinkedCollide_Hitbox(&fjBoxDesc);
+		hitInst = LinkedCollide_Hitbox(&fjBoxDesc);
 
 		// no PLAYER
 		if (hitInst == 0)
 		{
 			fjBoxDesc.bucket = gGT->threadBuckets[ROBOT].thread;
-			hitInst = DECOMP_LinkedCollide_Hitbox(&fjBoxDesc);
+			hitInst = LinkedCollide_Hitbox(&fjBoxDesc);
 
 			// no ROBOT
 			if (hitInst == 0)
 			{
 				fjBoxDesc.bucket = gGT->threadBuckets[MINE].thread;
-				hitInst = DECOMP_LinkedCollide_Hitbox(&fjBoxDesc);
+				hitInst = LinkedCollide_Hitbox(&fjBoxDesc);
 
 				// hit MINE
 				if (hitInst != 0)

@@ -74,7 +74,7 @@ void DECOMP_CS_Thread_ThTick(struct Thread *t)
 
 			if ((sdata->gGT->timer & 0x1) != 0)
 			{
-				inst->alphaScale = (DECOMP_MixRNG_Scramble() & 0x7ff) + 1024;
+				inst->alphaScale = (MixRNG_Scramble() & 0x7ff) + 1024;
 			}
 		}
 	}
@@ -240,7 +240,7 @@ after_opcode:
 	cs->unk18 = cs->metadata[2];
 
 	meta = (s16 *)cs->metadata;
-	cs->unk14 = meta[2] + (s16)(((DECOMP_MixRNG_Scramble() >> 2 & 0xfff) * ((meta[3] - meta[2]) + 1)) >> 0xc);
+	cs->unk14 = meta[2] + (s16)(((MixRNG_Scramble() >> 2 & 0xfff) * ((meta[3] - meta[2]) + 1)) >> 0xc);
 
 	if (inst != NULL)
 	{

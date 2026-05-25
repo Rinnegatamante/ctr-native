@@ -222,11 +222,11 @@ LAB_80055930:
 
 		u_long *ot = gGT->backBuffer->otMem.startPlusFour;
 
-		DECOMP_CTR_Box_DrawSolidBox(&rect, color, ot);
+		CTR_Box_DrawSolidBox(&rect, color, ot);
 
 		// Draw tiny rectangle near big black title bar (second)
 		rect.y = gGT->pushBuffer[0].rect.y + gGT->pushBuffer[0].rect.h + windowHeight + -0x1e;
-		DECOMP_CTR_Box_DrawSolidBox(&rect, color, ot);
+		CTR_Box_DrawSolidBox(&rect, color, ot);
 
 		// 30-pixel height
 		// clear RGB, keep alpha (which is zero anyway)
@@ -236,11 +236,11 @@ LAB_80055930:
 
 		// draw big black title bar (first)
 		rect.y = gGT->pushBuffer[0].rect.y - windowHeight;
-		DECOMP_CTR_Box_DrawSolidBox(&rect, color, ot);
+		CTR_Box_DrawSolidBox(&rect, color, ot);
 
 		// draw big black title bar (second)
 		rect.y = gGT->pushBuffer[0].rect.y + gGT->pushBuffer[0].rect.h + windowHeight + -0x1e;
-		DECOMP_CTR_Box_DrawSolidBox(&rect, color, ot);
+		CTR_Box_DrawSolidBox(&rect, color, ot);
 	}
 	return;
 }

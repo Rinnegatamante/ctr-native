@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002d2f4-0x8002d4cc
-void DECOMP_Audio_SetState(u32 state)
+void Audio_SetState(u32 state)
 {
 	u8 XA_type;
 	u8 XA_index;
@@ -19,9 +19,9 @@ void DECOMP_Audio_SetState(u32 state)
 	case 1:
 		sdata->boolNeedXASeek = 0;
 
-		DECOMP_CDSYS_XAPauseRequest();
+		CDSYS_XAPauseRequest();
 
-		DECOMP_Music_Restart();
+		Music_Restart();
 
 		// erase backup, keep music, stop all fx
 		DECOMP_howl_StopAudio(1, 0, 1);
@@ -29,14 +29,14 @@ void DECOMP_Audio_SetState(u32 state)
 	case 2:
 	case 7:
 
-		DECOMP_CseqMusic_StopAll();
+		CseqMusic_StopAll();
 
-		DECOMP_Music_Adjust(0, 0, 0, 0);
+		Music_Adjust(0, 0, 0, 0);
 
 		break;
 	case 5:
 
-		DECOMP_CseqMusic_StopAll();
+		CseqMusic_StopAll();
 
 		level = gGT->levelID;
 
@@ -44,7 +44,7 @@ void DECOMP_Audio_SetState(u32 state)
 		if (level - 0x19U < 5)
 		{
 			// convert levelID to a bitshifted flag
-			DECOMP_Music_Adjust(0, 0, &sdata->advHubSongSet, 1 << (level - 0x19U));
+			Music_Adjust(0, 0, &sdata->advHubSongSet, 1 << (level - 0x19U));
 		}
 		break;
 	case 9:
@@ -55,9 +55,9 @@ void DECOMP_Audio_SetState(u32 state)
 
 	case 10:
 
-		DECOMP_Music_Stop();
+		Music_Stop();
 
-		DECOMP_CseqMusic_StopAll();
+		CseqMusic_StopAll();
 		break;
 	case 11:
 
@@ -65,7 +65,7 @@ void DECOMP_Audio_SetState(u32 state)
 
 		sdata->framesDrivingSameDirection = 0;
 
-		DECOMP_Voiceline_ToggleEnable(1);
+		Voiceline_ToggleEnable(1);
 		break;
 
 	case 12:
@@ -73,7 +73,7 @@ void DECOMP_Audio_SetState(u32 state)
 	// last lap, distToFinish < 9000
 	case 15:
 
-		DECOMP_Voiceline_ToggleEnable(0);
+		Voiceline_ToggleEnable(0);
 
 		sdata->boolNeedXASeek = 1;
 		break;
@@ -82,7 +82,7 @@ void DECOMP_Audio_SetState(u32 state)
 	case 13:
 		sdata->boolNeedXASeek = 0;
 
-		DECOMP_Music_LowerVolume();
+		Music_LowerVolume();
 
 		// MUSIC_LAST_LAP
 		XA_index = 6;
@@ -94,15 +94,15 @@ void DECOMP_Audio_SetState(u32 state)
 
 		sdata->framesDrivingSameDirection = 0;
 
-		DECOMP_Music_RaiseVolume();
+		Music_RaiseVolume();
 
-		DECOMP_Voiceline_ToggleEnable(1);
+		Voiceline_ToggleEnable(1);
 
 		break;
 	case 16:
 		sdata->boolNeedXASeek = 0;
 
-		DECOMP_Music_Restart();
+		Music_Restart();
 
 		// set XA
 		XA_index = sdata->desiredXA_RaceEndIndex;
@@ -114,6 +114,6 @@ void DECOMP_Audio_SetState(u32 state)
 
 	PLAY_XA:
 
-		DECOMP_CDSYS_XAPlay(XA_type, XA_index);
+		CDSYS_XAPlay(XA_type, XA_index);
 	}
 }

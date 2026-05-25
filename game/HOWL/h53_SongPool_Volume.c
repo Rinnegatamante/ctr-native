@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002a9d8-0x8002a9f0
-void DECOMP_SongPool_Volume(struct Song *song, int newVol, int newStep, int boolImm)
+void SongPool_Volume(struct Song *song, int newVol, int newStep, int boolImm)
 {
 	// if immediate change request,
 	// without fading volume

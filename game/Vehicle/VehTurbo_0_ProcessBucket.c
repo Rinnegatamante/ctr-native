@@ -42,8 +42,3 @@ void VehTurbo_ProcessBucket(struct Thread *turboThread)
 		turboThread = turboThread->siblingThread;
 	}
 }
-
-void DECOMP_VehTurbo_ProcessBucket(struct Thread *turboThread)
-{
-	VehTurbo_ProcessBucket(turboThread);
-}

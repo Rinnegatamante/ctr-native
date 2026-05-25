@@ -2,7 +2,7 @@
 
 int ratan2(int x, int y);
 
-void DECOMP_CAM_EndOfRace_Battle(struct CameraDC *cDC, struct Driver *d)
+void CAM_EndOfRace_Battle(struct CameraDC *cDC, struct Driver *d)
 {
 	int dx;
 	int dz;

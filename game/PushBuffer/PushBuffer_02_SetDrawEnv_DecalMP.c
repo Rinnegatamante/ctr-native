@@ -63,9 +63,3 @@ void PushBuffer_SetDrawEnv_DecalMP(void *ot, struct DB *backBuffer, RECT *viewpo
 	// this camera's primitives to draw
 	AddPrim(ot, prim);
 }
-
-void DECOMP_PushBuffer_SetDrawEnv_DecalMP(void *ot, struct DB *backBuffer, RECT *viewport, s16 offsetX, s16 offsetY, u8 dtd, u8 dfe, u8 isbg, u8 tpageUpper,
-                                          u8 tpageLower)
-{
-	PushBuffer_SetDrawEnv_DecalMP(ot, backBuffer, viewport, offsetX, offsetY, dtd, dfe, isbg, tpageUpper, tpageLower);
-}

@@ -36,7 +36,7 @@ void BOTS_LevInstColl(struct Thread *param_1)
 			struct Instance *inst = instDef->ptrInstance;
 			if (inst != NULL)
 			{
-				struct MetaDataMODEL *mdm = DECOMP_COLL_LevModelMeta(instDef->modelID);
+				struct MetaDataMODEL *mdm = COLL_LevModelMeta(instDef->modelID);
 				if (mdm != NULL)
 				{
 					if (mdm->LInC != NULL)

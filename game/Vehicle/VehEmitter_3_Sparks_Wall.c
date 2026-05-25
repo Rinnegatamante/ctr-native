@@ -11,8 +11,8 @@ void VehEmitter_Sparks_Wall(struct Driver *d, struct ParticleEmitter *emSet)
 	if (((d->fireSpeed != 0) || (speedAbs > 0x200)) && (d->frameAgainstWall < 450))
 	{
 		// both gamepad vibration
-		DECOMP_GAMEPAD_ShockFreq(d, 8, 0);
-		DECOMP_GAMEPAD_ShockForce1(d, 8, 0x7f);
+		GAMEPAD_ShockFreq(d, 8, 0);
+		GAMEPAD_ShockForce1(d, 8, 0x7f);
 
 		d->frameAgainstWall++;
 	}
@@ -119,9 +119,4 @@ void VehEmitter_Sparks_Wall(struct Driver *d, struct ParticleEmitter *emSet)
 	p->axis[2].velocity = (s16)distOut4[2];
 
 	p->driverInst = d->instSelf;
-}
-
-void DECOMP_VehEmitter_Sparks_Wall(struct Driver *d, struct ParticleEmitter *emSet)
-{
-	VehEmitter_Sparks_Wall(d, emSet);
 }

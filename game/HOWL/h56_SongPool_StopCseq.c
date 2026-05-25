@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002ab18-0x8002ac0c
-void DECOMP_SongPool_StopCseq(struct SongSeq *seq)
+void SongPool_StopCseq(struct SongSeq *seq)
 {
 	struct ChannelStats *curr, *backupNext;
 	u32 *flagPtr;

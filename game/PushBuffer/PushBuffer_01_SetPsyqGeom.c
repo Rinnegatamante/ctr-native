@@ -7,8 +7,3 @@ void PushBuffer_SetPsyqGeom(struct PushBuffer *pb)
 	gte_SetGeomScreen(pb->distanceToScreen_PREV);
 	return;
 }
-
-void DECOMP_PushBuffer_SetPsyqGeom(struct PushBuffer *pb)
-{
-	PushBuffer_SetPsyqGeom(pb);
-}

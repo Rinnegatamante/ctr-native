@@ -246,8 +246,8 @@ void DECOMP_RB_ShieldDark_ThTick_Grow(struct Thread *th)
 	player->instBubbleHold = NULL;
 	player->numTimesMissileLaunched++;
 
-	DECOMP_GAMEPAD_ShockFreq(player, 8, 0);
-	DECOMP_GAMEPAD_ShockForce1(player, 8, 0x7f);
+	GAMEPAD_ShockFreq(player, 8, 0);
+	GAMEPAD_ShockForce1(player, 8, 0x7f);
 
 	// green shield
 	u8 model = 0x5e;

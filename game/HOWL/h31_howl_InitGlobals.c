@@ -23,14 +23,14 @@ int DECOMP_howl_InitGlobals(char *filename)
 	SpuSetTransferMode(0);
 	SpuSetCommonMasterVolume(0x3fff, 0x3fff);
 
-	DECOMP_SetReverbMode(5);
+	SetReverbMode(5);
 
 	SpuSetCommonCDReverb(0);
 	SpuSetCommonCDMix(1);
 	SpuSetCommonCDVolume(0, 0);
 
-	DECOMP_Voiceline_PoolInit();
-	DECOMP_Voiceline_SetDefaults();
+	Voiceline_PoolInit();
+	Voiceline_SetDefaults();
 
 	return DECOMP_howl_LoadHeader(filename) != 0;
 }

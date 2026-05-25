@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002a4a8-0x8002a63c
-void DECOMP_cseq_opcode0a(struct SongSeq *seq)
+void cseq_opcode0a(struct SongSeq *seq)
 {
 	int pitch;
 	struct ChannelStats *curr, *backupNext;

@@ -55,7 +55,7 @@ void BOTS_CollideWithOtherAI(struct Driver *robot_1, struct Driver *robot_2)
 	pos[2] = (s16)(robot_1->posCurr.z >> 8);
 
 	// two navFrame structs, and position pointer
-	int res1 = DECOMP_CAM_MapRange_PosPoints(uVar3, estimatePos, &pos[0]);
+	int res1 = CAM_MapRange_PosPoints(uVar3, estimatePos, &pos[0]);
 
 	// position of other driver
 	pos[0] = (s16)(robot_2->posCurr.x >> 8);
@@ -63,7 +63,7 @@ void BOTS_CollideWithOtherAI(struct Driver *robot_1, struct Driver *robot_2)
 	pos[2] = (s16)(robot_2->posCurr.z >> 8);
 
 	// two navFrame structs, and position pointer
-	int res2 = DECOMP_CAM_MapRange_PosPoints(uVar3, estimatePos, &pos[0]);
+	int res2 = CAM_MapRange_PosPoints(uVar3, estimatePos, &pos[0]);
 
 	// reduce speed of one AI,
 	// the AI that is closer to the previous nav point,

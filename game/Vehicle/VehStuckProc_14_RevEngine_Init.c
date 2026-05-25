@@ -22,7 +22,7 @@ void VehStuckProc_RevEngine_Init(struct Thread *t, struct Driver *d)
 	{
 		// assume reason for revving is: mask grab
 		d->KartStates.RevEngine.boolMaskGrab = true;
-		d->KartStates.RevEngine.maskObj = DECOMP_VehPickupItem_MaskUseWeapon(d, 0);
+		d->KartStates.RevEngine.maskObj = VehPickupItem_MaskUseWeapon(d, 0);
 
 		// Driver flag
 		d->actionsFlagSet &= ~(1);
@@ -50,8 +50,8 @@ void VehStuckProc_RevEngine_Init(struct Thread *t, struct Driver *d)
 
 void *PlayerRevEngineFuncTable[13] = {
     NULL,
-    DECOMP_VehStuckProc_RevEngine_Update,
-    DECOMP_VehStuckProc_RevEngine_PhysLinear,
+    VehStuckProc_RevEngine_Update,
+    VehStuckProc_RevEngine_PhysLinear,
     DECOMP_VehPhysProc_Driving_Audio,
     NULL,
     NULL,
@@ -62,7 +62,7 @@ void *PlayerRevEngineFuncTable[13] = {
 
 #ifndef REBUILD_PS1
     VehPhysForce_TranslateMatrix,
-    DECOMP_VehStuckProc_RevEngine_Animate,
+    VehStuckProc_RevEngine_Animate,
     VehEmitter_DriverMain,
 #else
 #ifdef CTR_NATIVE
@@ -70,7 +70,7 @@ void *PlayerRevEngineFuncTable[13] = {
 #else
     0,
 #endif
-    DECOMP_VehStuckProc_RevEngine_Animate,
+    VehStuckProc_RevEngine_Animate,
 #ifdef CTR_NATIVE
     VehEmitter_DriverMain
 #else
@@ -78,8 +78,3 @@ void *PlayerRevEngineFuncTable[13] = {
 #endif
 #endif
 };
-
-void DECOMP_VehStuckProc_RevEngine_Init(struct Thread *t, struct Driver *d)
-{
-	VehStuckProc_RevEngine_Init(t, d);
-}

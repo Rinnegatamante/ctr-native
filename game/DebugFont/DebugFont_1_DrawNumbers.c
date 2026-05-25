@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_DebugFont_DrawNumbers(int index, int screenPosX, int screenPosY)
+void DebugFont_DrawNumbers(int index, int screenPosX, int screenPosY)
 {
 // Deperate for byte budget
 #if 0

@@ -8,7 +8,7 @@ int DECOMP_LOAD_FindFile(char *filename, CdlFILE *cdlFile)
 	if (cdlFile == 0)
 		return 0;
 
-	DECOMP_CDSYS_SetMode_StreamData();
+	CDSYS_SetMode_StreamData();
 	DECOMP_LOAD_StringToUpper(filename);
 
 	return (CdSearchFile(cdlFile, filename) != 0);

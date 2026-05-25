@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_MainFreeze_ConfigDrawArrows(s16 offsetX, s16 offsetY, char *str)
+void MainFreeze_ConfigDrawArrows(s16 offsetX, s16 offsetY, char *str)
 {
 	int lineWidth;
 	int color;

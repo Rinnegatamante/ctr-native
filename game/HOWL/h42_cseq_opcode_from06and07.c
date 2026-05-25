@@ -2,7 +2,7 @@
 
 // change volume
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002a170-0x8002a28c
-void DECOMP_cseq_opcode_from06and07(struct SongSeq *seq)
+void cseq_opcode_from06and07(struct SongSeq *seq)
 {
 	struct ChannelStats *curr, *backupNext;
 	u8 *currNote = seq->currNote;
@@ -23,7 +23,7 @@ void DECOMP_cseq_opcode_from06and07(struct SongSeq *seq)
 		if (curr->soundID != soundID)
 			continue;
 
-		DECOMP_Channel_SetVolume(&sdata->channelAttrNew[curr->channelID], (sampleVol * curr->vol) >> 0x12, seq->LR);
+		Channel_SetVolume(&sdata->channelAttrNew[curr->channelID], (sampleVol * curr->vol) >> 0x12, seq->LR);
 
 		// update volume
 		sdata->ChannelUpdateFlags[curr->channelID] |= 0x40;

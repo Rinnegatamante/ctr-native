@@ -15,7 +15,7 @@ const s16 hub[8] = {
 extern struct MenuRow rows221[3];
 extern struct RectMenu menu221;
 
-void DECOMP_CC_EndEvent_DrawMenu()
+void CC_EndEvent_DrawMenu()
 {
 	struct GameTracker *gGT;
 	struct Driver *driver;
@@ -190,7 +190,7 @@ void DECOMP_CC_EndEvent_DrawMenu()
 	UNLOCK_ADV_BIT(adv->rewards, bitIndex);
 
 	// go back to adv hub
-	DECOMP_MainRaceTrack_RequestLoad(gGT->prevLEV);
+	MainRaceTrack_RequestLoad(gGT->prevLEV);
 
 	return;
 }

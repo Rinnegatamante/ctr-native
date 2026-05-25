@@ -2,7 +2,7 @@
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80034aa4-0x80034b48;
 // REBUILD_PC keeps native input/audio/VRAM bridge work.
-void DECOMP_MainDrawCb_Vsync()
+void MainDrawCb_Vsync()
 {
 	struct GameTracker *gGT;
 
@@ -33,7 +33,7 @@ void DECOMP_MainDrawCb_Vsync()
 	PsyX_UpdateInput();
 #endif
 
-	DECOMP_GAMEPAD_PollVsync(sdata->gGamepads);
+	GAMEPAD_PollVsync(sdata->gGamepads);
 
 #ifdef REBUILD_PC
 

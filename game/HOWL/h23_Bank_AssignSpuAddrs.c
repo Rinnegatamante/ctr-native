@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800293b8-0x800296c4
-int DECOMP_Bank_AssignSpuAddrs()
+int Bank_AssignSpuAddrs()
 {
 	int i;
 	int ret;
@@ -70,7 +70,7 @@ int DECOMP_Bank_AssignSpuAddrs()
 
 		sdata->numAudioSectors = sdata->audioAllocSize + 0x7ff >> 0xb;
 
-		DECOMP_MEMPACK_ReallocMem((sdata->audioAllocSize + 0x7ff & 0xfffff800) + 0x800);
+		MEMPACK_ReallocMem((sdata->audioAllocSize + 0x7ff & 0xfffff800) + 0x800);
 
 		ret = DECOMP_LOAD_HowlSectorChainStart(&sdata->KartHWL_CdFile,                        // CdLoc of HOWL
 		                                       (void *)((int)sdata->ptrSampleBlock2 + 0x800), // destination
@@ -153,7 +153,7 @@ int DECOMP_Bank_AssignSpuAddrs()
 		sdata->ptrLastBank->flags |= 2;
 
 		// SPU Transfer done, remove bank from RAM
-		DECOMP_MEMPACK_PopState();
+		MEMPACK_PopState();
 
 		sdata->bankLoadStage++;
 		return 1;

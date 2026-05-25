@@ -2,7 +2,7 @@
 
 // Only called from 233, when you are at the cup
 // podium and you need to save progress
-void DECOMP_TakeCupProgress_Activate(s16 stringIndex)
+void TakeCupProgress_Activate(s16 stringIndex)
 {
 	// string index to print
 	sdata->stringIndexSaveCupProgress = stringIndex;

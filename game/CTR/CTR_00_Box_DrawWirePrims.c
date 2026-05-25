@@ -2,7 +2,7 @@
 // called "CTR" for no good reason,
 // come back to this later
 
-void DECOMP_CTR_Box_DrawWirePrims(Point p1, Point p2, Color color, void *ot)
+void CTR_Box_DrawWirePrims(Point p1, Point p2, Color color, void *ot)
 {
 	LineF2 *p;
 	GetPrimMem(p);

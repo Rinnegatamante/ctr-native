@@ -6,7 +6,7 @@
 // param2 - reserves to add
 // param3 - add type
 // param4 - fire level
-void DECOMP_VehFire_Increment(struct Driver *driver, int reserves, u32 type, int fireLevel)
+void VehFire_Increment(struct Driver *driver, int reserves, u32 type, int fireLevel)
 {
 	char kartState;
 	u8 count;
@@ -43,7 +43,7 @@ void DECOMP_VehFire_Increment(struct Driver *driver, int reserves, u32 type, int
 	    (driver->instSelf->thread->modelIndex == DYNAMIC_PLAYER))
 	{
 		// Add Reserves to ghost buffer
-		DECOMP_GhostTape_WriteBoosts(reserves, (u8)type, fireLevel);
+		GhostTape_WriteBoosts(reserves, (u8)type, fireLevel);
 	}
 
 	kartState = driver->kartState;
@@ -318,7 +318,7 @@ void DECOMP_VehFire_Increment(struct Driver *driver, int reserves, u32 type, int
 		gGT->cameraDC[driver->driverID].flags |= 0x80;
 
 		// gamepad vibration
-		DECOMP_GAMEPAD_ShockForce1(driver, 8, 0x7f);
+		GAMEPAD_ShockForce1(driver, 8, 0x7f);
 	}
 	// #endif
 }

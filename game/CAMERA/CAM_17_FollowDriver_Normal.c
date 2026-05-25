@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_CAM_FollowDriver_Normal(struct CameraDC *cDC, struct Driver *d, s16 *pushBuffer, int scratchpad, struct ZoomData *zoom)
+void CAM_FollowDriver_Normal(struct CameraDC *cDC, struct Driver *d, s16 *pushBuffer, int scratchpad, struct ZoomData *zoom)
 {
 	struct PushBuffer *pb = (struct PushBuffer *)pushBuffer;
 	struct GameTracker *gGT = sdata->gGT;
@@ -118,7 +118,7 @@ void DECOMP_CAM_FollowDriver_Normal(struct CameraDC *cDC, struct Driver *d, s16 
 	*(s16 *)(scratchpad + 0x20c) = 0;
 	*(s16 *)(scratchpad + 0x20e) = 0;
 
-	uVar8 = DECOMP_VehCalc_MapToRange(cDC->cameraMoveSpeed, (int)zoom->speedMin, (int)zoom->speedMax, (int)zoom->distMin, (int)zoom->distMax);
+	uVar8 = VehCalc_MapToRange(cDC->cameraMoveSpeed, (int)zoom->speedMin, (int)zoom->speedMax, (int)zoom->distMin, (int)zoom->distMax);
 
 	*(s16 *)(scratchpad + 0x210) = uVar8;
 
@@ -495,7 +495,7 @@ LAB_8001ab04:
 	// if end-of-race battle
 	if ((backupFlags & 4) != 0)
 	{
-		DECOMP_CAM_FollowDriver_Spin360(cDC, scratchpad, d, &local_40[0], &local_38[0]);
+		CAM_FollowDriver_Spin360(cDC, scratchpad, d, &local_40[0], &local_38[0]);
 
 		// reverse interpolation of fly-in [0x1000 to 0]
 		x = 0x1000 - cDC->unk8C;

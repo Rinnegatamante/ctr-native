@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002e9c0-0x8002ea44
-void DECOMP_Level_SoundLoopSet(int *soundIDCount, u32 soundID, u32 volume)
+void Level_SoundLoopSet(int *soundIDCount, u32 soundID, u32 volume)
 {
 	if (volume == 0)
 	{
@@ -19,9 +19,4 @@ void DECOMP_Level_SoundLoopSet(int *soundIDCount, u32 soundID, u32 volume)
 	{
 		DECOMP_OtherFX_Modify(*soundIDCount, ((volume & 0xff) << 0x10) | 0x8080);
 	}
-}
-
-void Level_SoundLoopSet(int *soundIDCount, u32 soundID, u32 volume)
-{
-	DECOMP_Level_SoundLoopSet(soundIDCount, soundID, volume);
 }

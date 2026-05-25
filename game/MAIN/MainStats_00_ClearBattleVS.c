@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_MainStats_ClearBattleVS(void)
+void MainStats_ClearBattleVS(void)
 {
 	int i;
 	struct GameTracker *gGT = sdata->gGT;

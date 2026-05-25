@@ -467,7 +467,7 @@ void DECOMP_MM_ParseCheatCodes()
 		if (cheat == &cheats[0])
 		{
 #ifndef USE_PCDRV
-			DECOMP_MainKillGame_LaunchSpyro2();
+			MainKillGame_LaunchSpyro2();
 #endif
 
 			return;

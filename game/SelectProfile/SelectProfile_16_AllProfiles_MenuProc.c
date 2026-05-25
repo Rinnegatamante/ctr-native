@@ -174,7 +174,7 @@ static void SelectProfile_ExitGhostMenu(struct RectMenu *menu)
 		return;
 	}
 
-	DECOMP_GhostTape_Destroy();
+	GhostTape_Destroy();
 	sdata->ptrDesiredMenu = DECOMP_MM_TrackSelect_GetMenuPtr();
 	DECOMP_MM_TrackSelect_Init();
 }

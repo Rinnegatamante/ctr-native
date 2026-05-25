@@ -1,6 +1,6 @@
 #include <common.h>
 
-int DECOMP_GAMEPAD_GetNumConnected(struct GamepadSystem *gGamepads)
+int GAMEPAD_GetNumConnected(struct GamepadSystem *gGamepads)
 {
 	int bitwiseConnected;
 	int numConnected;

@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800296c4-0x80029730
-void DECOMP_Bank_Destroy(struct Bank *ptrLastBank)
+void Bank_Destroy(struct Bank *ptrLastBank)
 {
 	u16 flags;
 
@@ -10,7 +10,7 @@ void DECOMP_Bank_Destroy(struct Bank *ptrLastBank)
 
 	flags = ptrLastBank->flags;
 
-	DECOMP_Bank_ClearInRange(ptrLastBank->min, ptrLastBank->max);
+	Bank_ClearInRange(ptrLastBank->min, ptrLastBank->max);
 
 	if ((flags & 1) == 0)
 	{

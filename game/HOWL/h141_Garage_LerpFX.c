@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800304b8-0x80030694.
-void DECOMP_Garage_LerpFX(void)
+void Garage_LerpFX(void)
 {
 	struct GarageFX *garageSounds = sdata->garageSoundPool;
 	u32 *audioPtrRef;

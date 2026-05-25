@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002ae64-0x8002af6c
-void DECOMP_UpdateChannelVol_EngineFX_All()
+void UpdateChannelVol_EngineFX_All()
 {
 	struct ChannelStats *curr;
 	u32 *flagPtr;
@@ -21,13 +21,13 @@ void DECOMP_UpdateChannelVol_EngineFX_All()
 		// type == EngineFX
 		if (curr->type == 0)
 		{
-			DECOMP_UpdateChannelVol_EngineFX(&sdata->howl_metaEngineFX[soundID], &sdata->channelAttrNew[curr->channelID], curr->vol, curr->LR);
+			UpdateChannelVol_EngineFX(&sdata->howl_metaEngineFX[soundID], &sdata->channelAttrNew[curr->channelID], curr->vol, curr->LR);
 		}
 
 		// type == OtherFX
 		else
 		{
-			DECOMP_UpdateChannelVol_OtherFX(&sdata->howl_metaOtherFX[soundID], &sdata->channelAttrNew[curr->channelID], curr->vol, curr->LR);
+			UpdateChannelVol_OtherFX(&sdata->howl_metaOtherFX[soundID], &sdata->channelAttrNew[curr->channelID], curr->vol, curr->LR);
 		}
 	}
 }

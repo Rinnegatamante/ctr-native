@@ -14,16 +14,16 @@ void EngineSound_Player(struct Driver *driver)
 		driver->fill_3B6[0] = (driver->fill_3B6[0] * 0x177) >> 9;
 		driver->fill_3B6[1] = (driver->fill_3B6[1] * 3000 + 0x22400) >> 0xc;
 
-		volume = DECOMP_VehCalc_MapToRange(driver->fill_3B6[0], 0, driver->const_AccelSpeed_ClassStat, 0, 0xe6);
-		distortion = DECOMP_VehCalc_MapToRange(driver->fill_3B6[1], 0, driver->const_AccelSpeed_ClassStat, 0x3c, 200);
+		volume = VehCalc_MapToRange(driver->fill_3B6[0], 0, driver->const_AccelSpeed_ClassStat, 0, 0xe6);
+		distortion = VehCalc_MapToRange(driver->fill_3B6[1], 0, driver->const_AccelSpeed_ClassStat, 0x3c, 200);
 	}
 	else if (driver->unk47B == 1)
 	{
 		driver->fill_3B6[0] = (driver->fill_3B6[0] * 3000 + 0x322bc0) >> 0xc;
 		driver->fill_3B6[1] = (driver->fill_3B6[1] * 3000 + 0x22400) >> 0xc;
 
-		volume = DECOMP_VehCalc_MapToRange(driver->fill_3B6[0], 0, driver->const_AccelSpeed_ClassStat, 0x82, 0xe6);
-		distortion = DECOMP_VehCalc_MapToRange(driver->fill_3B6[1], 0, driver->const_AccelSpeed_ClassStat, 0x3c, 200);
+		volume = VehCalc_MapToRange(driver->fill_3B6[0], 0, driver->const_AccelSpeed_ClassStat, 0x82, 0xe6);
+		distortion = VehCalc_MapToRange(driver->fill_3B6[1], 0, driver->const_AccelSpeed_ClassStat, 0x3c, 200);
 	}
 	else
 	{
@@ -92,14 +92,14 @@ void EngineSound_Player(struct Driver *driver)
 			steer = -steer;
 
 		u32 volMax = ((driver->actionsFlagSet & 0x100000) == 0) ? 0xe6 : 0xbe;
-		volume = DECOMP_VehCalc_MapToRange(driver->fill_3B6[0], 0, driver->const_AccelSpeed_ClassStat, 0x82, volMax);
+		volume = VehCalc_MapToRange(driver->fill_3B6[0], 0, driver->const_AccelSpeed_ClassStat, 0x82, volMax);
 
 		if ((driver->kartState != KS_DRIFTING) && ((driver->actionsFlagSet & 8) == 0))
 			volume += steer >> 3;
 
 		u32 pitchMax = ((driver->actionsFlagSet & 0x100000) == 0) ? 200 : 0xbe;
 		int enginePitch =
-		    DECOMP_VehCalc_MapToRange(driver->fill_3B6[1], 0, driver->const_AccelSpeed_ClassStat + driver->const_SacredFireSpeed + 0xf00, 0x3c, pitchMax);
+		    VehCalc_MapToRange(driver->fill_3B6[1], 0, driver->const_AccelSpeed_ClassStat + driver->const_SacredFireSpeed + 0xf00, 0x3c, pitchMax);
 
 		if ((driver->actionsFlagSet & 0x100000) == 0)
 		{

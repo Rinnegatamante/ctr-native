@@ -49,7 +49,7 @@ static int EngineSound_NearestAIs_CalculateLR(s32 *dir)
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002ff28-0x80030208
-void DECOMP_EngineSound_NearestAIs(void)
+void EngineSound_NearestAIs(void)
 {
 	struct GameTracker *gGT = sdata->gGT;
 	struct Driver *closestDrivers[2];
@@ -82,18 +82,13 @@ void DECOMP_EngineSound_NearestAIs(void)
 			struct Driver *cameraDriver = gGT->cameraDC[playerIndex].driverToFollow;
 			u32 lr;
 
-			DECOMP_GTE_AudioLR_Driver(&gGT->pushBuffer[playerIndex].matrix_Camera, ai, dir);
+			GTE_AudioLR_Driver(&gGT->pushBuffer[playerIndex].matrix_Camera, ai, dir);
 
-			lr = DECOMP_EngineSound_VolumeAdjust(EngineSound_NearestAIs_CalculateLR(dir), sdata->audioDefaults[4 + i], 10);
+			lr = EngineSound_VolumeAdjust(EngineSound_NearestAIs_CalculateLR(dir), sdata->audioDefaults[4 + i], 10);
 			sdata->audioDefaults[4 + i] = lr;
 
-			DECOMP_EngineSound_AI(ai, cameraDriver, i, closestDistances[i], closestDistances[i] - sdata->audioDefaults[2 + i], lr);
+			EngineSound_AI(ai, cameraDriver, i, closestDistances[i], closestDistances[i] - sdata->audioDefaults[2 + i], lr);
 			sdata->audioDefaults[2 + i] = closestDistances[i];
 		}
 	}
-}
-
-void EngineSound_NearestAIs(void)
-{
-	DECOMP_EngineSound_NearestAIs();
 }

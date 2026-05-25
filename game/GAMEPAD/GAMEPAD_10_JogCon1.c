@@ -15,8 +15,3 @@ void GAMEPAD_JogCon1(struct Driver *d, char val, u16 timeMS)
 	gb->unk45 = val;
 	gb->unk46 = timeMS;
 }
-
-void DECOMP_GAMEPAD_JogCon1(struct Driver *d, int val, int timeMS)
-{
-	GAMEPAD_JogCon1(d, (char)val, (u16)timeMS);
-}

@@ -18,6 +18,6 @@ void DECOMP_PROC_StartSearch_Self(struct ScratchpadStruct *sps)
 
 	gGT = sdata->gGT;
 
-	DECOMP_COLL_SearchBSP_CallbackPARAM(gGT->level1->ptr_mesh_info->bspRoot, (struct BoundingBox *)&sps->Union.ThBuckColl.min[0],
-	                                    DECOMP_PROC_PerBspLeaf_CheckInstances, sps);
+	COLL_SearchBSP_CallbackPARAM(gGT->level1->ptr_mesh_info->bspRoot, (struct BoundingBox *)&sps->Union.ThBuckColl.min[0],
+	                             DECOMP_PROC_PerBspLeaf_CheckInstances, sps);
 }

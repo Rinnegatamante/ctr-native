@@ -12,7 +12,7 @@ void *DECOMP_LOAD_ReadFile_ex(/*struct BigHeader* bigfile,*/ u32 loadType, int s
 	u8 paramOutput[8];
 
 	// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800321f4 for the stream-data mode side effect.
-	DECOMP_CDSYS_SetMode_StreamData();
+	CDSYS_SetMode_StreamData();
 
 	// get size and offset of subfile
 	struct BigHeader *bigfile = sdata->ptrBigfile1;
@@ -28,7 +28,7 @@ void *DECOMP_LOAD_ReadFile_ex(/*struct BigHeader* bigfile,*/ u32 loadType, int s
 	// vram is safe to overwrite after upload
 	if ((loadType & LT_SETVRAM) != 0)
 	{
-		// if (DECOMP_MEMPACK_GetFreeBytes() > eSize)
+		// if (MEMPACK_GetFreeBytes() > eSize)
 		ptrDst = sdata->PtrMempack->firstFreeByte;
 	}
 
@@ -40,8 +40,8 @@ void *DECOMP_LOAD_ReadFile_ex(/*struct BigHeader* bigfile,*/ u32 loadType, int s
 		// allocate room for all sectors,
 		// remove alignment before next Read
 		int sectorSize = (eSize + 0x7ffU) & 0xfffff800;
-		ptrDst = (void *)DECOMP_MEMPACK_AllocMem(sectorSize); // "FILE"
-		DECOMP_MEMPACK_ReallocMem(eSize);
+		ptrDst = (void *)MEMPACK_AllocMem(sectorSize); // "FILE"
+		MEMPACK_ReallocMem(eSize);
 	}
 
 	lqs->ptrDestination = ptrDst;

@@ -51,7 +51,7 @@ static void VehPhysCrash_PlayHumanFeedback(struct Thread *selfThread, struct Thr
 
 	if ((selfThread->modelIndex == DYNAMIC_PLAYER) || (otherThread->modelIndex == DYNAMIC_PLAYER))
 	{
-		int volume = DECOMP_VehCalc_MapToRange(sdata->unk_8008d9f4[0], 0, 0x1900, 0x3f, 0xff);
+		int volume = VehCalc_MapToRange(sdata->unk_8008d9f4[0], 0, 0x1900, 0x3f, 0xff);
 
 		if ((canPlayFeedback != 0) && (selfDriver->kartState != KS_BLASTED) && (selfDriver->invincibleTimer == 0) && (otherDriver->kartState != KS_BLASTED) &&
 		    (otherDriver->invincibleTimer == 0))
@@ -69,13 +69,13 @@ static void VehPhysCrash_PlayHumanFeedback(struct Thread *selfThread, struct Thr
 		}
 	}
 
-	DECOMP_GAMEPAD_ShockFreq(otherDriver, 8, 0);
-	DECOMP_GAMEPAD_ShockForce1(otherDriver, 8, 0x7f);
-	DECOMP_GAMEPAD_JogCon1(otherDriver, (otherDriver->simpTurnState > 0) ? 0x29 : 0x19, 0x60);
+	GAMEPAD_ShockFreq(otherDriver, 8, 0);
+	GAMEPAD_ShockForce1(otherDriver, 8, 0x7f);
+	GAMEPAD_JogCon1(otherDriver, (otherDriver->simpTurnState > 0) ? 0x29 : 0x19, 0x60);
 
-	DECOMP_GAMEPAD_ShockFreq(selfDriver, 8, 0);
-	DECOMP_GAMEPAD_ShockForce1(selfDriver, 8, 0x7f);
-	DECOMP_GAMEPAD_JogCon1(selfDriver, (selfDriver->simpTurnState > 0) ? 0x29 : 0x19, 0x60);
+	GAMEPAD_ShockFreq(selfDriver, 8, 0);
+	GAMEPAD_ShockForce1(selfDriver, 8, 0x7f);
+	GAMEPAD_JogCon1(selfDriver, (selfDriver->simpTurnState > 0) ? 0x29 : 0x19, 0x60);
 
 	selfDriver->actionsFlagSet |= 0x10000000;
 	otherDriver->actionsFlagSet |= 0x10000000;
@@ -120,7 +120,7 @@ void VehPhysCrash_AnyTwoCars(struct Thread *thread, u16 *searchWords, Vec3 *self
 
 		if ((otherDriver->actionsFlagSet & ACTION_BOT) == 0)
 		{
-			VehPhysForce_ConvertSpeedToVec(otherDriver, &otherVel);
+			VehPhysForce_ConvertSpeedToVecOut(otherDriver, &otherVel);
 			VehPhysCrash_WeightedVelocity(&weightedVel, selfVel, selfDriver, &otherVel, otherDriver);
 			VehPhysCrash_BouncePair(hitDir, &weightedVel, &otherVel, selfVel);
 			VehPhysCrash_AddImpulse(selfVel, hitDir, hitStrength);

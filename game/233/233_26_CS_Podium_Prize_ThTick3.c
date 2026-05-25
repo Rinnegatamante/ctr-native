@@ -65,7 +65,7 @@ void CS_Podium_Prize_ThTick3(struct Thread *th)
 			hintID = 0x11;
 
 		if (hintID != 0)
-			DECOMP_MainFrame_RequestMaskHint(hintID, 0);
+			MainFrame_RequestMaskHint(hintID, 0);
 	}
 
 	gGT = sdata->gGT;

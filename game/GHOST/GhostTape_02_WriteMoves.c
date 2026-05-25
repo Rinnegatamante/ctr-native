@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_GhostTape_WriteMoves(s16 raceFinished)
+void GhostTape_WriteMoves(s16 raceFinished)
 {
 	char *pbVar1;
 	int iVar3;
@@ -38,7 +38,7 @@ void DECOMP_GhostTape_WriteMoves(s16 raceFinished)
 		// If you're in End-Of-Race menu
 		if ((gameMode & 0x200000) != 0)
 		{
-			DECOMP_GhostTape_End();
+			GhostTape_End();
 			return;
 		}
 	}

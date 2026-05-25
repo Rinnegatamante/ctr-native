@@ -18,11 +18,11 @@ void Particle_FuncPtr_SpitTire(struct Particle *p)
 	}
 
 	// random X
-	rng = DECOMP_MixRNG_Scramble();
+	rng = MixRNG_Scramble();
 	p->axis[0].velocity = rng + (rng / 0x1640) * -0x1640 - 0xb20;
 
 	// random Z
-	rng = DECOMP_MixRNG_Scramble();
+	rng = MixRNG_Scramble();
 	p->axis[2].velocity = rng + (rng / 0x1640) * -0x1640 - 0xb20;
 
 	// scale value
@@ -34,7 +34,7 @@ void Particle_FuncPtr_SpitTire(struct Particle *p)
 	case 0x1000:
 	{
 		// random Y
-		rng = DECOMP_MixRNG_Scramble();
+		rng = MixRNG_Scramble();
 		p->axis[1].velocity = rng + (rng / 0x12c0) * -0x12c0 + 0x1900;
 
 		// frame #2
@@ -46,7 +46,7 @@ void Particle_FuncPtr_SpitTire(struct Particle *p)
 	case 0xfff:
 	{
 		// random Y
-		rng = DECOMP_MixRNG_Scramble();
+		rng = MixRNG_Scramble();
 		p->axis[1].velocity = rng + (rng / 800) * -800 + 8000;
 
 		// frame #3
@@ -58,7 +58,7 @@ void Particle_FuncPtr_SpitTire(struct Particle *p)
 	case 0xffe:
 	{
 		// random Y
-		rng = DECOMP_MixRNG_Scramble();
+		rng = MixRNG_Scramble();
 		p->axis[1].velocity = rng + (rng / 800) * -800 + 6000;
 
 		p->axis[5].velocity = 0xf801;

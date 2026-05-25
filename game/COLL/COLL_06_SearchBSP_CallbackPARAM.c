@@ -1,13 +1,12 @@
 #include <common.h>
 
-static int DECOMP_COLL_SearchBSP_CallbackPARAM_Overlaps(struct BSP *node, s16 minX, s16 minY, s16 minZ, s16 maxX, s16 maxY, s16 maxZ)
+static int COLL_SearchBSP_CallbackPARAM_Overlaps(struct BSP *node, s16 minX, s16 minY, s16 minZ, s16 maxX, s16 maxY, s16 maxZ)
 {
 	return ((node->box.min[1] <= maxY) && (node->box.min[0] <= maxX) && (minX <= node->box.max[0]) && (node->box.min[2] <= maxZ) &&
 	        (minZ <= node->box.max[2]) && (minY <= node->box.max[1]));
 }
 
-static void DECOMP_COLL_SearchBSP_CallbackPARAM_PushChild(struct BSP *root, u16 childId, s16 minX, s16 minY, s16 minZ, s16 maxX, s16 maxY, s16 maxZ,
-                                                          u16 **stackTop)
+static void COLL_SearchBSP_CallbackPARAM_PushChild(struct BSP *root, u16 childId, s16 minX, s16 minY, s16 minZ, s16 maxX, s16 maxY, s16 maxZ, u16 **stackTop)
 {
 	struct BSP *child;
 
@@ -15,24 +14,24 @@ static void DECOMP_COLL_SearchBSP_CallbackPARAM_PushChild(struct BSP *root, u16 
 		return;
 
 	child = &root[childId & 0x3fff];
-	if (!DECOMP_COLL_SearchBSP_CallbackPARAM_Overlaps(child, minX, minY, minZ, maxX, maxY, maxZ))
+	if (!COLL_SearchBSP_CallbackPARAM_Overlaps(child, minX, minY, minZ, maxX, maxY, maxZ))
 		return;
 
 	**stackTop = childId;
 	(*stackTop)++;
 }
 
-static void DECOMP_COLL_SearchBSP_CallbackPARAM_PushChildren(struct BSP *root, struct BSP *node, s16 minX, s16 minY, s16 minZ, s16 maxX, s16 maxY, s16 maxZ,
-                                                             u16 **stackTop)
+static void COLL_SearchBSP_CallbackPARAM_PushChildren(struct BSP *root, struct BSP *node, s16 minX, s16 minY, s16 minZ, s16 maxX, s16 maxY, s16 maxZ,
+                                                      u16 **stackTop)
 {
 	// Retail pushes child 0 then child 1; the scratchpad stack pops child 1 first.
-	DECOMP_COLL_SearchBSP_CallbackPARAM_PushChild(root, (u16)node->data.branch.childID[0], minX, minY, minZ, maxX, maxY, maxZ, stackTop);
-	DECOMP_COLL_SearchBSP_CallbackPARAM_PushChild(root, (u16)node->data.branch.childID[1], minX, minY, minZ, maxX, maxY, maxZ, stackTop);
+	COLL_SearchBSP_CallbackPARAM_PushChild(root, (u16)node->data.branch.childID[0], minX, minY, minZ, maxX, maxY, maxZ, stackTop);
+	COLL_SearchBSP_CallbackPARAM_PushChild(root, (u16)node->data.branch.childID[1], minX, minY, minZ, maxX, maxY, maxZ, stackTop);
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8001ebec-0x8001ede4
-void DECOMP_COLL_SearchBSP_CallbackPARAM(struct BSP *root, struct BoundingBox *bbox, void (*callback)(struct BSP *, struct ScratchpadStruct *),
-                                         struct ScratchpadStruct *param)
+void COLL_SearchBSP_CallbackPARAM(struct BSP *root, struct BoundingBox *bbox, void (*callback)(struct BSP *, struct ScratchpadStruct *),
+                                  struct ScratchpadStruct *param)
 {
 	u16 *stackBase;
 	u16 *stackTop;
@@ -52,7 +51,7 @@ void DECOMP_COLL_SearchBSP_CallbackPARAM(struct BSP *root, struct BoundingBox *b
 	stackBase = CTR_SCRATCHPAD_PTR(u16, 0x70);
 	stackTop = stackBase;
 
-	DECOMP_COLL_SearchBSP_CallbackPARAM_PushChildren(root, root, minX, minY, minZ, maxX, maxY, maxZ, &stackTop);
+	COLL_SearchBSP_CallbackPARAM_PushChildren(root, root, minX, minY, minZ, maxX, maxY, maxZ, &stackTop);
 
 	while (stackTop != stackBase)
 	{
@@ -69,6 +68,6 @@ void DECOMP_COLL_SearchBSP_CallbackPARAM(struct BSP *root, struct BoundingBox *b
 			continue;
 		}
 
-		DECOMP_COLL_SearchBSP_CallbackPARAM_PushChildren(root, child, minX, minY, minZ, maxX, maxY, maxZ, &stackTop);
+		COLL_SearchBSP_CallbackPARAM_PushChildren(root, child, minX, minY, minZ, maxX, maxY, maxZ, &stackTop);
 	}
 }

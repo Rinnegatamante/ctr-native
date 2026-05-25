@@ -97,8 +97,3 @@ void PushBuffer_FadeOneWindow(struct PushBuffer *pb)
 	// set new fade value
 	pb->fadeFromBlack_currentValue = currValue;
 }
-
-void DECOMP_PushBuffer_FadeOneWindow(struct PushBuffer *pb)
-{
-	PushBuffer_FadeOneWindow(pb);
-}

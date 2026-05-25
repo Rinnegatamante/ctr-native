@@ -1,6 +1,6 @@
 #include <common.h>
 
-struct Terrain *DECOMP_VehAfterColl_GetTerrain(u8 terrainType)
+struct Terrain *VehAfterColl_GetTerrain(u8 terrainType)
 {
 	struct Terrain *ter = &data.MetaDataTerrain[0];
 

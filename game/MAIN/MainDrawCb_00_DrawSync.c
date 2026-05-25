@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80034a80-0x80034aa4.
-void DECOMP_MainDrawCb_DrawSync()
+void MainDrawCb_DrawSync()
 {
 	struct GameTracker *gGT;
 	gGT = sdata->gGT;

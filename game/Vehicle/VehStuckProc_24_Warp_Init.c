@@ -3,7 +3,7 @@
 extern void *PlayerWarpingFuncTable[13];
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80068e04-0x80068f90
-void DECOMP_VehStuckProc_Warp_Init(struct Thread *th, struct Driver *d)
+void VehStuckProc_Warp_Init(struct Thread *th, struct Driver *d)
 {
 	if (d->kartState == KS_WARP_PAD)
 		return;

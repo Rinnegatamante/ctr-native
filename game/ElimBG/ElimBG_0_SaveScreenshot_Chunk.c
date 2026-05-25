@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_ElimBG_SaveScreenshot_Chunk(u16 *param_1, u16 *param_2, int param_3)
+void ElimBG_SaveScreenshot_Chunk(u16 *param_1, u16 *param_2, int param_3)
 {
 	u16 uVar1;
 	u16 *puVar2;

@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_GhostTape_WriteBoosts(int addReserve, u8 type, int speedCap)
+void GhostTape_WriteBoosts(int addReserve, u8 type, int speedCap)
 {
 	char *puVar1;
 

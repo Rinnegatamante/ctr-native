@@ -21,8 +21,8 @@ void *PlayerFreezeFuncTable[13] = {NULL,
                                    NULL,
                                    DECOMP_VehPhysProc_FreezeEndEvent_PhysLinear,
                                    DECOMP_VehPhysProc_Driving_Audio,
-                                   DECOMP_VehPhysGeneral_PhysAngular,
-                                   DECOMP_VehPhysForce_OnApplyForces,
+                                   VehPhysGeneral_PhysAngular,
+                                   VehPhysForce_OnApplyForces,
 
 #ifndef REBUILD_PS1
                                    COLL_MOVED_PlayerSearch,

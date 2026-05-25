@@ -46,7 +46,7 @@ void VehPhysGeneral_JumpAndFriction(struct Thread *t, struct Driver *d)
 			ampTurn = -ampTurn;
 		}
 
-		int turnDecrease = DECOMP_VehCalc_MapToRange(ampTurn, 0, (u8)d->const_BackwardTurnRate, 0, (int)d->const_TurnDecreaseRate);
+		int turnDecrease = VehCalc_MapToRange(ampTurn, 0, (u8)d->const_BackwardTurnRate, 0, (int)d->const_TurnDecreaseRate);
 		int baseSpeed = d->baseSpeed;
 		int absBaseSpeed = baseSpeed;
 		if (absBaseSpeed < 0)
@@ -185,8 +185,8 @@ PROCESS_ACCEL:
 
 	if (d->kartState == KS_BLASTED)
 	{
-		DECOMP_GAMEPAD_ShockFreq(d, 8, 0);
-		DECOMP_GAMEPAD_ShockForce1(d, 8, 0x7f);
+		GAMEPAD_ShockFreq(d, 8, 0);
+		GAMEPAD_ShockForce1(d, 8, 0x7f);
 	}
 }
 
@@ -346,9 +346,4 @@ NOT_JUMPING:
 	{
 		d->unk36E = (s16)(((int)d->unk36E * 0xd + speedApprox * 3) >> 4);
 	}
-}
-
-void DECOMP_VehPhysGeneral_JumpAndFriction(struct Thread *t, struct Driver *d)
-{
-	VehPhysGeneral_JumpAndFriction(t, d);
 }

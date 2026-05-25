@@ -51,13 +51,13 @@ void UI_RaceEnd_MenuProc(struct RectMenu *menu)
 	case 3:
 	{
 		// Erase ghost of previous race from RAM
-		DECOMP_GhostTape_Destroy();
+		GhostTape_Destroy();
 
 		// go back to main menu
 		sdata->mainMenuState = 0;
 
 		// load LEV of main menu
-		DECOMP_MainRaceTrack_RequestLoad(0x27);
+		MainRaceTrack_RequestLoad(0x27);
 		break;
 	}
 
@@ -66,8 +66,8 @@ void UI_RaceEnd_MenuProc(struct RectMenu *menu)
 		// Turn off HUD
 		gGT->hudFlags &= 0xfe;
 
-		if (DECOMP_RaceFlag_IsFullyOffScreen() == 1)
-			DECOMP_RaceFlag_BeginTransition(1);
+		if (RaceFlag_IsFullyOffScreen() == 1)
+			RaceFlag_BeginTransition(1);
 
 		sdata->Loading.stage = -5;
 
@@ -104,7 +104,7 @@ void UI_RaceEnd_MenuProc(struct RectMenu *menu)
 	case 6:
 	{
 		// Erase ghost of previous race from RAM
-		DECOMP_GhostTape_Destroy();
+		GhostTape_Destroy();
 
 		// 1 for character select
 		// 2 for track select
@@ -115,7 +115,7 @@ void UI_RaceEnd_MenuProc(struct RectMenu *menu)
 		sdata->Loading.OnBegin.AddBitsConfig0 |= 0x2000;
 
 		// load LEV of main menu
-		DECOMP_MainRaceTrack_RequestLoad(0x27);
+		MainRaceTrack_RequestLoad(0x27);
 		break;
 	}
 
@@ -144,7 +144,7 @@ void UI_RaceEnd_MenuProc(struct RectMenu *menu)
 		sdata->mainMenuState = 3;
 
 		// load LEV of main menu
-		DECOMP_MainRaceTrack_RequestLoad(0x27);
+		MainRaceTrack_RequestLoad(0x27);
 		break;
 	}
 
@@ -159,7 +159,7 @@ void UI_RaceEnd_MenuProc(struct RectMenu *menu)
 		if ((gGT->gameMode1 & ADVENTURE_CUP) != 0)
 		{
 			sdata->Loading.OnBegin.RemBitsConfig0 |= ADVENTURE_CUP;
-			DECOMP_MainRaceTrack_RequestLoad(GEM_STONE_VALLEY);
+			MainRaceTrack_RequestLoad(GEM_STONE_VALLEY);
 			break;
 		}
 
@@ -170,7 +170,7 @@ void UI_RaceEnd_MenuProc(struct RectMenu *menu)
 			sdata->Loading.OnBegin.AddBitsConfig8 |= SPAWN_AT_BOSS;
 		}
 
-		DECOMP_MainRaceTrack_RequestLoad(gGT->prevLEV);
+		MainRaceTrack_RequestLoad(gGT->prevLEV);
 		break;
 	}
 	}

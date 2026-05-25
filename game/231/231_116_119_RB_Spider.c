@@ -298,13 +298,13 @@ void DECOMP_RB_Spider_ThTick(struct Thread *t)
 checkCollision:
 	gGT = sdata->gGT;
 
-	hitInst = (struct Instance *)DECOMP_LinkedCollide_Radius(spiderInst, t, gGT->threadBuckets[PLAYER].thread, 0x9000);
+	hitInst = (struct Instance *)LinkedCollide_Radius(spiderInst, t, gGT->threadBuckets[PLAYER].thread, 0x9000);
 	if (hitInst == NULL)
 	{
-		hitInst = (struct Instance *)DECOMP_LinkedCollide_Radius(spiderInst, t, gGT->threadBuckets[ROBOT].thread, 0x9000);
+		hitInst = (struct Instance *)LinkedCollide_Radius(spiderInst, t, gGT->threadBuckets[ROBOT].thread, 0x9000);
 		if (hitInst == NULL)
 		{
-			hitInst = (struct Instance *)DECOMP_LinkedCollide_Radius(spiderInst, t, gGT->threadBuckets[MINE].thread, 0x9000);
+			hitInst = (struct Instance *)LinkedCollide_Radius(spiderInst, t, gGT->threadBuckets[MINE].thread, 0x9000);
 			if (hitInst != NULL)
 			{
 				hitInst->thread->funcThCollide(hitInst->thread);

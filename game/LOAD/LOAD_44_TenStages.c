@@ -38,7 +38,7 @@ int DECOMP_LOAD_TenStages(struct GameTracker *gGT, int loadingStage, struct BigH
 			Cutscene_VolumeBackup();
 		}
 #endif
-		DECOMP_CDSYS_XAPauseRequest();
+		CDSYS_XAPauseRequest();
 
 		// if first boot (SCEA + Copyright + ND Box)
 		if (sdata->boolFirstBoot != 0)
@@ -49,7 +49,7 @@ int DECOMP_LOAD_TenStages(struct GameTracker *gGT, int loadingStage, struct BigH
 
 			// Load Intro TIM for Copyright Page from VRAM file
 			DECOMP_LOAD_VramFile(bigfile, 0x1fe, NULL, &vramSize, -1);
-			DECOMP_MainInit_VRAMDisplay();
+			MainInit_VRAMDisplay();
 
 			gGT->db[0].drawEnv.isbg = 0;
 			gGT->db[1].drawEnv.isbg = 0;
@@ -60,15 +60,15 @@ int DECOMP_LOAD_TenStages(struct GameTracker *gGT, int loadingStage, struct BigH
 		{
 			// change active allocation system to #1
 			// used for whole game (except adventure arena)
-			DECOMP_MEMPACK_SwapPacks(0);
+			MEMPACK_SwapPacks(0);
 
 			// erase all memory loaded after first boot
-			DECOMP_MEMPACK_PopToState(sdata->bookmarkID);
+			MEMPACK_PopToState(sdata->bookmarkID);
 		}
 
 		// pop back here for every load, after first load,
 		// this permanently reserves LNG, bigfile header, etc
-		sdata->bookmarkID = DECOMP_MEMPACK_PushState();
+		sdata->bookmarkID = MEMPACK_PushState();
 
 		// Reset HUD
 		gGT->hudFlags &= ~(1 | 8);
@@ -183,10 +183,10 @@ int DECOMP_LOAD_TenStages(struct GameTracker *gGT, int loadingStage, struct BigH
 
 
 		// OG game
-		DECOMP_MainInit_PrimMem(gGT);
-		DECOMP_MainInit_OTMem(gGT);
+		MainInit_PrimMem(gGT);
+		MainInit_OTMem(gGT);
 
-		// RAM optimization, never call DECOMP_MainInit_JitPoolsNew
+		// RAM optimization, never call MainInit_JitPoolsNew
 		// in Stage 0, just no point, and also ptrMap in DRAM files
 		// will have more room to load if the allocation is delayed
 
@@ -282,7 +282,7 @@ int DECOMP_LOAD_TenStages(struct GameTracker *gGT, int loadingStage, struct BigH
 		// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80033cf4-0x80033d04 for post-overlay music restart gate.
 		if (!boolPlayMusicDuringLoading)
 		{
-			DECOMP_Music_Restart();
+			Music_Restart();
 		}
 
 		// If in main menu (character selection, track selection, any part of it)
@@ -320,9 +320,9 @@ int DECOMP_LOAD_TenStages(struct GameTracker *gGT, int loadingStage, struct BigH
 			sdata->PLYROBJECTLIST = 0;
 
 		// clear and reset
-		DECOMP_LibraryOfModels_Clear(gGT);
+		LibraryOfModels_Clear(gGT);
 		DECOMP_LOAD_GlobalModelPtrs_MPK();
-		DECOMP_DecalGlobal_Clear(gGT);
+		DecalGlobal_Clear(gGT);
 
 		gGT->mpkIcons = 0;
 		if (sdata->ptrMPK != 0)
@@ -330,15 +330,15 @@ int DECOMP_LOAD_TenStages(struct GameTracker *gGT, int loadingStage, struct BigH
 			gGT->mpkIcons = *(int *)sdata->ptrMPK;
 
 			if (gGT->mpkIcons != 0)
-				DECOMP_DecalGlobal_Store(gGT, (struct LevTexLookup *)gGT->mpkIcons);
+				DecalGlobal_Store(gGT, (struct LevTexLookup *)gGT->mpkIcons);
 		}
 
 		if (!boolPlayMusicDuringLoading)
 		{
 			// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80033eb8-0x80033ed0 for music stop/CSEQ stop/bank reload.
-			DECOMP_Music_Stop();
-			DECOMP_CseqMusic_StopAll();
-			DECOMP_Music_LoadBanks();
+			Music_Stop();
+			CseqMusic_StopAll();
+			Music_LoadBanks();
 		}
 
 		break;
@@ -348,7 +348,7 @@ int DECOMP_LOAD_TenStages(struct GameTracker *gGT, int loadingStage, struct BigH
 		if (!boolPlayMusicDuringLoading)
 		{
 			// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80033ef8-0x80033f14 for async bank parse and volume restore.
-			iVar9 = DECOMP_Music_AsyncParseBanks();
+			iVar9 = Music_AsyncParseBanks();
 
 			if (iVar9 == 0)
 			{
@@ -384,18 +384,18 @@ int DECOMP_LOAD_TenStages(struct GameTracker *gGT, int loadingStage, struct BigH
 #endif
 
 			// Allocate room for LEV swapping
-			iVar5 = (int)DECOMP_MEMPACK_AllocMem(iVar9 + iVar12); // "HUB ALLOC"
+			iVar5 = (int)MEMPACK_AllocMem(iVar9 + iVar12); // "HUB ALLOC"
 			sdata->ptrHubAlloc = (void *)iVar5;
 
 			// Change active allocation system to #2
 			// pack = [hubAlloc, hubAlloc+size1]
-			DECOMP_MEMPACK_SwapPacks(1);
-			DECOMP_MEMPACK_NewPack((void *)iVar5, iVar9);
+			MEMPACK_SwapPacks(1);
+			MEMPACK_NewPack((void *)iVar5, iVar9);
 
 			// Change active allocation system to #3
 			// pack = [hubAlloc+size1, hubAlloc+size1+size2]
-			DECOMP_MEMPACK_SwapPacks(2);
-			DECOMP_MEMPACK_NewPack((void *)(iVar5 + iVar9), iVar12);
+			MEMPACK_SwapPacks(2);
+			MEMPACK_NewPack((void *)(iVar5 + iVar9), iVar12);
 
 			// Intro cutscene with oxide spaceship and all racers
 			if ((gGT->gameMode1 & ADVENTURE_ARENA) == 0)
@@ -424,7 +424,7 @@ int DECOMP_LOAD_TenStages(struct GameTracker *gGT, int loadingStage, struct BigH
 			// the rest of memory will load pointer maps,
 			// loaded at HighMem in main pack, end of RAM,
 			// so the pointer maps dont bloat subpacks
-			DECOMP_MEMPACK_SwapPacks(0);
+			MEMPACK_SwapPacks(0);
 
 #if 1
 			// biggest lev_swap (cutscene/adventure)
@@ -432,15 +432,15 @@ int DECOMP_LOAD_TenStages(struct GameTracker *gGT, int loadingStage, struct BigH
 			// by 0x800 for 0xc000, and use AllocMem,
 			// HighMem is now reserved for PrimMem
 			sdata->PatchMem_Size = 0xc000;
-			sdata->PatchMem_Ptr = (int)DECOMP_MEMPACK_AllocMem(sdata->PatchMem_Size); //, "Patch Table Memory");
+			sdata->PatchMem_Ptr = (int)MEMPACK_AllocMem(sdata->PatchMem_Size); //, "Patch Table Memory");
 #else
 			// original game code
-			sdata->PatchMem_Size = DECOMP_MEMPACK_GetFreeBytes();
-			sdata->PatchMem_Ptr = DECOMP_MEMPACK_AllocHighMem(sdata->PatchMem_Size); //, "Patch Table Memory");
+			sdata->PatchMem_Size = MEMPACK_GetFreeBytes();
+			sdata->PatchMem_Ptr = MEMPACK_AllocHighMem(sdata->PatchMem_Size); //, "Patch Table Memory");
 #endif
 
 			// For Oxide-Intro and Credits, set active pack
-			DECOMP_MEMPACK_SwapPacks(gGT->activeMempackIndex);
+			MEMPACK_SwapPacks(gGT->activeMempackIndex);
 		}
 
 		// base index of the group
@@ -470,15 +470,15 @@ int DECOMP_LOAD_TenStages(struct GameTracker *gGT, int loadingStage, struct BigH
 
 		if (lev != 0)
 		{
-			DECOMP_DecalGlobal_Store(gGT, lev->levTexLookup);
+			DecalGlobal_Store(gGT, lev->levTexLookup);
 		}
 
-		DECOMP_DebugFont_Init(gGT);
+		DebugFont_Init(gGT);
 
 		// if level is not nullptr
 		if (lev != 0)
 		{
-			DECOMP_LibraryOfModels_Store(gGT, lev->numModels, lev->ptrModelsPtrArray);
+			LibraryOfModels_Store(gGT, lev->numModels, lev->ptrModelsPtrArray);
 
 #ifndef REBUILD_PS1
 			// == must use RDATA strings ==
@@ -521,8 +521,8 @@ int DECOMP_LOAD_TenStages(struct GameTracker *gGT, int loadingStage, struct BigH
 
 		// RAM optimization, always do this here,
 		// because now ptrMap already loaded and realloc'd
-		DECOMP_MEMPACK_SwapPacks(0);
-		DECOMP_MainInit_JitPoolsNew(gGT);
+		MEMPACK_SwapPacks(0);
+		MainInit_JitPoolsNew(gGT);
 
 		if ((gGT->gameMode2 & LEV_SWAP) == 0)
 			break;
@@ -541,7 +541,7 @@ int DECOMP_LOAD_TenStages(struct GameTracker *gGT, int loadingStage, struct BigH
 		// === Assume PodiumReward Active ===
 
 		// Set Pack of the hub you're NOT on
-		DECOMP_MEMPACK_SwapPacks(3 - gGT->activeMempackIndex);
+		MEMPACK_SwapPacks(3 - gGT->activeMempackIndex);
 
 		// Load model+vrm files on the VRAM page
 		// that does NOT overwrite the hub VRAM
@@ -626,7 +626,7 @@ int DECOMP_LOAD_TenStages(struct GameTracker *gGT, int loadingStage, struct BigH
 			uVar16 = 7;
 		LAB_800346b0:
 			// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80034694-0x800346b8 for post-load audio state selection.
-			DECOMP_Audio_SetState_Safe(uVar16);
+			Audio_SetState_Safe(uVar16);
 			return loadingStage + 1;
 		}
 
@@ -692,7 +692,7 @@ int DECOMP_LOAD_TenStages(struct GameTracker *gGT, int loadingStage, struct BigH
 		gGT->framesInThisLEV = 0;
 		gGT->msInThisLEV = 0;
 
-		DECOMP_ElimBG_Deactivate(gGT);
+		ElimBG_Deactivate(gGT);
 
 		// signify end of load
 		return -2;

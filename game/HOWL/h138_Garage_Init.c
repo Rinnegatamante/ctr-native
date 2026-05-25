@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80030208-0x80030264.
-void DECOMP_Garage_Init(void)
+void Garage_Init(void)
 {
 	struct GarageFX *garageSounds;
 	char i;

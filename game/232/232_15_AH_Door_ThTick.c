@@ -128,7 +128,7 @@ void DECOMP_AH_Door_ThTick(struct Thread *t)
 		// if hint is not unlocked
 		if (chkRewards == 0)
 		{
-			DECOMP_MainFrame_RequestMaskHint(hintId, 0);
+			MainFrame_RequestMaskHint(hintId, 0);
 		}
 		return;
 	}
@@ -387,7 +387,7 @@ void DECOMP_AH_Door_ThTick(struct Thread *t)
 		desiredRot[2] = doorInst->instDef->rot[2];
 
 		// set desired position and rotation for CamerDC transition
-		DECOMP_CAM_SetDesiredPosRot(&gGT->cameraDC[0], &desiredPos[0], &desiredRot[0]);
+		CAM_SetDesiredPosRot(&gGT->cameraDC[0], &desiredPos[0], &desiredRot[0]);
 
 #ifndef REBUILD_PS1
 		GAMEPAD_JogCon2(driver, 0, 0);

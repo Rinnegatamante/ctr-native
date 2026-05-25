@@ -7,7 +7,7 @@ void *PlayerLastSpinFuncTable[0xD] = {0,
                                       DECOMP_VehPhysProc_SpinLast_PhysLinear,
                                       DECOMP_VehPhysProc_Driving_Audio,
                                       DECOMP_VehPhysProc_SpinLast_PhysAngular,
-                                      DECOMP_VehPhysForce_OnApplyForces,
+                                      VehPhysForce_OnApplyForces,
 
 #ifndef REBUILD_PS1
                                       COLL_MOVED_PlayerSearch,

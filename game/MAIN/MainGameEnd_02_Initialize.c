@@ -352,8 +352,3 @@ void MainGameEnd_Initialize(void)
 
 	Podium_InitModels(gGT);
 }
-
-void DECOMP_MainGameEnd_Initialize(void)
-{
-	MainGameEnd_Initialize();
-}

@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002aa44-0x8002ab18
-void DECOMP_SongPool_AdvHub2(struct Song *song, struct SongSet *songSet, int songSetActiveBits)
+void SongPool_AdvHub2(struct Song *song, struct SongSet *songSet, int songSetActiveBits)
 {
 	int i;
 	int vol;
@@ -25,6 +25,6 @@ void DECOMP_SongPool_AdvHub2(struct Song *song, struct SongSet *songSet, int son
 		if ((songSet->ptrSongSetBits[i] & song->songSetActiveBits) == 0)
 			vol = 0;
 
-		DECOMP_SongPool_AdvHub1(song, i, vol, 0);
+		SongPool_AdvHub1(song, i, vol, 0);
 	}
 }

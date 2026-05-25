@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_CAM_StartLine_FlyIn(struct FlyInData *flyInData, s16 maxFrames, int frame, s16 *desiredPos, s16 *desiredRot)
+void CAM_StartLine_FlyIn(struct FlyInData *flyInData, s16 maxFrames, int frame, s16 *desiredPos, s16 *desiredRot)
 {
 	struct Level *lev = sdata->gGT->level1;
 	int frameIndex = (frame << 0x10) >> 4;
@@ -58,9 +58,9 @@ void DECOMP_CAM_StartLine_FlyIn(struct FlyInData *flyInData, s16 maxFrames, int 
 
 	ConvertRotToMatrix(&matrix, (s16 *)&rot);
 
-	DECOMP_CAM_StartLine_FlyIn_FixY(&lev->DriverSpawn[1].pos[0]);
-	DECOMP_CAM_StartLine_FlyIn_FixY(&lev->DriverSpawn[2].pos[0]);
-	DECOMP_CAM_StartLine_FlyIn_FixY(&lev->DriverSpawn[5].pos[0]);
+	CAM_StartLine_FlyIn_FixY(&lev->DriverSpawn[1].pos[0]);
+	CAM_StartLine_FlyIn_FixY(&lev->DriverSpawn[2].pos[0]);
+	CAM_StartLine_FlyIn_FixY(&lev->DriverSpawn[5].pos[0]);
 
 	matrix.t[0] = lev->DriverSpawn[1].pos[0] + (lev->DriverSpawn[2].pos[0] - lev->DriverSpawn[1].pos[0]) / 2;
 	matrix.t[1] = lev->DriverSpawn[1].pos[1] + (lev->DriverSpawn[2].pos[1] - lev->DriverSpawn[1].pos[1]) / 2 + 0x40;

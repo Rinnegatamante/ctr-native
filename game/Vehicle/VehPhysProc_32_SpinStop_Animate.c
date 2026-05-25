@@ -38,7 +38,7 @@ void VehPhysProc_SpinStop_Animate(struct Thread *t, struct Driver *d)
 		}
 
 		int targetFrame = VehFrameInst_GetStartFrame(0, numFrames);
-		inst->animFrame = DECOMP_VehCalc_InterpBySpeed(inst->animFrame, 2, targetFrame);
+		inst->animFrame = VehCalc_InterpBySpeed(inst->animFrame, 2, targetFrame);
 
 		if (inst->animFrame != targetFrame)
 			return;

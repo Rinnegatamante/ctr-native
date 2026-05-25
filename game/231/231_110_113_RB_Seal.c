@@ -18,7 +18,7 @@ void Seal_CheckColl(struct Instance *sealInst, struct Thread *sealTh, int damage
 	gGT = sdata->gGT;
 
 	// check players
-	hitInst = (struct Instance *)DECOMP_LinkedCollide_Radius(sealInst, sealTh, gGT->threadBuckets[PLAYER].thread, radius);
+	hitInst = (struct Instance *)LinkedCollide_Radius(sealInst, sealTh, gGT->threadBuckets[PLAYER].thread, radius);
 
 	// if hit a player
 	if (hitInst != 0)
@@ -51,7 +51,7 @@ void Seal_CheckColl(struct Instance *sealInst, struct Thread *sealTh, int damage
 	}
 
 	// check robots
-	hitInst = (struct Instance *)DECOMP_LinkedCollide_Radius(sealInst, sealTh, gGT->threadBuckets[ROBOT].thread, radius);
+	hitInst = (struct Instance *)LinkedCollide_Radius(sealInst, sealTh, gGT->threadBuckets[ROBOT].thread, radius);
 
 	// if hit a robot
 	if (hitInst != 0)
@@ -67,7 +67,7 @@ void Seal_CheckColl(struct Instance *sealInst, struct Thread *sealTh, int damage
 	}
 
 	// check mines
-	hitInst = (struct Instance *)DECOMP_LinkedCollide_Radius(sealInst, sealTh, gGT->threadBuckets[MINE].thread, radius);
+	hitInst = (struct Instance *)LinkedCollide_Radius(sealInst, sealTh, gGT->threadBuckets[MINE].thread, radius);
 
 	// if hit a mine
 	if (hitInst != 0)

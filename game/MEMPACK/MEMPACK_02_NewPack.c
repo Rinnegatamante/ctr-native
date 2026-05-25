@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_MEMPACK_NewPack(void *start, int size)
+void MEMPACK_NewPack(void *start, int size)
 {
 	struct Mempack *ptrMempack;
 	ptrMempack = sdata->PtrMempack;

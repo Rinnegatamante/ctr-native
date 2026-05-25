@@ -1,12 +1,12 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80039e98-0x80039fa8.
-void DECOMP_MainFreeze_IfPressStart(void)
+void MainFreeze_IfPressStart(void)
 {
 	struct GameTracker *gGT = sdata->gGT;
 
 	// Check conditions for pausing the game
-	if ((DECOMP_RaceFlag_IsFullyOnScreen() == 0) &&
+	if ((RaceFlag_IsFullyOnScreen() == 0) &&
 
 	    // if you are not drawing loading screen (after fully off screen)
 	    ((gGT->renderFlags & 0x1000) == 0) &&
@@ -19,16 +19,16 @@ void DECOMP_MainFreeze_IfPressStart(void)
 		gGT->gameMode1 |= PAUSE_1;
 
 		// set row selected to the top row
-		struct RectMenu *menu = DECOMP_MainFreeze_GetMenuPtr();
+		struct RectMenu *menu = MainFreeze_GetMenuPtr();
 		menu->rowSelected = 0;
 
 		DECOMP_RECTMENU_Show(menu);
 
 		// pause audio
-		DECOMP_MainFrame_TogglePauseAudio(1);
+		MainFrame_TogglePauseAudio(1);
 
 		DECOMP_OtherFX_Play(1, 1);
 
-		DECOMP_ElimBG_Activate(gGT);
+		ElimBG_Activate(gGT);
 	}
 }

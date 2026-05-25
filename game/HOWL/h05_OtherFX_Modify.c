@@ -46,14 +46,14 @@ u32 DECOMP_OtherFX_Modify(u32 soundId, u32 flags)
 		channelAttr.pitch = ptrOtherFX->pitch * data.distortConst_OtherFX[distort] >> 0x10;
 	}
 
-	DECOMP_Channel_SetVolume(&channelAttr, modify * ptrOtherFX->volume * volume >> 10, LR);
+	Channel_SetVolume(&channelAttr, modify * ptrOtherFX->volume * volume >> 10, LR);
 	channelAttr.reverb = echo;
 
-	DECOMP_Smart_EnterCriticalSection();
+	Smart_EnterCriticalSection();
 
 	// 1 - otherFX
 	// soundID & 0xffffffff, search for specific instance
-	channel = DECOMP_Channel_SearchFX_EditAttr(1, soundId, 0x70, &channelAttr);
+	channel = Channel_SearchFX_EditAttr(1, soundId, 0x70, &channelAttr);
 
 	if (channel != 0)
 	{
@@ -63,7 +63,7 @@ u32 DECOMP_OtherFX_Modify(u32 soundId, u32 flags)
 		channel->LR = LR;
 	}
 
-	DECOMP_Smart_ExitCriticalSection();
+	Smart_ExitCriticalSection();
 
 	return 1;
 }

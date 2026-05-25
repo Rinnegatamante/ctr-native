@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_MainKillGame_StopCTR(void)
+void MainKillGame_StopCTR(void)
 {
 	DrawSyncCallback(0);
 	StopCallback();
@@ -13,5 +13,5 @@ void DECOMP_MainKillGame_StopCTR(void)
 	ResetGraph(3);
 	VSyncCallback(0);
 
-	DECOMP_Timer_Destroy();
+	Timer_Destroy();
 }

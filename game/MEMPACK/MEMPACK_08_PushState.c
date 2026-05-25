@@ -1,6 +1,6 @@
 #include <common.h>
 
-int DECOMP_MEMPACK_PushState()
+int MEMPACK_PushState()
 {
 	struct Mempack *ptrMempack;
 	int numBookmarks;

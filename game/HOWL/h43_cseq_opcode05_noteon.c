@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002a28c-0x8002a3a8
-void DECOMP_cseq_opcode05_noteon(struct SongSeq *seq)
+void cseq_opcode05_noteon(struct SongSeq *seq)
 {
 	u8 *currNote;
 	int songIndex = seq->songPoolIndex;
@@ -19,7 +19,7 @@ void DECOMP_cseq_opcode05_noteon(struct SongSeq *seq)
 
 	DECOMP_howl_InitChannelAttr_Music(seq, &attr, currNote[1], currNote[2]);
 
-	stats = DECOMP_Channel_AllocSlot(0x7c, &attr);
+	stats = Channel_AllocSlot(0x7c, &attr);
 
 	if (stats == 0)
 		return;

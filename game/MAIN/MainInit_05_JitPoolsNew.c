@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_MainInit_JitPoolsNew(struct GameTracker *gGT)
+void MainInit_JitPoolsNew(struct GameTracker *gGT)
 {
 	char numPlyr;
 	u32 gameMode;
@@ -56,7 +56,7 @@ void DECOMP_MainInit_JitPoolsNew(struct GameTracker *gGT)
 
 
 	// add a bookmark
-	DECOMP_MEMPACK_PushState();
+	MEMPACK_PushState();
 
 #ifdef CTR_INTERNAL
 	fprintf(stderr, "=== JitPoolsNew: gameMode=0x%08X levelID=%d numPlyr=%d uVar7=0x%X uVar9=0x%X ===\n", gameMode, gGT->levelID, numPlyr, uVar7, uVar9);
@@ -168,7 +168,7 @@ void DECOMP_MainInit_JitPoolsNew(struct GameTracker *gGT)
 	// original CTR code, still used for
 	// REBUILD_PS1 and REBUILD_PC cause those
 	// builds dont have OG game's bloatful RDATA
-	gGT->ptrRenderBucketInstance = DECOMP_MEMPACK_AllocMem(uVar9 /*,"RENDER_BUCKET_INSTANCE"*/);
+	gGT->ptrRenderBucketInstance = MEMPACK_AllocMem(uVar9 /*,"RENDER_BUCKET_INSTANCE"*/);
 #else
 	// save 0x400 - 0x1000 bytes
 	// when compiling with OG game's RDATA
@@ -203,7 +203,7 @@ void DECOMP_MainInit_JitPoolsNew(struct GameTracker *gGT)
 
 	for (int i = 0; i < numPlyr; i++)
 	{
-		data.PtrClipBuffer[i] = DECOMP_MEMPACK_AllocMem(DECOMP_MainDB_GetClipSize(gGT->levelID, numPlyr) << 2
-		                                                /*,"Clip Buffer"*/);
+		data.PtrClipBuffer[i] = MEMPACK_AllocMem(MainDB_GetClipSize(gGT->levelID, numPlyr) << 2
+		                                         /*,"Clip Buffer"*/);
 	}
 }

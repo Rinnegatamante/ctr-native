@@ -32,7 +32,7 @@ void VehFrameProc_Driving(struct Thread *t, struct Driver *d)
 		}
 	}
 
-	numFrames = DECOMP_VehFrameInst_GetNumAnimFrames(inst, inst->animIndex);
+	numFrames = VehFrameInst_GetNumAnimFrames(inst, inst->animIndex);
 	if (numFrames <= 0)
 	{
 		return;
@@ -45,23 +45,23 @@ void VehFrameProc_Driving(struct Thread *t, struct Driver *d)
 
 		if (currAnim == 2)
 		{
-			startFrame = DECOMP_VehFrameInst_GetNumAnimFrames(inst, 2) - 1;
+			startFrame = VehFrameInst_GetNumAnimFrames(inst, 2) - 1;
 		}
 		else
 		{
-			startFrame = DECOMP_VehFrameInst_GetStartFrame(currAnim, numFrames);
+			startFrame = VehFrameInst_GetStartFrame(currAnim, numFrames);
 		}
 
 		if (inst->animFrame == startFrame)
 		{
-			numFrames = DECOMP_VehFrameInst_GetNumAnimFrames(inst, desiredAnim);
+			numFrames = VehFrameInst_GetNumAnimFrames(inst, desiredAnim);
 			if (numFrames <= 0)
 			{
 				return;
 			}
 
 			inst->animIndex = desiredAnim;
-			inst->animFrame = DECOMP_VehFrameInst_GetStartFrame(desiredAnim, numFrames);
+			inst->animFrame = VehFrameInst_GetStartFrame(desiredAnim, numFrames);
 			d->matrixArray = 0;
 			d->matrixIndex = 0;
 		}
@@ -79,7 +79,7 @@ void VehFrameProc_Driving(struct Thread *t, struct Driver *d)
 				d->matrixIndex = inst->animFrame;
 			}
 
-			inst->animFrame = DECOMP_VehCalc_InterpBySpeed(inst->animFrame, speed, startFrame);
+			inst->animFrame = VehCalc_InterpBySpeed(inst->animFrame, speed, startFrame);
 
 			if ((u32)(inst->animIndex - 2) < 2)
 			{
@@ -122,11 +122,11 @@ void VehFrameProc_Driving(struct Thread *t, struct Driver *d)
 					turnState = d->simpTurnState;
 				}
 
-				targetFrame = DECOMP_VehCalc_MapToRange(-turnState, turnMin, turnMax, 0, numFrames - 1);
+				targetFrame = VehCalc_MapToRange(-turnState, turnMin, turnMax, 0, numFrames - 1);
 			}
 		}
 
-		inst->animFrame = DECOMP_VehCalc_InterpBySpeed(inst->animFrame, 1, targetFrame);
+		inst->animFrame = VehCalc_InterpBySpeed(inst->animFrame, 1, targetFrame);
 		return;
 	}
 
@@ -135,7 +135,7 @@ void VehFrameProc_Driving(struct Thread *t, struct Driver *d)
 		s16 characterID;
 		u8 matrixArray;
 
-		inst->animFrame = DECOMP_VehCalc_InterpBySpeed(inst->animFrame, 1, numFrames - 1);
+		inst->animFrame = VehCalc_InterpBySpeed(inst->animFrame, 1, numFrames - 1);
 
 		if (d->kartState == KS_MASK_GRABBED)
 		{
@@ -163,10 +163,5 @@ void VehFrameProc_Driving(struct Thread *t, struct Driver *d)
 		return;
 	}
 
-	inst->animFrame = DECOMP_VehCalc_InterpBySpeed(inst->animFrame, 1, numFrames - 1);
-}
-
-void DECOMP_VehFrameProc_Driving(struct Thread *t, struct Driver *d)
-{
-	VehFrameProc_Driving(t, d);
+	inst->animFrame = VehCalc_InterpBySpeed(inst->animFrame, 1, numFrames - 1);
 }

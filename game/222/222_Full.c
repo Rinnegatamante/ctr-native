@@ -5,7 +5,7 @@ extern struct RectMenu menu222;
 
 // 3528
 
-void DECOMP_AA_EndEvent_DrawMenu(void)
+void AA_EndEvent_DrawMenu(void)
 {
 	struct GameTracker *gGT;
 	struct Driver *driver;
@@ -246,7 +246,7 @@ void DECOMP_AA_EndEvent_DrawMenu(void)
 	for (i = 0; i < numPlyr; i++)
 	{
 		// Draw how much time it took to finish laps and race
-		DECOMP_AA_EndEvent_DisplayTime(i, lerpEndY);
+		AA_EndEvent_DisplayTime(i, lerpEndY);
 	}
 
 	elapsedFrames = sdata->framesSinceRaceEnded;
@@ -474,10 +474,10 @@ void DECOMP_AA_EndEvent_DrawMenu(void)
 		gGT->podiumRewardID = STATIC_TROPHY;
 	}
 
-	DECOMP_MainRaceTrack_RequestLoad(levSpawn);
+	MainRaceTrack_RequestLoad(levSpawn);
 }
 
-void DECOMP_AA_EndEvent_DisplayTime(s16 driverId, s16 param_2)
+void AA_EndEvent_DisplayTime(s16 driverId, s16 param_2)
 {
 	struct GameTracker *gGT;
 	struct Driver *driver;

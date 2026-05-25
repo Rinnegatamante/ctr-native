@@ -90,12 +90,7 @@ void RR_EndEvent_UnlockAward(void)
 	}
 }
 
-void DECOMP_RR_EndEvent_UnlockAward(void)
-{
-	RR_EndEvent_UnlockAward();
-}
-
-void DECOMP_RR_EndEvent_DrawMenu(void)
+void RR_EndEvent_DrawMenu(void)
 {
 	struct GameTracker *gGT;
 	struct AdvProgress *adv;
@@ -477,7 +472,7 @@ void DECOMP_RR_EndEvent_DrawMenu(void)
 
 	    ((gGT->gameModeEnd & NEW_HIGH_SCORE) == 0))
 	{
-		DECOMP_RR_EndEvent_DrawHighScore(0x100, 10);
+		RR_EndEvent_DrawHighScore(0x100, 10);
 
 		// PRESS * TO CONTINUE
 		DECOMP_DecalFont_DrawLine(sdata->lngStrings[0xc9], 0x100, 0xbe, 1, 0xffff8000);
@@ -494,7 +489,7 @@ void DECOMP_RR_EndEvent_DrawMenu(void)
 }
 
 // same in TT and RR, but not the same in Main Menu
-void DECOMP_RR_EndEvent_DrawHighScore(s16 startX, int startY)
+void RR_EndEvent_DrawHighScore(s16 startX, int startY)
 {
 	// This is different from High Score in Main Menu because Main Menu
 	// does not show the rank icons '1', '2', '3', '4', '5'
@@ -586,7 +581,7 @@ void DECOMP_RR_EndEvent_DrawHighScore(s16 startX, int startY)
 			box.h = 0x1a;
 
 			// Draw a rectangle to highlight your time on the "Best Times" list
-			DECOMP_CTR_Box_DrawClearBox(&box, &sdata->menuRowHighlight_Normal, TRANS_50_DECAL, gGT->pushBuffer_UI.ptrOT);
+			CTR_Box_DrawClearBox(&box, &sdata->menuRowHighlight_Normal, TRANS_50_DECAL, gGT->pushBuffer_UI.ptrOT);
 		}
 		currRowY += 0x1a;
 	}

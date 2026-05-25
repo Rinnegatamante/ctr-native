@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800289b0-0x80028b54
-s16 DECOMP_EngineAudio_Recalculate(u32 soundID, u32 sfx)
+s16 EngineAudio_Recalculate(u32 soundID, u32 sfx)
 {
 	int iVar1;
 	u32 distortion = (sfx >> 8) & 0xff;
@@ -51,14 +51,14 @@ s16 DECOMP_EngineAudio_Recalculate(u32 soundID, u32 sfx)
 		channelAttr.pitch = ptrEngineFX->pitch * data.distortConst_Engine[distortion] >> 0x10;
 	}
 
-	DECOMP_Channel_SetVolume(&channelAttr, sdata->vol_FX * ptrEngineFX->volume * volume >> 10, LR);
+	Channel_SetVolume(&channelAttr, sdata->vol_FX * ptrEngineFX->volume * volume >> 10, LR);
 	channelAttr.reverb = echo;
 
-	DECOMP_Smart_EnterCriticalSection();
+	Smart_EnterCriticalSection();
 
 	// 0 - engineFX
 	// soundID & 0xffff, dont search for specific instance
-	channel = DECOMP_Channel_SearchFX_EditAttr(0, soundID, 0x70, &channelAttr);
+	channel = Channel_SearchFX_EditAttr(0, soundID, 0x70, &channelAttr);
 
 	if (channel != 0)
 	{
@@ -68,12 +68,7 @@ s16 DECOMP_EngineAudio_Recalculate(u32 soundID, u32 sfx)
 		channel->LR = LR;
 	}
 
-	DECOMP_Smart_ExitCriticalSection();
+	Smart_ExitCriticalSection();
 
 	return 1;
-}
-
-s16 EngineAudio_Recalculate(u32 soundID, u32 sfx)
-{
-	return DECOMP_EngineAudio_Recalculate(soundID, sfx);
 }

@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8001c56c-0x8001c7a4.
-int DECOMP_CDSYS_SetXAToLang(int lang)
+int CDSYS_SetXAToLang(int lang)
 {
 	char *xaLang;
 	int fileSize;
@@ -13,7 +13,7 @@ int DECOMP_CDSYS_SetXAToLang(int lang)
 		return 0;
 
 	sdata->bool_XnfLoaded = 0;
-	DECOMP_CDSYS_SetMode_StreamData();
+	CDSYS_SetMode_StreamData();
 
 	xaLang = data.xaLanguagePtrs[lang];
 	strncpy(&data.s_XA_ENG_XNF[4], xaLang, 3);
@@ -67,7 +67,7 @@ int DECOMP_CDSYS_SetXAToLang(int lang)
 			int *returnPtr_xaCdPos = &sdata->ptrArray_XaCdPos[firstXaIndex + xaID];
 
 			// quit on error to find XA file
-			if (DECOMP_CDSYS_GetFilePosInt(am->name, returnPtr_xaCdPos) == 0)
+			if (CDSYS_GetFilePosInt(am->name, returnPtr_xaCdPos) == 0)
 				return 0;
 		}
 	}

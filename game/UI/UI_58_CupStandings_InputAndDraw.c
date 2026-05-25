@@ -36,16 +36,16 @@ void DECOMP_UI_CupStandings_InputAndDraw(void)
 	// Multiplayer Cup Game
 	if (gGT->numPlyrCurrGame != 1)
 	{
-		if (((gGT->gameMode2 & CUP_ANY_KIND) != 0) && (DECOMP_RaceFlag_IsFullyOffScreen()))
+		if (((gGT->gameMode2 & CUP_ANY_KIND) != 0) && (RaceFlag_IsFullyOffScreen()))
 		{
-			DECOMP_RaceFlag_BeginTransition(1);
+			RaceFlag_BeginTransition(1);
 		}
 
-		if (!DECOMP_RaceFlag_IsFullyOnScreen())
+		if (!RaceFlag_IsFullyOnScreen())
 			return;
 
 		// Assume FullyOnScreen
-		DECOMP_RaceFlag_SetCanDraw(1);
+		RaceFlag_SetCanDraw(1);
 
 		// disable loading screen,
 		// set amount of confetti to zero

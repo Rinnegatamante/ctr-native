@@ -12,15 +12,15 @@ void Particle_FuncPtr_PotionShatter(struct Particle *p)
 			goto LAB_8003ebc8;
 
 		// random X
-		rng = DECOMP_MixRNG_Scramble();
+		rng = MixRNG_Scramble();
 		p->axis[0].velocity = rng + (rng / 800) * -800 - 400;
 
 		// random Z
-		rng = DECOMP_MixRNG_Scramble();
+		rng = MixRNG_Scramble();
 		p->axis[2].velocity = rng + (rng / 800) * -800 - 400;
 
 		// random scale
-		rng = DECOMP_MixRNG_Scramble();
+		rng = MixRNG_Scramble();
 		sVar2 = (rng >> 8);
 		if (rng < 0)
 		{

@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002b898-0x8002b9b8
-struct ChannelStats *DECOMP_Channel_SearchFX_EditAttr(int type, int soundID, int updateFlags, struct ChannelAttr *attr)
+struct ChannelStats *Channel_SearchFX_EditAttr(int type, int soundID, int updateFlags, struct ChannelAttr *attr)
 {
 	struct ChannelAttr *editAttr;
 

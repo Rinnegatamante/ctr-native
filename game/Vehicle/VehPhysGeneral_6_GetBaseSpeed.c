@@ -1,6 +1,6 @@
 #include <common.h>
 
-int DECOMP_VehPhysGeneral_GetBaseSpeed(struct Driver *driver)
+int VehPhysGeneral_GetBaseSpeed(struct Driver *driver)
 {
 	int netSpeed;
 	int statAdditional;

@@ -182,7 +182,7 @@ force_inline void PROCESSINPUTS_MainFreeze_MenuPtrOptions(struct RectMenu *menu,
 		OtherFX_Play(1, 1);
 		OptionsMenu_TestSound(0, 0);
 		RECTMENU_ClearInput();
-		sdata->ptrDesiredMenu = DECOMP_MainFreeze_GetMenuPtr();
+		sdata->ptrDesiredMenu = MainFreeze_GetMenuPtr();
 	}
 }
 
@@ -277,12 +277,12 @@ force_inline void DISPLAYRECTMENU_MainFreeze_MenuPtrOptions(struct RectMenu *men
 
 		RECT volumeSliderBar = {.x = volumeSliderBarPosX + 1, .y = volumeSliderPosY + 48, .w = 3, .h = 10};
 		Color color = *(Color *)(data.Options_VolumeSlider_Colors + 0xc);
-		DECOMP_CTR_Box_DrawSolidBox(&volumeSliderBar, color, ot);
+		CTR_Box_DrawSolidBox(&volumeSliderBar, color, ot);
 
 		RECT volumeSliderBarOutline = {.x = volumeSliderBarPosX, .y = volumeSliderPosY + 47, .w = 5, .h = 12};
 
 		color = *(Color *)(data.Options_VolumeSlider_Colors + 0x10);
-		DECOMP_CTR_Box_DrawSolidBox(&volumeSliderBarOutline, color, ot);
+		CTR_Box_DrawSolidBox(&volumeSliderBarOutline, color, ot);
 
 		RECTMENU_DrawRwdTriangle(volumeSliderTriangle, data.Options_VolumeSlider_Colors, ot, primMem);
 
@@ -374,7 +374,7 @@ force_inline void DISPLAYRECTMENU_MainFreeze_MenuPtrOptions(struct RectMenu *men
 	               .w = 364,
 	               .h = data.Options_HighlightBar[menu->rowSelected].sizeY};
 
-	DECOMP_CTR_Box_DrawClearBox(&cursor, &sdata->menuRowHighlight_Normal, TRANS_50_DECAL, ot);
+	CTR_Box_DrawClearBox(&cursor, &sdata->menuRowHighlight_Normal, TRANS_50_DECAL, ot);
 
 	RECT titleSeparatorLine = {.x = 66, .y = (menuRowsNegativePadding / 2) + 43, .w = 380, .h = 2};
 
@@ -386,9 +386,9 @@ force_inline void DISPLAYRECTMENU_MainFreeze_MenuPtrOptions(struct RectMenu *men
 	RECTMENU_DrawInnerRect(&menuBG, 4, ot);
 }
 
-void DECOMP_MainFreeze_MenuPtrOptions(struct RectMenu *menu)
+void MainFreeze_MenuPtrOptions(struct RectMenu *menu)
 {
-	DECOMP_MainFreeze_SafeAdvDestroy();
+	MainFreeze_SafeAdvDestroy();
 
 	// open racing wheel config menu instead
 	if (sdata->boolOpenWheelConfig != 0)

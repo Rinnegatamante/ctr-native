@@ -37,8 +37,3 @@ void VehPhysCrash_ConvertVecToSpeed(struct Driver *d, Vec3 *vel)
 		d->speedApprox = -speed3D;
 	}
 }
-
-void DECOMP_VehPhysCrash_ConvertVecToSpeed(struct Driver *d, Vec3 *vel)
-{
-	VehPhysCrash_ConvertVecToSpeed(d, vel);
-}

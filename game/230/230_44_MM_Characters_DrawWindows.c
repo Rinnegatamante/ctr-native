@@ -177,7 +177,7 @@ void DECOMP_MM_Characters_DrawWindows(int boolShowDrivers)
 			{
 				// make driver fly off screen
 				*ptrCurr = D230.characterSelect_charIDs_desired[iVar6];
-				iVar5 = DECOMP_RaceFlag_MoveModels((int)sVar9, (int)D230.moveModels);
+				iVar5 = RaceFlag_MoveModels((int)sVar9, (int)D230.moveModels);
 
 				// direction moving
 				iVar6 = -D230.characterSelect_MoveDir[iVar6];
@@ -188,7 +188,7 @@ void DECOMP_MM_Characters_DrawWindows(int boolShowDrivers)
 			else
 			{
 				// make new driver fly on screen
-				iVar5 = DECOMP_RaceFlag_MoveModels((int)sVar9 - (int)D230.moveModels, (int)D230.moveModels);
+				iVar5 = RaceFlag_MoveModels((int)sVar9 - (int)D230.moveModels, (int)D230.moveModels);
 
 				// direction moving
 				iVar8 = D230.characterSelect_MoveDir[iVar6];

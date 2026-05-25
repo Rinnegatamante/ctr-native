@@ -30,7 +30,7 @@ static char clipSizeArr[20] = {
     // padding
     0, 0};
 
-int DECOMP_MainDB_GetClipSize(u32 levelID, int numPlyrCurrGame)
+int MainDB_GetClipSize(u32 levelID, int numPlyrCurrGame)
 {
 #if 0
     // jal 800aa790 (can breakpoint to see regs)

@@ -2,7 +2,7 @@
 
 // does not really touch voiceline
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002c918-0x8002caa8
-void DECOMP_Voiceline_PoolInit(void)
+void Voiceline_PoolInit(void)
 {
 	char index;
 
@@ -12,9 +12,9 @@ void DECOMP_Voiceline_PoolInit(void)
 
 	sdata->ptrCseqHeader = 0;
 
-	DECOMP_Bank_ResetAllocator();
+	Bank_ResetAllocator();
 
-	DECOMP_Audio_SetDefaults();
+	Audio_SetDefaults();
 
 	LIST_Clear(&sdata->channelFree);
 	LIST_Clear(&sdata->channelTaken);

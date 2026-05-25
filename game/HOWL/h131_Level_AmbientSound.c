@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002ebe4-0x8002f0dc
-void DECOMP_Level_AmbientSound(void)
+void Level_AmbientSound(void)
 {
 	struct GameTracker *gGT = sdata->gGT;
 	struct Level *level = gGT->level1;
@@ -31,9 +31,9 @@ void DECOMP_Level_AmbientSound(void)
 		}
 
 		if (playDrops)
-			DECOMP_Level_RandomFX(&sdata->SoundFadeInput[0].unk, 0x86, 6, 0x5a, 0xff);
+			Level_RandomFX(&sdata->SoundFadeInput[0].unk, 0x86, 6, 0x5a, 0xff);
 
-		DECOMP_Level_SoundLoopFade((int *)&sdata->SoundFadeInput[1], 0x87, playLoop ? 0xff : 0, 8);
+		Level_SoundLoopFade((int *)&sdata->SoundFadeInput[1], 0x87, playLoop ? 0xff : 0, 8);
 		return;
 	}
 
@@ -56,8 +56,8 @@ void DECOMP_Level_AmbientSound(void)
 			}
 		}
 
-		DECOMP_Level_SoundLoopFade((int *)&sdata->SoundFadeInput[0], 0x88, playFirstLoop ? 0xff : 0, 8);
-		DECOMP_Level_SoundLoopFade((int *)&sdata->SoundFadeInput[1], 0x8b, playSecondLoop ? 0xff : 0, 4);
+		Level_SoundLoopFade((int *)&sdata->SoundFadeInput[0], 0x88, playFirstLoop ? 0xff : 0, 8);
+		Level_SoundLoopFade((int *)&sdata->SoundFadeInput[1], 0x8b, playSecondLoop ? 0xff : 0, 4);
 		return;
 	}
 
@@ -88,7 +88,7 @@ void DECOMP_Level_AmbientSound(void)
 
 				for (int playerIndex = 0; playerIndex < (u8)gGT->numPlyrCurrGame; playerIndex++)
 				{
-					int distance = DECOMP_GTE_GetSquaredDistance(gGT->pushBuffer[playerIndex].pos, coord);
+					int distance = GTE_GetSquaredDistance(gGT->pushBuffer[playerIndex].pos, coord);
 
 					if (distance < closestDistance[soundSlot])
 					{
@@ -105,22 +105,22 @@ void DECOMP_Level_AmbientSound(void)
 				{
 					if (levelID == 9)
 					{
-						int volume = DECOMP_VehCalc_MapToRange(distance, 300, 6000, 0xff, 0);
-						DECOMP_Level_RandomFX(&sdata->SoundFadeInput[0].unk, 0x86, 6, 0x5a, volume);
+						int volume = VehCalc_MapToRange(distance, 300, 6000, 0xff, 0);
+						Level_RandomFX(&sdata->SoundFadeInput[0].unk, 0x86, 6, 0x5a, volume);
 					}
 					else
 					{
-						DECOMP_CalculateVolumeFromDistance((u32 *)&sdata->SoundFadeInput[0].soundID_soundCount, soundID, distance);
+						CalculateVolumeFromDistance((u32 *)&sdata->SoundFadeInput[0].soundID_soundCount, soundID, distance);
 					}
 				}
 				else if (levelID == 3)
 				{
-					int volume = DECOMP_VehCalc_MapToRange(distance, 300, 6000, 0xff, 0);
-					DECOMP_Level_RandomFX(&sdata->SoundFadeInput[1].unk, 0x85, 6, 0x5a, volume);
+					int volume = VehCalc_MapToRange(distance, 300, 6000, 0xff, 0);
+					Level_RandomFX(&sdata->SoundFadeInput[1].unk, 0x85, 6, 0x5a, volume);
 				}
 				else
 				{
-					DECOMP_CalculateVolumeFromDistance((u32 *)&sdata->SoundFadeInput[1].soundID_soundCount, soundID, distance);
+					CalculateVolumeFromDistance((u32 *)&sdata->SoundFadeInput[1].soundID_soundCount, soundID, distance);
 				}
 			}
 		}
@@ -131,9 +131,4 @@ void DECOMP_Level_AmbientSound(void)
 				sdata->audioDefaults[6] = 1;
 		}
 	}
-}
-
-void Level_AmbientSound(void)
-{
-	DECOMP_Level_AmbientSound();
 }

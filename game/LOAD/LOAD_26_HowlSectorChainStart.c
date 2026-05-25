@@ -14,7 +14,7 @@ int DECOMP_LOAD_HowlSectorChainStart(CdlFILE *cdlFileHWL, void *ptrDestination, 
 	sdata->howlChainParams[2] = (int)firstSector;
 	sdata->howlChainParams[3] = (int)numSector;
 
-	DECOMP_CDSYS_SetMode_StreamData();
+	CDSYS_SetMode_StreamData();
 
 	// Return error, if reading out-of-bounds after the end of KART HWL
 	int sizeOver = ((firstSector + numSector) * 0x800 - cdlFileHWL->size);

@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_RaceFlag_ResetTextAnim(void)
+void RaceFlag_ResetTextAnim(void)
 {
 	sdata->RaceFlag_LoadingTextAnimFrame = -1;
 }

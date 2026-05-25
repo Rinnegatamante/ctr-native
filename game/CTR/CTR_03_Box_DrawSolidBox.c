@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_CTR_Box_DrawSolidBox(RECT *r, Color color, u_long *ot)
+void CTR_Box_DrawSolidBox(RECT *r, Color color, u_long *ot)
 {
 	PolyF4 *p;
 	GetPrimMem(p);

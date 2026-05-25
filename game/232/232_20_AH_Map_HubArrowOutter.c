@@ -75,7 +75,7 @@ void DECOMP_AH_Map_HubArrowOutter(void *hubPtrs, int arrowIndex, int posX, int p
 
 			if (!bVar1)
 			{
-				DECOMP_CTR_Box_DrawWirePrims((Point){iVar9, iVar6}, (Point){sin, cos}, MakeColor(var14, var15, 0xff), (void *)gGT->pushBuffer_UI.ptrOT);
+				CTR_Box_DrawWirePrims((Point){iVar9, iVar6}, (Point){sin, cos}, MakeColor(var14, var15, 0xff), (void *)gGT->pushBuffer_UI.ptrOT);
 			}
 
 			bVar1 = 0;

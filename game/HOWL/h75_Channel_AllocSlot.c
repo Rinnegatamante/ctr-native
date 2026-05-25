@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002b7d0-0x8002b898
-struct ChannelStats *DECOMP_Channel_AllocSlot(int flags, struct ChannelAttr *attr)
+struct ChannelStats *Channel_AllocSlot(int flags, struct ChannelAttr *attr)
 {
 	int i;
 	struct ChannelAttr *newAttr;

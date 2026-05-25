@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_MainInit_OTMem(struct GameTracker *gGT)
+void MainInit_OTMem(struct GameTracker *gGT)
 {
 	int size;
 	int levelID = gGT->levelID;
@@ -39,11 +39,11 @@ void DECOMP_MainInit_OTMem(struct GameTracker *gGT)
 
 EndFunc:
 
-	DECOMP_MainDB_OTMem(&gGT->db[0].otMem, size);
-	DECOMP_MainDB_OTMem(&gGT->db[1].otMem, size);
+	MainDB_OTMem(&gGT->db[0].otMem, size);
+	MainDB_OTMem(&gGT->db[1].otMem, size);
 
 	// 0x1000 per player, plus 0x18 for linking
 	size = ((gGT->numPlyrCurrGame) << 0xC) | 0x18;
-	gGT->otSwapchainDB[0] = DECOMP_MEMPACK_AllocMem(size); // "ot1"
-	gGT->otSwapchainDB[1] = DECOMP_MEMPACK_AllocMem(size); // "ot2"
+	gGT->otSwapchainDB[0] = MEMPACK_AllocMem(size); // "ot1"
+	gGT->otSwapchainDB[1] = MEMPACK_AllocMem(size); // "ot2"
 }

@@ -261,8 +261,3 @@ int VehPickState_NewState(struct Driver *victimDriver, int damageType, struct Dr
 
 	return 1;
 }
-
-int DECOMP_VehPickState_NewState(struct Driver *victimDriver, int damageType, struct Driver *attackDriver, int reason)
-{
-	return VehPickState_NewState(victimDriver, damageType, attackDriver, reason);
-}

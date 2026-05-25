@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_CAM_ThTick(struct Thread *t)
+void CAM_ThTick(struct Thread *t)
 {
 	s16 sVar1;
 	int bVar2;
@@ -211,7 +211,7 @@ void DECOMP_CAM_ThTick(struct Thread *t)
 		sVar5 = psVar21[2];
 		sVar1 = psVar21[3];
 
-		iVar7 = DECOMP_VehCalc_MapToRange((int)sVar6 * (int)sVar6 + (int)sVar5 * (int)sVar5 + (int)sVar1 * (int)sVar1, 0x10000, 0x190000, 0x80, 0xf0);
+		iVar7 = VehCalc_MapToRange((int)sVar6 * (int)sVar6 + (int)sVar5 * (int)sVar5 + (int)sVar1 * (int)sVar1, 0x10000, 0x190000, 0x80, 0xf0);
 
 		cDC->unk7A = (s16)iVar7;
 		break;
@@ -279,7 +279,7 @@ SkipNewCameraEOR:
 			if (sVar6 == 4)
 			{
 			LAB_8001c11c:
-				DECOMP_CAM_LookAtPosition((int)scratchpad, (int *)&d->posCurr.x, &pb->pos[0], &pb->rot[0]);
+				CAM_LookAtPosition((int)scratchpad, (int *)&d->posCurr.x, &pb->pos[0], &pb->rot[0]);
 				psVar21 = scratchpad;
 			LAB_8001c128:
 				scratchpad = psVar21;
@@ -289,7 +289,7 @@ SkipNewCameraEOR:
 				psVar21 = scratchpad;
 				if (sVar6 == 10)
 				{
-					DECOMP_CAM_FollowDriver_Spin360(cDC, (int)0x1f800108, d, (s16 *)pb->pos, (s16 *)pb->rot);
+					CAM_FollowDriver_Spin360(cDC, (int)0x1f800108, d, (s16 *)pb->pos, (s16 *)pb->rot);
 					goto LAB_8001c128;
 				}
 				if (sVar6 != 0xb)
@@ -473,7 +473,7 @@ SkipNewCameraEOR:
 					goto LAB_8001c128;
 				}
 
-				DECOMP_CAM_LookAtPosition((int)0x1f800108, (int *)&d->posCurr.x, &pb->pos[0], &pb->rot[0]);
+				CAM_LookAtPosition((int)0x1f800108, (int *)&d->posCurr.x, &pb->pos[0], &pb->rot[0]);
 
 				iVar7 = SquareRoot0_stub((*(int *)0x1f800354) * (*(int *)0x1f800354) + (*(int *)0x1f80035c) * (*(int *)0x1f80035c));
 				iVar17 = (int)(cDC->transitionTo).pos[0];

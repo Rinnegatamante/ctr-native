@@ -48,7 +48,7 @@ static int Particle_OscillatorValue(struct ParticleOscillator *osc)
 		break;
 
 	case 5:
-		value = (DECOMP_MixRNG_Scramble() >> 3) - 0x1000;
+		value = (MixRNG_Scramble() >> 3) - 0x1000;
 		break;
 
 	case 6:

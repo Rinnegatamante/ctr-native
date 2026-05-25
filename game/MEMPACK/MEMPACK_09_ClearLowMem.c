@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_MEMPACK_ClearLowMem()
+void MEMPACK_ClearLowMem()
 {
 	struct Mempack *ptrMempack;
 

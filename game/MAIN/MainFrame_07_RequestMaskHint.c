@@ -20,7 +20,7 @@
 //	0x00 - not interrupting a warppad load screen
 // 	0x01 - interrupting (CTR, Relic, or Crystal hints)
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80035e20-0x80035e70.
-void DECOMP_MainFrame_RequestMaskHint(s16 hintId, char interruptWarpPad)
+void MainFrame_RequestMaskHint(s16 hintId, char interruptWarpPad)
 {
 	struct GameTracker *gGT = sdata->gGT;
 

@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002b540-0x8002b5b4
-void DECOMP_Channel_SetVolume(struct ChannelAttr *attr, int volume, int LR)
+void Channel_SetVolume(struct ChannelAttr *attr, int volume, int LR)
 {
 	if ((u32)volume >= 0x4000)
 		volume = 0x3fff;

@@ -28,7 +28,7 @@ void Voiceline_Update(void)
 
 			if (gGT->numPlyrCurrGame == 1)
 			{
-				if ((DECOMP_VehPickupItem_MaskBoolGoodGuy(gGT->drivers[0]) & 0xffff) == 0)
+				if ((VehPickupItem_MaskBoolGoodGuy(gGT->drivers[0]) & 0xffff) == 0)
 				{
 					voiceID = 0x3d;
 				}
@@ -37,13 +37,13 @@ void Voiceline_Update(void)
 					voiceID = 0x1e;
 				}
 
-				if (DECOMP_CDSYS_XAPlay(CDSYS_XA_TYPE_EXTRA, voiceID) == 0)
+				if (CDSYS_XAPlay(CDSYS_XA_TYPE_EXTRA, voiceID) == 0)
 				{
 					sdata->voicelineCooldown = 0x1e;
 					return;
 				}
 
-				sdata->voicelineCooldown = (s16)(DECOMP_CDSYS_XAGetTrackLength(CDSYS_XA_TYPE_EXTRA, voiceID) / 5) + 0x1e;
+				sdata->voicelineCooldown = (s16)(CDSYS_XAGetTrackLength(CDSYS_XA_TYPE_EXTRA, voiceID) / 5) + 0x1e;
 				return;
 			}
 		}
@@ -66,9 +66,4 @@ playQueuedVoice:
 		LIST_AddBack(&sdata->Voiceline1, first);
 		Voiceline_StartPlay(first);
 	}
-}
-
-void DECOMP_Voiceline_Update(void)
-{
-	Voiceline_Update();
 }

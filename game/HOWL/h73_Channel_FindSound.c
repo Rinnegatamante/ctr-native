@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002b5b4-0x8002b608
-int DECOMP_Channel_FindSound(int soundID)
+int Channel_FindSound(int soundID)
 {
 	struct ChannelStats *curr, *backupNext;
 

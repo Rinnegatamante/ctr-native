@@ -4,7 +4,7 @@
 // for Tap and Release, based on Hold,
 // also maps joysticks onto buttons
 
-void DECOMP_GAMEPAD_ProcessTapRelease(struct GamepadSystem *gGamepads)
+void GAMEPAD_ProcessTapRelease(struct GamepadSystem *gGamepads)
 {
 	int numConnected = gGamepads->numGamepadsConnected;
 	if (numConnected == 0)

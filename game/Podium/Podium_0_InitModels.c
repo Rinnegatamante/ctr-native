@@ -51,8 +51,3 @@ void Podium_InitModels(struct GameTracker *gGT)
 		}
 	}
 }
-
-void DECOMP_Podium_InitModels(struct GameTracker *gGT)
-{
-	Podium_InitModels(gGT);
-}

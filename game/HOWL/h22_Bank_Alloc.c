@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800292fc-0x800293b8
-int DECOMP_Bank_Alloc(int bankID, struct Bank *ptrBank)
+int Bank_Alloc(int bankID, struct Bank *ptrBank)
 {
 	if (sdata->boolAudioEnabled == 0)
 	{
@@ -21,14 +21,14 @@ int DECOMP_Bank_Alloc(int bankID, struct Bank *ptrBank)
 
 	// temporary for loading banks to RAM,
 	// sending data to SPU, then erasing RAM
-	DECOMP_MEMPACK_PushState();
+	MEMPACK_PushState();
 
-	sdata->ptrSampleBlock2 = DECOMP_MEMPACK_AllocMem(0x800 /*, "SampleBlock"*/);
+	sdata->ptrSampleBlock2 = MEMPACK_AllocMem(0x800 /*, "SampleBlock"*/);
 
 	if (sdata->ptrSampleBlock2 == 0)
 	{
 		// no data loaded, PopState
-		DECOMP_MEMPACK_PopState();
+		MEMPACK_PopState();
 		return 0;
 	}
 

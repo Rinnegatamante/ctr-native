@@ -1,13 +1,13 @@
 #include <common.h>
 
-void DECOMP_MainInit_PrimMem(struct GameTracker *gGT)
+void MainInit_PrimMem(struct GameTracker *gGT)
 
 {
 	int GetOriginalSize(struct GameTracker * gGT);
 	int size = GetOriginalSize(gGT);
 
-	DECOMP_MainDB_PrimMem(&gGT->db[0].primMem, size);
-	DECOMP_MainDB_PrimMem(&gGT->db[1].primMem, size);
+	MainDB_PrimMem(&gGT->db[0].primMem, size);
+	MainDB_PrimMem(&gGT->db[1].primMem, size);
 }
 
 int GetOriginalSize(struct GameTracker *gGT)

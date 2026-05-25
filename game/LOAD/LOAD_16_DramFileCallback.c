@@ -26,7 +26,7 @@ void DECOMP_LOAD_DramFileCallback(struct LoadQueueSlot *lqs)
 
 		// undo allocation, allocate "needed" size,
 		// ptrMapOffset+4 equals the filesize
-		DECOMP_MEMPACK_ReallocMem(ptrMapOffset + 4);
+		MEMPACK_ReallocMem(ptrMapOffset + 4);
 	}
 
 	lqs->ptrDestination = &fileBuf[4];

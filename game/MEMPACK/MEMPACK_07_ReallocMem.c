@@ -1,6 +1,6 @@
 #include <common.h>
 
-void *DECOMP_MEMPACK_ReallocMem(int allocSize)
+void *MEMPACK_ReallocMem(int allocSize)
 {
 	int firstFreeByte;
 	int newAllocSize;

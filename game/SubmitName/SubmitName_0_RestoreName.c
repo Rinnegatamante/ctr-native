@@ -19,8 +19,3 @@ void SubmitName_RestoreName(s16 param_1)
 
 	gGT->typeCursorPosition = cursor;
 }
-
-void DECOMP_SubmitName_RestoreName(s16 param_1)
-{
-	SubmitName_RestoreName(param_1);
-}

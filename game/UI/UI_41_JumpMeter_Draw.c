@@ -30,9 +30,9 @@ void DECOMP_UI_JumpMeter_Draw(s16 posX, s16 posY, struct Driver *driver)
 	iVar11 = (int)posX;
 	iVar8 = (int)posY + numbersYOffset + 2;
 
-	DECOMP_DebugFont_DrawNumbers(iVar5, iVar11 - 0x10, iVar8);
-	DECOMP_DebugFont_DrawNumbers(iVar10, iVar11 + -4, iVar8);
-	DECOMP_DebugFont_DrawNumbers((((whateverThisIs + iVar10 * -0x60) * 100) / 0x3c0) * 0x10000 >> 0x10, iVar11 + 4, iVar8);
+	DebugFont_DrawNumbers(iVar5, iVar11 - 0x10, iVar8);
+	DebugFont_DrawNumbers(iVar10, iVar11 + -4, iVar8);
+	DebugFont_DrawNumbers((((whateverThisIs + iVar10 * -0x60) * 100) / 0x3c0) * 0x10000 >> 0x10, iVar11 + 4, iVar8);
 
 	sVar9 = posX + -0x14;
 	box.w = 0x22; // dont use 3/4 ratio
@@ -42,7 +42,7 @@ void DECOMP_UI_JumpMeter_Draw(s16 posX, s16 posY, struct Driver *driver)
 
 	Color color;
 	color.self = data.colors[21][0];
-	DECOMP_CTR_Box_DrawWireBox(&box, color, gGT->pushBuffer_UI.ptrOT);
+	CTR_Box_DrawWireBox(&box, color, gGT->pushBuffer_UI.ptrOT);
 
 	backDB = gGT->backBuffer;
 	primmemCurr = backDB->primMem.curr;
@@ -79,7 +79,7 @@ void DECOMP_UI_JumpMeter_Draw(s16 posX, s16 posY, struct Driver *driver)
 		box2.h = barHeight;
 		box2.x = posX;
 
-		DECOMP_CTR_Box_DrawWireBox(&box2, color, gGT->pushBuffer_UI.ptrOT);
+		CTR_Box_DrawWireBox(&box2, color, gGT->pushBuffer_UI.ptrOT);
 
 		backDB = gGT->backBuffer;
 		primmemCurr = backDB->primMem.curr;

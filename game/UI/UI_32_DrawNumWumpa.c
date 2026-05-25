@@ -41,7 +41,7 @@ void DECOMP_UI_DrawNumWumpa(s16 posX, s16 posY, struct Driver *d)
 
 			struct Icon **iconPtrArray = ICONGROUP_GETICONS(gGT->iconGroup[5]);
 
-			DECOMP_DecalHUD_DrawPolyGT4(
+			DecalHUD_DrawPolyGT4(
 
 			    iconPtrArray[iconID],
 

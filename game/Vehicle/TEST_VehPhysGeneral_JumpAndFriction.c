@@ -46,7 +46,7 @@ void FUN_80060630(struct Thread *t, struct Driver *d)
 
 		// Part 1
 		*(int *)(puVar15 + 0x10) = (int)*(s16 *)(uVar12 + 0x43c);
-		param_1 = DECOMP_VehCalc_MapToRange(iVar9, 0, uVar1, 0, (int)*(s16 *)(uVar12 + 0x43c));
+		param_1 = VehCalc_MapToRange(iVar9, 0, uVar1, 0, (int)*(s16 *)(uVar12 + 0x43c));
 		param_3 = (int)*(s16 *)(uVar12 + 0x39c);
 
 		// commenting out THIS line breaks it, WHY?
@@ -267,8 +267,8 @@ void FUN_80060630(struct Thread *t, struct Driver *d)
 		}
 		if (*(char *)(uVar12 + 0x376) == '\x06')
 		{
-			DECOMP_GAMEPAD_ShockFreq(uVar12, 8, 0);
-			DECOMP_GAMEPAD_ShockForce1(uVar12, 8, 0x7f);
+			GAMEPAD_ShockFreq(uVar12, 8, 0);
+			GAMEPAD_ShockForce1(uVar12, 8, 0x7f);
 		}
 	}
 
@@ -283,7 +283,7 @@ LAB_80060c30:
 	iVar13 = iVar9;
 	do
 	{
-		iVar4 = DECOMP_VehPhysGeneral_JumpGetVelY(uVar12 + iVar8, puVar15 + 0x18);
+		iVar4 = VehPhysGeneral_JumpGetVelY(uVar12 + iVar8, puVar15 + 0x18);
 		iVar6 = iVar4;
 		if (iVar4 < 0)
 		{
@@ -306,7 +306,7 @@ LAB_80060c30:
 	{
 		iVar13 = uVar12 + 0x368;
 	}
-	iVar8 = DECOMP_VehPhysGeneral_JumpGetVelY(iVar13, puVar15 + 0x18);
+	iVar8 = VehPhysGeneral_JumpGetVelY(iVar13, puVar15 + 0x18);
 	iVar13 = iVar8;
 	if (iVar8 < 0)
 	{

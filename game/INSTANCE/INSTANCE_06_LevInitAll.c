@@ -98,7 +98,7 @@ void DECOMP_INSTANCE_LevInitAll(struct InstDef *levInstDef, int numInst)
 			// they may be disabled due to podium scene on adv hub
 			if ((gGT->gameMode2 & NO_LEV_INSTANCE) == 0)
 			{
-				meta = DECOMP_COLL_LevModelMeta(modelID);
+				meta = COLL_LevModelMeta(modelID);
 
 				if (meta->LInB != NULL)
 				{

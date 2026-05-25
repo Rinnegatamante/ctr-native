@@ -41,7 +41,7 @@ struct Driver *BOTS_Driver_Init(int driverID)
 
 	d = t->object;
 	memset(d, 0x0, sizeof(struct Driver));
-	DECOMP_VehBirth_NonGhost(t, driverID);
+	VehBirth_NonGhost(t, driverID);
 	sdata->gGT->drivers[driverID] = d;
 	t->modelIndex = DYNAMIC_ROBOT_CAR;
 

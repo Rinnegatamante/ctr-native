@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_GAMEPAD_ProcessMotors(struct GamepadSystem *gGS)
+void GAMEPAD_ProcessMotors(struct GamepadSystem *gGS)
 {
 	int totalPower = 0;
 	struct GameTracker *gGT = sdata->gGT;
@@ -10,7 +10,7 @@ void DECOMP_GAMEPAD_ProcessMotors(struct GamepadSystem *gGS)
 		struct GamepadBuffer *pad = &gGS->gamepad[i];
 		struct ControllerPacket *packet = pad->ptrControllerPacket;
 
-		if ((packet != 0) && (gGT->boolDemoMode == 0) && ((gGT->gameMode1 & 0xf) == 0) && (DECOMP_RaceFlag_IsTransitioning() == 0))
+		if ((packet != 0) && (gGT->boolDemoMode == 0) && ((gGT->gameMode1 & 0xf) == 0) && (RaceFlag_IsTransitioning() == 0))
 		{
 			if (packet->controllerData == ((PAD_ID_JOGCON << 4) | 3))
 			{

@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_CTR_Box_DrawClearBox(RECT *r, Color *color, int transparency, u_long *ot)
+void CTR_Box_DrawClearBox(RECT *r, Color *color, int transparency, u_long *ot)
 {
 	typedef struct TPage_PolyF4
 	{

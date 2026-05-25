@@ -18,8 +18,3 @@ int VehFrameInst_GetStartFrame(int animIndex, int numFrames)
 		return 0;
 	}
 }
-
-int DECOMP_VehFrameInst_GetStartFrame(int animIndex, int numFrames)
-{
-	return VehFrameInst_GetStartFrame(animIndex, numFrames);
-}

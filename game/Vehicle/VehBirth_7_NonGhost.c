@@ -1,7 +1,7 @@
 #include <common.h>
 
 
-void DECOMP_VehBirth_NonGhost(struct Thread *t, int index)
+void VehBirth_NonGhost(struct Thread *t, int index)
 {
 	// model index = DYNAMIC_PLAYER,
 	// AI will override this right after
@@ -72,19 +72,19 @@ void DECOMP_VehBirth_NonGhost(struct Thread *t, int index)
 	d->driverID = index;
 	d->instSelf = inst;
 
-	DECOMP_VehBirth_TireSprites(t);
+	VehBirth_TireSprites(t);
 #ifdef CTR_NATIVE
 	// NOTE(aalhendi): Retail leaves terrainMeta2 unset until COLL_FIXED;
 	// native cannot dereference the PS1 low-memory null-space before then.
 	d->terrainMeta2 = d->terrainMeta1;
 #endif
-	DECOMP_VehBirth_SetConsts(d);
+	VehBirth_SetConsts(d);
 
 	// if you are in cutscene or in main menu
 	if ((gGT->gameMode1 & 0x20002000) != 0)
 	{
 		// dont update, make invisible
-		t->funcThTick = DECOMP_VehBirth_NullThread;
+		t->funcThTick = VehBirth_NullThread;
 		inst->flags |= 0x80;
 	}
 }

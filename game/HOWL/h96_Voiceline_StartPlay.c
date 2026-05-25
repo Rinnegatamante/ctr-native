@@ -29,7 +29,7 @@ void Voiceline_StartPlay(struct Item *voiceLine)
 
 	if (numVoiceIDs == 0)
 	{
-		DECOMP_Voiceline_StopAll();
+		Voiceline_StopAll();
 		return;
 	}
 
@@ -37,16 +37,11 @@ void Voiceline_StartPlay(struct Item *voiceLine)
 	u32 voiceIndex = (rng % numVoiceIDs) * 2;
 	u32 xaID = *(u16 *)((u8 *)voiceIDs + voiceIndex);
 
-	if (DECOMP_CDSYS_XAPlay(CDSYS_XA_TYPE_GAME, xaID) == 0)
+	if (CDSYS_XAPlay(CDSYS_XA_TYPE_GAME, xaID) == 0)
 	{
 		sdata->voicelineCooldown = 0x1e;
 		return;
 	}
 
-	sdata->voicelineCooldown = (s16)(DECOMP_CDSYS_XAGetTrackLength(CDSYS_XA_TYPE_GAME, xaID) / 5) + 0x1e;
-}
-
-void DECOMP_Voiceline_StartPlay(struct Item *voiceLine)
-{
-	Voiceline_StartPlay(voiceLine);
+	sdata->voicelineCooldown = (s16)(CDSYS_XAGetTrackLength(CDSYS_XA_TYPE_GAME, xaID) / 5) + 0x1e;
 }

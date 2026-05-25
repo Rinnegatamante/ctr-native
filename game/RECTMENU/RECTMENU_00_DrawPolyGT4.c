@@ -6,5 +6,5 @@ void DECOMP_RECTMENU_DrawPolyGT4(struct Icon *icon, s16 posX, s16 posY, struct P
 	if (!icon)
 		return;
 
-	DECOMP_DecalHUD_DrawPolyGT4(icon, posX, posY, primMem, ot, color0, color1, color2, color3, transparency, scale);
+	DecalHUD_DrawPolyGT4(icon, posX, posY, primMem, ot, color0, color1, color2, color3, transparency, scale);
 }

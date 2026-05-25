@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_QueueLoadTrack_MenuProc(struct RectMenu *menu)
+void QueueLoadTrack_MenuProc(struct RectMenu *menu)
 {
 	struct GameTracker *gGT = sdata->gGT;
 
@@ -25,7 +25,7 @@ void DECOMP_QueueLoadTrack_MenuProc(struct RectMenu *menu)
 		gGT->gameMode1 &= ~(POINT_LIMIT | LIFE_LIMIT | TIME_LIMIT);
 	}
 
-	DECOMP_MainRaceTrack_RequestLoad(gGT->currLEV);
+	MainRaceTrack_RequestLoad(gGT->currLEV);
 
 	DECOMP_RECTMENU_Hide(menu);
 }

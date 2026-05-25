@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80028e5c-0x80028f34
-void DECOMP_CseqMusic_ChangeVolume(u16 songID, int p2, int p3)
+void CseqMusic_ChangeVolume(u16 songID, int p2, int p3)
 {
 	int i;
 	struct Song *song;
@@ -13,7 +13,7 @@ void DECOMP_CseqMusic_ChangeVolume(u16 songID, int p2, int p3)
 	if (sdata->ptrCseqHeader->numSongs <= songID)
 		return;
 
-	DECOMP_Smart_EnterCriticalSection();
+	Smart_EnterCriticalSection();
 
 	for (i = 0; i < 2; i++)
 	{
@@ -22,9 +22,9 @@ void DECOMP_CseqMusic_ChangeVolume(u16 songID, int p2, int p3)
 		// if pool is taken
 		if (((song->flags & 1) != 0) && (song->id == songID))
 		{
-			DECOMP_SongPool_Volume(song, p2 & 0xff, p3 & 0xff, 0);
+			SongPool_Volume(song, p2 & 0xff, p3 & 0xff, 0);
 		}
 	}
 
-	DECOMP_Smart_ExitCriticalSection();
+	Smart_ExitCriticalSection();
 }

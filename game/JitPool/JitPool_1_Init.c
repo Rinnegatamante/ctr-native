@@ -8,7 +8,7 @@ void JitPool_Init(struct JitPool *AP, int maxItems, int itemSize, char *name)
 
 	AP->maxItems = maxItems;
 	AP->itemSize = itemSize;
-	AP->ptrPoolData = DECOMP_MEMPACK_AllocMem(maxItems * itemSize);
+	AP->ptrPoolData = MEMPACK_AllocMem(maxItems * itemSize);
 	JitPool_Clear(AP);
 	return;
 }

@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002dd74-0x8002de48
-void DECOMP_Music_LoadBanks(void)
+void Music_LoadBanks(void)
 {
 	u32 bankID;
 	struct Bank thisBank;
@@ -9,7 +9,7 @@ void DECOMP_Music_LoadBanks(void)
 	int level = gGT->levelID;
 	u8 *arr = (u8 *)&sdata->audioDefaults[7];
 
-	DECOMP_Audio_SetReverbMode(
+	Audio_SetReverbMode(
 	    // Level ID
 	    level,
 
@@ -21,13 +21,13 @@ void DECOMP_Music_LoadBanks(void)
 
 	if (level == INTRO_RACE_TODAY)
 	{
-		DECOMP_Bank_DestroyAll();
+		Bank_DestroyAll();
 		bankID = 0x22;
 	}
 
 	else if (level == NAUGHTY_DOG_CRATE)
 	{
-		DECOMP_Bank_DestroyAll();
+		Bank_DestroyAll();
 		bankID = 0x21;
 	}
 
@@ -35,16 +35,16 @@ void DECOMP_Music_LoadBanks(void)
 	{
 		if (arr[0] == 0)
 		{
-			DECOMP_Bank_DestroyAll();
+			Bank_DestroyAll();
 
-			DECOMP_Bank_Load(0, &thisBank);
+			Bank_Load(0, &thisBank);
 
 			arr[0] = 1;
 		}
 
 		else
 		{
-			DECOMP_Bank_DestroyUntilIndex(0);
+			Bank_DestroyUntilIndex(0);
 		}
 
 		// loading state of song (one byte)
@@ -54,7 +54,7 @@ void DECOMP_Music_LoadBanks(void)
 
 	arr[0] = 0;
 
-	DECOMP_Bank_Load(bankID, &thisBank);
+	Bank_Load(bankID, &thisBank);
 
 	// loading state of song (one byte)
 	arr[1] = 3;

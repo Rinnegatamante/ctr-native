@@ -1,6 +1,6 @@
 #include <common.h>
 
-int DECOMP_VehPhysGeneral_LerpQuarterStrength(int current, int desired)
+int VehPhysGeneral_LerpQuarterStrength(int current, int desired)
 {
 	if (desired != 0)
 	{

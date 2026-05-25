@@ -29,7 +29,7 @@ void DECOMP_MM_Video_StartStream(int param_1, int numFrames)
 	StSetStream((V230.flags & 1), 0, 0xffffffff, 0, 0);
 
 	// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b6210-0x800b621c for video CD stream mode.
-	DECOMP_CDSYS_SetMode_StreamData();
+	CDSYS_SetMode_StreamData();
 
 	// 800b6814 = Ring_Buf (mempack)
 	StSetRing(V230.out_Buf[2], V230.RING_SIZE);

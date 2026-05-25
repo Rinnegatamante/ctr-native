@@ -4,8 +4,3 @@
 void Voiceline_EmptyFunc(void)
 {
 }
-
-void DECOMP_Voiceline_EmptyFunc(void)
-{
-	Voiceline_EmptyFunc();
-}

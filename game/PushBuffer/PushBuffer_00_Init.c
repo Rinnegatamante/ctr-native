@@ -145,8 +145,3 @@ void PushBuffer_Init(struct PushBuffer *pb, int id, int total)
 
 	return;
 }
-
-void DECOMP_PushBuffer_Init(struct PushBuffer *pb, int id, int total)
-{
-	PushBuffer_Init(pb, id, total);
-}

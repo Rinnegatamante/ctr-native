@@ -9,7 +9,7 @@ void DECOMP_CS_LoadBoss(struct BossCutsceneData *bcd)
 
 	index = 3 - gGT->activeMempackIndex;
 
-	DECOMP_CDSYS_XAPauseRequest();
+	CDSYS_XAPauseRequest();
 
 	// erase HEAD + BODY
 	OVR_233.ptrModelBossBody = 0;
@@ -21,8 +21,8 @@ void DECOMP_CS_LoadBoss(struct BossCutsceneData *bcd)
 
 	// Swap to pack of hub you're NOT on,
 	// wipe the pack to reload the new BOSS
-	DECOMP_MEMPACK_SwapPacks(index);
-	DECOMP_MEMPACK_ClearLowMem();
+	MEMPACK_SwapPacks(index);
+	MEMPACK_ClearLowMem();
 
 	sdata->load_inProgress = 1;
 

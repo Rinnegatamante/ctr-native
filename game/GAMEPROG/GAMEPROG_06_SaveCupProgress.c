@@ -3,7 +3,7 @@
 // same as the one in GAMEPROG_AdvPercent
 #define CHECK_PROG_BIT(rewards, bitIndex) ((rewards[bitIndex >> 5] >> (bitIndex & 0x1f)) & 1) != 0
 
-void DECOMP_GAMEPROG_SaveCupProgress()
+void GAMEPROG_SaveCupProgress()
 {
 	int i;
 	int *prog;

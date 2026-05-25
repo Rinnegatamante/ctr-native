@@ -1,6 +1,6 @@
 #include <common.h>
 
-int DECOMP_MainFrame_HaveAllPads(s16 numPlyrNextGame)
+int MainFrame_HaveAllPads(s16 numPlyrNextGame)
 {
 	// if game is not loading
 	if (sdata->Loading.stage == -1)

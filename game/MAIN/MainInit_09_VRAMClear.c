@@ -8,7 +8,7 @@ struct
 } commands;
 #endif
 
-void DECOMP_MainInit_VRAMClear()
+void MainInit_VRAMClear()
 {
 	DRAWENV drawEnv;
 

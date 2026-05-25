@@ -351,7 +351,7 @@ int DECOMP_RB_CrateFruit_ThCollide(struct Thread *crateThread, struct Thread *co
 			if ((int)driver == 1)
 				return 1;
 
-			random = DECOMP_MixRNG_Scramble();
+			random = MixRNG_Scramble();
 			newWumpa = random;
 			if (random < 0)
 				newWumpa = random + 3;

@@ -15,9 +15,9 @@ void DECOMP_LOAD_LevelFile(int levelID)
 	// disable all rendering except checkeredFlag
 	gGT->renderFlags &= 0x1000;
 
-	if (DECOMP_RaceFlag_IsFullyOffScreen() == 1)
+	if (RaceFlag_IsFullyOffScreen() == 1)
 	{
-		DECOMP_RaceFlag_BeginTransition(1);
+		RaceFlag_BeginTransition(1);
 	}
 
 	// start loading

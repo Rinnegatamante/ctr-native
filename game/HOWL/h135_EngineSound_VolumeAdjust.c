@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002fc28-0x8002fc64
-int DECOMP_EngineSound_VolumeAdjust(int desired, int current, int step)
+int EngineSound_VolumeAdjust(int desired, int current, int step)
 {
 	int delta = desired - current;
 	int absDelta = delta;
@@ -18,9 +18,4 @@ int DECOMP_EngineSound_VolumeAdjust(int desired, int current, int step)
 	}
 
 	return desired;
-}
-
-int EngineSound_VolumeAdjust(int desired, int current, int step)
-{
-	return DECOMP_EngineSound_VolumeAdjust(desired, current, step);
 }

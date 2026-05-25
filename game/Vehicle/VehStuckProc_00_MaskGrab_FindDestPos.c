@@ -38,7 +38,7 @@ static void VehStuckProc_MaskGrab_SearchBsp(struct Driver *d, struct ScratchpadS
 	sps->Union.QuadBlockColl.hitPos[1] = sps->Input1.pos[1];
 	sps->Union.QuadBlockColl.hitPos[2] = sps->Input1.pos[2];
 
-	DECOMP_COLL_SearchBSP_CallbackPARAM(sps->ptr_mesh_info->bspRoot, &sps->bbox, COLL_FIXED_BSPLEAF_TestQuadblocks, sps);
+	COLL_SearchBSP_CallbackPARAM(sps->ptr_mesh_info->bspRoot, &sps->bbox, COLL_FIXED_BSPLEAF_TestQuadblocks, sps);
 }
 
 void VehStuckProc_MaskGrab_FindDestPos(struct Driver *d, struct QuadBlock *quad)
@@ -123,9 +123,4 @@ void VehStuckProc_MaskGrab_FindDestPos(struct Driver *d, struct QuadBlock *quad)
 	}
 
 	gGT->cameraDC[d->driverID].flags |= 1;
-}
-
-void DECOMP_VehStuckProc_MaskGrab_FindDestPos(struct Driver *d, struct QuadBlock *quad)
-{
-	VehStuckProc_MaskGrab_FindDestPos(d, quad);
 }

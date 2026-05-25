@@ -529,7 +529,7 @@ dontDrawSelectCharacter:
 
 			Color color = *(Color *)&colorRGBA;
 			// this draws the flashing blue square that appears when you highlight a character in the character select screen
-			DECOMP_CTR_Box_DrawSolidBox(r, color, ot);
+			CTR_Box_DrawSolidBox(r, color, ot);
 		}
 		if ((D230.timerPerPlayer[j] == 0) && (D230.characterSelect_charIDs_curr[j] == data.characterIDs[j]))
 		{

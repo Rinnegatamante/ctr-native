@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_MainStats_RestartRaceCountLoss(void)
+void MainStats_RestartRaceCountLoss(void)
 
 {
 	int index;

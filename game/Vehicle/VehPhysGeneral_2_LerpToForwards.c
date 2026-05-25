@@ -1,6 +1,6 @@
 #include <common.h>
 
-int DECOMP_VehPhysGeneral_LerpToForwards(struct Driver *d, int param_2, int param_3, int param_4)
+int VehPhysGeneral_LerpToForwards(struct Driver *d, int param_2, int param_3, int param_4)
 {
 	bool bVar1;
 	u32 uVar2;
@@ -29,7 +29,7 @@ int DECOMP_VehPhysGeneral_LerpToForwards(struct Driver *d, int param_2, int para
 			{
 				uVar2 = d->unk458;
 			}
-			iVar3 = DECOMP_VehPhysGeneral_LerpQuarterStrength(uVar2, param_2 - param_4);
+			iVar3 = VehPhysGeneral_LerpQuarterStrength(uVar2, param_2 - param_4);
 			iVar3 = -iVar3;
 		}
 		else
@@ -38,11 +38,11 @@ int DECOMP_VehPhysGeneral_LerpToForwards(struct Driver *d, int param_2, int para
 			{
 				if (param_2 < 0)
 				{
-					iVar3 = DECOMP_VehPhysGeneral_LerpQuarterStrength(d->unk459, param_4 - param_2);
+					iVar3 = VehPhysGeneral_LerpQuarterStrength(d->unk459, param_4 - param_2);
 				}
 				else
 				{
-					iVar3 = DECOMP_VehPhysGeneral_LerpQuarterStrength(d->angleMaxCounterSteer, param_4 - param_2);
+					iVar3 = VehPhysGeneral_LerpQuarterStrength(d->angleMaxCounterSteer, param_4 - param_2);
 					d->unk3CA = (s16)param_4;
 				}
 			}
@@ -50,7 +50,7 @@ int DECOMP_VehPhysGeneral_LerpToForwards(struct Driver *d, int param_2, int para
 	}
 
 	// Interpolate rotation by speed
-	iVar3 = DECOMP_VehCalc_InterpBySpeed(param_3, d->unk45a, iVar3);
+	iVar3 = VehCalc_InterpBySpeed(param_3, d->unk45a, iVar3);
 	if (bVar1)
 	{
 		iVar3 = -iVar3;

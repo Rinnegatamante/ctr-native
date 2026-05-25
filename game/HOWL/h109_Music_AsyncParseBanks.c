@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002de48-0x8002e338
-u32 DECOMP_Music_AsyncParseBanks(void)
+u32 Music_AsyncParseBanks(void)
 {
 	u8 bVar1;
 	u16 index;
@@ -22,7 +22,7 @@ u32 DECOMP_Music_AsyncParseBanks(void)
 	// Load Level FX Bank
 	case 0:
 		// unsuccessful
-		if (DECOMP_Bank_AssignSpuAddrs() == 0)
+		if (Bank_AssignSpuAddrs() == 0)
 			goto PARSE_FINISH;
 
 		// If you're in a Boss Race
@@ -67,7 +67,7 @@ u32 DECOMP_Music_AsyncParseBanks(void)
 		else
 			break;
 
-		DECOMP_Bank_Load(index, &thisBank);
+		Bank_Load(index, &thisBank);
 
 		// go to next stage
 		break;
@@ -75,7 +75,7 @@ u32 DECOMP_Music_AsyncParseBanks(void)
 	// Finish Song Bank, Start Default8 Bank
 	case 1:
 		// unsuccessful
-		if (DECOMP_Bank_AssignSpuAddrs() == 0)
+		if (Bank_AssignSpuAddrs() == 0)
 			goto PARSE_FINISH;
 
 		sdata->bankCount = 0;
@@ -109,7 +109,7 @@ u32 DECOMP_Music_AsyncParseBanks(void)
 		    ((uVar4 & ARCADE_MODE) != 0))
 		{
 			// Load bank with 8 drivers
-			DECOMP_Bank_Load(54, &thisBank);
+			Bank_Load(54, &thisBank);
 			sdata->bankLoad54 = 1;
 		}
 
@@ -119,7 +119,7 @@ u32 DECOMP_Music_AsyncParseBanks(void)
 	// Finish Default8 Bank, start Character Bank
 	case 2:
 
-		if (DECOMP_Bank_AssignSpuAddrs() == 0)
+		if (Bank_AssignSpuAddrs() == 0)
 			goto PARSE_FINISH;
 
 		// If you're on any Arcade or Battle map
@@ -164,7 +164,7 @@ u32 DECOMP_Music_AsyncParseBanks(void)
 
 				LOAD_BANK:
 
-					DECOMP_Bank_Load(index, &thisBank);
+					Bank_Load(index, &thisBank);
 
 				LAB_8002e178:
 					sdata->bankCount = sdata->bankCount + 1;
@@ -221,7 +221,7 @@ u32 DECOMP_Music_AsyncParseBanks(void)
 				break;
 			}
 
-			DECOMP_Bank_Load((u16)(bVar1 - 88), &thisBank);
+			Bank_Load((u16)(bVar1 - 88), &thisBank);
 
 		PODIUM_STAGE_DONE:
 			sdata->bankPodiumStage++;
@@ -232,7 +232,7 @@ u32 DECOMP_Music_AsyncParseBanks(void)
 	// Finish Character Bank, Start Level Song Bank
 	case 3:
 
-		if (DECOMP_Bank_AssignSpuAddrs() == 0)
+		if (Bank_AssignSpuAddrs() == 0)
 			goto PARSE_FINISH;
 
 		// If you're in a Boss Race

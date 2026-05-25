@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_RaceFlag_SetFullyOnScreen()
+void RaceFlag_SetFullyOnScreen()
 {
 	sdata->RaceFlag_AnimationType = 0;
 	sdata->RaceFlag_LoadingTextAnimFrame = -1;

@@ -307,18 +307,18 @@ void DECOMP_UI_DrawRankedDrivers(void)
 			int posX = uVar11 + 5;
 			int posY = 0x66;
 
-			DECOMP_DecalHUD_DrawPolyGT4(gGT->ptrIcons[data.MetaDataCharacters[data.characterIDs[iVar14]].iconID], posX, posY,
+			DecalHUD_DrawPolyGT4(gGT->ptrIcons[data.MetaDataCharacters[data.characterIDs[iVar14]].iconID], posX, posY,
 
-			                            // pointer to PrimMem struct
-			                            &gGT->backBuffer->primMem,
+			                     // pointer to PrimMem struct
+			                     &gGT->backBuffer->primMem,
 
-			                            // pointer to OT memory
-			                            gGT->pushBuffer_UI.ptrOT,
+			                     // pointer to OT memory
+			                     gGT->pushBuffer_UI.ptrOT,
 
-			                            // color data
-			                            local_30, local_30, local_30, local_30,
+			                     // color data
+			                     local_30, local_30, local_30, local_30,
 
-			                            TRANS_50_DECAL, 0x9d8); // 0x9d8 = 8/13
+			                     TRANS_50_DECAL, 0x9d8); // 0x9d8 = 8/13
 
 			*puVar16 = uVar11;
 			puVar16 = puVar16 + 1;
@@ -399,7 +399,7 @@ void DECOMP_UI_DrawRankedDrivers(void)
 			int posX = (iVar12 / iVar15) + 5;
 			int posY = 0x66;
 
-			DECOMP_DecalHUD_DrawWeapon(
+			DecalHUD_DrawWeapon(
 			    // warpball icon
 			    gGT->ptrIcons[0xe], posX, posY,
 

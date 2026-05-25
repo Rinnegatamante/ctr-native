@@ -12,7 +12,7 @@ static Vec3 VehPhysForce_OnApplyForces_RotateVector(const MATRIX *m, s16 vx, s16
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8005ea60-0x8005ebac
-void DECOMP_VehPhysForce_OnApplyForces(struct Thread *thread, struct Driver *driver)
+void VehPhysForce_OnApplyForces(struct Thread *thread, struct Driver *driver)
 {
 	(void)thread;
 
@@ -25,7 +25,7 @@ void DECOMP_VehPhysForce_OnApplyForces(struct Thread *thread, struct Driver *dri
 	to find the "true" center of the 3D model */
 	driver->originToCenter = VehPhysForce_OnApplyForces_RotateVector(&driver->matrixFacingDir, 0, 25, 0);
 
-	VehPhysForce_ConvertSpeedToVec(driver, &driver->velocity);
+	VehPhysForce_ConvertSpeedToVecOut(driver, &driver->velocity);
 
 	if ((driver->underDriver) && (driver->underDriver->terrain_type == TERRAIN_MUD))
 	{

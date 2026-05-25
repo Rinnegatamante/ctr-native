@@ -81,7 +81,7 @@ void DECOMP_RB_RainCloud_Init(struct Driver *d)
 		rcloud->timeMS = 0x1e00;
 
 		// random number
-		int rng = DECOMP_MixRNG_Scramble();
+		int rng = MixRNG_Scramble();
 
 		// random (related to driver offset 0x50a)
 		rcloud->boolScrollItem = (s16)((rng % 400) / 100);

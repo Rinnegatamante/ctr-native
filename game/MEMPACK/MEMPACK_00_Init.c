@@ -12,7 +12,7 @@ void CS_EndOfFile();
 extern char RB_NewEndFile[4];
 void OVR_Region3();
 
-void DECOMP_MEMPACK_Init(int ramSize)
+void MEMPACK_Init(int ramSize)
 {
 	u32 startPtr;
 	int packSize;
@@ -52,5 +52,5 @@ void DECOMP_MEMPACK_Init(int ramSize)
 	packSize = ramSize - (int)(startPtr & 0xffffff);
 #endif
 
-	DECOMP_MEMPACK_NewPack(startPtr, packSize);
+	MEMPACK_NewPack(startPtr, packSize);
 }

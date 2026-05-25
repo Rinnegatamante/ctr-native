@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_GAMEPROG_ResetHighScores(struct GameProgress *gameProg)
+void GAMEPROG_ResetHighScores(struct GameProgress *gameProg)
 {
 	int i;
 	int j;

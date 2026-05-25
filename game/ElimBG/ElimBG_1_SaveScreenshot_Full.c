@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_ElimBG_SaveScreenshot_Full(struct GameTracker *gGT)
+void ElimBG_SaveScreenshot_Full(struct GameTracker *gGT)
 {
 	int iVar4;
 	u32 local_48[2];
@@ -71,7 +71,7 @@ void DECOMP_ElimBG_SaveScreenshot_Full(struct GameTracker *gGT)
 		rSrc.y += STRIP_H;
 		StoreImage((RECT *)&rSrc, (u32 *)sdata->PausePtrsVRAM[2 + iVar4]);
 
-		DECOMP_ElimBG_SaveScreenshot_Chunk((u16 *)sdata->PausePtrsVRAM[4 + (1 - iVar4)], (u16 *)sdata->PausePtrsVRAM[2 + (1 - iVar4)], 0x1000);
+		ElimBG_SaveScreenshot_Chunk((u16 *)sdata->PausePtrsVRAM[4 + (1 - iVar4)], (u16 *)sdata->PausePtrsVRAM[2 + (1 - iVar4)], 0x1000);
 
 		LoadImage(&rDst, (u32 *)sdata->PausePtrsVRAM[4 + (1 - iVar4)]);
 	}
@@ -79,7 +79,7 @@ void DECOMP_ElimBG_SaveScreenshot_Full(struct GameTracker *gGT)
 	// wait for last Store
 	DrawSync(0);
 
-	DECOMP_ElimBG_SaveScreenshot_Chunk((u16 *)sdata->PausePtrsVRAM[4 + (iVar4)], (u16 *)sdata->PausePtrsVRAM[2 + (iVar4)], 0x1000);
+	ElimBG_SaveScreenshot_Chunk((u16 *)sdata->PausePtrsVRAM[4 + (iVar4)], (u16 *)sdata->PausePtrsVRAM[2 + (iVar4)], 0x1000);
 
 	LoadImage(&rDst, (u32 *)sdata->PausePtrsVRAM[4 + (iVar4)]);
 

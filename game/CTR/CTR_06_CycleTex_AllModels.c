@@ -4,7 +4,7 @@
 /// @param numModels - number of models to process. negative value means loops until NULL is met
 /// @param pModels - pointer to array of model pointers
 /// @param timer
-void DECOMP_CTR_CycleTex_AllModels(u32 numModels, struct Model **pModelArray, int timer)
+void CTR_CycleTex_AllModels(u32 numModels, struct Model **pModelArray, int timer)
 {
 	struct Model *pModel;
 	struct ModelHeader *pHeader;
@@ -22,7 +22,7 @@ void DECOMP_CTR_CycleTex_AllModels(u32 numModels, struct Model **pModelArray, in
 
 			if ((pHeader->animtex != NULL) && ((pHeader->flags & 2) == 0))
 			{
-				DECOMP_CTR_CycleTex_Model(pHeader->animtex, timer);
+				CTR_CycleTex_Model(pHeader->animtex, timer);
 			}
 		}
 	}

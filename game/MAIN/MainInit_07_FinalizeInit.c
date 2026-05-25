@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_MainInit_FinalizeInit(struct GameTracker *gGT)
+void MainInit_FinalizeInit(struct GameTracker *gGT)
 {
 	int i;
 	int numPlyr;
@@ -20,7 +20,7 @@ void DECOMP_MainInit_FinalizeInit(struct GameTracker *gGT)
 	sdata->doorAccessFlags = 0;
 
 	// add a bookmark
-	DECOMP_MEMPACK_PushState();
+	MEMPACK_PushState();
 
 	gGT->pushBuffer[0].distanceToScreen_PREV = 0x100;
 	gGT->pushBuffer[0].distanceToScreen_CURR = 0x100;
@@ -48,7 +48,7 @@ void DECOMP_MainInit_FinalizeInit(struct GameTracker *gGT)
 		gGT->DecalMP[i].ptrOT2 = 0;
 	}
 
-	DECOMP_MainInit_JitPoolsReset(gGT);
+	MainInit_JitPoolsReset(gGT);
 
 	lev1 = gGT->level1;
 
@@ -57,7 +57,7 @@ void DECOMP_MainInit_FinalizeInit(struct GameTracker *gGT)
 	gGT->trackLength_x_numLaps_x_8 = lev1->ptr_restart_points[0].distToFinish * gGT->numLaps * 8;
 #endif
 
-	DECOMP_MainInit_Drivers(gGT);
+	MainInit_Drivers(gGT);
 
 	// assume 1P fov
 	numPlyr = 1;
@@ -69,19 +69,19 @@ void DECOMP_MainInit_FinalizeInit(struct GameTracker *gGT)
 	}
 
 	// Initialize four PushBuffer, 4 main screens
-	DECOMP_PushBuffer_Init(&gGT->pushBuffer[0], 0, numPlyr);
-	DECOMP_PushBuffer_Init(&gGT->pushBuffer[1], 1, numPlyr);
-	DECOMP_PushBuffer_Init(&gGT->pushBuffer[2], 2, numPlyr);
-	DECOMP_PushBuffer_Init(&gGT->pushBuffer[3], 3, numPlyr);
+	PushBuffer_Init(&gGT->pushBuffer[0], 0, numPlyr);
+	PushBuffer_Init(&gGT->pushBuffer[1], 1, numPlyr);
+	PushBuffer_Init(&gGT->pushBuffer[2], 2, numPlyr);
+	PushBuffer_Init(&gGT->pushBuffer[3], 3, numPlyr);
 
 	struct PushBuffer *pb;
 
 	pb = &gGT->pushBuffer_UI;
-	DECOMP_PushBuffer_Init(pb, 0, 1);
+	PushBuffer_Init(pb, 0, 1);
 
 	pb->rot[0] = 0x800;
-	DECOMP_PushBuffer_SetPsyqGeom(pb);
-	DECOMP_PushBuffer_SetMatrixVP(pb);
+	PushBuffer_SetPsyqGeom(pb);
+	PushBuffer_SetMatrixVP(pb);
 
 	if ((gGT->hudFlags & 2) != 0)
 	{
@@ -109,7 +109,7 @@ void DECOMP_MainInit_FinalizeInit(struct GameTracker *gGT)
 
 		if (i < gGT->numPlyrCurrGame)
 		{
-			DECOMP_CAM_Init(&gGT->cameraDC[i], i, d, &gGT->pushBuffer[i]);
+			CAM_Init(&gGT->cameraDC[i], i, d, &gGT->pushBuffer[i]);
 
 			// freeze camera of P1, only in main menu
 			if (((gGT->gameMode1 & MAIN_MENU) == 0) || (i < 1))
@@ -136,7 +136,7 @@ void DECOMP_MainInit_FinalizeInit(struct GameTracker *gGT)
 	// Debug_ToggleNormalSpawn == normal spawn
 	if (gGT->Debug_ToggleNormalSpawn != 0)
 	{
-		DECOMP_MainGameStart_Initialize(gGT, 1);
+		MainGameStart_Initialize(gGT, 1);
 
 		if (gGT->boolDemoMode != 0)
 		{
@@ -181,7 +181,7 @@ void DECOMP_MainInit_FinalizeInit(struct GameTracker *gGT)
 
 	if (lev1 != NULL)
 		if (lev1->ptr_mesh_info != NULL)
-			DECOMP_LevInstDef_UnPack(lev1->ptr_mesh_info);
+			LevInstDef_UnPack(lev1->ptr_mesh_info);
 
 #ifndef REBUILD_PS1
 	MainInit_VisMem(gGT);

@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002be9c-0x8002c18c
-void DECOMP_Channel_UpdateChannels()
+void Channel_UpdateChannels()
 {
 	// int voice_bit;
 	int vNum;

@@ -100,7 +100,7 @@ void DECOMP_RB_RainCloud_ThTick(struct Thread *t)
 			d->itemRollTimer = 0;
 
 			// pick random weapon for driver
-			DECOMP_VehPhysGeneral_SetHeldItem(d);
+			VehPhysGeneral_SetHeldItem(d);
 		}
 	}
 

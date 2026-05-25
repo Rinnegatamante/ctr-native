@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002bbac-0x8002be9c
-void DECOMP_Channel_ParseSongToChannels()
+void Channel_ParseSongToChannels()
 {
 	struct Song *song;
 	struct SongSeq *seq;
@@ -62,8 +62,8 @@ void DECOMP_Channel_ParseSongToChannels()
 				{
 					song->flags &= ~(4);
 
-					DECOMP_SongPool_StopAllCseq(song);
-					DECOMP_Music_End();
+					SongPool_StopAllCseq(song);
+					Music_End();
 				}
 			}
 
@@ -154,6 +154,6 @@ void DECOMP_Channel_ParseSongToChannels()
 
 	if (boolVolumeChange)
 	{
-		DECOMP_UpdateChannelVol_Music_All();
+		UpdateChannelVol_Music_All();
 	}
 }

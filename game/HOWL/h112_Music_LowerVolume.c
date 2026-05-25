@@ -2,7 +2,7 @@
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002e418-0x8002e46c
 // happens during "FINAL LAP!"
-void DECOMP_Music_LowerVolume(void)
+void Music_LowerVolume(void)
 {
 	u32 setVolume;
 
@@ -17,6 +17,6 @@ void DECOMP_Music_LowerVolume(void)
 			setVolume = 90;
 		}
 
-		DECOMP_CseqMusic_ChangeVolume(sdata->cseqHighestIndex & 0xffff, setVolume, 8);
+		CseqMusic_ChangeVolume(sdata->cseqHighestIndex & 0xffff, setVolume, 8);
 	}
 }

@@ -137,9 +137,8 @@ void DECOMP_MM_CupSelect_MenuProc(struct RectMenu *menu)
 
 				struct Icon **iconPtrArray = ICONGROUP_GETICONS(gGT->iconGroup[5]);
 
-				DECOMP_DecalHUD_DrawPolyGT4(iconPtrArray[0x37], (startX + (cupIndex & 1) * 0xCA - 0x16), (startY + ((starIndex * 0x10) + 0x10)),
-				                            &gGT->backBuffer->primMem, gGT->pushBuffer_UI.ptrOT, starColor[0], starColor[1], starColor[2], starColor[3], 0,
-				                            FP(1.0));
+				DecalHUD_DrawPolyGT4(iconPtrArray[0x37], (startX + (cupIndex & 1) * 0xCA - 0x16), (startY + ((starIndex * 0x10) + 0x10)),
+				                     &gGT->backBuffer->primMem, gGT->pushBuffer_UI.ptrOT, starColor[0], starColor[1], starColor[2], starColor[3], 0, FP(1.0));
 			}
 		}
 
@@ -162,7 +161,7 @@ void DECOMP_MM_CupSelect_MenuProc(struct RectMenu *menu)
 			cupBox.w = 174;
 			cupBox.h = 74;
 
-			DECOMP_CTR_Box_DrawClearBox(&cupBox, &sdata->menuRowHighlight_Normal, TRANS_50_DECAL, gGT->backBuffer->otMem.startPlusFour);
+			CTR_Box_DrawClearBox(&cupBox, &sdata->menuRowHighlight_Normal, TRANS_50_DECAL, gGT->backBuffer->otMem.startPlusFour);
 		}
 
 		// background box

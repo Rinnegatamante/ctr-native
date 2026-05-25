@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_ElimBG_Deactivate(struct GameTracker *gGT)
+void ElimBG_Deactivate(struct GameTracker *gGT)
 {
 	// it's written this way for bytebudget reasons.
 	u8 backup = (u8)sdata->pause_backup_hudFlags;

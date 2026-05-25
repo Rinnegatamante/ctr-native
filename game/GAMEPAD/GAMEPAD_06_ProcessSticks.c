@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_GAMEPAD_ProcessSticks(struct GamepadSystem *gGamepads)
+void GAMEPAD_ProcessSticks(struct GamepadSystem *gGamepads)
 {
 	// this is missing a bunch of stuff vs ghidra
 	u8 bVar1;

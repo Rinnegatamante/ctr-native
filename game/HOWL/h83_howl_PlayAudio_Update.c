@@ -45,8 +45,8 @@ void DECOMP_howl_PlayAudio_Update()
 			LIST_AddBack(&sdata->channelFree, (struct Item *)curr);
 		}
 
-		DECOMP_Channel_ParseSongToChannels();
+		Channel_ParseSongToChannels();
 	}
 
-	DECOMP_Channel_UpdateChannels();
+	Channel_UpdateChannels();
 }

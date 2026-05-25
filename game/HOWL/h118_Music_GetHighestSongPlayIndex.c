@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002e550-0x8002e55c
-u32 DECOMP_Music_GetHighestSongPlayIndex(void)
+u32 Music_GetHighestSongPlayIndex(void)
 {
 	// 0xffff - no cseq music
 	// 0x0000 - song[0] (level music)

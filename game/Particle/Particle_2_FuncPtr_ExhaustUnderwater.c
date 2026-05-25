@@ -20,7 +20,7 @@ void Particle_FuncPtr_ExhaustUnderwater(struct Particle *p)
 			p->ptrIconArray = ptrIconArray[0];
 		}
 
-		p->axis[4].startVal = DECOMP_MixRNG_Scramble() & 0xfff;
+		p->axis[4].startVal = MixRNG_Scramble() & 0xfff;
 		p->framesLeftInLife = 0;
 	}
 }

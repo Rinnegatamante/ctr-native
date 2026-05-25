@@ -1,10 +1,10 @@
 #include <common.h>
 
-void DECOMP_SubmitName_MenuProc(struct RectMenu *menu)
+void SubmitName_MenuProc(struct RectMenu *menu)
 {
 	struct GameTracker *gGT = sdata->gGT;
 
-	s16 selection = DECOMP_SubmitName_DrawMenu(0x13f);
+	s16 selection = SubmitName_DrawMenu(0x13f);
 	menu->rowSelected = selection;
 
 	// not finished yet
@@ -78,7 +78,7 @@ void DECOMP_SubmitName_MenuProc(struct RectMenu *menu)
 
 #else
 
-			DECOMP_MainRaceTrack_RequestLoad(N_SANITY_BEACH);
+			MainRaceTrack_RequestLoad(N_SANITY_BEACH);
 			sdata->ptrActiveMenu = 0;
 
 #endif

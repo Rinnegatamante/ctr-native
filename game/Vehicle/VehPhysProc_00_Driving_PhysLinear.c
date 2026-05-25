@@ -293,7 +293,7 @@ void VehPhysProc_Driving_PhysLinear(struct Thread *thread, struct Driver *driver
 		if (driver->itemRollTimer == 0)
 		{
 			// Select a random weapon for driver
-			DECOMP_VehPhysGeneral_SetHeldItem(driver);
+			VehPhysGeneral_SetHeldItem(driver);
 
 			// if 9 < number of wumpa
 			// if wumpa is 10
@@ -609,7 +609,7 @@ CheckJumpButtons:
 		// If you are not holding Cross
 		if (cross == 0)
 		{
-			unk0x80 = DECOMP_VehPhysJoystick_ReturnToRest(stickRY, 0x80, 0);
+			unk0x80 = VehPhysJoystick_ReturnToRest(stickRY, 0x80, 0);
 
 			if (unk0x80 > -1)
 			{
@@ -689,12 +689,12 @@ CheckJumpButtons:
 		// if you are not holding cross, or have no Reserves...
 		// driverSpeedSmth2 is replaced
 
-		driverSpeedSmth2 = DECOMP_VehPhysJoystick_ReturnToRest(stickRY, 0x80, 0);
+		driverSpeedSmth2 = VehPhysJoystick_ReturnToRest(stickRY, 0x80, 0);
 
 		driverSpeedOrSmth = -driverSpeedSmth2;
 		if (driverSpeedSmth2 < 1)
 		{
-			if ((driverSpeedOrSmth == 0) && ((unk0x80 = DECOMP_VehPhysJoystick_ReturnToRest(stickLY, 0x80, 0),
+			if ((driverSpeedOrSmth == 0) && ((unk0x80 = VehPhysJoystick_ReturnToRest(stickLY, 0x80, 0),
 
 			                                  (unk0x80 > 99) ||
 
@@ -741,14 +741,14 @@ CheckJumpButtons:
 	// If you are holding Square
 	else
 	{
-		unk0x80 = DECOMP_VehPhysJoystick_ReturnToRest(stickLY, 0x80, 0);
+		unk0x80 = VehPhysJoystick_ReturnToRest(stickLY, 0x80, 0);
 
 		if ((unk0x80 < 100) && ((unk0x80 < 1 || ((actionsFlagSetCopy & 0x20000) == 0))))
 		{
 			// if you are not holding cross, and you have no Reserves
 			if (cross == 0)
 			{
-				driverSpeedOrSmth = DECOMP_VehPhysJoystick_ReturnToRest(stickRY, 0x80, 0);
+				driverSpeedOrSmth = VehPhysJoystick_ReturnToRest(stickRY, 0x80, 0);
 
 				if (driverSpeedOrSmth < 0)
 				{
@@ -831,7 +831,7 @@ CheckJumpButtons:
 						superEngineFireLevel = 0x100;
 
 					// add 0.12s reserves
-					DECOMP_VehFire_Increment(driver, 120, (TURBO_PAD | SUPER_ENGINE), superEngineFireLevel);
+					VehFire_Increment(driver, 120, (TURBO_PAD | SUPER_ENGINE), superEngineFireLevel);
 
 					uVar20 = driver->actionsFlagSet;
 				}
@@ -956,12 +956,12 @@ CheckJumpButtons:
 		driverSpeedCopy = -driverSpeedCopy;
 
 	// As speed increases, turn rate decreases
-	iVar14 = DECOMP_VehCalc_MapToRange(driverSpeedCopy, 0x300, driver->const_Speed_ClassStat / 2, 0x40, iVar14);
+	iVar14 = VehCalc_MapToRange(driverSpeedCopy, 0x300, driver->const_Speed_ClassStat / 2, 0x40, iVar14);
 
 UseTurnRate:
 
 	// Steer, based on strength, and LeftStickX
-	iVar14 = DECOMP_VehPhysJoystick_GetStrengthAbsolute(driverSpeedOrSmth, iVar14, ptrgamepad->rwd);
+	iVar14 = VehPhysJoystick_GetStrengthAbsolute(driverSpeedOrSmth, iVar14, ptrgamepad->rwd);
 
 	// no desired steer
 	if (-iVar14 == 0)
@@ -999,8 +999,8 @@ SkipSetSteer:
 	*(u8 *)&driver->simpTurnState = (char)-iVar14;
 
 	// Change wheel rotation based on StickLX
-	driverSpeedOrSmth = DECOMP_VehPhysJoystick_GetStrengthAbsolute(driverSpeedOrSmth, 0x40, ptrgamepad->rwd);
-	driverBaseSpeedUshort = DECOMP_VehCalc_InterpBySpeed((int)driver->wheelRotation, 0x18, -driverSpeedOrSmth);
+	driverSpeedOrSmth = VehPhysJoystick_GetStrengthAbsolute(driverSpeedOrSmth, 0x40, ptrgamepad->rwd);
+	driverBaseSpeedUshort = VehCalc_InterpBySpeed((int)driver->wheelRotation, 0x18, -driverSpeedOrSmth);
 	*(u16 *)&driver->wheelRotation = driverBaseSpeedUshort;
 
 	driverSpeedOrSmth = (int)driver->fireSpeed;

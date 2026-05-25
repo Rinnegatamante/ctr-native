@@ -352,15 +352,15 @@ void DECOMP_DecalFont_DrawLineStrlen(u8 *str, s16 len, int posX, s16 posY, s16 f
 				{
 					struct Icon **iconPtrArray = ICONGROUP_GETICONS(gGT->iconGroup[iconGroupID]);
 
-					DECOMP_DecalHUD_DrawPolyGT4(iconPtrArray[iconID],
+					DecalHUD_DrawPolyGT4(iconPtrArray[iconID],
 
-					                            posX + pixWidthExtra, posY + pixHeightExtra,
+					                     posX + pixWidthExtra, posY + pixHeightExtra,
 
-					                            &gGT->backBuffer->primMem, gGT->pushBuffer_UI.ptrOT,
+					                     &gGT->backBuffer->primMem, gGT->pushBuffer_UI.ptrOT,
 
-					                            ptrColor[0], ptrColor[1], ptrColor[2], ptrColor[3],
+					                     ptrColor[0], ptrColor[1], ptrColor[2], ptrColor[3],
 
-					                            0, iconScale);
+					                     0, iconScale);
 				}
 
 #elif BUILD == JpnTrial || BUILD == JpnRetail
@@ -373,15 +373,15 @@ void DECOMP_DecalFont_DrawLineStrlen(u8 *str, s16 len, int posX, s16 posY, s16 f
 			}
 			if (iconStruct != 0)
 			{
-				DECOMP_DecalHUD_DrawPolyGT4(iconStruct,
+				DecalHUD_DrawPolyGT4(iconStruct,
 
-				                            posX + pixWidthExtra, posY + pixHeightExtra,
+				                     posX + pixWidthExtra, posY + pixHeightExtra,
 
-				                            &gGT->backBuffer->primMem, gGT->pushBuffer_UI.ptrOT,
+				                     &gGT->backBuffer->primMem, gGT->pushBuffer_UI.ptrOT,
 
-				                            ptrColor[0], ptrColor[1], ptrColor[2], ptrColor[3],
+				                     ptrColor[0], ptrColor[1], ptrColor[2], ptrColor[3],
 
-				                            0, iconScale);
+				                     0, iconScale);
 			}
 
 #else // i.e. european build
@@ -392,27 +392,27 @@ void DECOMP_DecalFont_DrawLineStrlen(u8 *str, s16 len, int posX, s16 posY, s16 f
 			{
 				if (upsideDownCharacter)
 				{
-					DECOMP_DecalHUD_Arrow2D(iconPtrArray[iconID],
+					DecalHUD_Arrow2D(iconPtrArray[iconID],
 
-					                        posX + pixWidthExtra, posY + pixHeightExtra,
+					                 posX + pixWidthExtra, posY + pixHeightExtra,
 
-					                        &gGT->backBuffer->primMem, gGT->pushBuffer_UI.ptrOT,
+					                 &gGT->backBuffer->primMem, gGT->pushBuffer_UI.ptrOT,
 
-					                        ptrColor[2], ptrColor[3], ptrColor[0], ptrColor[1],
+					                 ptrColor[2], ptrColor[3], ptrColor[0], ptrColor[1],
 
-					                        0, iconScale, 0x800);
+					                 0, iconScale, 0x800);
 				}
 				else
 				{
-					DECOMP_DecalHUD_DrawPolyGT4(iconPtrArray[iconID],
+					DecalHUD_DrawPolyGT4(iconPtrArray[iconID],
 
-					                            posX + pixWidthExtra, posY + pixHeightExtra,
+					                     posX + pixWidthExtra, posY + pixHeightExtra,
 
-					                            &gGT->backBuffer->primMem, gGT->pushBuffer_UI.ptrOT,
+					                     &gGT->backBuffer->primMem, gGT->pushBuffer_UI.ptrOT,
 
-					                            ptrColor[0], ptrColor[1], ptrColor[2], ptrColor[3],
+					                     ptrColor[0], ptrColor[1], ptrColor[2], ptrColor[3],
 
-					                            0, iconScale);
+					                     0, iconScale);
 				}
 			}
 

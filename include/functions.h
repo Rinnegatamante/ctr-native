@@ -30,21 +30,21 @@ void CAM_SkyboxGlow(s16 *param_1, struct PushBuffer *pb, struct PrimMem *primMem
 void CAM_ClearScreen(struct GameTracker *gGT);
 void CAM_Init(struct CameraDC *cDC, int cameraID, struct Driver *d, struct PushBuffer *pb);
 void CAM_FindClosestQuadblock(s16 *scratchpad, struct CameraDC *cDC, struct Driver *d, s16 *param_4);
-int CAM_Path_GetNumPoints();
-u32 CAM_Path_Move(int frame, u16 *pos, u16 *rot, u16 *getPath);
+int CAM_Path_GetNumPoints(void);
+u8 CAM_Path_Move(int frameIndex, s16 *position, s16 *rotation, s16 *getPath);
 void CAM_StartOfRace(struct CameraDC *cDC);
 void CAM_EndOfRace_Battle(struct CameraDC *cDC, struct Driver *d);
 void CAM_EndOfRace(struct CameraDC *cDC, struct Driver *d);
-u8 *CAM_StartLine_FlyIn_FixY(u16 *param_1);
-void CAM_ProcessTransition(s16 *camPosReturn, u16 *camRotReturn, s16 *camPosDest, s16 *camRotDest, s16 *camPosStart, s16 *camRotStart, int frame);
-void CAM_FollowDriver_AngleAxis(struct CameraDC *cDC, struct Driver *d, int param_3, s16 *pushBufferPos, s16 *pushBufferRot);
-void CAM_StartLine_FlyIn(int *param_1, s16 const0x96, int frame, u16 *camTransitionToPos, s16 *camTransitionToRot);
-u32 CAM_FollowDriver_TrackPath(struct CameraDC *cDC, s16 *param_2, int cDCspeed, int param_4);
-void CAM_LookAtPosition(int param_1, int *driverPos, s16 *camTransitionToPos, s16 *camTransitionToRot);
-void CAM_FollowDriver_Spin360(struct CameraDC *cDC, u32 param_2, struct Driver *d, s16 *camTransitionToPos, u32 param_5);
-void CAM_SetDesiredPosRot(int param_1, u16 *param_2, u16 *param_3);
-void CAM_FollowDriver_Normal(struct CameraDC *cDC, struct Driver *d, s16 *pushBuffer, int scratchpad, s16 *param_5);
-int CAM_MapRange_PosPoints(s16 *vec3sPos1, s16 *vec3sPos2, s16 *vec3iPos);
+void CAM_StartLine_FlyIn_FixY(s16 *posRot);
+void CAM_ProcessTransition(s16 *currPos, s16 *currRot, s16 *startPos, s16 *startRot, s16 *endPos, s16 *endRot, int frame);
+void CAM_FollowDriver_AngleAxis(struct CameraDC *cDC, struct Driver *d, int scratchpad, s16 *pushBufferPos, s16 *pushBufferRot);
+void CAM_StartLine_FlyIn(struct FlyInData *flyInData, s16 maxFrames, int frame, s16 *desiredPos, s16 *desiredRot);
+u32 CAM_FollowDriver_TrackPath(struct CameraDC *cDC, s16 *pos, int speed, int update);
+void CAM_LookAtPosition(int scratchpad, int *positions, s16 *desiredPos, s16 *desiredRot);
+void CAM_FollowDriver_Spin360(struct CameraDC *cDC, int param_2, struct Driver *d, s16 *desiredPos, s16 *desiredRot);
+void CAM_SetDesiredPosRot(struct CameraDC *cDC, s16 *pos, s16 *rot);
+void CAM_FollowDriver_Normal(struct CameraDC *cDC, struct Driver *d, s16 *pushBuffer, int scratchpad, struct ZoomData *zoom);
+int CAM_MapRange_PosPoints(s16 *pos1, s16 *pos2, s16 *currPos);
 void CAM_ThTick(struct Thread *t);
 
 // CDSYS
@@ -71,7 +71,7 @@ void CDSYS_XAPauseAtEnd();
 
 // COLL
 
-u8 *COLL_LevModelMeta(u32 index);
+struct MetaDataMODEL *COLL_LevModelMeta(u32 index);
 u32 COLL_FIXED_INSTANC_TestPoint(struct ScratchpadStruct *param_1, struct BSP *node);
 void COLL_FIXED_BSPLEAF_TestInstance(struct BSP *node, struct ScratchpadStruct *sps);
 void COLL_FIXED_BotsSearch(s16 *posCurr, s16 *posPrev, s16 *param_3);
@@ -79,7 +79,7 @@ void COLL_FIXED_PlayerSearch(struct Thread *t, struct Driver *d);
 void COLL_SearchBSP_CallbackQUADBLK(u32 *posTop, u32 *posBottom, struct ScratchpadStruct *sps,
                                     int param_4); // posTop/posButtom may be backwards, also may have 6 params not 4???
 void COLL_SearchBSP_CallbackPARAM(struct BSP *param_1, struct BoundingBox *bbox, void (*callback)(struct BSP *, struct ScratchpadStruct *),
-                                  s16 *param_4); // 4th param might be `struct ScratchpadStruct*`
+                                  struct ScratchpadStruct *param_4);
 u32 FUN_8001ede4(u16 *param_1, s16 *param_2, s16 *param_3, s16 *param_4);
 void FUN_8001ef1c();
 void FUN_8001ef50(int param_1, s16 *param_2, s16 *param_3, s16 *param_4);
@@ -101,12 +101,10 @@ u32 COLL_MOVED_ScrubImpact(struct Driver *d, struct Thread *t, struct Scratchpad
 
 // CTR
 
-void CTR_Box_DrawWirePrims(u16 x, u16 y, u16 u, u16 v, u8 r, u8 g, u8 b, u_long *otMem, struct PrimMem *primMem);
-void CTR_Box_DrawWireBox(RECT *r, int *unk, u_long *ot, struct PrimMem *primMem);
-void CTR_Box_DrawClearBox(
-    RECT *r, Color *rgb, int transparency, u_long *otMem,
-    struct PrimMem *primMem); // either this function shouldn't have a 5th parameter, or the DECOMP_ version of it is missing that 5th parameter.
-void CTR_Box_DrawSolidBox(RECT *r, u32 *rgb, u_long *otMem, struct PrimMem *primMem);
+void CTR_Box_DrawWirePrims(Point p1, Point p2, Color color, void *ot);
+void CTR_Box_DrawWireBox(RECT *r, Color color, void *ot);
+void CTR_Box_DrawClearBox(RECT *r, Color *color, int transparency, u_long *ot);
+void CTR_Box_DrawSolidBox(RECT *r, Color color, u_long *ot);
 void CTR_CycleTex_LEV(struct AnimTex *animtex, int timer);
 void CTR_CycleTex_Model(struct AnimTex *pAnimTexArray, int timer);
 void CTR_CycleTex_AllModels(u32 numModels, struct Model **pModelArray, int timer);
@@ -177,10 +175,10 @@ void DropRain_Reset(struct GameTracker *gGT);
 
 // ElimBG
 
-void ElimBG_SaveScreenshot_Chunk(void *img1, void *img2, int param_3);
+void ElimBG_SaveScreenshot_Chunk(u16 *img1, u16 *img2, int param_3);
 void ElimBG_SaveScreenshot_Full(struct GameTracker *gGT);
 void ElimBG_Activate(struct GameTracker *gGT);
-void ElimBG_ToggleInstance(struct Instance *inst, int boolGameIsPaused);
+void ElimBG_ToggleInstance(struct Instance *inst, char boolGameIsPaused);
 void ElimBG_ToggleAllInstances(struct GameTracker *gGT, int boolGameIsPaused);
 void ElimBG_HandleState(struct GameTracker *gGT);
 void ElimBG_Deactivate(struct GameTracker *gGT);
@@ -193,8 +191,8 @@ void ElimBG_Deactivate(struct GameTracker *gGT);
 // GAMEPAD
 
 void GAMEPAD_Init(struct GamepadSystem *gGamepads);
-// GAMEPAD_SetMainMode()
-// GAMEPAD_ProcessState()
+void GAMEPAD_SetMainMode(void);
+void GAMEPAD_ProcessState(struct GamepadBuffer *pad, int padState, s16 id);
 void GAMEPAD_PollVsync(struct GamepadSystem *gGamepads);
 int GAMEPAD_GetNumConnected(struct GamepadSystem *gGamepads);
 void GAMEPAD_ProcessHold(struct GamepadSystem *gGamepads);
@@ -202,10 +200,11 @@ void GAMEPAD_ProcessSticks(struct GamepadSystem *gGamepads);
 void GAMEPAD_ProcessTapRelease(struct GamepadSystem *gGamepads);
 void GAMEPAD_ProcessMotors(struct GamepadSystem *gGamepads);
 void GAMEPAD_ProcessAnyoneVars(struct GamepadSystem *gGamepads);
-void GAMEPAD_JogCon1(struct Driver *driver, char param_2, u16 param_3);
-void GAMEPAD_JogCon2(struct Driver *driver, char param_2, u16 param_3);
-void GAMEPAD_ShockFreq(struct Driver *driver, char param_2, u16 param_3);
-void GAMEPAD_ShockForce1(struct Driver *driver, char param_2, u16 param_3);
+void GAMEPAD_JogCon1(struct Driver *driver, char val, u16 timeMS);
+void GAMEPAD_JogCon2(struct Driver *driver, char val, s16 timeMS);
+void GAMEPAD_ShockFreq(struct Driver *driver, int frame, int val);
+void GAMEPAD_ShockForce1(struct Driver *driver, int frame, int val);
+void GAMEPAD_ShockForce2(struct Driver *driver, int frame, int val);
 
 // GAMEPROG
 
@@ -252,27 +251,27 @@ void EngineAudio_Stop(u32 soundID);
 
 // CseqMusic
 
-int CseqMusic_Start(int songID, int param_2, int param_3, int param_4, int param_5);
-void CseqMusic_Pause();
-void CseqMusic_Resume();
-void CseqMusic_ChangeVolume(int songID, int param_2, int param_3);
-void CseqMusic_Restart(int songID, int param_2);
-void CseqMusic_ChangeTempo(int songID, int param_2);
-// CseqMusic_AdvHubSwap()
-void CseqMusic_Stop(int songID);
-void CseqMusic_StopAll();
+int CseqMusic_Start(u16 songID, int p2, struct SongSet *p3, int p4, int p5);
+void CseqMusic_Pause(void);
+void CseqMusic_Resume(void);
+void CseqMusic_ChangeVolume(u16 songID, int p2, int p3);
+void CseqMusic_Restart(u16 songID, int p2);
+void CseqMusic_ChangeTempo(u16 songID, int p2);
+void CseqMusic_AdvHubSwap(u16 songId, struct SongSet *songSet, int songSetActiveBits);
+void CseqMusic_Stop(u16 songID);
+void CseqMusic_StopAll(void);
 
 // Bank
 
-// Bank_ResetAllocator()
-// Bank_Alloc()
-// Bank_AssignSpuAddrs()
-// Bank_Destroy()
-// Bank_ClearInRange()
-// Bank_Load()
-// Bank_DestroyLast()
-// Bank_DestroyUntilIndex()
-// Bank_DestroyAll()
+void Bank_ResetAllocator(void);
+int Bank_Alloc(int bankID, struct Bank *ptrBank);
+int Bank_AssignSpuAddrs(void);
+void Bank_Destroy(struct Bank *ptrLastBank);
+void Bank_ClearInRange(u16 min, u16 max);
+int Bank_Load(int bankID, struct Bank *ptrBank);
+int Bank_DestroyLast(void);
+void Bank_DestroyUntilIndex(int index);
+void Bank_DestroyAll(void);
 
 // from this point onward it's an absolute mess
 
@@ -287,8 +286,11 @@ void CseqMusic_StopAll();
 
 // cseq opcode
 
-// cseq_opcode01_noteoff()
-// cseq_opcode03()
+void cseq_opcode00_empty(struct SongSeq *seq);
+void cseq_opcode01_noteoff(struct SongSeq *seq);
+void cseq_opcode02_empty(struct SongSeq *seq);
+void cseq_opcode03(struct SongSeq *seq);
+void cseq_opcode04_empty(struct SongSeq *seq);
 
 // more howl
 
@@ -296,27 +298,24 @@ void CseqMusic_StopAll();
 
 // more cseq opcode
 
-// cseq_opcode_from06and07()
-// cseq_opcode05_noteon()
-// cseq_opcode06()
-// cseq_opcode07()
-// cseq_opcode08()
-// cseq_opcode09()
-// cseq_opcode0a()
+void cseq_opcode_from06and07(struct SongSeq *seq);
+void cseq_opcode05_noteon(struct SongSeq *seq);
+void cseq_opcode06(struct SongSeq *seq);
+void cseq_opcode07(struct SongSeq *seq);
+void cseq_opcode08(struct SongSeq *seq);
+void cseq_opcode09(struct SongSeq *seq);
+void cseq_opcode0a(struct SongSeq *seq);
 
 // SongPool
 
-// SongPool_FindFreeChannel()
-// SongPool_CalculateTempo()
+struct SongSeq *SongPool_FindFreeChannel(void);
+u32 SongPool_CalculateTempo(s16 const60, s16 tpqn, s16 bpm);
 void SongPool_ChangeTempo(struct Song *song, s16 p2);
-
 void SongPool_Start(struct Song *song, u16 songID, s16 deltaBPM, int boolLoopAtEnd, struct SongSet *songSet, int songSetActiveBits);
-
-
-void SongPool_Volume(struct Song *song, char param_2, char param_3, int param_4);
-// SongPool_AdvHub1()
-// SongPool_AdvHub2()
-// SongPool_StopCseq()
+void SongPool_Volume(struct Song *song, int newVol, int newStep, int boolImm);
+void SongPool_AdvHub1(struct Song *song, int seqID, int vol, int boolImm);
+void SongPool_AdvHub2(struct Song *song, struct SongSet *songSet, int songSetActiveBits);
+void SongPool_StopCseq(struct SongSeq *seq);
 void SongPool_StopAllCseq(struct Song *song);
 
 // even more howl
@@ -343,8 +342,8 @@ void OptionsMenu_TestSound(int param_1, int param_2);
 
 // Smart (?)
 
-void Smart_EnterCriticalSection();
-void Smart_ExitCriticalSection();
+void Smart_EnterCriticalSection(void);
+void Smart_ExitCriticalSection(void);
 
 // Channel
 
@@ -355,8 +354,8 @@ struct ChannelStats *Channel_AllocSlot(int flags, struct ChannelAttr *attr);
 struct ChannelStats *Channel_SearchFX_EditAttr(int type, int soundID, int updateFlags, struct ChannelAttr *attr);
 struct ChannelStats *Channel_SearchFX_Destroy(int type, int soundID, int flags);
 void Channel_DestroyAll_LowLevel(int opt1, int boolKeepMusic, char type);
-// Channel_ParseSongToChannels()
-// Channel_UpdateChannels()
+void Channel_ParseSongToChannels(void);
+void Channel_UpdateChannels(void);
 
 // Cutscene (?)
 
@@ -367,46 +366,46 @@ void Cutscene_VolumeRestore();
 
 // Voiceline
 
-// Voiceline_PoolInit()
-void Voiceline_ClearTimeStamp();
+void Voiceline_PoolInit(void);
+void Voiceline_ClearTimeStamp(void);
 void Voiceline_PoolClear(void);
-// Voiceline_StopAll()
-// Voiceline_ToggleEnable()
+void Voiceline_StopAll(void);
+void Voiceline_ToggleEnable(int toggle);
 void Voiceline_RequestPlay(u32 voiceID, u32 characterID, u32 characterID2);
 void Voiceline_StartPlay(struct Item *voiceLine);
 void Voiceline_Update(void);
 void Voiceline_EmptyFunc(void);
-// Voiceline_SetDefaults()
+void Voiceline_SetDefaults(void);
 
 // Audio
 
-// Audio_SetState()
-void Audio_SetState_Safe(int param_1);
+void Audio_SetState(u32 state);
+void Audio_SetState_Safe(int state);
 void Audio_AdvHub_SwapSong(int levelID);
-// Audio_SetMaskSong()
-void Audio_Update1();
-// Audio_SetDefaults()
-// Audio_SetReverbMode()
+void Audio_SetMaskSong(u32 tempo);
+void Audio_Update1(void);
+void Audio_SetDefaults(void);
+void Audio_SetReverbMode(int levelID, u32 isBossRace, int bossID);
 
 // Music
 
-void Music_SetIntro();
-void Music_LoadBanks();
-u32 Music_AsyncParseBanks();
-// Music_SetDefaults()
-// Music_Adjust()
-// Music_LowerVolume()
-// Music_RaiseVolume()
-void Music_Restart();
-void Music_Stop();
-void Music_Start(u16 param_1);
-void Music_End();
-// Music_GetHighestSongPlayIndex()
+void Music_SetIntro(void);
+void Music_LoadBanks(void);
+u32 Music_AsyncParseBanks(void);
+void Music_SetDefaults(void);
+void Music_Adjust(u32 songID, int newTempo, struct SongSet *set, u32 songSetActiveBits);
+void Music_LowerVolume(void);
+void Music_RaiseVolume(void);
+void Music_Restart(void);
+void Music_Stop(void);
+void Music_Start(u32 songID);
+void Music_End(void);
+u32 Music_GetHighestSongPlayIndex(void);
 
 // GTE (?)
 
 void GTE_AudioLR_Inst(MATRIX *m, s32 *param_2);
-void GTE_AudioLR_Driver(MATRIX *m, struct Driver *d, u32 *param_3);
+void GTE_AudioLR_Driver(MATRIX *m, struct Driver *d, s32 *param_3);
 int GTE_GetSquaredLength(s32 *param_1);
 
 // Even more OtherFX...
@@ -579,18 +578,18 @@ void MainDrawCb_Vsync();
 // MainFrame
 
 void MainFrame_TogglePauseAudio(int bool_pause);
-// void MainFrame_ResetDB(struct GameTracker* gGT);
+void MainFrame_ResetDB(struct GameTracker *gGT);
 void MainFrame_GameLogic(struct GameTracker *gGT, struct GamepadSystem *gGamepads);
 void MainFrame_VisMemFullFrame(struct GameTracker *gGT, struct Level *level);
 void MainFrame_InitVideoSTR(u32 boolPlayVideoStr, RECT *r, s16 posX, s16 posY);
-int MainFrame_HaveAllPads(s16 param_1);
-void MainFrame_RequestMaskHint();
+int MainFrame_HaveAllPads(s16 numPlyrNextGame);
+void MainFrame_RequestMaskHint(s16 hintId, char interruptWarpPad);
 void MainFrame_RenderFrame(struct GameTracker *gGT, struct GamepadSystem *gGamepads);
 
 // MainFreeze
 
 void MainFreeze_ConfigDrawNPC105(s16 startX, s16 startY, s16 param_3, int param_4, s16 param_5, char *color, u_long *otMem, struct PrimMem *primMem);
-void MainFreeze_ConfigDrawArrows(int posX, int posY, char *str);
+void MainFreeze_ConfigDrawArrows(s16 posX, s16 posY, char *str);
 void MainFreeze_ConfigSetupEntry();
 void MainFreeze_MenuPtrOptions(struct RectMenu *menu);
 void MainFreeze_MenuPtrQuit(struct RectMenu *menu);
@@ -613,15 +612,15 @@ void MainGameEnd_SoloRaceSaveHighScore(void);
 
 void MainInit_VisMem(struct GameTracker *gGT);
 // MainInit_RainBuffer()
-void MainInit_PrimMem(u32 *param_1);
-// MainInit_JitPoolsReset()
-void MainInit_OTMem(u32 *param_1);
-void MainInit_JitPoolsNew(u32 *param_1);
+void MainInit_PrimMem(struct GameTracker *gGT);
+void MainInit_JitPoolsReset(struct GameTracker *gGT);
+void MainInit_OTMem(struct GameTracker *gGT);
+void MainInit_JitPoolsNew(struct GameTracker *gGT);
 void MainInit_Drivers(struct GameTracker *gGT);
-void MainInit_FinalizeInit();
+void MainInit_FinalizeInit(struct GameTracker *gGT);
 int MainInit_StringToLevID(char *str);
-void MainInit_VRAMClear();
-void MainInit_VRAMDisplay();
+void MainInit_VRAMClear(void);
+void MainInit_VRAMDisplay(void);
 
 // MainKillGame
 
@@ -690,14 +689,14 @@ u8 MEMCARD_EraseFile(int slotIdx, char *srcString);
 void MEMPACK_Init(int ramSize);
 void MEMPACK_SwapPacks(int index);
 void MEMPACK_NewPack(void *start, int size);
-u32 MEMPACK_GetFreeBytes();
-void *MEMPACK_AllocMem(int allocSize); // also has a second parameter? --Super
-// void* MEMPACK_AllocHighMem(int allocSize, char*);
-void MEMPACK_ClearHighMem();
+int MEMPACK_GetFreeBytes(void);
+void *MEMPACK_AllocMem(int allocSize);
+void *MEMPACK_AllocHighMem(int allocSize);
+void MEMPACK_ClearHighMem(void);
 void *MEMPACK_ReallocMem(int allocSize);
-int MEMPACK_PushState();
-void MEMPACK_ClearLowMem();
-void MEMPACK_PopState();
+int MEMPACK_PushState(void);
+void MEMPACK_ClearLowMem(void);
+void MEMPACK_PopState(void);
 void MEMPACK_PopToState(int id);
 
 int MixRNG_Scramble();
@@ -774,20 +773,20 @@ void PushBuffer_FadeAllWindows();
 
 // TitleFlag
 
-// RaceFlag_MoveModels()
-u32 RaceFlag_IsFullyOnScreen();
-u32 RaceFlag_IsFullyOffScreen();
-u32 RaceFlag_IsTransitioning();
-// RaceFlag_SetDrawOrder()
-void RaceFlag_BeginTransition(int param_1);
-void RaceFlag_SetFullyOnScreen();
-void RaceFlag_SetFullyOffScreen();
-void RaceFlag_SetCanDraw(int enable);
-int RaceFlag_GetCanDraw();
-u_long *RaceFlag_GetOT();
-void RaceFlag_ResetTextAnim();
-void RaceFlag_DrawLoadingString();
-void RaceFlag_DrawSelf();
+int RaceFlag_MoveModels(int frameIndex, int numFrames);
+int RaceFlag_IsFullyOnScreen(void);
+int RaceFlag_IsFullyOffScreen(void);
+int RaceFlag_IsTransitioning(void);
+void RaceFlag_SetDrawOrder(int drawOrder);
+void RaceFlag_BeginTransition(int direction);
+void RaceFlag_SetFullyOnScreen(void);
+void RaceFlag_SetFullyOffScreen(void);
+void RaceFlag_SetCanDraw(s16 enable);
+int RaceFlag_GetCanDraw(void);
+u32 *RaceFlag_GetOT(void);
+void RaceFlag_ResetTextAnim(void);
+void RaceFlag_DrawLoadingString(void);
+void RaceFlag_DrawSelf(void);
 
 // RECTMENU
 void RECTMENU_DrawOuterRect_Edge(RECT *r, u32 rgb, u32 param_3, u_long *otMem);
@@ -944,7 +943,7 @@ struct Scrub *VehAfterColl_GetSurface(u32 scrubId);
 // VehInit
 
 // VehBirth_TeleportSelf()
-void VehBirth_TeleportAll(struct GameTracker *gGT, int flag);
+void VehBirth_TeleportAll(struct GameTracker *gGT, u32 spawnFlags);
 // VehBirth_GetModelByName()
 void VehBirth_SetConsts(struct Driver *driver);
 // VehBirth_EngineAudio_AllPlayers()
@@ -956,7 +955,7 @@ struct Driver *VehBirth_Player(int index);
 
 int VehCalc_InterpBySpeed(int currentRot, int rotSpeed, int destinedRot);
 int VehCalc_MapToRange(int param_1, int param_2, int param_3, int param_4, int param_5);
-int VehCalc_SteerAccel(int param_1, int param_2, int param_3, u32 param_4, u32 param_5, u32 param_6);
+int VehCalc_SteerAccel(int param_1, int param_2, int param_3, int param_4, int param_5, int param_6);
 // VehCalc_FastSqrt()
 
 // VehParticle
@@ -987,7 +986,7 @@ int VehPhysCrash_BounceSelf(s16 *normal, Vec3 *origin, Vec3 *vel, int boolOtherD
 void VehPhysCrash_AI(struct Driver *bot, Vec3 *vel);
 int VehPhysCrash_Attack(struct Driver *driver1, struct Driver *driver2, int canPlayFeedback, int boolPlayBubblePop);
 void VehPhysCrash_AnyTwoCars(struct Thread *thread, u16 *searchWords, Vec3 *selfVel);
-void VehPhysForce_ConvertSpeedToVec(struct Driver *d, Vec3 *vel);
+void VehPhysForce_ConvertSpeedToVecOut(struct Driver *d, Vec3 *vel);
 // VehPhysForce_OnGravity()
 void VehPhysForce_OnApplyForces(struct Thread *t, struct Driver *d);
 void VehPhysForce_CollideDrivers(struct Thread *t, struct Driver *d);
@@ -1044,22 +1043,17 @@ void VehPhysProc_SpinStop_Init(struct Thread *t, struct Driver *d);
 
 // Weapon (?)
 
-// VehPickupItem_MaskBoolGoodGuy()
-
-
-// void* VehPickupItem_MaskUseWeapon(int param_1,int param_2); //old signature
-struct MaskHeadWeapon *VehPickupItem_MaskUseWeapon(struct Driver *driver, int boolPlaySound); // yoinked DECOMP_ signature
-
-
-// VehPickupItem_MissileGetTargetDriver()
-// VehPickupItem_PotionThrow()
-// VehPickupItem_ShootNow()
-void VehPickupItem_ShootOnCirclePress(struct Driver *driver);
+int VehPickupItem_MaskBoolGoodGuy(struct Driver *d);
+struct MaskHeadWeapon *VehPickupItem_MaskUseWeapon(struct Driver *driver, int boolPlaySound);
+struct Driver *VehPickupItem_MissileGetTargetDriver(struct Driver *driver);
+u32 VehPickupItem_PotionThrow(struct MineWeapon *mine, struct Instance *inst, u32 flags);
+void VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags);
+void VehPickupItem_ShootOnCirclePress(struct Driver *d);
 
 // More VehPtr
 
 void VehStuckProc_MaskGrab_FindDestPos(struct Driver *d, struct QuadBlock *quad);
-void VehStuckProc_MaskGrab_Particles(struct Thread *t, struct Driver *d);
+void VehStuckProc_MaskGrab_Particles(struct Driver *d);
 void VehStuckProc_MaskGrab_Update(struct Thread *t, struct Driver *d);
 void VehStuckProc_MaskGrab_PhysLinear(struct Thread *t, struct Driver *d);
 void VehStuckProc_MaskGrab_Animate(struct Thread *t, struct Driver *d);
@@ -1290,7 +1284,6 @@ int howl_VolumeGet(int type);
 void SelectProfile_GetTrackID();
 void SelectProfile_PrintInteger(int integer, s16 posX, s16 posY, s16 fmt, u16 flags);
 void Vector_SpecLightSpin2D(struct Instance *, s16 *, s16 *); // guessed about the signature
-void *MEMPACK_AllocHighMem(int allocSize);
 char *CS_Credits_GetNextString(char *);
 void CS_Credits_DestroyCreditGhost();
 void CdSetDebug(int);
@@ -1319,7 +1312,6 @@ void SpuSetReverbModeParam(SpuReverbAttr *);
 void SpuSetCommonCDMix(int);
 void SpuSetVoiceADSRAttr(int, int, int, int, int, int, int, int, int);
 int SpuSetReverbVoice(int, int);
-void Voiceline_Update();
 void Level_AmbientSound();
 void OtherFX_RecycleNew(u32 *soundID_Count, u32 newSoundID, u32 modifyFlags);
 void LOAD_Hub_ReadFile(int bigfilePtr, int levID, int packID);

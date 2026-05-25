@@ -2,7 +2,7 @@
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002e46c-0x8002e4c0
 // after "FINAL LAP!" is done
-void DECOMP_Music_RaiseVolume(void)
+void Music_RaiseVolume(void)
 {
 	u32 setVolume;
 
@@ -17,6 +17,6 @@ void DECOMP_Music_RaiseVolume(void)
 			setVolume = 190;
 		}
 
-		DECOMP_CseqMusic_ChangeVolume(sdata->cseqHighestIndex & 0xffff, setVolume, 8);
+		CseqMusic_ChangeVolume(sdata->cseqHighestIndex & 0xffff, setVolume, 8);
 	}
 }

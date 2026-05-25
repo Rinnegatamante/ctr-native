@@ -5,7 +5,7 @@ void PsyX_SPUAL_StopXA(void);
 #endif
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8001cf98-0x8001cfec.
-void DECOMP_CDSYS_XAPauseRequest()
+void CDSYS_XAPauseRequest()
 {
 	if (sdata->boolUseDisc == 0)
 	{

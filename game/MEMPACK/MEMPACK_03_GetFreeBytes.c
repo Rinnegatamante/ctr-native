@@ -1,6 +1,6 @@
 #include <common.h>
 
-int DECOMP_MEMPACK_GetFreeBytes()
+int MEMPACK_GetFreeBytes()
 {
 	struct Mempack *ptrMempack;
 

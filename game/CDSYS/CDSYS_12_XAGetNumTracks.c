@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8001cbe0-0x8001cc18.
-int DECOMP_CDSYS_XAGetNumTracks(int categoryID)
+int CDSYS_XAGetNumTracks(int categoryID)
 {
 	if (sdata->boolUseDisc == 0)
 		return 0;

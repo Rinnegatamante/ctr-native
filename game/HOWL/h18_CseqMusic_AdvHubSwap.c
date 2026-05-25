@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800290cc-0x800291a0
-void DECOMP_CseqMusic_AdvHubSwap(u16 songId, struct SongSet *songSet, int songSetActiveBits)
+void CseqMusic_AdvHubSwap(u16 songId, struct SongSet *songSet, int songSetActiveBits)
 {
 	struct Song *song;
 	int i;
@@ -13,7 +13,7 @@ void DECOMP_CseqMusic_AdvHubSwap(u16 songId, struct SongSet *songSet, int songSe
 	if (sdata->ptrCseqHeader->numSongs <= songId)
 		return;
 
-	DECOMP_Smart_EnterCriticalSection();
+	Smart_EnterCriticalSection();
 
 	for (i = 0; i < 2; i++)
 	{
@@ -24,11 +24,11 @@ void DECOMP_CseqMusic_AdvHubSwap(u16 songId, struct SongSet *songSet, int songSe
 		{
 			if (song->id == songId)
 			{
-				DECOMP_SongPool_AdvHub2(song, songSet, songSetActiveBits);
+				SongPool_AdvHub2(song, songSet, songSetActiveBits);
 			}
 		}
 	}
 
-	DECOMP_Smart_ExitCriticalSection();
+	Smart_ExitCriticalSection();
 	return;
 }

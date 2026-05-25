@@ -23,7 +23,7 @@ static void MainInit_InitVisMemBspListNodes(struct VisMem *visMem, struct mesh_i
 }
 #endif
 
-void DECOMP_MainInit_VisMem(struct GameTracker *gGT)
+void MainInit_VisMem(struct GameTracker *gGT)
 {
 	struct VisMem *visMem = gGT->level1->visMem;
 	if (visMem == NULL)

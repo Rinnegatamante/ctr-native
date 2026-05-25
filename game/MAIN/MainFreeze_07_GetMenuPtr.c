@@ -3,14 +3,14 @@
 extern int mainFreezeFlags[5];
 extern struct RectMenu *mainFreezeMenuArr[5];
 
-struct RectMenu *DECOMP_MainFreeze_GetMenuPtr(void)
+struct RectMenu *MainFreeze_GetMenuPtr(void)
 {
 	struct GameTracker *gGT = sdata->gGT;
 
 	// Set string to "Uka Uka Hints",
 	// or if boolGoodGuy, then set "Aku Aku Hints"
 	int var1 = 0xc;
-	if (DECOMP_VehPickupItem_MaskBoolGoodGuy(gGT->drivers[0]) != 0)
+	if (VehPickupItem_MaskBoolGoodGuy(gGT->drivers[0]) != 0)
 		var1 = 0xb;
 
 	data.rowsAdvHub[1].stringIndex = var1;

@@ -122,7 +122,7 @@ void DECOMP_VehPhysProc_PowerSlide_PhysAngular(struct Thread *th, struct Driver 
 	}
 
 	// Map "simpTurnState" from [0, const_TurnRate] to [0, driftDirection]
-	iVar13 = DECOMP_VehCalc_MapToRange(iVar13, 0, ((u32)driver->const_TurnRate + ((int)driver->turnConst << 1) / 5) * 0x100, 0, iVar9 << 8);
+	iVar13 = VehCalc_MapToRange(iVar13, 0, ((u32)driver->const_TurnRate + ((int)driver->turnConst << 1) / 5) * 0x100, 0, iVar9 << 8);
 
 	if ((iVar13 < 0) || ((
 	                        // compare two turning rates
@@ -162,7 +162,7 @@ void DECOMP_VehPhysProc_PowerSlide_PhysAngular(struct Thread *th, struct Driver 
 	LAB_80063244:
 
 		// Interpolate by 1 unit, until zero
-		driver->KartStates.Drifting.numFramesDrifting = DECOMP_VehCalc_InterpBySpeed((int)driver->KartStates.Drifting.numFramesDrifting, 1, 0);
+		driver->KartStates.Drifting.numFramesDrifting = VehCalc_InterpBySpeed((int)driver->KartStates.Drifting.numFramesDrifting, 1, 0);
 	}
 
 	// if holding a drift
@@ -194,8 +194,8 @@ void DECOMP_VehPhysProc_PowerSlide_PhysAngular(struct Thread *th, struct Driver 
 
 	// Map value from [oldMin, oldMax] to [newMin, newMax]
 	// inverting newMin and newMax will give an inverse range mapping
-	iVar13 = DECOMP_VehCalc_MapToRange((int)driver->KartStates.Drifting.driftTotalTimeMS, 0, (u32)driver->unk462 << 5,
-	                                   (int)driver->unk461 * (int)driver->multDrift >> 8, iVar15);
+	iVar13 = VehCalc_MapToRange((int)driver->KartStates.Drifting.driftTotalTimeMS, 0, (u32)driver->unk462 << 5,
+	                            (int)driver->unk461 * (int)driver->multDrift >> 8, iVar15);
 	if (-1 < iVar13)
 	{
 		if (iVar12_D < -iVar13)
@@ -222,7 +222,7 @@ LAB_800632cc:
 
 	// Map value from [oldMin, oldMax] to [newMin, newMax]
 	// inverting newMin and newMax will give an inverse range mapping
-	iVar12_D = DECOMP_VehCalc_MapToRange(iVar12_D, 0, (int)driver->unk460 + ((int)driver->turnConst << 2) / 5, 0, (int)driver->unk474);
+	iVar12_D = VehCalc_MapToRange(iVar12_D, 0, (int)driver->unk460 + ((int)driver->turnConst << 2) / 5, 0, (int)driver->unk474);
 
 	iVar15 = iVar9;
 
@@ -249,7 +249,7 @@ LAB_800632cc:
 
 	// Map value from [oldMin, oldMax] to [newMin, newMax]
 	// inverting newMin and newMax will give an inverse range mapping
-	iVar15 = DECOMP_VehCalc_MapToRange(iVar15, 0, iVar11 << 8, 0, iVar8);
+	iVar15 = VehCalc_MapToRange(iVar15, 0, iVar11 << 8, 0, iVar8);
 
 	iVar12_D = (iVar12_D + iVar15) - driver->turnAngleCurr;
 
@@ -333,7 +333,7 @@ LAB_800632cc:
 			absVal_DistortVel = -absVal_DistortVel;
 
 		// move down until zero
-		sVar5 = DECOMP_VehCalc_InterpBySpeed(driver->unk3D4[0], absVal_DistortVel, 0);
+		sVar5 = VehCalc_InterpBySpeed(driver->unk3D4[0], absVal_DistortVel, 0);
 	}
 
 	// frames counting down
@@ -409,10 +409,10 @@ void PhysLerpRot(struct Driver *driver, int iVar13)
 	}
 
 	// Interpolate rotation by speed
-	driver->rotPrev.w = DECOMP_VehCalc_InterpBySpeed((int)driver->rotPrev.w, 8, uVar10);
+	driver->rotPrev.w = VehCalc_InterpBySpeed((int)driver->rotPrev.w, 8, uVar10);
 
 	// Interpolate rotation by speed
-	driver->rotCurr.w = DECOMP_VehCalc_InterpBySpeed((int)driver->rotCurr.w, (int)(driver->rotPrev.w * sdata->gGT->elapsedTimeMS) >> 5, iVar13);
+	driver->rotCurr.w = VehCalc_InterpBySpeed((int)driver->rotCurr.w, (int)(driver->rotPrev.w * sdata->gGT->elapsedTimeMS) >> 5, iVar13);
 }
 
 void PhysTerrainSlope(struct Driver *driver)
@@ -420,6 +420,6 @@ void PhysTerrainSlope(struct Driver *driver)
 #if !defined(REBUILD_PS1) || defined(CTR_NATIVE)
 	VehPhysForce_RotAxisAngle(&driver->matrixMovingDir, &driver->AxisAngle1_normalVec.x, (int)driver->angle);
 	gte_SetRotMatrix(&driver->matrixMovingDir);
-	DECOMP_VehPhysForce_CounterSteer(driver);
+	VehPhysForce_CounterSteer(driver);
 #endif
 }

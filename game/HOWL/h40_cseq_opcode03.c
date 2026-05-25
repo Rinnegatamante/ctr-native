@@ -2,12 +2,12 @@
 
 // "end of song" opcode
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80029f24-0x80029f78
-void DECOMP_cseq_opcode03(struct SongSeq *seq)
+void cseq_opcode03(struct SongSeq *seq)
 {
 	// if song does not loop
 	if ((seq->flags & 2) == 0)
 	{
-		DECOMP_SongPool_StopAllCseq(&sdata->songPool[seq->songPoolIndex]);
+		SongPool_StopAllCseq(&sdata->songPool[seq->songPoolIndex]);
 	}
 
 	// if song loops
@@ -19,7 +19,7 @@ void DECOMP_cseq_opcode03(struct SongSeq *seq)
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80029f78-0x80029f80
-void DECOMP_cseq_opcode04_empty(struct SongSeq *seq)
+void cseq_opcode04_empty(struct SongSeq *seq)
 {
 	// left empty by ND
 }

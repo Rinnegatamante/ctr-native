@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8001861c-0x80018818
-void DECOMP_CAM_ClearScreen(struct GameTracker *gGT)
+void CAM_ClearScreen(struct GameTracker *gGT)
 {
 	char numPlyr;
 	char swap;

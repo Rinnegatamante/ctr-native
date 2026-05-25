@@ -228,8 +228,8 @@ static void VehEmitter_TerrainAudioAndFeedback(struct Thread *thread, struct Dri
 	if (((d->actionsFlagSet & 1) != 0) && ((terrainFlags & 0x20) == 0))
 		soundID = terrain->sound;
 
-	int vol = DECOMP_VehCalc_MapToRange(absSpeedApprox, 0, 5000, 0, 200);
-	int distort = DECOMP_VehCalc_MapToRange(absSpeedApprox, 0, 12000, 0x6c, 0xd2) << 8;
+	int vol = VehCalc_MapToRange(absSpeedApprox, 0, 5000, 0, 200);
+	int distort = VehCalc_MapToRange(absSpeedApprox, 0, 12000, 0x6c, 0xd2) << 8;
 
 	if ((d->actionsFlagSet & 0x10000) != 0)
 		distort |= 0x1000000;
@@ -240,8 +240,8 @@ static void VehEmitter_TerrainAudioAndFeedback(struct Thread *thread, struct Dri
 	{
 		if (absSpeedApprox > 0x200)
 		{
-			DECOMP_GAMEPAD_ShockFreq(d, terrain->vibrationData[0], terrain->vibrationData[1]);
-			DECOMP_GAMEPAD_ShockForce2(d, terrain->vibrationData[2], terrain->vibrationData[3]);
+			GAMEPAD_ShockFreq(d, terrain->vibrationData[0], terrain->vibrationData[1]);
+			GAMEPAD_ShockForce2(d, terrain->vibrationData[2], terrain->vibrationData[3]);
 		}
 
 		if ((d->actionsFlagSet & 2) != 0)
@@ -251,7 +251,7 @@ static void VehEmitter_TerrainAudioAndFeedback(struct Thread *thread, struct Dri
 				absJump = -absJump;
 
 			if (absJump > 0x1600)
-				DECOMP_GAMEPAD_ShockForce1(d, 3, 0xff);
+				GAMEPAD_ShockForce1(d, 3, 0xff);
 		}
 	}
 }
@@ -274,8 +274,8 @@ static void VehEmitter_SkidmarkAudio(struct Thread *thread, struct Driver *d, st
 		if (absTurn < 0)
 			absTurn = -absTurn;
 
-		int vol = DECOMP_VehCalc_MapToRange(absSpeedApprox, 2000, 12000, 0x14, 0xaa);
-		int distort = DECOMP_VehCalc_MapToRange(absSpeedApprox, 2000, 12000, 0x92, 0x78);
+		int vol = VehCalc_MapToRange(absSpeedApprox, 2000, 12000, 0x14, 0xaa);
+		int distort = VehCalc_MapToRange(absSpeedApprox, 2000, 12000, 0x92, 0x78);
 
 		if (d->kartState == KS_DRIFTING)
 		{
@@ -416,13 +416,13 @@ void VehEmitter_DriverMain(struct Thread *thread, struct Driver *d)
 
 	if ((((u32)(u8)d->kartState - 4) < 2) || ((d->actionsFlagSet & 1) != 0))
 	{
-		DECOMP_GAMEPAD_JogCon2(d, 0x27, 0);
+		GAMEPAD_JogCon2(d, 0x27, 0);
 
 		if (d->unk3D4[0] == 0)
 			return;
 
 		int jogValue = ((sdata->gGT->timer & 3) == 0) ? 0x27 : 0xf0;
-		DECOMP_GAMEPAD_JogCon2(d, jogValue, 0x100);
+		GAMEPAD_JogCon2(d, jogValue, 0x100);
 		return;
 	}
 
@@ -431,13 +431,8 @@ void VehEmitter_DriverMain(struct Thread *thread, struct Driver *d)
 		int jogValue = 0x12;
 
 		if ((d->simpTurnState < 0) || ((jogValue = 0x22), (d->simpTurnState > 0)))
-			DECOMP_GAMEPAD_JogCon1(d, jogValue, 0x20);
+			GAMEPAD_JogCon1(d, jogValue, 0x20);
 	}
 
-	DECOMP_GAMEPAD_JogCon2(d, 0, 0);
-}
-
-void DECOMP_VehEmitter_DriverMain(struct Thread *thread, struct Driver *d)
-{
-	VehEmitter_DriverMain(thread, d);
+	GAMEPAD_JogCon2(d, 0, 0);
 }

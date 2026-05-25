@@ -13,7 +13,7 @@ void VehFrameProc_LastSpin(struct Thread *t, struct Driver *d)
 		return;
 	}
 
-	numFrames = DECOMP_VehFrameInst_GetNumAnimFrames(inst, 0);
+	numFrames = VehFrameInst_GetNumAnimFrames(inst, 0);
 	if (numFrames <= 0)
 	{
 		return;
@@ -34,10 +34,5 @@ void VehFrameProc_LastSpin(struct Thread *t, struct Driver *d)
 		targetFrame = 0;
 	}
 
-	inst->animFrame = DECOMP_VehCalc_InterpBySpeed(inst->animFrame, 3, targetFrame);
-}
-
-void DECOMP_VehFrameProc_LastSpin(struct Thread *t, struct Driver *d)
-{
-	VehFrameProc_LastSpin(t, d);
+	inst->animFrame = VehCalc_InterpBySpeed(inst->animFrame, 3, targetFrame);
 }

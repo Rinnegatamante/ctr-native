@@ -1,7 +1,7 @@
 #include <common.h>
 
-void DECOMP_DecalHUD_Arrow2D(struct Icon *icon, s16 posX, s16 posY, struct PrimMem *primMem, u_long *otMemPtr, u32 color1, u32 color2, u32 color3, u32 color4,
-                             char transparency, int scale, u16 rot)
+void DecalHUD_Arrow2D(struct Icon *icon, s16 posX, s16 posY, struct PrimMem *primMem, u_long *otMemPtr, u32 color1, u32 color2, u32 color3, u32 color4,
+                      char transparency, int scale, u16 rot)
 {
 	u8 y2;
 	u32 code;

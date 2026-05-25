@@ -1,6 +1,6 @@
 #include <common.h>
 
-int DECOMP_VehCalc_InterpBySpeed(int val, int speed, int desired)
+int VehCalc_InterpBySpeed(int val, int speed, int desired)
 {
 	if (val > desired)
 	{

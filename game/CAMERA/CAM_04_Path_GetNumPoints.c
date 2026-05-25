@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80018b18-0x80018ba0
-int DECOMP_CAM_Path_GetNumPoints(void)
+int CAM_Path_GetNumPoints(void)
 {
 	struct GameTracker *gGT;
 	struct Level *level1;

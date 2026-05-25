@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80034b48-0x80034bbc.
-void DECOMP_MainFrame_TogglePauseAudio(int bool_pause)
+void MainFrame_TogglePauseAudio(int bool_pause)
 {
 	if (bool_pause == 0)
 	{

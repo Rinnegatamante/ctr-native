@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_LibraryOfModels_Store(struct GameTracker *gGT, u32 numModels, struct Model **ptrModelArray)
+void LibraryOfModels_Store(struct GameTracker *gGT, u32 numModels, struct Model **ptrModelArray)
 {
 	while (numModels != 0)
 	{

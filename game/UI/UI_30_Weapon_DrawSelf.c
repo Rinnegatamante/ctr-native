@@ -131,7 +131,7 @@ void DECOMP_UI_Weapon_DrawSelf(s16 posX, s16 posY, s16 scale, struct Driver *d)
 		posY = posXY[1];
 	}
 
-	DECOMP_DecalHUD_DrawWeapon(
+	DecalHUD_DrawWeapon(
 	    // pointer to icon, from array of icon pointers
 	    gGT->ptrIcons[iconID],
 

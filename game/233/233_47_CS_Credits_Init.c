@@ -107,7 +107,7 @@ void DECOMP_CS_Credits_Init(void)
 
 	creditsBSS.dancerInst_invisible = NULL;
 
-	creditsDst = DECOMP_MEMPACK_AllocHighMem(CLH->size /* "credits strings" */);
+	creditsDst = MEMPACK_AllocHighMem(CLH->size /* "credits strings" */);
 
 	memcpy(creditsDst, CLH, CLH->size);
 

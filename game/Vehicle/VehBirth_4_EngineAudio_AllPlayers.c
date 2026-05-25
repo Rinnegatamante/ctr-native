@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80058ba4-0x80058c44.
-void DECOMP_VehBirth_EngineAudio_AllPlayers(void)
+void VehBirth_EngineAudio_AllPlayers(void)
 {
 	struct Thread *th;
 	struct GameTracker *gGT;

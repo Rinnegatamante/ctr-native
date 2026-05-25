@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_LevInstDef_UnPack(struct mesh_info *ptr_mesh_info)
+void LevInstDef_UnPack(struct mesh_info *ptr_mesh_info)
 {
 	int i;
 	int numQuadBlock;

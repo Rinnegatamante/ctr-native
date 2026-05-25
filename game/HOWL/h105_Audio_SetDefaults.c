@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002dc4c-0x8002dcac
-void DECOMP_Audio_SetDefaults(void)
+void Audio_SetDefaults(void)
 {
 	sdata->audioDefaults[0] = 0;
 	sdata->audioDefaults[1] = 0;

@@ -54,7 +54,7 @@ void DECOMP_AH_SaveObj_ThTick(struct Thread *t)
 		if ((sdata->advProgress.rewards[3] & 0x10000000) == 0)
 		{
 			// Aku Hint "This is the load/save screen..."
-			DECOMP_MainFrame_RequestMaskHint(6, 0);
+			MainFrame_RequestMaskHint(6, 0);
 		}
 
 		if ((driver->speed < 0x80) &&
@@ -86,11 +86,11 @@ void DECOMP_AH_SaveObj_ThTick(struct Thread *t)
 				desiredRot[2] = gGT->level1->ptrSpawnType2_PosRot->posCoords[5] + D232.saveObjCameraOffset[2];
 
 				// VehBirth_NullThread is an empty function that does nothing
-				driver->instSelf->thread->funcThTick = DECOMP_VehBirth_NullThread;
+				driver->instSelf->thread->funcThTick = VehBirth_NullThread;
 
 				// Set CameraDC's desired position and rotation,
 				// then begin the transition by setting flag
-				DECOMP_CAM_SetDesiredPosRot(&gGT->cameraDC[0], (s16 *)&desiredPos, (s16 *)&desiredRot);
+				CAM_SetDesiredPosRot(&gGT->cameraDC[0], (s16 *)&desiredPos, (s16 *)&desiredRot);
 
 #ifndef REBUILD_PS1
 				GAMEPAD_JogCon2(driver, 0, 0);
@@ -208,7 +208,7 @@ LAB_800af72c:
 				//	[300, 6000] (close, far)
 				// to volume
 				//	[0xff, 0] (loud, soft)
-				uVar6 = DECOMP_VehCalc_MapToRange(iVar7, 300, 6000, 0xff, 0);
+				uVar6 = VehCalc_MapToRange(iVar7, 300, 6000, 0xff, 0);
 			}
 
 			// Play save/load screen sound

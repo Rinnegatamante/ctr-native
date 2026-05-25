@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8001c360-0x8001c420.
-int DECOMP_CDSYS_Init(int boolUseDisc)
+int CDSYS_Init(int boolUseDisc)
 {
 	sdata->boolUseDisc = boolUseDisc;
 
@@ -52,10 +52,10 @@ int DECOMP_CDSYS_Init(int boolUseDisc)
 	sdata->XA_CurrPos = 0;
 	sdata->XA_PauseFrame = 0;
 
-	DECOMP_CDSYS_SetMode_StreamData();
+	CDSYS_SetMode_StreamData();
 
 	// 1 - English
-	DECOMP_CDSYS_SetXAToLang(1);
+	CDSYS_SetXAToLang(1);
 
 	Voiceline_PoolClear();
 

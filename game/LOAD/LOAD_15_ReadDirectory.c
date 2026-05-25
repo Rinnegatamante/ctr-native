@@ -6,12 +6,12 @@ void *DECOMP_LOAD_ReadDirectory(char *filename)
 	CdlFILE cdlFile;
 	char buf[8];
 
-	DECOMP_CDSYS_SetMode_StreamData();
+	CDSYS_SetMode_StreamData();
 
 	if (CdSearchFile(&cdlFile, filename) == NULL)
 		return NULL;
 
-	struct BigHeader *bh = DECOMP_MEMPACK_AllocMem(0x4000 /*, filename*/);
+	struct BigHeader *bh = MEMPACK_AllocMem(0x4000 /*, filename*/);
 
 	// Search for file on disc
 	// Set Cd laser to file position
@@ -28,7 +28,7 @@ void *DECOMP_LOAD_ReadDirectory(char *filename)
 	bh->cdpos = CdPosToInt(&cdlFile.pos);
 
 	// undo allocation of 0x4000, only use "needed" size
-	DECOMP_MEMPACK_ReallocMem(sizeof(struct BigHeader) + sizeof(struct BigEntry) * bh->numEntry);
+	MEMPACK_ReallocMem(sizeof(struct BigHeader) + sizeof(struct BigEntry) * bh->numEntry);
 
 	sdata->ptrBigfileCdPos_2 = bh;
 	return bh;

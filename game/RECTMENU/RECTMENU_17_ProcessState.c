@@ -77,9 +77,9 @@ void DECOMP_RECTMENU_ProcessState()
 	// not sure what this is
 	if ((state & 0x800) == 0)
 	{
-		if (DECOMP_RaceFlag_GetCanDraw() == 0)
+		if (RaceFlag_GetCanDraw() == 0)
 		{
-			DECOMP_RaceFlag_SetCanDraw(1);
+			RaceFlag_SetCanDraw(1);
 		}
 
 		sdata->gGT->renderFlags |= 0x20;

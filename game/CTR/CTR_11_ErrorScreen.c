@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_CTR_ErrorScreen(char r, char g, char b)
+void CTR_ErrorScreen(char r, char g, char b)
 {
 	TILE p;
 	int i;
@@ -15,7 +15,7 @@ void DECOMP_CTR_ErrorScreen(char r, char g, char b)
 	{
 		DrawSync(0);
 		VSync(0);
-		DECOMP_DISPLAY_Swap();
+		DISPLAY_Swap();
 
 		// save a little asm
 		if (i == 2)

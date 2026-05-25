@@ -16,5 +16,5 @@ void Voiceline_PoolClear(void)
 	// put them all on free list
 	LIST_Init(&sdata->Voiceline1, (struct Item *)&sdata->voicelinePool[0].next, 0x10, 8);
 
-	DECOMP_Voiceline_ClearTimeStamp();
+	Voiceline_ClearTimeStamp();
 }

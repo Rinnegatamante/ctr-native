@@ -130,14 +130,14 @@ void DECOMP_RB_Plant_ThTick_Eat(struct Thread *t)
 
 					particle->axis[0].velocity += (
 					                                  // 6 - 26
-					                                  (((DECOMP_MixRNG_Scramble() % 10) + 0x10) * plantInst->matrix.m[0][2]) >> 0xC) *
+					                                  (((MixRNG_Scramble() % 10) + 0x10) * plantInst->matrix.m[0][2]) >> 0xC) *
 					                              0x100;
 
 					// axis[1].velocity is untouched
 
 					particle->axis[2].velocity += (
 					                                  // 6 - 26
-					                                  (((DECOMP_MixRNG_Scramble() % 10) + 0x10) * plantInst->matrix.m[2][2]) >> 0xC) *
+					                                  (((MixRNG_Scramble() % 10) + 0x10) * plantInst->matrix.m[2][2]) >> 0xC) *
 					                              0x100;
 				}
 			}
@@ -180,7 +180,7 @@ void DECOMP_RB_Plant_ThTick_Grab(struct Thread *t)
 			plantInst->animFrame = plantInst->animFrame + 1;
 
 			plantBoxDescLocal.bucket = gGT->threadBuckets[MINE].thread;
-			hitInst = DECOMP_LinkedCollide_Hitbox(&plantBoxDescLocal);
+			hitInst = LinkedCollide_Hitbox(&plantBoxDescLocal);
 
 			if (hitInst != 0)
 			{
@@ -291,7 +291,7 @@ void DECOMP_RB_Plant_ThTick_Hungry(struct Thread *t)
 	plantBoxDescLocal.thread = t;
 
 	plantBoxDescLocal.bucket = gGT->threadBuckets[PLAYER].thread;
-	hitInst = DECOMP_LinkedCollide_Hitbox(&plantBoxDescLocal);
+	hitInst = LinkedCollide_Hitbox(&plantBoxDescLocal);
 
 	if (hitInst != 0)
 	{
@@ -328,7 +328,7 @@ void DECOMP_RB_Plant_ThTick_Hungry(struct Thread *t)
 		return;
 
 	plantBoxDescLocal.bucket = gGT->threadBuckets[ROBOT].thread;
-	hitInst = DECOMP_LinkedCollide_Hitbox(&plantBoxDescLocal);
+	hitInst = LinkedCollide_Hitbox(&plantBoxDescLocal);
 
 	if (hitInst != 0)
 	{

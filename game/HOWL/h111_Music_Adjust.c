@@ -5,7 +5,7 @@
 // param_2 - deltaBPM
 // param_3 - 8008d068 for AdvHub
 // param_4 - songSetActiveBits
-void DECOMP_Music_Adjust(u32 songID, int newTempo, struct SongSet *set, u32 songSetActiveBits)
+void Music_Adjust(u32 songID, int newTempo, struct SongSet *set, u32 songSetActiveBits)
 {
 	songID &= 0xffff;
 
@@ -17,13 +17,13 @@ void DECOMP_Music_Adjust(u32 songID, int newTempo, struct SongSet *set, u32 song
 			// if tempo has changed
 			if (sdata->cseqTempo != newTempo)
 			{
-				DECOMP_CseqMusic_ChangeTempo(sdata->cseqHighestIndex, newTempo);
+				CseqMusic_ChangeTempo(sdata->cseqHighestIndex, newTempo);
 				sdata->cseqTempo = newTempo;
 			}
 		}
 		else
 		{
-			DECOMP_CseqMusic_Stop(sdata->cseqHighestIndex);
+			CseqMusic_Stop(sdata->cseqHighestIndex);
 		}
 	}
 
@@ -31,7 +31,7 @@ void DECOMP_Music_Adjust(u32 songID, int newTempo, struct SongSet *set, u32 song
 	if (sdata->cseqHighestIndex != songID)
 	{
 		//  (loopAtEnd)
-		DECOMP_CseqMusic_Start(songID, newTempo, set, songSetActiveBits, 1);
+		CseqMusic_Start(songID, newTempo, set, songSetActiveBits, 1);
 
 		sdata->cseqBoolPlay = true;
 

@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8001ca98-0x8001cbe0.
-void DECOMP_CDSYS_SpuGetMaxSample(void)
+void CDSYS_SpuGetMaxSample(void)
 {
 	s16 sample;
 	s16 max;

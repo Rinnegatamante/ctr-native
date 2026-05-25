@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8001c7a4-0x8001c7fc.
-void DECOMP_CDSYS_XaCallbackCdSync(CdlIntrResult result, u8 *unk) //+unk to adhere to *CdlCB
+void CDSYS_XaCallbackCdSync(CdlIntrResult result, u8 *unk) //+unk to adhere to *CdlCB
 {
 	u8 com;
 

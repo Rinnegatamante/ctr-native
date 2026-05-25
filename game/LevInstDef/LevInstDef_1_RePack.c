@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_LevInstDef_RePack(struct mesh_info *ptr_mesh_info, int boolAdvHub)
+void LevInstDef_RePack(struct mesh_info *ptr_mesh_info, int boolAdvHub)
 {
 	int i;
 	int numQuadBlock;

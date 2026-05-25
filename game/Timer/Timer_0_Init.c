@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_Timer_Init()
+void Timer_Init()
 {
 	EnterCriticalSection();
 	StopRCnt(DescRC + 1);

@@ -2,7 +2,7 @@
 
 // Initialize car engine audio system for one driver
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80028880-0x800289b0
-char DECOMP_EngineAudio_InitOnce(u32 soundID, u32 flags)
+char EngineAudio_InitOnce(u32 soundID, u32 flags)
 
 {
 	struct EngineFX *ptrEngineFX;
@@ -29,9 +29,9 @@ char DECOMP_EngineAudio_InitOnce(u32 soundID, u32 flags)
 	// make ChannelAttr from howl pointer somehow
 	DECOMP_howl_InitChannelAttr_EngineFX(ptrEngineFX, &channelAttr, volume, LR, distortion);
 
-	DECOMP_Smart_EnterCriticalSection();
+	Smart_EnterCriticalSection();
 
-	channel = DECOMP_Channel_AllocSlot(0x7c, &channelAttr);
+	channel = Channel_AllocSlot(0x7c, &channelAttr);
 
 	// if channel was found
 	if (channel != 0)
@@ -48,12 +48,7 @@ char DECOMP_EngineAudio_InitOnce(u32 soundID, u32 flags)
 		channel->flags |= 4;
 	}
 
-	DECOMP_Smart_ExitCriticalSection();
+	Smart_ExitCriticalSection();
 
 	return (channel != 0);
-}
-
-char EngineAudio_InitOnce(u32 soundID, u32 flags)
-{
-	return DECOMP_EngineAudio_InitOnce(soundID, flags);
 }

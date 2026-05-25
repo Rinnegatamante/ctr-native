@@ -2,7 +2,7 @@
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80064c38-0x80064f94.
 // boolPlaySound only gates sound when refreshing an existing mask object.
-struct MaskHeadWeapon *DECOMP_VehPickupItem_MaskUseWeapon(struct Driver *driver, int boolPlaySound)
+struct MaskHeadWeapon *VehPickupItem_MaskUseWeapon(struct Driver *driver, int boolPlaySound)
 
 {
 	struct Thread *currThread;
@@ -59,7 +59,7 @@ struct MaskHeadWeapon *DECOMP_VehPickupItem_MaskUseWeapon(struct Driver *driver,
 		return (struct MaskHeadWeapon *)currThread->object;
 	}
 
-	int boolGoodGuy = DECOMP_VehPickupItem_MaskBoolGoodGuy(driver);
+	int boolGoodGuy = VehPickupItem_MaskBoolGoodGuy(driver);
 
 	int modelID = STATIC_UKAUKA - boolGoodGuy;
 

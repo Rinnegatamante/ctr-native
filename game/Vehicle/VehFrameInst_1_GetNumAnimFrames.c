@@ -24,8 +24,3 @@ u32 VehFrameInst_GetNumAnimFrames(struct Instance *inst, int animIndex)
 
 	return anim->numFrames & 0x7fff;
 }
-
-u32 DECOMP_VehFrameInst_GetNumAnimFrames(struct Instance *inst, int animIndex)
-{
-	return VehFrameInst_GetNumAnimFrames(inst, animIndex);
-}

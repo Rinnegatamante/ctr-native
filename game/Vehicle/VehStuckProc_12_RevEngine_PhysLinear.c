@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80067a74-0x80067b7c.
-void DECOMP_VehStuckProc_RevEngine_PhysLinear(struct Thread *t, struct Driver *d)
+void VehStuckProc_RevEngine_PhysLinear(struct Thread *t, struct Driver *d)
 {
 	u32 unkTimer;
 

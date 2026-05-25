@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8001ca64-0x8001ca98.
-void DECOMP_CDSYS_SpuDisableIRQ()
+void CDSYS_SpuDisableIRQ()
 {
 	SpuSetIRQ(0);
 	SpuSetIRQCallback(0);

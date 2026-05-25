@@ -8,5 +8,5 @@ void CS_Credits_DestroyCreditGhost(void)
 		DECOMP_INSTANCE_Death(creditsBSS.creditsObj.creditGhostInst[i]);
 	}
 
-	DECOMP_MEMPACK_ClearHighMem();
+	MEMPACK_ClearHighMem();
 }

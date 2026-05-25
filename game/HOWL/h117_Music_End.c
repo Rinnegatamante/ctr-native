@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002e53c-0x8002e550
-void DECOMP_Music_End(void)
+void Music_End(void)
 {
 	sdata->cseqBoolPlay = false;
 

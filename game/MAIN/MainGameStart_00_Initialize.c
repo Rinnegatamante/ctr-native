@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8003aee8-0x8003af84
-void DECOMP_MainGameStart_Initialize(struct GameTracker *gGT, char boolStopAudio)
+void MainGameStart_Initialize(struct GameTracker *gGT, char boolStopAudio)
 {
 	u32 gameModeFlag;
 
@@ -37,7 +37,7 @@ void DECOMP_MainGameStart_Initialize(struct GameTracker *gGT, char boolStopAudio
 	// this never happens in normal gameplay
 	if (boolStopAudio == 0)
 	{
-		DECOMP_Music_Stop();
+		Music_Stop();
 
 		// stops menu sounds
 		// keep backup,
@@ -46,5 +46,5 @@ void DECOMP_MainGameStart_Initialize(struct GameTracker *gGT, char boolStopAudio
 		DECOMP_howl_StopAudio(0, 0, 1);
 	}
 
-	DECOMP_VehBirth_TeleportAll(gGT, 2);
+	VehBirth_TeleportAll(gGT, 2);
 }

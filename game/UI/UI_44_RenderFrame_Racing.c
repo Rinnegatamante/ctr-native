@@ -1,7 +1,7 @@
 #include <common.h>
 
 // To do: add a header
-void DECOMP_AA_EndEvent_DisplayTimeAA_EndEvent_DisplayTime(u16, s16);
+void AA_EndEvent_DisplayTime(s16, s16);
 
 void DECOMP_UI_RenderFrame_Racing()
 {
@@ -271,15 +271,15 @@ void DECOMP_UI_RenderFrame_Racing()
 					struct Icon **iconPtrArray = ICONGROUP_GETICONS(gGT->iconGroup[0xB]);
 
 					// "wumpaposter" icon group
-					DECOMP_DecalHUD_DrawPolyFT4(iconPtrArray[0], (int)wumpaModel_Pos[0], (int)wumpaModel_Pos[1],
+					DecalHUD_DrawPolyFT4(iconPtrArray[0], (int)wumpaModel_Pos[0], (int)wumpaModel_Pos[1],
 
-					                            // pointer to PrimMem struct
-					                            &gGT->backBuffer->primMem,
+					                     // pointer to PrimMem struct
+					                     &gGT->backBuffer->primMem,
 
-					                            // pointer to OT memory
-					                            gGT->pushBuffer_UI.ptrOT,
+					                     // pointer to OT memory
+					                     gGT->pushBuffer_UI.ptrOT,
 
-					                            0, hudStructPtr[0].scale);
+					                     0, hudStructPtr[0].scale);
 				}
 
 				if (playerStruct->PickupLetterHUD.cooldown != 0)
@@ -432,7 +432,7 @@ void DECOMP_UI_RenderFrame_Racing()
 			    // racer finished the race
 			    ((playerStruct->actionsFlagSet & 0x2000000) != 0))
 			{
-				DECOMP_AA_EndEvent_DisplayTime((u32)playerStruct->driverID, 0);
+				AA_EndEvent_DisplayTime((u32)playerStruct->driverID, 0);
 			}
 #endif
 
@@ -481,7 +481,7 @@ void DECOMP_UI_RenderFrame_Racing()
 
 				LAB_80053aec:
 
-					DECOMP_DecalHUD_DrawPolyGT4(
+					DecalHUD_DrawPolyGT4(
 					    // icon pointer
 					    iconPtr,
 

@@ -1,6 +1,6 @@
 #include <common.h>
 
-int DECOMP_RaceFlag_MoveModels(int frameIndex, int numFrames)
+int RaceFlag_MoveModels(int frameIndex, int numFrames)
 {
 	// need a better prefix than TitleFlag,
 	// all this does is move the intro logo models

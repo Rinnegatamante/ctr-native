@@ -18,7 +18,7 @@ void DECOMP_LOAD_Hub_SwapNow()
 	// ptrintf("gGT->level2 = 0x%08x\n",gGT->level2);
 	// ptrintf("SWAPPING 1...\n");
 
-	DECOMP_LevInstDef_RePack(gGT->level1->ptr_mesh_info, 1);
+	LevInstDef_RePack(gGT->level1->ptr_mesh_info, 1);
 
 	// Aug 5
 	// ptrintf("SWAPPING 2...\n");
@@ -38,7 +38,7 @@ void DECOMP_LOAD_Hub_SwapNow()
 	// Aug 5
 	// ptrintf("SWAPPING 3...\n");
 
-	DECOMP_LibraryOfModels_Clear(gGT);
+	LibraryOfModels_Clear(gGT);
 
 	/*
 	In Aug 5
@@ -65,13 +65,13 @@ void DECOMP_LOAD_Hub_SwapNow()
 
 	if (level1 != 0)
 	{
-		DECOMP_LibraryOfModels_Store(gGT, level1->numModels, (int *)level1->ptrModelsPtrArray);
+		LibraryOfModels_Store(gGT, level1->numModels, (int *)level1->ptrModelsPtrArray);
 
 		DECOMP_INSTANCE_LevInitAll(level1->ptrInstDefs, level1->numInstances);
 
-		DECOMP_LevInstDef_UnPack(level1->ptr_mesh_info);
+		LevInstDef_UnPack(level1->ptr_mesh_info);
 
-		DECOMP_DecalGlobal_Store(gGT, (struct Icon *)level1->levTexLookup); // 2nd param might be `level1->levTexLookup->firstIcon`
+		DecalGlobal_Store(gGT, (struct Icon *)level1->levTexLookup); // 2nd param might be `level1->levTexLookup->firstIcon`
 	}
 
 	cDC = &gGT->cameraDC[0];

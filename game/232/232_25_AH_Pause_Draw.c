@@ -34,22 +34,22 @@ void DECOMP_AH_Pause_Draw(int pageID, int posX)
 	struct Icon **iconPtrArray = ICONGROUP_GETICONS(gGT->iconGroup[4]);
 
 	// Draw arrow pointing Left
-	DECOMP_DecalHUD_Arrow2D(iconPtrArray[0x38], (posX - half) + 0xec, 0x16,
+	DecalHUD_Arrow2D(iconPtrArray[0x38], (posX - half) + 0xec, 0x16,
 
-	                        primMem, gGT->pushBuffer_UI.ptrOT,
+	                 primMem, gGT->pushBuffer_UI.ptrOT,
 
-	                        ptrColor[0], ptrColor[1], ptrColor[2], ptrColor[3],
+	                 ptrColor[0], ptrColor[1], ptrColor[2], ptrColor[3],
 
-	                        0, 0x1000, 0x800);
+	                 0, 0x1000, 0x800);
 
 	// Draw arrow pointing Right
-	DECOMP_DecalHUD_Arrow2D(iconPtrArray[0x38], (posX + half) + 0x112, 0x16,
+	DecalHUD_Arrow2D(iconPtrArray[0x38], (posX + half) + 0x112, 0x16,
 
-	                        primMem, gGT->pushBuffer_UI.ptrOT,
+	                 primMem, gGT->pushBuffer_UI.ptrOT,
 
-	                        ptrColor[0], ptrColor[1], ptrColor[2], ptrColor[3],
+	                 ptrColor[0], ptrColor[1], ptrColor[2], ptrColor[3],
 
-	                        0, 0x1000, 0);
+	                 0, 0x1000, 0);
 
 	struct PauseObject *ptrPauseObject = D232.ptrPauseObject;
 
@@ -124,15 +124,15 @@ void DECOMP_AH_Pause_Draw(int pageID, int posX)
 
 			struct Icon **iconPtrArray = ICONGROUP_GETICONS(gGT->iconGroup[5]);
 
-			DECOMP_DecalHUD_DrawPolyGT4(iconPtrArray[0x37],
+			DecalHUD_DrawPolyGT4(iconPtrArray[0x37],
 
-			                            posX + 0x16d + 0x18, 2 * 0x10 + 4 + 0x2a,
+			                     posX + 0x16d + 0x18, 2 * 0x10 + 4 + 0x2a,
 
-			                            &gGT->backBuffer->primMem, gGT->pushBuffer_UI.ptrOT,
+			                     &gGT->backBuffer->primMem, gGT->pushBuffer_UI.ptrOT,
 
-			                            starColor[0], starColor[1], starColor[2], starColor[3],
+			                     starColor[0], starColor[1], starColor[2], starColor[3],
 
-			                            0, 0x1000);
+			                     0, 0x1000);
 
 			// 5 gems
 			for (int i = 0; i < 5; i++)

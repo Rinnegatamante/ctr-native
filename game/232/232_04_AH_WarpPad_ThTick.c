@@ -152,7 +152,7 @@ void DECOMP_AH_WarpPad_ThTick(struct Thread *t)
 			)
 			{
 				// give hint "you must have 4 tokens for a gem"
-				DECOMP_MainFrame_RequestMaskHint(0x1b, 0);
+				MainFrame_RequestMaskHint(0x1b, 0);
 			}
 
 			else if (
@@ -167,7 +167,7 @@ void DECOMP_AH_WarpPad_ThTick(struct Thread *t)
 			    (instArr[WPIS_CLOSED_ITEM]->model->id != STATIC_KEY))
 			{
 				// give hint for "need more trophies"
-				DECOMP_MainFrame_RequestMaskHint(2, 0);
+				MainFrame_RequestMaskHint(2, 0);
 			}
 
 			else if (
@@ -179,7 +179,7 @@ void DECOMP_AH_WarpPad_ThTick(struct Thread *t)
 			    ((sdata->advProgress.rewards[4] & 0x40000) == 0))
 			{
 				// give hint for "need more trophies"
-				DECOMP_MainFrame_RequestMaskHint(0x1C, 0);
+				MainFrame_RequestMaskHint(0x1C, 0);
 			}
 		}
 	}
@@ -287,7 +287,7 @@ void DECOMP_AH_WarpPad_ThTick(struct Thread *t)
 
 		// what on earth was this RNG?
 		// how'd they come up with something so random, that looks so good?
-		i = DECOMP_MixRNG_Scramble();
+		i = MixRNG_Scramble();
 		warppadObj->spinRot_Beam[1] += ((s16)(i >> 3) + (s16)((i >> 3) / 6) * -6 + 1) * 0x200;
 
 		// converted to TEST in rebuildPS1
@@ -344,7 +344,7 @@ void DECOMP_AH_WarpPad_ThTick(struct Thread *t)
 				// full transparency
 				instArr[WPIS_OPEN_RING1 + i]->alphaScale = 0x1000;
 
-				rng1 = DECOMP_MixRNG_Scramble() >> 3;
+				rng1 = MixRNG_Scramble() >> 3;
 
 				rng2 = rng1;
 				if (rng1 < 0)
@@ -422,7 +422,7 @@ void DECOMP_AH_WarpPad_ThTick(struct Thread *t)
 	}
 
 	// if flag is on-screen, loading has already been finalized
-	if (DECOMP_RaceFlag_IsTransitioning() != 0)
+	if (RaceFlag_IsTransitioning() != 0)
 		return;
 
 	// if driver has not entered this warppad
@@ -448,7 +448,7 @@ void DECOMP_AH_WarpPad_ThTick(struct Thread *t)
 	// However, with this, state goes 0xA, then 0xB, then 0xA, and warp SFX
 	// plays a second time. Animation also plays twice but is invisible second time
 #ifndef REBUILD_PS1
-	gGT->drivers[0]->funcPtrs[0] = DECOMP_VehStuckProc_Warp_Init;
+	gGT->drivers[0]->funcPtrs[0] = VehStuckProc_Warp_Init;
 #endif
 
 	if (warppadObj->framesWarping < 0x400)
@@ -572,7 +572,7 @@ void DECOMP_AH_WarpPad_ThTick(struct Thread *t)
 
 				// if hint is locked
 				if (CHECK_ADV_BIT(sdata->advProgress.rewards, (i + 0x76)) == 0)
-					DECOMP_MainFrame_RequestMaskHint(i, 1);
+					MainFrame_RequestMaskHint(i, 1);
 
 				// if can't spawn aku cause he's already here,
 				// quit function, wait till he's done to start race
@@ -601,7 +601,7 @@ void DECOMP_AH_WarpPad_ThTick(struct Thread *t)
 
 		// Dont have hint "collect every crystal"
 		if ((sdata->advProgress.rewards[4] & 0x8000) == 0)
-			DECOMP_MainFrame_RequestMaskHint(0x19, 1);
+			MainFrame_RequestMaskHint(0x19, 1);
 
 		// if can't spawn aku cause he's already here,
 		// quit function, wait till he's done to start race
@@ -629,5 +629,5 @@ void DECOMP_AH_WarpPad_ThTick(struct Thread *t)
 	// Rem Adventure Arena
 	sdata->Loading.OnBegin.RemBitsConfig0 |= 0x100000;
 
-	DECOMP_MainRaceTrack_RequestLoad(levelID);
+	MainRaceTrack_RequestLoad(levelID);
 }

@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8001c984-0x8001c9e4.
-void DECOMP_CDSYS_SpuCallbackTransfer()
+void CDSYS_SpuCallbackTransfer()
 {
 	if (sdata->irqAddr == 0)
 		sdata->irqAddr = 0x200;
@@ -13,5 +13,5 @@ void DECOMP_CDSYS_SpuCallbackTransfer()
 
 	sdata->countPass_CdTransferCallback++;
 
-	DECOMP_CDSYS_SpuGetMaxSample();
+	CDSYS_SpuGetMaxSample();
 }

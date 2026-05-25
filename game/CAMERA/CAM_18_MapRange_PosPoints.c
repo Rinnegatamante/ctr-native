@@ -1,6 +1,6 @@
 #include <common.h>
 
-int DECOMP_CAM_MapRange_PosPoints(s16 *pos1, s16 *pos2, s16 *currPos)
+int CAM_MapRange_PosPoints(s16 *pos1, s16 *pos2, s16 *currPos)
 {
 	int dx = pos1[0] - pos2[0];
 	int dy = pos1[1] - pos2[1];

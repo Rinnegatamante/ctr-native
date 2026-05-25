@@ -73,8 +73,3 @@ void VehEmitter_Terrain_Ground(struct Driver *d, struct ParticleEmitter *emSet)
 		p->unk18 = dInst->unk50;
 	}
 }
-
-void DECOMP_VehEmitter_Terrain_Ground(struct Driver *d, struct ParticleEmitter *emSet)
-{
-	VehEmitter_Terrain_Ground(d, emSet);
-}

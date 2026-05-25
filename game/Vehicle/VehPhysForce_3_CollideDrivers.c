@@ -27,17 +27,17 @@ void VehPhysForce_CollideDrivers(struct Thread *thread, struct Driver *driver)
 
 	if ((stepFlagSet & 2) != 0)
 	{
-		DECOMP_VehFire_Increment(driver, 0x78, TURBO_PAD | FREEZE_RESERVES_ON_TURBO_PAD, 0x800);
+		VehFire_Increment(driver, 0x78, TURBO_PAD | FREEZE_RESERVES_ON_TURBO_PAD, 0x800);
 	}
 	else if ((stepFlagSet & 1) != 0)
 	{
 		if ((sdata->gGT->gameMode2 & CHEAT_TURBOPAD) == 0)
 		{
-			DECOMP_VehFire_Increment(driver, 0x3c0, TURBO_PAD | FREEZE_RESERVES_ON_TURBO_PAD, 0x100);
+			VehFire_Increment(driver, 0x3c0, TURBO_PAD | FREEZE_RESERVES_ON_TURBO_PAD, 0x100);
 		}
 		else
 		{
-			DECOMP_VehFire_Increment(driver, 0x78, TURBO_PAD | FREEZE_RESERVES_ON_TURBO_PAD, 0x800);
+			VehFire_Increment(driver, 0x78, TURBO_PAD | FREEZE_RESERVES_ON_TURBO_PAD, 0x800);
 		}
 	}
 

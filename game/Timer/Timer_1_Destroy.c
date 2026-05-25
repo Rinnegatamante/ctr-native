@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_Timer_Destroy()
+void Timer_Destroy()
 {
 	EnterCriticalSection();
 	StopRCnt(DescRC + 1);

@@ -4,5 +4,5 @@ void DECOMP_MM_Battle_DrawIcon_Character(struct Icon *icon, int posX, int posY, 
 {
 	if (icon == 0)
 		return;
-	DECOMP_DecalHUD_DrawPolyFT4(icon, posX, posY, primMem, ot, transparency, scale);
+	DecalHUD_DrawPolyFT4(icon, posX, posY, primMem, ot, transparency, scale);
 }

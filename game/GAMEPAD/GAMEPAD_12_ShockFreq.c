@@ -22,8 +22,3 @@ void GAMEPAD_ShockFreq(struct Driver *d, int frame, int val)
 	gb->shockFrameFreq = frame;
 	gb->shockValFreq = val;
 }
-
-void DECOMP_GAMEPAD_ShockFreq(struct Driver *d, int frame, int val)
-{
-	GAMEPAD_ShockFreq(d, frame, val);
-}

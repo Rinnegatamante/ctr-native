@@ -60,19 +60,19 @@ static void EngineSound_AI_UpdateSmoothing(struct Driver *ai, int targetPitch)
 
 static u32 EngineSound_AI_CalculateVolume(struct Driver *ai, int slotIndex, int distance)
 {
-	u32 volume = DECOMP_VehCalc_MapToRange(ai->fill_3B6[0], 0, ai->const_AccelSpeed_ClassStat, 0x82, 0xe6);
+	u32 volume = VehCalc_MapToRange(ai->fill_3B6[0], 0, ai->const_AccelSpeed_ClassStat, 0x82, 0xe6);
 
 	if (distance < 2000)
 	{
 		if (200 < distance)
-			volume = DECOMP_VehCalc_MapToRange(distance, 200, 2000, volume, 0);
+			volume = VehCalc_MapToRange(distance, 200, 2000, volume, 0);
 	}
 	else
 	{
 		volume = 0;
 	}
 
-	volume = DECOMP_EngineSound_VolumeAdjust(volume, sdata->audioDefaults[slotIndex], 10);
+	volume = EngineSound_VolumeAdjust(volume, sdata->audioDefaults[slotIndex], 10);
 	sdata->audioDefaults[slotIndex] = volume;
 
 	return volume;
@@ -81,7 +81,7 @@ static u32 EngineSound_AI_CalculateVolume(struct Driver *ai, int slotIndex, int 
 static u32 EngineSound_AI_CalculateDistortion(struct Driver *ai, int distanceDelta)
 {
 	int distortion;
-	int pitch = DECOMP_VehCalc_MapToRange(ai->fill_3B6[1], 0, ai->const_AccelSpeed_ClassStat, 0x3c, 0xaa);
+	int pitch = VehCalc_MapToRange(ai->fill_3B6[1], 0, ai->const_AccelSpeed_ClassStat, 0x3c, 0xaa);
 
 	distanceDelta >>= 3;
 
@@ -101,7 +101,7 @@ static u32 EngineSound_AI_CalculateDistortion(struct Driver *ai, int distanceDel
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002fc64-0x8002ff28
-void DECOMP_EngineSound_AI(struct Driver *ai, struct Driver *cameraDriver, int slotIndex, int distance, int distanceDelta, u32 lr)
+void EngineSound_AI(struct Driver *ai, struct Driver *cameraDriver, int slotIndex, int distance, int distanceDelta, u32 lr)
 {
 	u32 volume;
 	u32 distortion;
@@ -122,9 +122,4 @@ void DECOMP_EngineSound_AI(struct Driver *ai, struct Driver *cameraDriver, int s
 		distortion |= 0x1000000;
 
 	EngineAudio_Recalculate((slotIndex + 0x10) & 0xffff, ((volume & 0xff) << 0x10) | distortion | (lr & 0xff));
-}
-
-void EngineSound_AI(struct Driver *ai, struct Driver *cameraDriver, int slotIndex, int distance, int distanceDelta, u32 lr)
-{
-	DECOMP_EngineSound_AI(ai, cameraDriver, slotIndex, distance, distanceDelta, lr);
 }

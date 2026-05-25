@@ -72,8 +72,3 @@ void *PlayerEatenFuncTable[13] = {
     VehStuckProc_PlantEaten_Animate,
     NULL,
 };
-
-void DECOMP_VehStuckProc_PlantEaten_Init(struct Thread *t, struct Driver *d)
-{
-	VehStuckProc_PlantEaten_Init(t, d);
-}

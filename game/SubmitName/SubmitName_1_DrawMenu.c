@@ -9,7 +9,7 @@ void SubmitName_UseKeyboard(int key)
 }
 #endif
 
-s16 DECOMP_SubmitName_DrawMenu(u16 string)
+s16 SubmitName_DrawMenu(u16 string)
 {
 	s16 currNameLength;
 	u16 uVar3;

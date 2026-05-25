@@ -11,7 +11,7 @@ void RB_Warpball_SetTargetDriver(struct TrackerWeapon *tw);
 struct Driver *RB_Warpball_GetDriverTarget(struct TrackerWeapon *tw, struct Instance *inst);
 void RB_Warpball_SeekDriver(struct TrackerWeapon *tw, u32 param_2, struct Driver *d);
 
-void DECOMP_VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
+void VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 {
 	// NOTE(aalhendi): ASM-verified NTSC-U 926 0x8006540c-0x800666e4.
 	struct Instance *dInst;
@@ -33,7 +33,7 @@ void DECOMP_VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 		if (d->numWumpas >= 10)
 			boost = 0x100;
 
-		DECOMP_VehFire_Increment(d, 0x960, 9, boost);
+		VehFire_Increment(d, 0x960, 9, boost);
 	}
 	break;
 
@@ -294,7 +294,7 @@ void DECOMP_VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 		mw->extraFlags = 0;
 
 		DECOMP_RB_MinePool_Add(mw);
-		DECOMP_VehPickupItem_PotionThrow(mw, weaponInst, flags);
+		VehPickupItem_PotionThrow(mw, weaponInst, flags);
 		mineHitModel = weaponInst->model->id | 0x8000;
 		mineShouldInitFollower = (flags == 0);
 
@@ -443,7 +443,7 @@ void DECOMP_VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 			flags |= 4;
 
 		DECOMP_RB_MinePool_Add(mw);
-		int ret = DECOMP_VehPickupItem_PotionThrow(mw, weaponInst, flags);
+		int ret = VehPickupItem_PotionThrow(mw, weaponInst, flags);
 
 		if (ret == 0)
 		{
@@ -526,7 +526,7 @@ void DECOMP_VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 
 	// Mask
 	case 7:
-		DECOMP_VehPickupItem_MaskUseWeapon(d, 1);
+		VehPickupItem_MaskUseWeapon(d, 1);
 		break;
 
 	// Clock

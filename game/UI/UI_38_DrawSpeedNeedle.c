@@ -22,7 +22,7 @@ void DECOMP_UI_DrawSpeedNeedle(s16 posX, s16 posY, struct Driver *driver)
 
 	int speedScale = (FP8_INT(speed) * 108000) / 64000;
 	maxScale = (maxScale * 108000) / 64000;
-	int angle1 = DECOMP_VehCalc_MapToRange(speedScale, minScale, maxScale, minAngle, maxAngle);
+	int angle1 = VehCalc_MapToRange(speedScale, minScale, maxScale, minAngle, maxAngle);
 	int angle2 = angle1 + ANG(90);
 
 	int cos[2] = {MATH_Cos(angle1), MATH_Cos(angle2)};

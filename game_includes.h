@@ -37,9 +37,7 @@
 #include "game/CAMERA/CAM_05_Path_Move.c"
 #include "game/CAMERA/CAM_06_StartOfRace.c"
 #include "game/CAMERA/CAM_07_EndOfRace_Battle.c"
-#define CAM_EndOfRace_Battle DECOMP_CAM_EndOfRace_Battle
 #include "game/CAMERA/CAM_08_EndOfRace.c"
-#undef CAM_EndOfRace_Battle
 #include "game/CAMERA/CAM_10_ProcessTransition.c"
 #include "game/CAMERA/CAM_03_FindClosestQuadblock.c"
 #include "game/CAMERA/CAM_09_StartLine_FlyIn_FixY.c"
@@ -50,37 +48,13 @@
 #include "game/CAMERA/CAM_15_FollowDriver_Spin360.c"
 #include "game/CAMERA/CAM_16_SetDesiredPosRot.c"
 
-#define CAM_FollowDriver_AngleAxis DECOMP_CAM_FollowDriver_AngleAxis
-#define CAM_FollowDriver_Normal    DECOMP_CAM_FollowDriver_Normal
-#define CAM_FollowDriver_Spin360   DECOMP_CAM_FollowDriver_Spin360
-#define CAM_FollowDriver_TrackPath DECOMP_CAM_FollowDriver_TrackPath
-#define CAM_LookAtPosition         DECOMP_CAM_LookAtPosition
-#define CAM_MapRange_PosPoints     DECOMP_CAM_MapRange_PosPoints
-#define CAM_ProcessTransition      DECOMP_CAM_ProcessTransition
-#define CAM_StartLine_FlyIn        DECOMP_CAM_StartLine_FlyIn
-#define VehCalc_MapToRange         DECOMP_VehCalc_MapToRange
 #include "game/CAMERA/CAM_17_FollowDriver_Normal.c"
 #include "game/CAMERA/CAM_18_MapRange_PosPoints.c"
 #include "game/CAMERA/CAM_19_ThTick.c"
-#undef VehCalc_MapToRange
-#undef CAM_StartLine_FlyIn
-#undef CAM_ProcessTransition
-#undef CAM_MapRange_PosPoints
-#undef CAM_LookAtPosition
-#undef CAM_FollowDriver_TrackPath
-#undef CAM_FollowDriver_Spin360
-#undef CAM_FollowDriver_Normal
-#undef CAM_FollowDriver_AngleAxis
 
-#define CAM_EndOfRace               DECOMP_CAM_EndOfRace
 #define OtherFX_Play_Echo           DECOMP_OtherFX_Play_Echo
 #define OtherFX_Play_LowLevel       DECOMP_OtherFX_Play_LowLevel
 #define PROC_CollidePointWithBucket DECOMP_PROC_CollidePointWithBucket
-#define VehAfterColl_GetTerrain     DECOMP_VehAfterColl_GetTerrain
-#define VehCalc_MapToRange          DECOMP_VehCalc_MapToRange
-#define VehFire_Audio               DECOMP_VehFire_Audio
-#define VehFire_Increment           DECOMP_VehFire_Increment
-#define VehPickupItem_MaskUseWeapon DECOMP_VehPickupItem_MaskUseWeapon
 #include "game/BOTS/BOTS_03_Adv_NumTimesLostEvent.c"
 #include "game/BOTS/BOTS_00_SetGlobalNavData.c"
 #include "game/BOTS/BOTS_01_InitNavPath.c"
@@ -94,15 +68,9 @@
 #include "game/BOTS/BOTS_12_ChangeState.c"
 #include "game/BOTS/BOTS_13_CollideWithOtherAI.c"
 #include "game/BOTS/BOTS_16_Driver_Convert.c"
-#undef VehPickupItem_MaskUseWeapon
-#undef VehFire_Increment
-#undef VehFire_Audio
-#undef VehCalc_MapToRange
-#undef VehAfterColl_GetTerrain
 #undef PROC_CollidePointWithBucket
 #undef OtherFX_Play_LowLevel
 #undef OtherFX_Play_Echo
-#undef CAM_EndOfRace
 
 #include "game/CDSYS/CDSYS_00_Init.c"
 #include "game/CDSYS/CDSYS_01_GetFilePosInt.c"
@@ -703,9 +671,7 @@
 #include "game/Vehicle/VehPhysJoystick_1_GetStrength.c"
 #include "game/Vehicle/VehPhysJoystick_2_GetStrengthAbsolute.c"
 
-#define VehPhysGeneral_GetBaseSpeed DECOMP_VehPhysGeneral_GetBaseSpeed
 #include "game/Vehicle/VehPhysProc_00_Driving_PhysLinear.c"
-#undef VehPhysGeneral_GetBaseSpeed
 #include "game/Vehicle/VehPhysProc_01_Driving_Audio.c"
 #include "game/Vehicle/VehPhysProc_02_Driving_Update.c"
 #include "game/Vehicle/VehPhysProc_03_Driving_Init.c"

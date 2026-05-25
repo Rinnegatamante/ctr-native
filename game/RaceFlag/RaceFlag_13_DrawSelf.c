@@ -37,7 +37,7 @@ force_inline int MathSinInline(u32 param_1)
 	return iVar1;
 }
 
-void DECOMP_RaceFlag_DrawSelf()
+void RaceFlag_DrawSelf()
 {
 	int i, j;
 	int column, row;
@@ -81,12 +81,12 @@ void DECOMP_RaceFlag_DrawSelf()
 			goto SKIP_LOADING_TEXT;
 	}
 
-	DECOMP_RaceFlag_DrawLoadingString();
+	RaceFlag_DrawLoadingString();
 
 SKIP_LOADING_TEXT:
 
 	sdata->RaceFlag_CopyLoadStage = sdata->Loading.stage;
-	ot = (u_long *)DECOMP_RaceFlag_GetOT();
+	ot = (u_long *)RaceFlag_GetOT();
 
 	gte_SetRotMatrix(&data.matrixTitleFlag);
 	gte_SetTransMatrix(&data.matrixTitleFlag);

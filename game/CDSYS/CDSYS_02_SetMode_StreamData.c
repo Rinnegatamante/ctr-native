@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8001c470-0x8001c4f4.
-void DECOMP_CDSYS_SetMode_StreamData()
+void CDSYS_SetMode_StreamData()
 {
 	char buf[8];
 
@@ -16,7 +16,7 @@ void DECOMP_CDSYS_SetMode_StreamData()
 	if (sdata->bool_XnfLoaded != 0)
 	{
 		// force stop, and cancel callbacks
-		DECOMP_CDSYS_XAPauseForce();
+		CDSYS_XAPauseForce();
 	}
 
 	// https://www.cybdyn-systems.com.au/forum/viewtopic.php?t=1956

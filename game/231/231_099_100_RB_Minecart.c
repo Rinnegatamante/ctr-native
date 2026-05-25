@@ -12,12 +12,12 @@ void RB_Minecart_CheckColl(struct Instance *minecartInst, struct Thread *minecar
 	struct GameTracker *gGT = sdata->gGT;
 
 	// check players
-	hitInst = (struct Instance *)DECOMP_LinkedCollide_Radius(minecartInst, minecartTh, gGT->threadBuckets[PLAYER].thread, 0x10000);
+	hitInst = (struct Instance *)LinkedCollide_Radius(minecartInst, minecartTh, gGT->threadBuckets[PLAYER].thread, 0x10000);
 
 	if (hitInst == 0)
 	{
 		// check robots
-		hitInst = (struct Instance *)DECOMP_LinkedCollide_Radius(minecartInst, minecartTh, gGT->threadBuckets[ROBOT].thread, 0x10000);
+		hitInst = (struct Instance *)LinkedCollide_Radius(minecartInst, minecartTh, gGT->threadBuckets[ROBOT].thread, 0x10000);
 	}
 
 	if (hitInst != 0)

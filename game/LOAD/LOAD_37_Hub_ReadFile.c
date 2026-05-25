@@ -17,8 +17,8 @@ void DECOMP_LOAD_Hub_ReadFile(int bigfile, int levID, int packID)
 
 	// Swap to pack of hub you're NOT on,
 	// wipe the pack to reload the new hub
-	DECOMP_MEMPACK_SwapPacks(packID);
-	DECOMP_MEMPACK_ClearLowMem();
+	MEMPACK_SwapPacks(packID);
+	MEMPACK_ClearLowMem();
 
 	// base index for group
 	iVar2 = DECOMP_LOAD_GetBigfileIndex(levID, 1);

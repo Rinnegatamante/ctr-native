@@ -1,8 +1,8 @@
 #include <common.h>
 
-void DECOMP_GhostReplay_ThTick(struct Thread *);
+void GhostReplay_ThTick(struct Thread *);
 
-void DECOMP_GhostReplay_Init1(void)
+void GhostReplay_Init1(void)
 {
 	char i;
 	u16 uVar1;
@@ -36,7 +36,7 @@ void DECOMP_GhostReplay_Init1(void)
 
 	// In the future, this can move to GhostTape_Start, when byte budget allows
 
-	gh = DECOMP_MEMPACK_AllocMem(0x3e00 /*, "ghost record buffer"*/);
+	gh = MEMPACK_AllocMem(0x3e00 /*, "ghost record buffer"*/);
 	recordBuffer = GHOSTHEADER_GETRECORDBUFFER(gh);
 	sdata->GhostRecording.ptrGhost = gh;
 	sdata->GhostRecording.ptrStartOffset = &recordBuffer[0];
@@ -55,7 +55,7 @@ void DECOMP_GhostReplay_Init1(void)
 
 	for (i = 0; i < 2; i++)
 	{
-		tape = DECOMP_MEMPACK_AllocMem(0x268 /*, "ghost tape"*/);
+		tape = MEMPACK_AllocMem(0x268 /*, "ghost tape"*/);
 		sdata->ptrGhostTape[i] = tape;
 
 		// first ghost pointer is a ghost loaded by player
@@ -162,7 +162,7 @@ void DECOMP_GhostReplay_Init1(void)
 		    // creation flags
 		    SIZE_RELATIVE_POOL_BUCKET(4, NONE, LARGE, GHOST),
 
-		    DECOMP_GhostReplay_ThTick, 0, 0);
+		    GhostReplay_ThTick, 0, 0);
 
 		t->modelIndex = DYNAMIC_GHOST; // ghost
 		t->flags |= 0x1000;            // ignore collisions
@@ -197,8 +197,8 @@ void DECOMP_GhostReplay_Init1(void)
 			}
 		}
 
-		DECOMP_VehBirth_TireSprites(t);
-		DECOMP_VehBirth_SetConsts(ghostDriver);
+		VehBirth_TireSprites(t);
+		VehBirth_SetConsts(ghostDriver);
 
 		if (charID == NITROS_OXIDE)
 			ghostDriver->wheelSize = 0;
@@ -208,7 +208,7 @@ void DECOMP_GhostReplay_Init1(void)
 
 		// advance ghost by one frame,
 		// just so Oxide doesn't block your view
-		DECOMP_GhostReplay_ThTick(t);
+		GhostReplay_ThTick(t);
 	}
 
 	return;

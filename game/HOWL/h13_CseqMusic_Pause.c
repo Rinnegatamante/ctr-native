@@ -2,7 +2,7 @@
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80028d64-0x80028de0
 // pause all songs
-void DECOMP_CseqMusic_Pause()
+void CseqMusic_Pause()
 {
 	int i;
 	struct Song *song;
@@ -12,7 +12,7 @@ void DECOMP_CseqMusic_Pause()
 	if (sdata->ptrCseqHeader == 0)
 		return;
 
-	DECOMP_Smart_EnterCriticalSection();
+	Smart_EnterCriticalSection();
 
 	for (i = 0; i < 2; i++)
 	{
@@ -26,5 +26,5 @@ void DECOMP_CseqMusic_Pause()
 		}
 	}
 
-	DECOMP_Smart_ExitCriticalSection();
+	Smart_ExitCriticalSection();
 }

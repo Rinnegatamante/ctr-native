@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002a730-0x8002a9d8
-void DECOMP_SongPool_Start(struct Song *song, u16 songID, s16 deltaBPM, int boolLoopAtEnd, struct SongSet *songSet, int songSetActiveBits)
+void SongPool_Start(struct Song *song, u16 songID, s16 deltaBPM, int boolLoopAtEnd, struct SongSet *songSet, int songSetActiveBits)
 {
 	int i;
 	int vol;
@@ -30,7 +30,7 @@ void DECOMP_SongPool_Start(struct Song *song, u16 songID, s16 deltaBPM, int bool
 	song->tpqn = csh->tpqn;
 	song->bpm = csh->bpm + deltaBPM;
 
-	song->tempo = DECOMP_SongPool_CalculateTempo(60, song->tpqn, song->bpm);
+	song->tempo = SongPool_CalculateTempo(60, song->tpqn, song->bpm);
 
 	song->unk10 = 0;
 	song->timeSpentPlaying = 0;
@@ -76,7 +76,7 @@ void DECOMP_SongPool_Start(struct Song *song, u16 songID, s16 deltaBPM, int bool
 	{
 		cnhCurr = (struct SongNoteHeader *)&cnhFirst[seqOffsetArr[i]];
 
-		seqCurr = DECOMP_SongPool_FindFreeChannel();
+		seqCurr = SongPool_FindFreeChannel();
 		if (seqCurr == NULL)
 			continue;
 

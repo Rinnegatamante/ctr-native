@@ -34,14 +34,14 @@ void DECOMP_MM_HighScore_Draw(u16 trackIndex, u32 rowIndex, u32 posX, u32 posY)
 	struct Icon **iconPtrArray = ICONGROUP_GETICONS(gGT->iconGroup[4]);
 
 	// Draw arrow pointing Left
-	DECOMP_DecalHUD_Arrow2D(iconPtrArray[0x38], D230.transitionMeta_HighScores[0].currX + (offsetX - lineWidth) + 0xec,
-	                        D230.transitionMeta_HighScores[0].currY + offsetY + 0x15, &gGT->backBuffer->primMem, gGT->pushBuffer_UI.ptrOT, colorPtr[0],
-	                        colorPtr[1], colorPtr[2], colorPtr[3], 0, 0x1000, 0x800);
+	DecalHUD_Arrow2D(iconPtrArray[0x38], D230.transitionMeta_HighScores[0].currX + (offsetX - lineWidth) + 0xec,
+	                 D230.transitionMeta_HighScores[0].currY + offsetY + 0x15, &gGT->backBuffer->primMem, gGT->pushBuffer_UI.ptrOT, colorPtr[0], colorPtr[1],
+	                 colorPtr[2], colorPtr[3], 0, 0x1000, 0x800);
 
 	// Draw arrow pointing Right
-	DECOMP_DecalHUD_Arrow2D(iconPtrArray[0x38], D230.transitionMeta_HighScores[0].currX + (lineWidth + offsetX) + 0x112,
-	                        D230.transitionMeta_HighScores[0].currY + offsetY + 0x15, &gGT->backBuffer->primMem, gGT->pushBuffer_UI.ptrOT, colorPtr[0],
-	                        colorPtr[1], colorPtr[2], colorPtr[3], 0, 0x1000, 0);
+	DecalHUD_Arrow2D(iconPtrArray[0x38], D230.transitionMeta_HighScores[0].currX + (lineWidth + offsetX) + 0x112,
+	                 D230.transitionMeta_HighScores[0].currY + offsetY + 0x15, &gGT->backBuffer->primMem, gGT->pushBuffer_UI.ptrOT, colorPtr[0], colorPtr[1],
+	                 colorPtr[2], colorPtr[3], 0, 0x1000, 0);
 
 	// draw track name
 	DECOMP_DecalFont_DrawLine(sdata->lngStrings[data.metaDataLEV[levelID].name_LNG], D230.transitionMeta_HighScores[0].currX + (s16)(posX + 0x100),
@@ -70,12 +70,12 @@ void DECOMP_MM_HighScore_Draw(u16 trackIndex, u32 rowIndex, u32 posX, u32 posY)
 				struct Icon **ptrIconArray;
 				ptrIconArray = ICONGROUP_GETICONS(gGT->iconGroup[5]);
 
-				DECOMP_DecalHUD_DrawPolyGT4(ptrIconArray[0x37], D230.transitionMeta_HighScores[0].currX + offsetX + (i * 0x10) + 0xf0,
-				                            D230.transitionMeta_HighScores[0].currY + offsetY + 4,
-				                            // pointer to PrimMem struct
-				                            &gGT->backBuffer->primMem,
-				                            // pointer to OT mem
-				                            gGT->pushBuffer_UI.ptrOT, colorPtr[0], colorPtr[1], colorPtr[2], colorPtr[3], 0, 0x1000);
+				DecalHUD_DrawPolyGT4(ptrIconArray[0x37], D230.transitionMeta_HighScores[0].currX + offsetX + (i * 0x10) + 0xf0,
+				                     D230.transitionMeta_HighScores[0].currY + offsetY + 4,
+				                     // pointer to PrimMem struct
+				                     &gGT->backBuffer->primMem,
+				                     // pointer to OT mem
+				                     gGT->pushBuffer_UI.ptrOT, colorPtr[0], colorPtr[1], colorPtr[2], colorPtr[3], 0, 0x1000);
 			}
 		}
 

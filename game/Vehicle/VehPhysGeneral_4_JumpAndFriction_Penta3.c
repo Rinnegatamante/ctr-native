@@ -26,7 +26,7 @@
 
 #endif
 
-void DECOMP_VehPhysGeneral_JumpAndFriction(struct Thread *t, struct Driver *d)
+void VehPhysGeneral_JumpAndFriction(struct Thread *t, struct Driver *d)
 {
 	char BackWardTurnRate;
 	bool IsJumping;
@@ -73,7 +73,7 @@ void DECOMP_VehPhysGeneral_JumpAndFriction(struct Thread *t, struct Driver *d)
 		* (int*)(VecXYZ + 0x10) = (int)d->const_TurnDecreaseRate;
 #endif
 
-		VecX = DECOMP_VehCalc_MapToRange(tempValue, 0, BackWardTurnRate, 0, (int)d->const_TurnDecreaseRate);
+		VecX = VehCalc_MapToRange(tempValue, 0, BackWardTurnRate, 0, (int)d->const_TurnDecreaseRate);
 		VecZ = (int)d->baseSpeed;
 
 // og code, "param_2"
@@ -356,8 +356,8 @@ void DECOMP_VehPhysGeneral_JumpAndFriction(struct Thread *t, struct Driver *d)
 		}
 		if (d->kartState == KS_BLASTED)
 		{
-			DECOMP_GAMEPAD_ShockFreq(d, 8, 0);
-			DECOMP_GAMEPAD_ShockForce1(d, 8, 0x7f);
+			GAMEPAD_ShockFreq(d, 8, 0);
+			GAMEPAD_ShockForce1(d, 8, 0x7f);
 		}
 	}
 
@@ -378,7 +378,7 @@ PROCESS_JUMP:
 	do {
 		absSpeed = tempValue;
 
-		jumpVelocity = DECOMP_VehPhysGeneral_JumpGetVelY((u32)d + ApproxSpeed, VecXYZ + 0x18);
+		jumpVelocity = VehPhysGeneral_JumpGetVelY((u32)d + ApproxSpeed, VecXYZ + 0x18);
 
 		tempVelocity = jumpVelocity;
 		if (jumpVelocity < 0) {
@@ -397,8 +397,8 @@ PROCESS_JUMP:
 
 //rewritten code
 #else
-	jumpVelocity = DECOMP_VehPhysGeneral_JumpGetVelY(&d->AxisAngle4_normalVec[0], &movement);
-	tempValue = DECOMP_VehPhysGeneral_JumpGetVelY(&d->AxisAngle4_normalVec[0], &movement);
+	jumpVelocity = VehPhysGeneral_JumpGetVelY(&d->AxisAngle4_normalVec[0], &movement);
+	tempValue = VehPhysGeneral_JumpGetVelY(&d->AxisAngle4_normalVec[0], &movement);
 #endif
 
 
@@ -409,7 +409,7 @@ PROCESS_JUMP:
 		absSpeed = driverPtr + 0x368;
 	}
 
-	ApproxSpeed = DECOMP_VehPhysGeneral_JumpGetVelY(absSpeed, VecXYZ + 0x18);
+	ApproxSpeed = VehPhysGeneral_JumpGetVelY(absSpeed, VecXYZ + 0x18);
 
 //rewritten code
 #else
@@ -421,7 +421,7 @@ PROCESS_JUMP:
 		absSpeed = axisAngle;
 	}
 
-	ApproxSpeed = DECOMP_VehPhysGeneral_JumpGetVelY(axisAngle, &movement);
+	ApproxSpeed = VehPhysGeneral_JumpGetVelY(axisAngle, &movement);
 #endif
 
 	absSpeed = ApproxSpeed;

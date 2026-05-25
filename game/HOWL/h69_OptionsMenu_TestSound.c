@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002b208-0x8002b4d0
-void DECOMP_OptionsMenu_TestSound(int newRow, int newBoolPlay)
+void OptionsMenu_TestSound(int newRow, int newBoolPlay)
 {
 	int oldRow = sdata->OptionSlider_Index;
 	int oldBoolPlay = sdata->OptionSlider_BoolPlay;
@@ -20,14 +20,14 @@ void DECOMP_OptionsMenu_TestSound(int newRow, int newBoolPlay)
 			// end Aku or Uka song
 			// 0=level, 1=aku, 2=uka
 
-			if (DECOMP_Music_GetHighestSongPlayIndex() == 1)
+			if (Music_GetHighestSongPlayIndex() == 1)
 			{
-				DECOMP_CseqMusic_Stop(2);
+				CseqMusic_Stop(2);
 			}
 
 			else
 			{
-				DECOMP_CseqMusic_Stop(1);
+				CseqMusic_Stop(1);
 			}
 		}
 
@@ -59,10 +59,10 @@ void DECOMP_OptionsMenu_TestSound(int newRow, int newBoolPlay)
 				// 0=level, 1=aku, 2=uka
 
 				int val = 1;
-				if (DECOMP_Music_GetHighestSongPlayIndex() == 1)
+				if (Music_GetHighestSongPlayIndex() == 1)
 					val = 2;
 
-				DECOMP_CseqMusic_Start(val, 0, NULL, 0, 1);
+				CseqMusic_Start(val, 0, NULL, 0, 1);
 			}
 		}
 		else
@@ -79,14 +79,14 @@ void DECOMP_OptionsMenu_TestSound(int newRow, int newBoolPlay)
 				// end Aku or Uka song
 				// 0=level, 1=aku, 2=uka
 
-				if (DECOMP_Music_GetHighestSongPlayIndex() == 1)
+				if (Music_GetHighestSongPlayIndex() == 1)
 				{
-					DECOMP_CseqMusic_Stop(2);
+					CseqMusic_Stop(2);
 				}
 
 				else
 				{
-					DECOMP_CseqMusic_Stop(1);
+					CseqMusic_Stop(1);
 				}
 			}
 

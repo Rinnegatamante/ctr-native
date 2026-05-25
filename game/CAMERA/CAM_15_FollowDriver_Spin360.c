@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80019f58-0x8001a054
-void DECOMP_CAM_FollowDriver_Spin360(struct CameraDC *cDC, int param_2, struct Driver *d, s16 *desiredPos, s16 *desiredRot)
+void CAM_FollowDriver_Spin360(struct CameraDC *cDC, int param_2, struct Driver *d, s16 *desiredPos, s16 *desiredRot)
 {
 	int ratio;
 
@@ -30,6 +30,6 @@ void DECOMP_CAM_FollowDriver_Spin360(struct CameraDC *cDC, int param_2, struct D
 
 	desiredPos[1] = (s16)(d->posCurr.y >> 8) + cDC->transitionTo.pos[1];
 
-	DECOMP_CAM_LookAtPosition(param_2, (int *)&d->posCurr.x, desiredPos, desiredRot);
+	CAM_LookAtPosition(param_2, (int *)&d->posCurr.x, desiredPos, desiredRot);
 	return;
 }

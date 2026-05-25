@@ -8,8 +8,8 @@ void VehPhysProc_SpinStop_PhysAngular(struct Thread *t, struct Driver *d)
 	d->angle = (d->angle + ((d->ampTurnState * elapsedTimeMS) >> 0xd)) & 0xfff;
 	d->rotCurr.y = d->unk3D4[0] + d->angle + d->turnAngleCurr;
 
-	d->rotCurr.w = DECOMP_VehCalc_InterpBySpeed(d->rotCurr.w, elapsedTimeMS, 0);
-	d->turnAngleCurr = DECOMP_VehCalc_InterpBySpeed(d->turnAngleCurr, elapsedTimeMS << 2, 0);
+	d->rotCurr.w = VehCalc_InterpBySpeed(d->rotCurr.w, elapsedTimeMS, 0);
+	d->turnAngleCurr = VehCalc_InterpBySpeed(d->turnAngleCurr, elapsedTimeMS << 2, 0);
 
 	VehPhysForce_RotAxisAngle(&d->matrixMovingDir, &d->AxisAngle1_normalVec.x, d->angle);
 }

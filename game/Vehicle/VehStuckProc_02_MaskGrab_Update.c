@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80066d4c-0x80066e3c.
-void DECOMP_VehStuckProc_MaskGrab_Update(struct Thread *t, struct Driver *d)
+void VehStuckProc_MaskGrab_Update(struct Thread *t, struct Driver *d)
 {
 	struct GameTracker *gGT = sdata->gGT;
 
@@ -32,9 +32,9 @@ void DECOMP_VehStuckProc_MaskGrab_Update(struct Thread *t, struct Driver *d)
 	gGT->cameraDC[d->driverID].flags |= 8;
 
 
-	DECOMP_VehStuckProc_MaskGrab_FindDestPos(d, d->lastValid);
+	VehStuckProc_MaskGrab_FindDestPos(d, d->lastValid);
 
-	DECOMP_VehBirth_TeleportSelf(d, 0, 0x80);
+	VehBirth_TeleportSelf(d, 0, 0x80);
 
-	DECOMP_VehStuckProc_RevEngine_Init(t, d);
+	VehStuckProc_RevEngine_Init(t, d);
 }

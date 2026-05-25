@@ -1,6 +1,6 @@
 #include <common.h>
 
-int DECOMP_Timer_GetTime_Total()
+int Timer_GetTime_Total()
 {
 	int sysClock = GetRCnt(0xf2000001) + sdata->rcntTotalUnits;
 

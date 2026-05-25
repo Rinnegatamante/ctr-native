@@ -23,9 +23,9 @@
 #endif
 
 #if defined(_WIN32)
-#define CTR_MEM_COMMIT      0x00001000
-#define CTR_MEM_RESERVE     0x00002000
-#define CTR_PAGE_READWRITE  0x04
+#define CTR_MEM_COMMIT     0x00001000
+#define CTR_MEM_RESERVE    0x00002000
+#define CTR_PAGE_READWRITE 0x04
 __declspec(dllimport) void *__stdcall VirtualAlloc(void *lpAddress, size_t dwSize, unsigned long flAllocationType, unsigned long flProtect);
 __declspec(dllimport) unsigned long __stdcall GetLastError(void);
 #endif
@@ -214,6 +214,12 @@ int main(int argc, char *argv[])
 
 	Platform_InitFilesystem("assets/ctr-u.bin");
 	Platform_InitScratchpad();
+
+	// // NOTE(aalhendi): CTR already throttles through the retail VSync/draw-sync
+	// // path. Do not add a second SDL swap wait here, or gameplay runs as 64 ms
+	// // physics frames and collision can tunnel through slopes.
+	// PsyX_SetSwapInterval(0);
+	// PsyX_EnableSwapInterval(0);
 
 	// NOTE(aalhendi): PsyCross swap interval - combined with VSync() below, locks to 30fps
 	PsyX_SetSwapInterval(2);

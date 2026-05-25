@@ -3,7 +3,7 @@
 // store a backup of "currFrame" into "lastFrame"
 // param1 is pointer to gamepadSystem
 
-void DECOMP_GAMEPAD_ProcessHold(struct GamepadSystem *gGamepads)
+void GAMEPAD_ProcessHold(struct GamepadSystem *gGamepads)
 {
 	char j;
 	char *btnMapPtr;

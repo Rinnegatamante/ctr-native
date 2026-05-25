@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002e55c-0x8002e5cc
-void DECOMP_GTE_AudioLR_Inst(MATRIX *matrix, s32 *vec)
+void GTE_AudioLR_Inst(MATRIX *matrix, s32 *vec)
 {
 	SVECTOR input;
 
@@ -14,9 +14,4 @@ void DECOMP_GTE_AudioLR_Inst(MATRIX *matrix, s32 *vec)
 	gte_ldv0(&input);
 	gte_rtv0();
 	gte_stlvnl((VECTOR *)vec);
-}
-
-void GTE_AudioLR_Inst(MATRIX *matrix, s32 *vec)
-{
-	DECOMP_GTE_AudioLR_Inst(matrix, vec);
 }

@@ -1,7 +1,7 @@
 #include <common.h>
 
 // Electric particles spin in circle under driver
-void DECOMP_VehStuckProc_Warp_AddDustPuff1(struct ScratchpadStruct *sps)
+void VehStuckProc_Warp_AddDustPuff1(struct ScratchpadStruct *sps)
 {
 	struct GameTracker *gGT = sdata->gGT;
 

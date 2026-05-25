@@ -44,7 +44,7 @@ void DECOMP_RB_TNT_ThTick_ThrowOnHead(struct Thread *t)
 			mw->numFramesOnHead = 0;
 
 			// number of jumps is 7 or 8
-			mw->jumpsRemaining = 8 - (DECOMP_MixRNG_Scramble() & 1);
+			mw->jumpsRemaining = 8 - (MixRNG_Scramble() & 1);
 
 			// play sound that you hit a TNT
 			PlaySound3D(0x51, inst);

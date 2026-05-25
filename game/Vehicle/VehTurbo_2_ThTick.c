@@ -295,8 +295,3 @@ void VehTurbo_ThTick(struct Thread *turboThread)
 	// modern GCC "without" the $RA skip is more
 	// optimized than PSYQ "with" the $RA skip
 }
-
-void DECOMP_VehTurbo_ThTick(struct Thread *turboThread)
-{
-	VehTurbo_ThTick(turboThread);
-}

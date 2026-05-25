@@ -1,6 +1,6 @@
 #include <common.h>
 
-int DECOMP_VehPhysJoystick_GetStrength(int val, int max, struct RacingWheelData *rwd)
+int VehPhysJoystick_GetStrength(int val, int max, struct RacingWheelData *rwd)
 {
 	int dead;
 	int range;

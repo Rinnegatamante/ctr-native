@@ -16,8 +16,3 @@ void VehStuckProc_Tumble_PhysLinear(struct Thread *thread, struct Driver *driver
 	driver->actionsFlagSet |= 0x5808;
 	driver->jump_InitialVelY = driver->NoInputTimer * 2 + 6000;
 }
-
-void DECOMP_VehStuckProc_Tumble_PhysLinear(struct Thread *thread, struct Driver *driver)
-{
-	VehStuckProc_Tumble_PhysLinear(thread, driver);
-}

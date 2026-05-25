@@ -97,7 +97,7 @@ void DECOMP_MM_TrackSelect_MenuProc(struct RectMenu *menu)
 				if ((gGT->gameMode1 & TIME_TRIAL) != 0)
 				{
 					// allocate room at the end of RAM for ghosts
-					sdata->ptrGhostTapePlaying = DECOMP_MEMPACK_AllocHighMem(0x3e00 /*, R230.s_loaded_ghost_data*/);
+					sdata->ptrGhostTapePlaying = MEMPACK_AllocHighMem(0x3e00 /*, R230.s_loaded_ghost_data*/);
 
 					memset(sdata->ptrGhostTapePlaying, 0, 0x28);
 
@@ -405,7 +405,7 @@ void DECOMP_MM_TrackSelect_MenuProc(struct RectMenu *menu)
 				gGT->levelID = selectMenu[iVar10].levID;
 
 				// (useless?)
-				DECOMP_GAMEPROG_GetPtrHighScoreTrack();
+				GAMEPROG_GetPtrHighScoreTrack();
 
 				int timeTrialFlags = sdata->gameProgress.highScoreTracks[gGT->levelID].timeTrialFlags;
 
@@ -417,25 +417,25 @@ void DECOMP_MM_TrackSelect_MenuProc(struct RectMenu *menu)
 
 					struct Icon **iconPtrArray = ICONGROUP_GETICONS(gGT->iconGroup[5]);
 
-					DECOMP_DecalHUD_DrawPolyGT4(iconPtrArray[0x37], iVar11 + 256 + 4, (int)sVar7 + iVar17 * 8 + 4,
+					DecalHUD_DrawPolyGT4(iconPtrArray[0x37], iVar11 + 256 + 4, (int)sVar7 + iVar17 * 8 + 4,
 
-					                            // pointer to PrimMem struct
-					                            &gGT->backBuffer->primMem,
+					                     // pointer to PrimMem struct
+					                     &gGT->backBuffer->primMem,
 
-					                            // pointer to OT mem
-					                            gGT->pushBuffer_UI.ptrOT,
+					                     // pointer to OT mem
+					                     gGT->pushBuffer_UI.ptrOT,
 
-					                            // color data
-					                            starColor[0], starColor[1], starColor[2], starColor[3],
+					                     // color data
+					                     starColor[0], starColor[1], starColor[2], starColor[3],
 
-					                            0, FP(1.0));
+					                     0, FP(1.0));
 				}
 			}
 			// restore levelID
 			gGT->levelID = sVar5;
 
 			// (useless?)
-			DECOMP_GAMEPROG_GetPtrHighScoreTrack();
+			GAMEPROG_GetPtrHighScoreTrack();
 		}
 
 		// alphabet
@@ -482,7 +482,7 @@ void DECOMP_MM_TrackSelect_MenuProc(struct RectMenu *menu)
 			q.w = r.w - 12;
 			q.h = r.h - 8;
 
-			DECOMP_CTR_Box_DrawClearBox(&q, &sdata->menuRowHighlight_Normal, TRANS_50_DECAL, gGT->backBuffer->otMem.startPlusFour);
+			CTR_Box_DrawClearBox(&q, &sdata->menuRowHighlight_Normal, TRANS_50_DECAL, gGT->backBuffer->otMem.startPlusFour);
 		}
 
 		// Draw 2D Menu rectangle background

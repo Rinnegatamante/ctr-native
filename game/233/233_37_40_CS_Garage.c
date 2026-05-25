@@ -25,10 +25,10 @@ void DECOMP_CS_Garage_ZoomOut(char zoomState)
 	// if just entered garage
 	if (zoomState == 0)
 	{
-		DECOMP_Garage_Init();
-		DECOMP_Garage_Enter(sdata->advCharSelectIndex_curr);
+		Garage_Init();
+		Garage_Enter(sdata->advCharSelectIndex_curr);
 
-		DECOMP_Audio_SetState_Safe(8);
+		Audio_SetState_Safe(8);
 	}
 }
 
@@ -147,7 +147,7 @@ void DECOMP_CS_Garage_MenuProc(struct RectMenu *param_1)
 		r.h = 7;
 
 		// outline color white at 0x800b7780
-		DECOMP_CTR_Box_DrawWireBox(&r, MakeColor(0xFF, 0xFF, 0xFF), gGT->pushBuffer_UI.ptrOT);
+		CTR_Box_DrawWireBox(&r, MakeColor(0xFF, 0xFF, 0xFF), gGT->pushBuffer_UI.ptrOT);
 
 		// bar shadows
 		r.x = statBarPosX + 1;
@@ -156,7 +156,7 @@ void DECOMP_CS_Garage_MenuProc(struct RectMenu *param_1)
 		r.h = 5;
 
 		// outline color black (shadows)
-		DECOMP_CTR_Box_DrawWireBox(&r, MakeColor(0, 0, 0), gGT->pushBuffer_UI.ptrOT);
+		CTR_Box_DrawWireBox(&r, MakeColor(0, 0, 0), gGT->pushBuffer_UI.ptrOT);
 
 		int segmentLen = 13;
 		int segmentStart = 0;
@@ -267,13 +267,13 @@ void DECOMP_CS_Garage_MenuProc(struct RectMenu *param_1)
 
 	for (i = 0; i < 2; i++)
 	{
-		DECOMP_DecalHUD_Arrow2D(iconPtrArray[0x38], arrowPos[i], 187,
+		DecalHUD_Arrow2D(iconPtrArray[0x38], arrowPos[i], 187,
 
-		                        primMem, gGT->pushBuffer_UI.ptrOT,
+		                 primMem, gGT->pushBuffer_UI.ptrOT,
 
-		                        arrowColors[0], arrowColors[1], arrowColors[2], arrowColors[3],
+		                 arrowColors[0], arrowColors[1], arrowColors[2], arrowColors[3],
 
-		                        0, 0x1000, arrowRot[i]);
+		                 0, 0x1000, arrowRot[i]);
 	}
 
 	garageFrames = gGarage.numFramesCurr_GarageMove;
@@ -317,10 +317,10 @@ void DECOMP_CS_Garage_MenuProc(struct RectMenu *param_1)
 					// return to main menu
 					sdata->mainMenuState = 0;
 
-					DECOMP_Garage_Leave();
+					Garage_Leave();
 
 					// load main menu LEV
-					DECOMP_MainRaceTrack_RequestLoad(0x27);
+					MainRaceTrack_RequestLoad(0x27);
 				}
 			}
 		}
@@ -352,7 +352,7 @@ void DECOMP_CS_Garage_MenuProc(struct RectMenu *param_1)
 					data.characterIDs[0] = gGarage.unusedArr_garageChars[currSelectIndex];
 					sdata->advProgress.characterID = data.characterIDs[0];
 
-					DECOMP_SubmitName_RestoreName(0);
+					SubmitName_RestoreName(0);
 					DECOMP_OtherFX_Play(1, 1);
 				}
 			}
@@ -396,7 +396,7 @@ void DECOMP_CS_Garage_MenuProc(struct RectMenu *param_1)
 			currSelectIndex &= 7;
 			sdata->advCharSelectIndex_curr = currSelectIndex;
 
-			DECOMP_Garage_MoveLR(currSelectIndex);
+			Garage_MoveLR(currSelectIndex);
 		}
 
 		// reset frame counter to max number of frames
@@ -438,7 +438,7 @@ SKIP_CONTROLS:
 			data.characterIDs[0] = gGarage.unusedArr_garageChars[currSelectIndex];
 			sdata->advProgress.characterID = data.characterIDs[0];
 
-			DECOMP_SubmitName_RestoreName(0);
+			SubmitName_RestoreName(0);
 			DECOMP_OtherFX_Play(1, 1);
 		}
 		else
@@ -492,7 +492,7 @@ SKIP_CONTROLS:
 	int getPath;
 	s16 camPos[3];
 	s16 camRot[3];
-	DECOMP_CAM_Path_Move((int)garageFrames, &camPos[0], &camRot[0], &getPath);
+	CAM_Path_Move((int)garageFrames, &camPos[0], &camRot[0], &getPath);
 
 	// set position and rotation to pushBuffer
 	gGT->pushBuffer[0].pos[0] = camPos[0];

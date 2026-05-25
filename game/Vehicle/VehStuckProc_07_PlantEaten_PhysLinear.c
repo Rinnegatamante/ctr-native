@@ -20,8 +20,3 @@ void VehStuckProc_PlantEaten_PhysLinear(struct Thread *t, struct Driver *d)
 
 	d->timeSpentEaten += sdata->gGT->elapsedTimeMS;
 }
-
-void DECOMP_VehStuckProc_PlantEaten_PhysLinear(struct Thread *t, struct Driver *d)
-{
-	VehStuckProc_PlantEaten_PhysLinear(t, d);
-}

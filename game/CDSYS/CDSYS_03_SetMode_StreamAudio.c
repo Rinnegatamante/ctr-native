@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8001c4f4-0x8001c56c.
-void DECOMP_CDSYS_SetMode_StreamAudio()
+void CDSYS_SetMode_StreamAudio()
 {
 	char buf[8];
 
@@ -27,6 +27,6 @@ void DECOMP_CDSYS_SetMode_StreamAudio()
 	sdata->discMode = DM_AUDIO;
 	sdata->XA_State = 0;
 
-	CdSyncCallback(DECOMP_CDSYS_XaCallbackCdSync);
-	CdReadyCallback(DECOMP_CDSYS_XaCallbackCdReady);
+	CdSyncCallback(CDSYS_XaCallbackCdSync);
+	CdReadyCallback(CDSYS_XaCallbackCdReady);
 }

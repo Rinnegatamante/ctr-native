@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002d67c-0x8002dc4c
-void DECOMP_Audio_Update1(void)
+void Audio_Update1(void)
 {
 	char i;
 	int raceOrderIndex;
@@ -17,11 +17,11 @@ void DECOMP_Audio_Update1(void)
 	case 5:
 		if ((sdata->XA_State == 0) || (sdata->XA_Playing_Category != 0))
 		{
-			DECOMP_Audio_SetState_Safe(5);
+			Audio_SetState_Safe(5);
 		}
 		break;
 	case 7:
-		DECOMP_Garage_LerpFX();
+		Garage_LerpFX();
 		break;
 	case 8:
 		if (sdata->XA_State == 0)
@@ -31,7 +31,7 @@ void DECOMP_Audio_Update1(void)
 			// 11 means racing
 
 			// Change state to traffic lights
-			DECOMP_Audio_SetState_Safe(10);
+			Audio_SetState_Safe(10);
 		}
 		break;
 	case 9:
@@ -44,11 +44,11 @@ void DECOMP_Audio_Update1(void)
 			// 11 means racing
 
 			// Change State to 11, which means racing
-			DECOMP_Audio_SetState_Safe(11);
+			Audio_SetState_Safe(11);
 		}
 		break;
 	case 10:
-		DECOMP_Audio_SetMaskSong(0);
+		Audio_SetMaskSong(0);
 
 		// human driver in the lead
 		for (i = 0; i < 8; i++)
@@ -62,7 +62,7 @@ void DECOMP_Audio_Update1(void)
 			d = 0;
 		}
 
-		DECOMP_Voiceline_Update();
+		Voiceline_Update();
 
 		Level_AmbientSound();
 
@@ -73,11 +73,11 @@ void DECOMP_Audio_Update1(void)
 		    // distToFinish is small
 		    (d->distanceToFinish_curr < 9000))
 		{
-			DECOMP_Audio_SetState_Safe(12);
+			Audio_SetState_Safe(12);
 		}
 		break;
 	case 11:
-		DECOMP_Audio_SetMaskSong(0);
+		Audio_SetMaskSong(0);
 
 		// human driver in the lead
 		for (i = 0; i < 8; i++)
@@ -98,7 +98,7 @@ void DECOMP_Audio_Update1(void)
 			if (2000 < d->distanceToFinish_curr)
 			{
 				// (FINAL LAP! music)
-				DECOMP_CDSYS_XASeek(1, 0, 6);
+				CDSYS_XASeek(1, 0, 6);
 			}
 
 			// dont need to XASeek
@@ -111,7 +111,7 @@ void DECOMP_Audio_Update1(void)
 		if (d->lapIndex == gGT->numLaps - 1U)
 		{
 			// Play final lap sound
-			DECOMP_Audio_SetState_Safe(13);
+			Audio_SetState_Safe(13);
 		}
 		break;
 	case 12:
@@ -120,22 +120,22 @@ void DECOMP_Audio_Update1(void)
 		// if XA has been playing more than a second
 		if (0xe1 < sdata->XA_CurrOffset)
 		{
-			DECOMP_Music_RaiseVolume();
+			Music_RaiseVolume();
 
 			maskTempo = 20;
 		}
 
-		DECOMP_Audio_SetMaskSong(maskTempo);
+		Audio_SetMaskSong(maskTempo);
 
 		Level_AmbientSound();
 
 		if (sdata->XA_State == 0)
 		{
-			DECOMP_Audio_SetState_Safe(14);
+			Audio_SetState_Safe(14);
 		}
 		break;
 	case 13:
-		DECOMP_Audio_SetMaskSong(20);
+		Audio_SetMaskSong(20);
 
 		// human driver in the lead
 		for (i = 0; i < 8; i++)
@@ -149,7 +149,7 @@ void DECOMP_Audio_Update1(void)
 			d = 0;
 		}
 
-		DECOMP_Voiceline_Update();
+		Voiceline_Update();
 
 		Level_AmbientSound();
 
@@ -160,7 +160,7 @@ void DECOMP_Audio_Update1(void)
 		    // if finish line is close
 		    (d->distanceToFinish_curr < 9000))
 		{
-			DECOMP_Audio_SetState_Safe(15);
+			Audio_SetState_Safe(15);
 		}
 
 		break;
@@ -186,7 +186,7 @@ void DECOMP_Audio_Update1(void)
 			// far from finish line
 			if (2000 < d->distanceToFinish_curr)
 			{
-				DECOMP_CDSYS_XASeek(1, 0, 4);
+				CDSYS_XASeek(1, 0, 4);
 			}
 
 			// dont need to XASeek
@@ -220,7 +220,7 @@ void DECOMP_Audio_Update1(void)
 				else
 				{
 					// Check if N Tropy has been beaten on all tracks
-					uVar2 = DECOMP_GAMEPROG_CheckGhostsBeaten(1);
+					uVar2 = GAMEPROG_CheckGhostsBeaten(1);
 
 					// If there is a track where N Tropy has not been beaten
 					if ((uVar2 & 0xffff) == 0)
@@ -270,7 +270,7 @@ void DECOMP_Audio_Update1(void)
 			// desired XA
 			sdata->desiredXA_RaceEndIndex = uVar1;
 
-			DECOMP_Audio_SetState_Safe(0x10);
+			Audio_SetState_Safe(0x10);
 		}
 		break;
 	case 15:
@@ -279,7 +279,7 @@ void DECOMP_Audio_Update1(void)
 
 		if (sdata->XA_State == 0)
 		{
-			DECOMP_Audio_SetMaskSong(0);
+			Audio_SetMaskSong(0);
 		}
 	}
 }

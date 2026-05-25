@@ -1,6 +1,6 @@
 #include <common.h>
 
-int DECOMP_RaceFlag_IsTransitioning()
+int RaceFlag_IsTransitioning()
 {
 	int pos = sdata->RaceFlag_Position;
 

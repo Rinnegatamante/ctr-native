@@ -45,7 +45,7 @@ void DECOMP_LOAD_ReadFileASyncCallback(CdlIntrResult result, u8 *unk)
 		if ((lqs->flags & LT_MEMPACK) != 0)
 		{
 			// undo allocation, try again
-			DECOMP_MEMPACK_ReallocMem(0);
+			MEMPACK_ReallocMem(0);
 		}
 
 		sdata->queueRetry = 1;

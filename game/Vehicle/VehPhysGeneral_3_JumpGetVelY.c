@@ -20,8 +20,3 @@ int VehPhysGeneral_JumpGetVelY(s16 *normalVec, Vec3 *speedXYZ)
 
 	return dot / normalY;
 }
-
-int DECOMP_VehPhysGeneral_JumpGetVelY(s16 *normalVec, Vec3 *speedXYZ)
-{
-	return VehPhysGeneral_JumpGetVelY(normalVec, speedXYZ);
-}
