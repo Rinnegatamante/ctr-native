@@ -1,5 +1,6 @@
 #include <common.h>
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x8003c480-0x8003c508 for the retail shutdown path.
 void DECOMP_MainKillGame_LaunchSpyro2(void)
 {
 	DECOMP_CTR_ErrorScreen(0, 0, 0);
