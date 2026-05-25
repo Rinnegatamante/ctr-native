@@ -4,7 +4,11 @@ void RB_Burst_ThTick();
 void RB_Burst_CollLevInst();
 void RB_Burst_CollThBucket();
 
-// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b2154-0x800b25b8.
+static char s_burst_explosion1[] = "explosion1";
+static char s_burst_explosion2[] = "explosion2";
+static char s_burst_shockwave1[] = "shockwave1";
+
+// NOTE(aalhendi): ASM-verified against NTSC-U 926 overlay 231 0x800b2154-0x800b25b8.
 void RB_Burst_Init(struct Instance *weaponInst)
 {
 	struct GameTracker *gGT = sdata->gGT;
@@ -14,7 +18,7 @@ void RB_Burst_Init(struct Instance *weaponInst)
 	int *burst;
 
 	// initialize thread for burst
-	currInst = INSTANCE_BirthWithThread(0x2b, 0, SMALL, BURST, RB_Burst_ThTick, 0xc, 0);
+	currInst = INSTANCE_BirthWithThread(0x2b, s_burst_explosion1, SMALL, BURST, RB_Burst_ThTick, 0xc, 0);
 
 	// get thread from instance
 	t = currInst->thread;
@@ -40,7 +44,7 @@ void RB_Burst_Init(struct Instance *weaponInst)
 
 	// ======== Next one ===========
 
-	currInst = INSTANCE_Birth3D(gGT->modelPtr[STATIC_WARPEDBURST], 0, t);
+	currInst = INSTANCE_Birth3D(gGT->modelPtr[STATIC_WARPEDBURST], s_burst_explosion2, t);
 
 	burst[2] = (int)currInst;
 	currInst->unk50 += -2;
@@ -63,7 +67,7 @@ void RB_Burst_Init(struct Instance *weaponInst)
 
 	// ======= Next One ===========
 
-	currInst = INSTANCE_Birth3D(gGT->modelPtr[STATIC_SHOCKWAVE_RED], 0, t);
+	currInst = INSTANCE_Birth3D(gGT->modelPtr[STATIC_SHOCKWAVE_RED], s_burst_shockwave1, t);
 
 	burst[0] = (int)currInst;
 	currInst->unk50 += -2;
