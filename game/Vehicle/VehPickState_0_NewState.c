@@ -212,11 +212,15 @@ int VehPickState_NewState(struct Driver *victimDriver, int damageType, struct Dr
 		// if-checked for Battle inside the function
 		RB_Player_KillPlayer(attackDriver, victimDriver);
 
-		// === Naughty Dog Bug ===
-		// original game checks END_OF_RACE here for quip stores even though the outer guard
-		// already rejected END_OF_RACE before this block.
+		// NOTE(aalhendi): Retail rechecks END_OF_RACE after RB_Player_KillPlayer,
+		// which can transition battle finish state inside this block.
+		if ((sdata->gGT->gameMode1 & END_OF_RACE) != 0)
+		{
+			attackDriver->quip1 = (s16)reason;
+			victimDriver->quip3 = (s16)reason;
+		}
 
-		if ((attackDriver == victimDriver) && ((gameMode1 & POINT_LIMIT) != 0))
+		if ((attackDriver == victimDriver) && ((sdata->gGT->gameMode1 & POINT_LIMIT) != 0))
 		{
 			if (victimDriver->BattleHUD.cooldown == 5)
 			{
