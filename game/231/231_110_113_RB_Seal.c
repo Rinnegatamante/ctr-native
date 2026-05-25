@@ -1,5 +1,9 @@
 #include <common.h>
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b8c00-0x800b92ac.
+
+void DECOMP_RB_Seal_ThTick_Move(struct Thread *t);
+
 // one seal can not collide with more than one other thread,
 // then quits, it was like that in the original game too,
 // but one seal likely-wont collide with two threads at the same time
@@ -79,6 +83,11 @@ void Seal_CheckColl(struct Instance *sealInst, struct Thread *sealTh, int damage
 #endif
 }
 
+int DECOMP_RB_Seal_ThCollide(struct Thread *thread)
+{
+	return thread->modelIndex == DYNAMIC_PLAYER;
+}
+
 void DECOMP_RB_Seal_ThTick_TurnAround(struct Thread *t)
 {
 	struct Instance *sealInst;
@@ -106,32 +115,39 @@ void DECOMP_RB_Seal_ThTick_TurnAround(struct Thread *t)
 #endif
 	}
 
-	// spin rotCurrY 180 degrees (turn around)
-	sealObj->rotCurr[1] = DECOMP_RB_Hazard_InterpolateValue(sealObj->rotCurr[1], sealObj->rotDesired[1], 0x80);
-
-	// negate rotCurrX (slant)
-	sealObj->rotCurr[0] = DECOMP_RB_Hazard_InterpolateValue(sealObj->rotCurr[0], sealObj->rotDesired[0], 0x14);
-
-	// negate rotCurrZ (slant)
-	sealObj->rotCurr[2] = DECOMP_RB_Hazard_InterpolateValue(sealObj->rotCurr[2], sealObj->rotDesired[2], 0x14);
-
-	// converted to TEST in rebuildPS1
-	ConvertRotToMatrix(&sealInst->matrix, &sealObj->rotCurr[0]);
-
 	// if rotation is finished
-	if (sealObj->rotCurr[1] != sealObj->rotDesired[1])
+	if (sealObj->rotCurr[1] == sealObj->rotDesiredAlt[1])
 	{
-		Seal_CheckColl(sealInst, t, 1, 0x4000, 0x78);
-		return;
+		sealObj->numFramesSpinning = 0;
+
+		for (int i = 0; i < 3; i++)
+		{
+			sealObj->rotDesired[i] = sealObj->rotCurr[i];
+		}
+
+		ConvertRotToMatrix(&sealInst->matrix, &sealObj->rotCurr[0]);
+
+		ThTick_SetAndExec(t, DECOMP_RB_Seal_ThTick_Move);
 	}
 
-	// === End of TurnAround state ===
+	else
+	{
+		// spin rotCurrY 180 degrees (turn around)
+		sealObj->rotCurr[1] = DECOMP_RB_Hazard_InterpolateValue(sealObj->rotCurr[1], sealObj->rotDesiredAlt[1], 0x80);
 
-	// negate
-	sealObj->direction = !sealObj->direction;
+		// negate rotCurrX (slant)
+		sealObj->rotCurr[0] = DECOMP_RB_Hazard_InterpolateValue(sealObj->rotCurr[0], -sealObj->rotDesired[0], 0x14);
 
-	// turn move
-	ThTick_SetAndExec(t, DECOMP_RB_Seal_ThTick_Move);
+		// negate rotCurrZ (slant)
+		sealObj->rotCurr[2] = DECOMP_RB_Hazard_InterpolateValue(sealObj->rotCurr[2], -sealObj->rotDesired[2], 0x14);
+
+		sealObj->numFramesSpinning++;
+
+		// converted to TEST in rebuildPS1
+		ConvertRotToMatrix(&sealInst->matrix, &sealObj->rotCurr[0]);
+	}
+
+	Seal_CheckColl(sealInst, t, 1, 0x4000, 0x78);
 }
 
 void DECOMP_RB_Seal_ThTick_Move(struct Thread *t)
@@ -168,34 +184,50 @@ void DECOMP_RB_Seal_ThTick_Move(struct Thread *t)
 	// moving towards spawn (0)
 	if (sealObj->direction == 0)
 	{
-		// until == 0
-		sealObj->distFromSpawn--;
+		if (sealObj->distFromSpawn > 0)
+		{
+			sealObj->distFromSpawn--;
+			Seal_CheckColl(sealInst, t, 1, 0x4000, 0x78);
+			return;
+		}
+
+		if (sealObj->distFromSpawn != 0)
+		{
+			Seal_CheckColl(sealInst, t, 1, 0x4000, 0x78);
+			return;
+		}
+
+		sealObj->direction = 1;
 	}
 
 	// moving away from spawn (1)
 	else
 	{
-		// until == 0x2d
-		sealObj->distFromSpawn++;
-	}
+		if (sealObj->distFromSpawn < 0x2d)
+		{
+			sealObj->distFromSpawn++;
+			Seal_CheckColl(sealInst, t, 1, 0x4000, 0x78);
+			return;
+		}
 
-	if (sealObj->distFromSpawn != sealObj->direction * 0x2d)
-	{
-		Seal_CheckColl(sealInst, t, 1, 0x4000, 0x78);
-		return;
+		if (sealObj->distFromSpawn != 0x2d)
+		{
+			Seal_CheckColl(sealInst, t, 1, 0x4000, 0x78);
+			return;
+		}
+
+		sealObj->direction = 0;
 	}
 
 	// === end of Move state ===
 
 	// flip Y 180 degrees (turn around)
-	sealObj->rotDesired[1] = (sealObj->rotCurr[1] + 0x800) & 0xfff;
-
-	// negate X and Z (for slants)
-	sealObj->rotDesired[0] = -sealObj->rotCurr[0];
-	sealObj->rotDesired[2] = -sealObj->rotCurr[2];
+	sealObj->rotDesiredAlt[1] = (sealObj->rotCurr[1] + 0x800) & 0xfff;
 
 	// turn around
 	ThTick_SetAndExec(t, DECOMP_RB_Seal_ThTick_TurnAround);
+
+	Seal_CheckColl(sealInst, t, 1, 0x4000, 0x78);
 }
 
 void DECOMP_RB_Seal_LInB(struct Instance *inst)
@@ -203,13 +235,17 @@ void DECOMP_RB_Seal_LInB(struct Instance *inst)
 	struct Seal *sealObj;
 	struct SpawnType2 *spawnType2;
 	struct InstDef *instDef;
+	struct Thread *t;
 
-	struct Thread *t = DECOMP_PROC_BirthWithObject(
+	if (inst->thread != 0)
+		return;
+
+	t = DECOMP_PROC_BirthWithObject(
 	    // creation flags
 	    SIZE_RELATIVE_POOL_BUCKET(sizeof(struct Seal), NONE, SMALL, STATIC),
 
 	    DECOMP_RB_Seal_ThTick_Move, // behavior
-	    0,                          // debug name
+	    "seal",                     // debug name
 	    0                           // thread relative
 	);
 
@@ -217,6 +253,7 @@ void DECOMP_RB_Seal_LInB(struct Instance *inst)
 		return;
 	inst->thread = t;
 	t->inst = inst;
+	t->funcThCollide = (void (*)(struct Thread *))DECOMP_RB_Seal_ThCollide;
 
 	inst->scale[0] = 0x2000;
 	inst->scale[1] = 0x2000;
@@ -225,24 +262,39 @@ void DECOMP_RB_Seal_LInB(struct Instance *inst)
 	sealObj = ((struct Seal *)t->object);
 	sealObj->distFromSpawn = 0;
 	sealObj->direction = 1;
-	sealObj->sealID = inst->name[5] - '0';
+	sealObj->sealID = inst->name[strlen(inst->name) - 1] - '0';
 
-	spawnType2 = &sdata->gGT->level1->ptrSpawnType2[sealObj->sealID];
+	if (sdata->gGT->level1->numSpawnType2 != 0)
+	{
+		spawnType2 = &sdata->gGT->level1->ptrSpawnType2[sealObj->sealID];
 
-	// spawnPos
-	*(int *)&sealObj->spawnPos[0] = *(int *)&spawnType2->posCoords[0];
-	sealObj->spawnPos[2] = spawnType2->posCoords[2];
+		// spawnPos
+		*(int *)&sealObj->spawnPos[0] = *(int *)&spawnType2->posCoords[0];
+		sealObj->spawnPos[2] = spawnType2->posCoords[2];
+
+		// endPos
+		*(int *)&sealObj->endPos[0] = *(int *)&spawnType2->posCoords[3];
+		sealObj->endPos[2] = spawnType2->posCoords[5];
+	}
 
 	// distance between points
-	sealObj->vel[0] = sealObj->spawnPos[0] - spawnType2->posCoords[3];
-	sealObj->vel[1] = sealObj->spawnPos[1] - spawnType2->posCoords[4];
-	sealObj->vel[2] = sealObj->spawnPos[2] - spawnType2->posCoords[5];
+	for (int i = 0; i < 3; i++)
+	{
+		sealObj->vel[i] = sealObj->spawnPos[i] - sealObj->endPos[i];
+	}
 
 	// rotCurr
 	instDef = inst->instDef;
 	sealObj->rotCurr[0] = instDef->rot[0];
 	sealObj->rotCurr[1] = instDef->rot[1];
 	sealObj->rotCurr[2] = instDef->rot[2];
+
+	for (int i = 0; i < 3; i++)
+	{
+		sealObj->rotDesired[i] = sealObj->rotCurr[i];
+	}
+
+	sealObj->numFramesSpinning = 0;
 
 	// converted to TEST in rebuildPS1
 	ConvertRotToMatrix(&inst->matrix, &sealObj->rotCurr[0]);
