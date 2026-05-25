@@ -2,7 +2,8 @@
 
 #define MAX_KARTS 8
 
-void BOTS_UpdateGlobals(void) // UNTESTED
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80013374-0x80013444.
+void BOTS_UpdateGlobals(void)
 {
 	struct GameTracker *gGT = sdata->gGT;
 
@@ -13,7 +14,7 @@ void BOTS_UpdateGlobals(void) // UNTESTED
 
 	sdata->bestHumanRank = NULL;
 	sdata->bestRobotRank = NULL;
-	struct Driver *worstRobotDriver;
+	struct Driver *worstRobotDriver = NULL;
 
 	for (int i = MAX_KARTS - 1; i >= 0; i--)
 	{
