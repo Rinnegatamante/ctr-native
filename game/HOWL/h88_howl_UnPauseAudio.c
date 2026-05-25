@@ -39,8 +39,8 @@ void DECOMP_howl_UnPauseAudio()
 		curr->prev = backupPrev;
 		curr->channelID = backupID;
 
-		DECOMP_LIST_RemoveMember(&sdata->channelFree, (struct Item *)curr);
-		DECOMP_LIST_AddBack(&sdata->channelTaken, (struct Item *)curr);
+		LIST_RemoveMember(&sdata->channelFree, (struct Item *)curr);
+		LIST_AddBack(&sdata->channelTaken, (struct Item *)curr);
 
 		DECOMP_howl_UnPauseChannel(curr);
 	}

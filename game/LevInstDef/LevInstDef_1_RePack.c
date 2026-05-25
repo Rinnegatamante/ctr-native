@@ -45,7 +45,7 @@ void DECOMP_LevInstDef_RePack(struct mesh_info *ptr_mesh_info, int boolAdvHub)
 			}
 
 			// erase instance in pool
-			DECOMP_LIST_AddFront(&sdata->gGT->JitPools.instance.free, (struct Item *)visInstSrc[0]);
+			LIST_AddFront(&sdata->gGT->JitPools.instance.free, (struct Item *)visInstSrc[0]);
 
 			// go back to instDef
 			visInstSrc[0] = (struct Instance *)visInstSrc[0]->instDef;

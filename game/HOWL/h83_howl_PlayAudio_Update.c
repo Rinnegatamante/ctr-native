@@ -41,8 +41,8 @@ void DECOMP_howl_PlayAudio_Update()
 
 			curr->flags = statFlags & ~(1);
 
-			DECOMP_LIST_RemoveMember(&sdata->channelTaken, (struct Item *)curr);
-			DECOMP_LIST_AddBack(&sdata->channelFree, (struct Item *)curr);
+			LIST_RemoveMember(&sdata->channelTaken, (struct Item *)curr);
+			LIST_AddBack(&sdata->channelFree, (struct Item *)curr);
 		}
 
 		DECOMP_Channel_ParseSongToChannels();

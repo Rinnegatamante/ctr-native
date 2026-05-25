@@ -137,7 +137,7 @@ void BOTS_Adv_AdjustDifficulty(void)
 
 	for (s16 i = 0; i < 3; i++)
 	{
-		DECOMP_LIST_Clear(&sdata->navBotList[i]);
+		LIST_Clear(&sdata->navBotList[i]);
 
 		if ((gameMode1 & (GAME_CUTSCENE | MAIN_MENU)) == 0)
 		{

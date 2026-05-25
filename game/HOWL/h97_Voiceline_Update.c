@@ -62,8 +62,8 @@ playQueuedVoice:
 	{
 		struct Item *first = sdata->Voiceline2.first;
 
-		DECOMP_LIST_RemoveMember(&sdata->Voiceline2, first);
-		DECOMP_LIST_AddBack(&sdata->Voiceline1, first);
+		LIST_RemoveMember(&sdata->Voiceline2, first);
+		LIST_AddBack(&sdata->Voiceline1, first);
 		Voiceline_StartPlay(first);
 	}
 }

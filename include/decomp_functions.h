@@ -270,15 +270,15 @@ void DECOMP_LevInstDef_RePack(struct mesh_info *ptr_mesh_info, int boolAdvHub);
 struct Instance *DECOMP_LinkedCollide_Hitbox(struct HitboxDesc *objBoxDesc);
 
 // LIST
-void DECOMP_LIST_AddBack(struct LinkedList *L, struct Item *I);
-void DECOMP_LIST_AddFront(struct LinkedList *L, struct Item *I);
-void DECOMP_LIST_Clear(struct LinkedList *L);
-void *DECOMP_LIST_GetFirstItem(struct LinkedList *L);
-void *DECOMP_LIST_GetNextItem(struct Item *I);
-void DECOMP_LIST_Init(struct LinkedList *L, struct Item *item, int itemSize, int numItems);
-struct Item *DECOMP_LIST_RemoveBack(struct LinkedList *L);
-struct Item *DECOMP_LIST_RemoveFront(struct LinkedList *L);
-struct Item *DECOMP_LIST_RemoveMember(struct LinkedList *L, struct Item *I);
+void LIST_AddBack(struct LinkedList *L, struct Item *I);
+void LIST_AddFront(struct LinkedList *L, struct Item *I);
+void LIST_Clear(struct LinkedList *L);
+void *LIST_GetFirstItem(struct LinkedList *L);
+void *LIST_GetNextItem(struct Item *I);
+void LIST_Init(struct LinkedList *L, struct Item *item, int itemSize, int numItems);
+struct Item *LIST_RemoveBack(struct LinkedList *L);
+struct Item *LIST_RemoveFront(struct LinkedList *L);
+struct Item *LIST_RemoveMember(struct LinkedList *L, struct Item *I);
 
 void DECOMP_LOAD_Callback_Overlay_Generic(struct LoadQueueSlot *);
 void DECOMP_LOAD_Callback_Overlay_230(void);

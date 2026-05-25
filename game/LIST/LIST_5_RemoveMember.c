@@ -1,6 +1,6 @@
 #include <common.h>
 
-struct Item *DECOMP_LIST_RemoveMember(struct LinkedList *L, struct Item *I)
+struct Item *LIST_RemoveMember(struct LinkedList *L, struct Item *I)
 {
 #ifdef CTR_INTERNAL
 	if (I != 0 && I->next == 0 && I->prev == 0 && L->count > 1)

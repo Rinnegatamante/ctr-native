@@ -15,8 +15,8 @@ struct ChannelStats *DECOMP_Channel_AllocSlot(int flags, struct ChannelAttr *att
 		return NULL;
 
 	// allocate
-	DECOMP_LIST_RemoveMember(&sdata->channelFree, (struct Item *)stats);
-	DECOMP_LIST_AddBack(&sdata->channelTaken, (struct Item *)stats);
+	LIST_RemoveMember(&sdata->channelFree, (struct Item *)stats);
+	LIST_AddBack(&sdata->channelTaken, (struct Item *)stats);
 
 	// start playing
 	sdata->ChannelUpdateFlags[stats->channelID] |= (flags | 2);

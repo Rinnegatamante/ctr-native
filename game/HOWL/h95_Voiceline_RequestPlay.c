@@ -120,18 +120,18 @@ queueVoiceline:
 	struct Item *item = sdata->Voiceline1.first;
 	if (item != NULL)
 	{
-		DECOMP_LIST_RemoveMember(&sdata->Voiceline1, item);
+		LIST_RemoveMember(&sdata->Voiceline1, item);
 	}
 	else
 	{
 		item = sdata->Voiceline2.last;
 		if (item != NULL)
 		{
-			DECOMP_LIST_RemoveMember(&sdata->Voiceline2, item);
+			LIST_RemoveMember(&sdata->Voiceline2, item);
 		}
 	}
 
-	DECOMP_LIST_AddFront(&sdata->Voiceline2, item);
+	LIST_AddFront(&sdata->Voiceline2, item);
 
 	{
 		u8 *itemBytes = (u8 *)item;

@@ -12,12 +12,12 @@ void DECOMP_RB_MinePool_Add(struct MineWeapon *mw)
 	}
 
 	// LIST_RemoveBack free list
-	ws = (struct WeaponSlot231 *)DECOMP_LIST_RemoveBack(&D231.minePoolFree);
+	ws = (struct WeaponSlot231 *)LIST_RemoveBack(&D231.minePoolFree);
 
 	// link together
 	ws->mineWeapon = mw;
 	mw->weaponSlot231 = ws;
 
 	// LIST_AddFront to taken list
-	DECOMP_LIST_AddFront(&D231.minePoolTaken, (struct Item *)ws);
+	LIST_AddFront(&D231.minePoolTaken, (struct Item *)ws);
 }

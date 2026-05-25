@@ -1,6 +1,6 @@
 #include <common.h>
 
-void DECOMP_LIST_AddBack(struct LinkedList *L, struct Item *I)
+void LIST_AddBack(struct LinkedList *L, struct Item *I)
 {
 	struct Item *oldLast;
 

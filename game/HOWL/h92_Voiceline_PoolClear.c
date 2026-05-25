@@ -9,12 +9,12 @@ void Voiceline_PoolClear(void)
 
 	sdata->boolCanPlayVoicelines = false;
 
-	DECOMP_LIST_Clear(&sdata->Voiceline1);
+	LIST_Clear(&sdata->Voiceline1);
 
-	DECOMP_LIST_Clear(&sdata->Voiceline2);
+	LIST_Clear(&sdata->Voiceline2);
 
 	// put them all on free list
-	DECOMP_LIST_Init(&sdata->Voiceline1, (struct Item *)&sdata->voicelinePool[0].next, 0x10, 8);
+	LIST_Init(&sdata->Voiceline1, (struct Item *)&sdata->voicelinePool[0].next, 0x10, 8);
 
 	DECOMP_Voiceline_ClearTimeStamp();
 }

@@ -52,6 +52,6 @@ void Channel_DestroySelf(struct ChannelStats *stats)
 	stats->flags &= ~(1);
 
 	// recycle
-	DECOMP_LIST_RemoveMember(&sdata->channelTaken, (struct Item *)stats);
-	DECOMP_LIST_AddBack(&sdata->channelFree, (struct Item *)stats);
+	LIST_RemoveMember(&sdata->channelTaken, (struct Item *)stats);
+	LIST_AddBack(&sdata->channelFree, (struct Item *)stats);
 }

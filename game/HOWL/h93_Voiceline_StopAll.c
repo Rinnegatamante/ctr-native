@@ -7,7 +7,7 @@ void DECOMP_Voiceline_StopAll(void)
 	{
 		struct Item *voiceLine = sdata->Voiceline2.last;
 
-		DECOMP_LIST_RemoveMember(&sdata->Voiceline2, voiceLine);
-		DECOMP_LIST_AddFront(&sdata->Voiceline1, voiceLine);
+		LIST_RemoveMember(&sdata->Voiceline2, voiceLine);
+		LIST_AddFront(&sdata->Voiceline1, voiceLine);
 	}
 }

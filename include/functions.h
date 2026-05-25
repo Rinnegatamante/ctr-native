@@ -503,7 +503,7 @@ void *LIST_GetFirstItem(struct LinkedList *L);
 struct Item *LIST_RemoveMember(struct LinkedList *L, struct Item *I);
 struct Item *LIST_RemoveFront(struct LinkedList *L);
 struct Item *LIST_RemoveBack(struct LinkedList *L);
-// LIST_Init()
+void LIST_Init(struct LinkedList *L, struct Item *item, int itemSize, int numItems);
 
 // LOAD
 

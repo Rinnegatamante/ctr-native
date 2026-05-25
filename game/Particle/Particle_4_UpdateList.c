@@ -234,7 +234,7 @@ void Particle_UpdateList(struct Particle **listHead, struct Particle *p)
 
 	destroyParticle:
 		Particle_OnDestroy(p);
-		DECOMP_LIST_AddFront(&sdata->gGT->JitPools.particle.free, (struct Item *)p);
+		LIST_AddFront(&sdata->gGT->JitPools.particle.free, (struct Item *)p);
 		sdata->gGT->numParticles--;
 		*link = next;
 		p = next;

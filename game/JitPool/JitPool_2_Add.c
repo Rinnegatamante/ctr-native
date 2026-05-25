@@ -7,8 +7,8 @@ int DECOMP_JitPool_Add(struct JitPool *AP)
 
 	if (item != 0)
 	{
-		DECOMP_LIST_RemoveMember(&AP->free, item);
-		DECOMP_LIST_AddFront(&AP->taken, item);
+		LIST_RemoveMember(&AP->free, item);
+		LIST_AddFront(&AP->taken, item);
 	}
 
 	return (int)item;

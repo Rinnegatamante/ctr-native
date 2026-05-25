@@ -77,10 +77,6 @@
 #undef CAM_FollowDriver_AngleAxis
 
 #define CAM_EndOfRace               DECOMP_CAM_EndOfRace
-#define LIST_AddFront               DECOMP_LIST_AddFront
-#define LIST_GetFirstItem           DECOMP_LIST_GetFirstItem
-#define LIST_GetNextItem            DECOMP_LIST_GetNextItem
-#define LIST_RemoveMember           DECOMP_LIST_RemoveMember
 #define MATH_Cos                    DECOMP_MATH_Cos
 #define MATH_Sin                    DECOMP_MATH_Sin
 #define OtherFX_Play_Echo           DECOMP_OtherFX_Play_Echo
@@ -114,10 +110,6 @@
 #undef OtherFX_Play_Echo
 #undef MATH_Sin
 #undef MATH_Cos
-#undef LIST_RemoveMember
-#undef LIST_GetNextItem
-#undef LIST_GetFirstItem
-#undef LIST_AddFront
 #undef CAM_EndOfRace
 
 #include "game/CDSYS/CDSYS_00_Init.c"

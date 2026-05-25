@@ -25,8 +25,8 @@ void DECOMP_SongPool_StopCseq(struct SongSeq *seq)
 		curr->flags &= (u8)~1;
 
 		// recycle: remove from taken, put on free
-		DECOMP_LIST_RemoveMember(&sdata->channelTaken, (struct Item *)curr);
-		DECOMP_LIST_AddBack(&sdata->channelFree, (struct Item *)curr);
+		LIST_RemoveMember(&sdata->channelTaken, (struct Item *)curr);
+		LIST_AddBack(&sdata->channelFree, (struct Item *)curr);
 	}
 
 	// not playing

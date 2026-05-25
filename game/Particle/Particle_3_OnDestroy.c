@@ -11,7 +11,7 @@ void Particle_OnDestroy(struct Particle *p)
 	{
 		struct ParticleOscillator *next = osc->next;
 
-		DECOMP_LIST_AddFront(&sdata->gGT->JitPools.oscillator.free, (struct Item *)osc);
+		LIST_AddFront(&sdata->gGT->JitPools.oscillator.free, (struct Item *)osc);
 		osc = next;
 	}
 }

@@ -71,7 +71,7 @@ void BOTS_Driver_Convert(struct Driver *d)
 		d->posCurr.z = nf->pos[2] << 8;
 	}
 
-	DECOMP_LIST_AddFront(&sdata->navBotList[navPathIndex], (struct Item *)&d->botData);
+	LIST_AddFront(&sdata->navBotList[navPathIndex], (struct Item *)&d->botData);
 
 	BOTS_SetRotation(d, 0);
 

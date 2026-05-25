@@ -16,10 +16,10 @@ void DECOMP_Voiceline_PoolInit(void)
 
 	DECOMP_Audio_SetDefaults();
 
-	DECOMP_LIST_Clear(&sdata->channelFree);
-	DECOMP_LIST_Clear(&sdata->channelTaken);
+	LIST_Clear(&sdata->channelFree);
+	LIST_Clear(&sdata->channelTaken);
 
-	DECOMP_LIST_Init(&sdata->channelFree, (struct Item *)&sdata->channelStatsPrev[0], 0x20, 0x18);
+	LIST_Init(&sdata->channelFree, (struct Item *)&sdata->channelStatsPrev[0], 0x20, 0x18);
 
 	SpuSetReverbVoice(0, 0xffffff);
 

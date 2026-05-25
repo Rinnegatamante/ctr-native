@@ -15,7 +15,7 @@ void DECOMP_INSTANCE_LevInitAll(struct InstDef *levInstDef, int numInst)
 	for (int i = 0; i < numInst; i++)
 	{
 		// get first free item in Instance Pool
-		inst = (struct Instance *)DECOMP_LIST_RemoveFront(&gGT->JitPools.instance.free);
+		inst = (struct Instance *)LIST_RemoveFront(&gGT->JitPools.instance.free);
 
 		// NOT writing to model
 		// InstDef + 0x10 + 0x1c

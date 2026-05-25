@@ -32,7 +32,7 @@ struct Thread *DECOMP_PROC_BirthWithObject(int flags, void *funcThTick, char *na
 	}
 
 	// allocate stack object FIRST
-	stackObj = DECOMP_LIST_RemoveFront(&stackPool->free);
+	stackObj = LIST_RemoveFront(&stackPool->free);
 
 	// validate bucket
 	if (bucketID >= NUM_BUCKETS)
@@ -55,7 +55,7 @@ struct Thread *DECOMP_PROC_BirthWithObject(int flags, void *funcThTick, char *na
 		return 0;
 
 	// allocate thread SECOND
-	th = (struct Thread *)DECOMP_LIST_RemoveFront(&gGT->JitPools.thread.free);
+	th = (struct Thread *)LIST_RemoveFront(&gGT->JitPools.thread.free);
 
 	// check thread allocated
 	if (th == 0)

@@ -13,6 +13,6 @@ void DECOMP_RB_MinePool_Remove(struct MineWeapon *mw)
 #endif
 
 	// remove from taken, add to free
-	DECOMP_LIST_RemoveMember(&D231.minePoolTaken, (struct Item *)ws);
-	DECOMP_LIST_AddFront(&D231.minePoolFree, (struct Item *)ws);
+	LIST_RemoveMember(&D231.minePoolTaken, (struct Item *)ws);
+	LIST_AddFront(&D231.minePoolFree, (struct Item *)ws);
 }
