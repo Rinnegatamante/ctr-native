@@ -101,11 +101,26 @@ s16 DECOMP_SubmitName_DrawMenu(u16 string)
 
 #endif
 
-			// this works fine?
-#if 1
-			// Turn two-byte value into four-byte string (int)
-			int keyboardString = data.unicodeAscii[letterID];
-#endif
+			char keyboardString[3];
+			keyboardCharacter = data.unicodeAscii[letterID];
+			keyboardCharacterTopByte = keyboardCharacter & 0xff00;
+			if (keyboardCharacterTopByte == 0x1000)
+			{
+				keyboardCharacter &= 0xff;
+				keyboardCharacterTopByte = 0;
+			}
+
+			if (keyboardCharacterTopByte == 0)
+			{
+				keyboardString[0] = keyboardCharacter;
+				keyboardString[1] = 0;
+			}
+			else
+			{
+				keyboardString[0] = (keyboardCharacter << 16) >> 24;
+				keyboardString[1] = keyboardCharacter;
+				keyboardString[2] = 0;
+			}
 
 			// LETTER button blink
 			strColorBlink = 0;
@@ -113,7 +128,7 @@ s16 DECOMP_SubmitName_DrawMenu(u16 string)
 				strColorBlink = blinkWhite;
 
 			// LETTER button draw
-			DECOMP_DecalFont_DrawLine((char *)&keyboardString,
+			DECOMP_DecalFont_DrawLine(keyboardString,
 
 			                          // j*22 + 116,
 			                          j * 22 + 116,
@@ -277,7 +292,10 @@ s16 DECOMP_SubmitName_DrawMenu(u16 string)
 					if (cursorPosition == 38)
 					{
 						soundID = 2;
-						gGT->currNameEntered[currNameLength - 1] = 0;
+						if (currNameLength != 0)
+						{
+							gGT->currNameEntered[currNameLength - 1] = 0;
+						}
 					}
 
 					// not Go Back button
@@ -297,20 +315,14 @@ s16 DECOMP_SubmitName_DrawMenu(u16 string)
 						{
 							soundID = 1;
 
-							// Same issue as before, might be needed in japan,
-							// might not be needed at all, needs testing
-#if 0
-							cursorCharacterLBitshift16 = cursorCharacter << 16;
 							currNameLengthIncrement = currNameLength;
 							if (cursorCharacter & 0xff00)
 							{
 								currNameLengthIncrement = currNameLength + 1;
-								cursorCharacter &= 0xff;
-								gGT->currNameEntered[currNameLength] = cursorCharacterLBitshift16 >> 24;
+								gGT->currNameEntered[currNameLength] = (cursorCharacter << 16) >> 24;
 							}
-#endif
 
-							gGT->currNameEntered[currNameLength] = cursorCharacter;
+							gGT->currNameEntered[currNameLengthIncrement] = cursorCharacter;
 						}
 					}
 
