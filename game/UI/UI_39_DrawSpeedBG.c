@@ -22,7 +22,7 @@ const Color DrawSpeedBG_Colors[7] = {
 };
 #endif
 
-// speedometer background
+// NOTE(aalhendi): PSX path ASM-verified NTSC-U 926 0x800516ac-0x80051c64.
 void UI_DrawSpeedBG(void)
 {
 	Point *vertexes = (Point *)&data.speedometerBG_vertData[0];
@@ -65,6 +65,8 @@ void UI_DrawSpeedBG(void)
 		const PrimCode primCode = {.poly = {.renderCode = RenderCode_Polygon, .gouraud = 1, .quad = 1}};
 		ColorCode colorBottom = DrawSpeedBG_Colors[colorIndex];
 		ColorCode colorTop = DrawSpeedBG_Colors[colorIndex + 1];
+		colorBottom.code = primCode;
+		colorTop.code = primCode;
 		++colorIndex;
 		for (int j = 0; j < 2; j++)
 		{
@@ -114,7 +116,8 @@ void UI_DrawSpeedBG(void)
 		p->p.v[2].pos.x = p2x;
 		p->p.v[2].pos.y = p2y;
 
-#ifdef REBUILD_PC
+// NOTE(aalhendi): CTR_NATIVE keeps PsyCross display-area drawing enabled.
+#ifdef CTR_NATIVE
 		((TPage *)p)->texpage.drawDisplayArea = 1;
 #endif
 
