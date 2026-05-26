@@ -46,7 +46,7 @@ void PushBuffer_FadeOneWindow(struct PushBuffer *pb)
 			fadeStrength = currValue - 0x1000;
 		}
 
-#ifdef REBUILD_PC
+#ifdef CTR_NATIVE
 		// NOTE(aalhendi): Native PsyCross needs dfe=1 for this full-window fade.
 		p->tpage |= 0x400; // set dfe=1
 #endif
