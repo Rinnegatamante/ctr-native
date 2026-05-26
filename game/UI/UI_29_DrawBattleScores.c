@@ -1,6 +1,7 @@
 #include <common.h>
 
 // Draw how many points or lifes the player has in battle
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80050654-0x800507e0.
 void UI_DrawBattleScores(int posX, int posY, struct Driver *d)
 {
 	struct Icon *icon;

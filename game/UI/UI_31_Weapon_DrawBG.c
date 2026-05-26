@@ -1,5 +1,6 @@
 #include <common.h>
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80050af8-0x80050c20.
 void UI_Weapon_DrawBG(s16 param_1, s16 param_2, s16 param_3, struct Driver *d)
 {
 	int iVar1;
