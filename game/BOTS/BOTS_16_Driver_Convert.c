@@ -6,8 +6,7 @@
 // in the decomp. When you finish a race, you "hiccup" your speed and slow down
 // significantly when passing the finish line.
 
-// TODO(aalhendi): Include this in ctr-native after the bot-drive dependency
-// closure covers BOTS_ThTick_Drive.
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80017318-0x800175cc.
 void BOTS_Driver_Convert(struct Driver *d)
 {
 	// if already AI, quit

@@ -1,5 +1,6 @@
 #include <common.h>
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80017164-0x80017318.
 struct Driver *BOTS_Driver_Init(int driverID)
 {
 	struct Thread *t;
@@ -31,8 +32,7 @@ struct Driver *BOTS_Driver_Init(int driverID)
 	// path data found
 	t = PROC_BirthWithObject(
 	    // creation flags
-	    SIZE_RELATIVE_POOL_BUCKET(sizeof(struct Driver), // sizeof (struct Driver) == 1584, and yet original code implies size should be 1580?
-	                              NONE, LARGE, ROBOT),
+	    SIZE_RELATIVE_POOL_BUCKET(0x62c, NONE, LARGE, ROBOT),
 
 	    BOTS_ThTick_Drive, // behavior
 	    0,                 //"robotcar",	// debug name
@@ -40,7 +40,7 @@ struct Driver *BOTS_Driver_Init(int driverID)
 	);
 
 	d = t->object;
-	memset(d, 0x0, sizeof(struct Driver));
+	memset(d, 0x0, 0x62c);
 	VehBirth_NonGhost(t, driverID);
 	sdata->gGT->drivers[driverID] = d;
 	t->modelIndex = DYNAMIC_ROBOT_CAR;

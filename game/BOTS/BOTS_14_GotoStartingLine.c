@@ -1,5 +1,6 @@
 #include <common.h>
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x8001702c-0x80017164.
 void BOTS_GotoStartingLine(struct Driver *d)
 {
 	int accelDuration;
@@ -10,7 +11,7 @@ void BOTS_GotoStartingLine(struct Driver *d)
 	VehBirth_TeleportSelf(d, 3, 0);
 
 	// get position where driver should spawn
-	char spawnPos = sdata->kartSpawnOrderArray[d->driverID];
+	u8 spawnPos = sdata->kartSpawnOrderArray[d->driverID];
 
 	// all within unk5bc
 	*(int *)((u32)d + 0x5ec) = 0;
@@ -38,7 +39,7 @@ void BOTS_GotoStartingLine(struct Driver *d)
 	accelDuration = sdata->AI_AccelFrameCount;
 
 	// get acceleration order from spawn order
-	char accel = sdata->accelerateOrder[spawnPos];
+	u8 accel = sdata->accelerateOrder[spawnPos];
 
 	d->rotCurr.z = 0;
 	d->rotPrev.z = 0;
@@ -52,7 +53,7 @@ void BOTS_GotoStartingLine(struct Driver *d)
 	d->actionsFlagSet |= 0x100000;
 
 	// calculate Y rotation
-	rotY = (s16)d->botData.estimateRotNav[1] << 4;
+	rotY = (u8)d->botData.estimateRotNav[1] << 4;
 
 	// every possible Y rotation
 	d->botData.ai_rotY_608 = rotY;
@@ -66,5 +67,5 @@ void BOTS_GotoStartingLine(struct Driver *d)
 
 	// cooldown before next weapon
 	int rng = RngDeadCoed(&sdata->const_0x30215400);
-	d->botData.weaponCooldown = (rng & 0xff) + 300;
+	d->botData.weaponCooldown = ((rng >> 8) & 0xff) + 300;
 }
