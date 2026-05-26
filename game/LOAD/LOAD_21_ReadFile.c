@@ -1,63 +1,91 @@
 #include <common.h>
 
-// same hack as AppendQueue, see notes there
-#define LOAD_ReadFile(a, b, c, d) LOAD_ReadFile_ex(b, c, d)
-
-void *LOAD_ReadFile_ex(/*struct BigHeader* bigfile,*/ u32 loadType, int subfileIndex, void *ptrDst)
+void *LOAD_ReadFile_ex(struct BigHeader *bigfile, u32 loadType, int subfileIndex, void *ptrDst, int *sizePtr, void (*callback)(struct LoadQueueSlot *))
 {
-	// param1 is the Pointer to CD position of BIGFILE
-
 	int uVar5;
 	CdlLOC cdLoc;
 	u8 paramOutput[8];
+	void *requestedDst;
+	int sectorSize;
+	int isAsync;
 
-	// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800321f4 for the stream-data mode side effect.
+	// NOTE(aalhendi): Source-audited NTSC-U 926 0x800321b4-0x80032344;
+	// CTR_NATIVE still accepts the old loadType shim used by current callers.
 	CDSYS_SetMode_StreamData();
 
+	if (bigfile == NULL)
+		bigfile = sdata->ptrBigfile1;
+
 	// get size and offset of subfile
-	struct BigHeader *bigfile = sdata->ptrBigfile1;
 	struct BigEntry *entry = BIG_GETENTRY(bigfile);
 	int eSize = entry[subfileIndex].size;
 	int eOffs = entry[subfileIndex].offset;
 
+	if (sizePtr != NULL)
+		*sizePtr = eSize;
+
 	CdIntToPos(bigfile->cdpos + eOffs, &cdLoc);
 
-
 	struct LoadQueueSlot *lqs = &data.currSlot;
+	requestedDst = ptrDst;
 
-	// vram is safe to overwrite after upload
-	if ((loadType & LT_SETVRAM) != 0)
+	// If no address given, then find one.
+	if (ptrDst == NULL)
 	{
-		// if (MEMPACK_GetFreeBytes() > eSize)
-		ptrDst = sdata->PtrMempack->firstFreeByte;
-	}
-
-	// If no address given, then find one
-	else if (ptrDst == (void *)0x0)
-	{
+#if defined(CTR_NATIVE)
 		lqs->flags |= LT_MEMPACK;
+#else
+		lqs->flags |= LT_SETADDR;
+#endif
 
 		// allocate room for all sectors,
 		// remove alignment before next Read
-		int sectorSize = (eSize + 0x7ffU) & 0xfffff800;
+		sectorSize = (eSize + 0x7ffU) & 0xfffff800;
 		ptrDst = (void *)MEMPACK_AllocMem(sectorSize); // "FILE"
-		MEMPACK_ReallocMem(eSize);
+		if (ptrDst == NULL)
+			return NULL;
+	}
+	else
+	{
+#if defined(CTR_NATIVE)
+		lqs->flags &= ~LT_MEMPACK;
+#else
+		lqs->flags &= ~LT_SETADDR;
+#endif
 	}
 
 	lqs->ptrDestination = ptrDst;
+	lqs->size_UNUSED = eSize;
 
-	// Set first 4 bytes to zero, this is for DRAM files,
-	// and will have no impact on non-DRAM files loading
-	DRAM_SET_UNPATCHED(ptrDst);
-
-	if ((loadType & LT_ASYNC) != 0)
+	if (((loadType & LT_ASYNC) != 0) && (callback == NULL))
 	{
-		CdReadCallback(LOAD_ReadFileASyncCallback);
+#if defined(CTR_NATIVE)
+		if ((loadType & LT_GETADDR) != 0)
+			callback = LOAD_DramFileCallback;
+		else if ((loadType & LT_SETVRAM) != 0)
+			callback = LOAD_VramFileCallback;
+		else if ((loadType & LT_ASYNC) != 0)
+			callback = LOAD_CDRequestCallback;
+#endif
 	}
+
+	isAsync = (callback != NULL) || ((loadType & LT_ASYNC) != 0);
 
 	while (1)
 	{
 		uVar5 = CdControl(CdlSetloc, &cdLoc, &paramOutput[0]);
+
+		if (isAsync)
+		{
+			sdata->callbackCdReadSuccess = callback;
+			CdReadCallback(LOAD_ReadFileASyncCallback);
+		}
+		else
+		{
+			sdata->callbackCdReadSuccess = NULL;
+			CdReadCallback(NULL);
+		}
+
 		uVar5 &= CdRead(eSize + 0x7ffU >> 0xb, ptrDst, 0x80);
 
 		// if either command failed,
@@ -65,9 +93,9 @@ void *LOAD_ReadFile_ex(/*struct BigHeader* bigfile,*/ u32 loadType, int subfileI
 		if (uVar5 == 0)
 			continue;
 
-		// ASync commmands passed successfully,
+		// Async commands passed successfully,
 		// only stay in the loop for Sync loads
-		if ((loadType & LT_SYNC) == 0)
+		if (isAsync)
 			break;
 
 		// Wait for all sectors to finish
@@ -77,6 +105,11 @@ void *LOAD_ReadFile_ex(/*struct BigHeader* bigfile,*/ u32 loadType, int subfileI
 		// then Sync commands passed, end loop
 		if (uVar5 == 0)
 			break;
+	}
+
+	if ((isAsync == 0) && (requestedDst == NULL))
+	{
+		MEMPACK_ReallocMem(eSize);
 	}
 
 	return ptrDst;

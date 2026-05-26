@@ -55,7 +55,14 @@ void LOAD_NextQueuedFile()
 	if ((loadType & LT_SETADDR) != 0)
 		forceSetAddr = prevValue;
 
-	void *rawDestination = LOAD_ReadFile(curr->ptrBigfileCdPos_UNUSED, loadType | LT_ASYNC, curr->subfileIndex, forceSetAddr);
+	void (*successCallback)(struct LoadQueueSlot *) = LOAD_CDRequestCallback;
+	if ((loadType & LT_GETADDR) != 0)
+		successCallback = LOAD_DramFileCallback;
+	else if ((loadType & LT_SETVRAM) != 0)
+		successCallback = LOAD_VramFileCallback;
+
+	void *rawDestination =
+	    LOAD_ReadFile_ex(curr->ptrBigfileCdPos_UNUSED, loadType | LT_ASYNC, curr->subfileIndex, forceSetAddr, &curr->size_UNUSED, successCallback);
 
 	if (((loadType & LT_GETADDR) != 0) && (prevValue != NULL))
 	{

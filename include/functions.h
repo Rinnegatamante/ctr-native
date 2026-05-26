@@ -526,7 +526,7 @@ void LOAD_DramFileCallback(struct LoadQueueSlot *lqs);
 void LOAD_VramFileCallback(struct LoadQueueSlot *lqs);
 void *LOAD_VramFile(void *bigfilePtr, int subfileIndex, void *ptrDestination, int *sizePtr, int callbackOrFlags);
 void LOAD_ReadFileASyncCallback(CdlIntrResult result, u8 *unk);
-void *LOAD_ReadFile_ex(u32 loadType, int subfileIndex, void *ptrDst);
+void *LOAD_ReadFile_ex(struct BigHeader *bigfile, u32 loadType, int subfileIndex, void *ptrDst, int *sizePtr, void (*callback)(struct LoadQueueSlot *));
 void *LOAD_XnfFile(char *file, void *addr, int *size);
 int LOAD_FindFile(char *filename, CdlFILE *cdlFile);
 

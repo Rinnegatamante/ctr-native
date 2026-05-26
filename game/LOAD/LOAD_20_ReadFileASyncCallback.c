@@ -1,54 +1,43 @@
 #include <common.h>
 
-// test a failure
-#if 0
-int last = -1;
-#endif
-
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80032110-0x800321b4.
 void LOAD_ReadFileASyncCallback(CdlIntrResult result, u8 *unk)
 {
 	CdReadCallback(0);
+	result &= 0xff;
 
 	struct LoadQueueSlot *lqs = &data.currSlot;
 
-// test a failure
-#if 0
-	if(last != lqs->subfileIndex)
-	{
-		last = lqs->subfileIndex;
-		result = -5;
-		printf("Retry: %d\n", last);
-	}
-#endif
-
-	// whether success or fail...
-	sdata->queueReady = 1;
-
 	if (result == CdlComplete)
 	{
-		if (sdata->queueLength == 0)
-			sdata->load_inProgress = 0;
-
-		if ((lqs->flags & LT_GETADDR) != 0)
+#if defined(CTR_NATIVE)
+		if ((lqs->flags & LT_MEMPACK) != 0)
+#else
+		if ((lqs->flags & LT_SETADDR) != 0)
+#endif
 		{
-			LOAD_DramFileCallback(lqs);
+			MEMPACK_ReallocMem(lqs->size_UNUSED);
 		}
-		else if (lqs->callbackFuncPtr != 0)
+
+		if (sdata->callbackCdReadSuccess != NULL)
 		{
-			lqs->callbackFuncPtr(lqs);
+			sdata->callbackCdReadSuccess(lqs);
 		}
 	}
 
 	// CdlDiskError
 	else
 	{
+#if defined(CTR_NATIVE)
 		if ((lqs->flags & LT_MEMPACK) != 0)
+#else
+		if ((lqs->flags & LT_SETADDR) != 0)
+#endif
 		{
 			// undo allocation, try again
 			MEMPACK_ReallocMem(0);
 		}
 
 		sdata->queueRetry = 1;
-		sdata->queueLength++;
 	}
 }
