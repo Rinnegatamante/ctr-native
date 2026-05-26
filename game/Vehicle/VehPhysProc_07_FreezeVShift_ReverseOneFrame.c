@@ -1,6 +1,6 @@
 #include <common.h>
 
-// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80062e04-0x80062e94
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80062e04-0x80062e94.
 void VehPhysProc_FreezeVShift_ReverseOneFrame(struct Thread *t, struct Driver *d)
 {
 	VehPhysGeneral_JumpAndFriction(t, d);

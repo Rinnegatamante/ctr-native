@@ -1,5 +1,6 @@
 #include <common.h>
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80062db0-0x80062e04.
 void VehPhysProc_FreezeVShift_Update(struct Thread *t, struct Driver *d)
 {
 	// if firespeed = 0 and

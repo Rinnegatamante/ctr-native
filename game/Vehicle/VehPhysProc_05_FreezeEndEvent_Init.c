@@ -2,6 +2,7 @@
 
 extern void *PlayerFreezeFuncTable[13];
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80062d04-0x80062db0.
 void VehPhysProc_FreezeEndEvent_Init(struct Thread *t, struct Driver *d)
 {
 	if (d->kartState == KS_FREEZE)
@@ -23,27 +24,10 @@ void *PlayerFreezeFuncTable[13] = {NULL,
                                    VehPhysProc_Driving_Audio,
                                    VehPhysGeneral_PhysAngular,
                                    VehPhysForce_OnApplyForces,
-
-#ifndef REBUILD_PS1
                                    COLL_MOVED_PlayerSearch,
                                    VehPhysForce_CollideDrivers,
                                    COLL_FIXED_PlayerSearch,
                                    VehPhysGeneral_JumpAndFriction,
                                    VehPhysForce_TranslateMatrix,
                                    VehFrameProc_Driving,
-                                   VehEmitter_DriverMain
-#else
-#ifdef CTR_NATIVE
-                                   COLL_MOVED_PlayerSearch,
-                                   VehPhysForce_CollideDrivers,
-#else
-                                   NULL,
-                                   NULL,
-#endif
-                                   COLL_FIXED_PlayerSearch,
-                                   VehPhysGeneral_JumpAndFriction,
-                                   VehPhysForce_TranslateMatrix,
-                                   VehFrameProc_Driving,
-                                   VehEmitter_DriverMain
-#endif
-};
+                                   VehEmitter_DriverMain};
