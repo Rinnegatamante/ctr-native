@@ -3,7 +3,6 @@
 // animate rotation and scale in warppad
 void VehStuckProc_Warp_PhysAngular(struct Thread *th, struct Driver *d)
 {
-	int uVar1;
 	s16 sVar2;
 	int iVar3;
 	int timer;
@@ -23,11 +22,7 @@ void VehStuckProc_Warp_PhysAngular(struct Thread *th, struct Driver *d)
 
 		d->KartStates.Warp.beamHeight = iVar3;
 
-// Unused?
-#if 0
-        // stop particle spawning
-        d->KartStates.Warp.numParticle -= 100;
-#endif
+		d->KartStates.Warp.numParticle -= 100;
 
 		// add dust puff
 		VehStuckProc_Warp_AddDustPuff2((struct Thread *)d, (struct Driver *)&d->KartStates.Warp.timer);
