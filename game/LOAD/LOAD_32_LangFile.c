@@ -32,7 +32,7 @@ void LOAD_LangFile(int bigfilePtr, int lang)
 
 	lngFile = sdata->lngFile;
 
-	lngFile = LOAD_ReadFile(bigfilePtr, LT_SETADDR | LT_SYNC, BI_LANGUAGEFILE + lang, (void *)lngFile);
+	lngFile = LOAD_ReadFile_ex((struct BigHeader *)bigfilePtr, LT_SETADDR, BI_LANGUAGEFILE + lang, lngFile, &size, NULL);
 	if (lngFile == NULL)
 		return;
 

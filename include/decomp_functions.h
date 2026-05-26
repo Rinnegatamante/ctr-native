@@ -285,7 +285,7 @@ void LOAD_Callback_Overlay_233(void);
 void LOAD_ReadFileASyncCallback(CdlIntrResult result, u8 *unk);
 
 // same hack as AppendQueue, see notes there
-#define LOAD_ReadFile(a, b, c, d) LOAD_ReadFile_ex(a, b, c, d, NULL, NULL)
+#define LOAD_ReadFile(a, b, c, d) LOAD_ReadFile_ex(a, b, c, d, &data.currSlot.size_UNUSED, NULL)
 void *LOAD_ReadFile_ex(struct BigHeader *bigfile, u32 loadType, int subfileIndex, void *ptrDst, int *sizePtr, void (*callback)(struct LoadQueueSlot *));
 // void* LOAD_ReadFile(struct BigHeader* bigfile, /*u32 loadType,*/ int subfileIndex, void* destination, /*int *size,*/ void * callback);
 

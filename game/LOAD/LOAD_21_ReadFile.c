@@ -5,29 +5,35 @@ void *LOAD_ReadFile_ex(struct BigHeader *bigfile, u32 loadType, int subfileIndex
 	int uVar5;
 	CdlLOC cdLoc;
 	u8 paramOutput[8];
-	void *requestedDst;
+	void *originalDst;
 	int sectorSize;
-	int isAsync;
+	int sectorCount;
+	int readComplete;
 
-	// NOTE(aalhendi): Source-audited NTSC-U 926 0x800321b4-0x80032344;
-	// CTR_NATIVE still accepts the old loadType shim used by current callers.
+	// NOTE(aalhendi): ASM-verified NTSC-U 926 PS1 path 0x800321b4-0x80032344.
+	(void)loadType;
 	CDSYS_SetMode_StreamData();
 
+#if defined(CTR_NATIVE)
+	// NOTE(aalhendi): CTR_NATIVE preserves existing queues that pass 0 for the
+	// default bigfile; retail callers are expected to pass the real pointer.
 	if (bigfile == NULL)
 		bigfile = sdata->ptrBigfile1;
+#endif
 
 	// get size and offset of subfile
 	struct BigEntry *entry = BIG_GETENTRY(bigfile);
 	int eSize = entry[subfileIndex].size;
 	int eOffs = entry[subfileIndex].offset;
 
-	if (sizePtr != NULL)
-		*sizePtr = eSize;
+	*sizePtr = eSize;
 
 	CdIntToPos(bigfile->cdpos + eOffs, &cdLoc);
 
 	struct LoadQueueSlot *lqs = &data.currSlot;
-	requestedDst = ptrDst;
+	originalDst = ptrDst;
+	sectorCount = (eSize + 0x7ffU) >> 0xb;
+	readComplete = 1;
 
 	// If no address given, then find one.
 	if (ptrDst == NULL)
@@ -40,7 +46,7 @@ void *LOAD_ReadFile_ex(struct BigHeader *bigfile, u32 loadType, int subfileIndex
 
 		// allocate room for all sectors,
 		// remove alignment before next Read
-		sectorSize = (eSize + 0x7ffU) & 0xfffff800;
+		sectorSize = sectorCount << 0xb;
 		ptrDst = (void *)MEMPACK_AllocMem(sectorSize); // "FILE"
 		if (ptrDst == NULL)
 			return NULL;
@@ -54,28 +60,18 @@ void *LOAD_ReadFile_ex(struct BigHeader *bigfile, u32 loadType, int subfileIndex
 #endif
 	}
 
+#if defined(CTR_NATIVE)
+	// NOTE(aalhendi): native CD reads can call back before wrapper callers store
+	// the returned pointer back into data.currSlot.
 	lqs->ptrDestination = ptrDst;
 	lqs->size_UNUSED = eSize;
-
-	if (((loadType & LT_ASYNC) != 0) && (callback == NULL))
-	{
-#if defined(CTR_NATIVE)
-		if ((loadType & LT_GETADDR) != 0)
-			callback = LOAD_DramFileCallback;
-		else if ((loadType & LT_SETVRAM) != 0)
-			callback = LOAD_VramFileCallback;
-		else if ((loadType & LT_ASYNC) != 0)
-			callback = LOAD_CDRequestCallback;
 #endif
-	}
-
-	isAsync = (callback != NULL) || ((loadType & LT_ASYNC) != 0);
 
 	while (1)
 	{
 		uVar5 = CdControl(CdlSetloc, &cdLoc, &paramOutput[0]);
 
-		if (isAsync)
+		if (callback != NULL)
 		{
 			sdata->callbackCdReadSuccess = callback;
 			CdReadCallback(LOAD_ReadFileASyncCallback);
@@ -86,30 +82,22 @@ void *LOAD_ReadFile_ex(struct BigHeader *bigfile, u32 loadType, int subfileIndex
 			CdReadCallback(NULL);
 		}
 
-		uVar5 &= CdRead(eSize + 0x7ffU >> 0xb, ptrDst, 0x80);
+		uVar5 &= CdRead(sectorCount, ptrDst, 0x80);
 
-		// if either command failed,
-		// retry Control and Read again
-		if (uVar5 == 0)
-			continue;
+		if (callback == NULL)
+		{
+			// Wait for all sectors to finish
+			readComplete = CdReadSync(0, (u8 *)0x0) < 1;
+		}
 
-		// Async commands passed successfully,
-		// only stay in the loop for Sync loads
-		if (isAsync)
-			break;
-
-		// Wait for all sectors to finish
-		uVar5 = CdReadSync(0, (u8 *)0x0);
-
-		// if ZERO sectors remain,
-		// then Sync commands passed, end loop
-		if (uVar5 == 0)
+		// If either command failed, or sync read did not finish, retry.
+		if ((uVar5 != 0) && (readComplete != 0))
 			break;
 	}
 
-	if ((isAsync == 0) && (requestedDst == NULL))
+	if ((callback == NULL) && (originalDst == NULL))
 	{
-		MEMPACK_ReallocMem(eSize);
+		MEMPACK_ReallocMem(*sizePtr);
 	}
 
 	return ptrDst;
