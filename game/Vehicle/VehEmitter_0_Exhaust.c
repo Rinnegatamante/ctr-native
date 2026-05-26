@@ -1,6 +1,6 @@
 #include <common.h>
 
-// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80059100-0x80059344
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80059100-0x80059344.
 struct Particle *VehEmitter_Exhaust(struct Driver *d, VECTOR *param_2, VECTOR *param_3)
 {
 	int exhaustType;

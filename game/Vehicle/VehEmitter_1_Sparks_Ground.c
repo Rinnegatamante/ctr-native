@@ -4,7 +4,7 @@ static const s16 sparkGround_inX[4] = {0x1800, 0, 0, 0};
 static const s16 sparkGround_inZ[4] = {0, 0, -0x1800, 0};
 static const s16 sparkGround_inZ2[4] = {0, 0, -0x200, 0};
 
-// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80059344-0x80059558
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80059344-0x80059558.
 void VehEmitter_Sparks_Ground(struct Driver *d, struct ParticleEmitter *emSet)
 {
 	struct GameTracker *gGT = sdata->gGT;

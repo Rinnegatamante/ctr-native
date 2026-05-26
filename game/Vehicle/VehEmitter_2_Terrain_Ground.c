@@ -7,7 +7,7 @@ static const s16 terrainEmitterPos[4][4] = {
     {-0x1E, 0xA, 0x28, 0},
 };
 
-// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80059558-0x80059780
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80059558-0x80059780.
 void VehEmitter_Terrain_Ground(struct Driver *d, struct ParticleEmitter *emSet)
 {
 	int speed;
@@ -48,16 +48,16 @@ void VehEmitter_Terrain_Ground(struct Driver *d, struct ParticleEmitter *emSet)
 	// spawn particles on wheels
 	for (; numTires != 0; numTires--)
 	{
+		gte_ldv0(&terrainEmitterPos[numTires - 1][0]);
+		gte_rtv0();
+		gte_stlvnl(&pos[0]);
+
 		struct Particle *p = Particle_Init(0, ig, emSet);
 
 		if (p == NULL)
 			continue;
 
 		s16 velInput[3] = {p->axis[0].velocity, p->axis[1].velocity, p->axis[2].velocity};
-
-		gte_ldv0(&terrainEmitterPos[numTires - 1][0]);
-		gte_rtv0();
-		gte_stlvnl(&pos[0]);
 
 		gte_ldv0(&velInput[0]);
 		gte_rtv0();

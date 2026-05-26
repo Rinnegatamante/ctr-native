@@ -1,6 +1,6 @@
 #include <common.h>
 
-// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80059780-0x80059a18
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80059780-0x80059a18.
 void VehEmitter_Sparks_Wall(struct Driver *d, struct ParticleEmitter *emSet)
 {
 	int speedAbs = d->speedApprox;
@@ -23,12 +23,6 @@ void VehEmitter_Sparks_Wall(struct Driver *d, struct ParticleEmitter *emSet)
 
 	// must reach minimum speed for sparks
 	if (speedAbs <= 0x200)
-		return;
-
-	// Create instance in particle pool
-	struct Particle *p = Particle_Init(0, sdata->gGT->iconGroup[0], emSet);
-
-	if (p == NULL)
 		return;
 
 	s16 *matrix = CTR_SCRATCHPAD_ADDR_PTR(s16, CTR_SCRATCHPAD_ADDR);
@@ -64,7 +58,7 @@ void VehEmitter_Sparks_Wall(struct Driver *d, struct ParticleEmitter *emSet)
 	for (int i = 0; i < 6; i++)
 		TireLeftOutS16[i] = (u16)TireLeftOutS32[i];
 
-#ifdef REBUILD_PC
+#ifdef CTR_NATIVE
 
 #define gte_SetLightMatrix3x2(r0)              \
 	{                                          \
@@ -102,6 +96,12 @@ void VehEmitter_Sparks_Wall(struct Driver *d, struct ParticleEmitter *emSet)
 	{
 		TireLeftOutS16 = TireRightOutS16;
 	}
+
+	// Create instance in particle pool
+	struct Particle *p = Particle_Init(0, sdata->gGT->iconGroup[0], emSet);
+
+	if (p == NULL)
+		return;
 
 	for (int i = 0; i < 3; i++)
 	{
