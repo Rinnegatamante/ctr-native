@@ -1,5 +1,7 @@
 #include <common.h>
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b28c0-0x800b295c.
+// Symbol tail 0x800b295c-0x800b3120 is overlay data before Baron.
 struct Thread *RB_GetThread_ClosestTracker(struct Driver *d)
 {
 	int distX;
