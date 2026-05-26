@@ -102,7 +102,9 @@ struct MaskHeadWeapon *VehPickupItem_MaskUseWeapon(struct Driver *driver, int bo
 
 	maskObj = (struct MaskHeadWeapon *)t->object;
 
-#ifdef REBUILD_PC
+// NOTE(aalhendi): Native keeps this model lookup string host-side; PS1 uses
+// the retail RDATA symbol.
+#ifdef CTR_NATIVE
 	maskObj->maskBeamInst = INSTANCE_Birth3D(modelPtr, "akubeam1", t);
 #else
 	maskObj->maskBeamInst = INSTANCE_Birth3D(modelPtr, rdata.s_akubeam1, t);
