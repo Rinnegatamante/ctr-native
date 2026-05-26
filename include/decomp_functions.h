@@ -88,6 +88,7 @@ void GAMEPAD_ProcessState(struct GamepadBuffer *pad, int padState, s16 id);
 int GAMEPROG_CheckGhostsBeaten(int ghostID);
 void GAMEPROG_NewGame_OnBoot(void);
 void GAMEPROG_GetPtrHighScoreTrack(void);
+void GAMEPROG_InitFullMemcard(struct MemcardProfile *mcp);
 
 // ghost
 void GhostReplay_Init1(void);
@@ -384,8 +385,14 @@ u8 MEMCARD_Save(int slotIdx, char *name, char *icon, u8 *ptrMemcard, int memcard
 
 void RefreshCard_Entry(void);
 void RefreshCard_GhostEncodeProfile(u32 slotIndex, u16 characterID, u16 levelID, int time, char *name);
+int RefreshCard_GetResult(int result);
+void RefreshCard_NextMemcardAction(int slot, int action, char *fileName, char *fileIconHeader, struct GhostHeader *ptrGhostHeader, int fileSize);
 u32 RefreshCard_GhostEncodeByte(int currByte);
 void RefreshCard_StartMemcardAction(int action);
+void RefreshCard_StopMemcardAction(void);
+void RefreshCard_SetScreenText(int screenText);
+void RefreshCard_Unknown2(void);
+void RefreshCard_GetNumGhostsTotal(void);
 
 void SelectProfile_MuteCursors(void);
 void SelectProfile_UnMuteCursors(void);

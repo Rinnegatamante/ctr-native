@@ -816,14 +816,17 @@ int RECTMENU_BoolHidden(struct RectMenu *m);
 // GhostData (?)
 
 // RefreshCard_BoolGhostForLEV()
-// RefreshCard_NextMemcardAction()
-// RefreshCard_GhostEncodeByte()
+int RefreshCard_GetResult(int result);
+void RefreshCard_NextMemcardAction(int slot, int action, char *fileName, char *fileIconHeader, struct GhostHeader *ptrGhostHeader, int fileSize);
+u32 RefreshCard_GhostEncodeByte(int currByte);
 // RefreshCard_GhostDecodeByte()
 // RefreshCard_GhostEncodeProfile()
 // RefreshCard_GhostDecodeProfile()
 void RefreshCard_StartMemcardAction(int action);
-// RefreshCard_StopMemcardAction()
-// RefreshCard_GetNumGhostsTotal()
+void RefreshCard_StopMemcardAction(void);
+void RefreshCard_SetScreenText(int screenText);
+void RefreshCard_Unknown2(void);
+void RefreshCard_GetNumGhostsTotal(void);
 
 // Load...
 
