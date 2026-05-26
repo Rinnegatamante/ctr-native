@@ -120,6 +120,7 @@
 #include "game/CTR/CTR_06_CycleTex_AllModels.c"
 #include "game/CTR/CTR_08_ClearRenderLists_1P2P.c"
 #include "game/CTR/CTR_09_ClearRenderLists_3P4P.c"
+#include "game/CTR/CTR_10_EmptyFunc_MainFrame_ResetDB.c"
 #include "game/CTR/CTR_11_ErrorScreen.c"
 #include "game/CTR/CTR_17_MatrixToRot.c"
 #include "game/CTR/CTR_18_ScrambleGhostString.c"
@@ -135,6 +136,7 @@
 #include "game/DecalFont/DecalFont_5_DrawMultiLineStrlen.c"
 #include "game/DecalFont/DecalFont_6_DrawMultiLine.c"
 
+#include "game/DecalGlobal/DecalGlobal_0_EmptyFunc_MainFrame_ResetDB.c"
 #include "game/DecalGlobal/DecalGlobal_1_Clear.c"
 #include "game/DecalGlobal/DecalGlobal_2_Store.c"
 

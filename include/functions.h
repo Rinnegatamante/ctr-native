@@ -184,7 +184,7 @@ void ElimBG_Deactivate(struct GameTracker *gGT);
 // FLARE
 
 // FLARE_ThTick()
-// FLARE_Init()
+void FLARE_Init(s16 *pos);
 
 // GAMEPAD
 
@@ -1250,7 +1250,6 @@ void RB_MakeInstanceReflective(struct ScratchpadStruct *, struct Instance *);
 // void COLL_MOVED_PlayerSearch(struct Thread* thread, struct Driver* driver);
 // void VehPhysForce_CollideDrivers(struct Thread* thread, struct Driver* driver);
 // void COLL_FIXED_PlayerSearch(struct Thread* thread, struct Driver* driver);
-void FLARE_Init(s16 *); // this is present (but commented out) further up the file. Idk why.
 void RB_ShieldDark_ThTick_Grow(struct Thread *t);
 void RB_Warpball_ThTick(struct Thread *t);
 struct CheckpointNode *RB_Warpball_NewPathNode(struct CheckpointNode *ptrNodeCurr, struct Driver *victim);
