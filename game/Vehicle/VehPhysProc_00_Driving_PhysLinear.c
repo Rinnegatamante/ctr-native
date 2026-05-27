@@ -666,7 +666,7 @@ CheckJumpButtons:
 	// with zero wumpa, should be const_Speed_ClassStat (13140 for Crash Bandicoot)
 	// this works for both decomp and original
 
-	// with one wumpa, (25600 in rewrite, 13169 in original)
+	// with one wumpa, retail gives 13169
 
 	driverBaseSpeed = VehPhysGeneral_GetBaseSpeed(driver);
 

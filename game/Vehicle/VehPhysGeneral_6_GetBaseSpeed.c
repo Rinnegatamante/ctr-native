@@ -33,7 +33,7 @@ int VehPhysGeneral_GetBaseSpeed(struct Driver *driver)
 
 	int netSpeedStat = (((driver->const_AccelSpeed_ClassStat - driver->const_Speed_ClassStat) * 0x1000) / 5) - 1;
 
-	speedAdditional = ((netWumpaFruitCount * netSpeedStat) / 10) + ((turboMultiplier * netSpeedStat) >> 12);
+	speedAdditional = (((netWumpaFruitCount * netSpeedStat) / 10) + (turboMultiplier * netSpeedStat)) >> 12;
 
 	if ((driver->actionsFlagSet & 0x800000) != 0)
 	{
