@@ -1565,6 +1565,8 @@ static int DrawLevelOvr1P_WriteRenderedClippedRecordAtOt(struct PushBuffer *pb, 
 	u32 maxDepth;
 	int otIndex;
 
+	(void)texture;
+
 	if (!DrawLevelOvr1P_ShouldWriteRenderedClippedRecord(projected, indices, count))
 		return 1;
 
@@ -1577,8 +1579,10 @@ static int DrawLevelOvr1P_WriteRenderedClippedRecordAtOt(struct PushBuffer *pb, 
 	record = (struct DrawLevelOvr1PClipRecord *)cursor;
 	record->header = DrawLevelOvr1P_GetRenderedClipRecordHeader(block, count);
 	record->otEntry = (u32)(uintptr_t)&pb->ptrOT[otIndex];
-	record->tpage = texture != NULL ? texture->tpage : 0;
-	record->clut = texture != NULL ? texture->clut : 0;
+	// NOTE(aalhendi): Retail terminal near writers 0x800a89dc/0x800aa5fc
+	// store the freshly selected scratch UV metadata, not the caller texture.
+	record->tpage = *CTR_SCRATCHPAD_PTR(s16, 0x1a6);
+	record->clut = *CTR_SCRATCHPAD_PTR(s16, 0x1a2);
 
 	for (int i = 0; i < count; i++)
 		DrawLevelOvr1P_CopyClipRecordVertex(&record->vertex[i], &projected[indices[i]]);
