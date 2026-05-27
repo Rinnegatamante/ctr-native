@@ -73,6 +73,9 @@ void LOAD_Hub_SwapNow()
 		DecalGlobal_Store(gGT, level1->levTexLookup);
 	}
 
+	MEMPACK_SwapPacks(gGT->activeMempackIndex);
+	MainInit_VisMem(gGT);
+
 	cDC = &gGT->cameraDC[0];
 	cDC->ptrQuadBlock = 0;
 	cDC->visLeafSrc = 0;

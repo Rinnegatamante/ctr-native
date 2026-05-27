@@ -23,6 +23,6 @@ void LOAD_Callback_PatchMem(struct LoadQueueSlot *lqs)
 	LOAD_RunPtrMap((char *)sdata->ptrLevelFile, (int *)patchStart, patchNum);
 
 	MEMPACK_SwapPacks(0);
-	MEMPACK_ClearLowMem();
+	MEMPACK_ClearHighMem();
 	MEMPACK_SwapPacks(sdata->gGT->activeMempackIndex);
 }

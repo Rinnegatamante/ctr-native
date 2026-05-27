@@ -3958,6 +3958,14 @@ static struct QuadBlock **DrawLevelOvr1P_GetRenderedListForRole(struct DrawLevel
 	}
 }
 
+static void DrawLevelOvr1P_ClearRenderedListForRole(struct DrawLevelOvr1PRenderList *renderList, int role)
+{
+	struct QuadBlock **renderedList = DrawLevelOvr1P_GetRenderedListForRole(renderList, role);
+
+	if (renderedList != NULL)
+		*renderedList = NULL;
+}
+
 static u32 DrawLevelOvr1P_SelectWaterDirectMask(const struct DrawLevelOvr1PScratchVertex *projected, const int *indices, u32 allowedMask)
 {
 	u32 directMask = 0;
@@ -4457,7 +4465,12 @@ static int DrawLevelOvr1P_DrawBspList(struct DrawLevelOvr1PRenderList *renderLis
 		u32 primReserve = DrawLevelOvr1P_GetBucketPrimReserve(bucket->role);
 
 		if (bucketValue == NULL)
+		{
+			// NOTE(aalhendi): Retail 0x800a0e7c clears the shared rendered
+			// quadblock destination before advancing past an empty bucket.
+			DrawLevelOvr1P_ClearRenderedListForRole(renderList, bucket->role);
 			continue;
+		}
 
 		DrawLevelOvr1P_ApplyBucketSetup(bucketIndex);
 

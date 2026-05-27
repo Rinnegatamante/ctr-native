@@ -186,9 +186,11 @@ int LOAD_TenStages(struct GameTracker *gGT, int loadingStage, struct BigHeader *
 		MainInit_PrimMem(gGT);
 		MainInit_OTMem(gGT);
 
-		// RAM optimization, never call MainInit_JitPoolsNew
-		// in Stage 0, just no point, and also ptrMap in DRAM files
-		// will have more room to load if the allocation is delayed
+		if (((gGT->gameMode1 & (GAME_CUTSCENE | ADVENTURE_ARENA)) != 0) || ((gGT->gameMode2 & CREDITS) != 0))
+		{
+			MainInit_JitPoolsNew(gGT);
+			return loadingStage + 1;
+		}
 
 		break;
 	}
@@ -428,18 +430,8 @@ int LOAD_TenStages(struct GameTracker *gGT, int loadingStage, struct BigHeader *
 			// so the pointer maps dont bloat subpacks
 			MEMPACK_SwapPacks(0);
 
-#if 1
-			// biggest lev_swap (cutscene/adventure)
-			// is 0xBBA0 for gemstone ptr map, align up
-			// by 0x800 for 0xc000, and use AllocMem,
-			// HighMem is now reserved for PrimMem
-			sdata->PatchMem_Size = 0xc000;
-			sdata->PatchMem_Ptr = (int)MEMPACK_AllocMem(sdata->PatchMem_Size); //, "Patch Table Memory");
-#else
-			// original game code
 			sdata->PatchMem_Size = MEMPACK_GetFreeBytes();
 			sdata->PatchMem_Ptr = MEMPACK_AllocHighMem(sdata->PatchMem_Size); //, "Patch Table Memory");
-#endif
 
 			// For Oxide-Intro and Credits, set active pack
 			MEMPACK_SwapPacks(gGT->activeMempackIndex);
@@ -521,10 +513,12 @@ int LOAD_TenStages(struct GameTracker *gGT, int loadingStage, struct BigHeader *
 
 		gGT->gameMode1_prevFrame = 1;
 
-		// RAM optimization, always do this here,
-		// because now ptrMap already loaded and realloc'd
 		MEMPACK_SwapPacks(0);
-		MainInit_JitPoolsNew(gGT);
+		if (((gGT->gameMode1 & (GAME_CUTSCENE | ADVENTURE_ARENA)) == 0) && ((gGT->gameMode2 & CREDITS) == 0))
+		{
+			MainInit_JitPoolsNew(gGT);
+			return loadingStage + 1;
+		}
 
 		if ((gGT->gameMode2 & LEV_SWAP) == 0)
 			break;
