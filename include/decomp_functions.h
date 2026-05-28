@@ -390,6 +390,7 @@ char *MEMCARD_FindFirstGhost(int slotIdx, char *srcString);
 char *MEMCARD_FindNextGhost(void);
 u8 MEMCARD_EraseFile(int slotIdx, char *srcString);
 int MEMCARD_HandleEvent(void);
+u8 MEMCARD_Load(int slotIdx, char *name, u8 *ptrMemcard, int memcardFileSize, u32 param5);
 u8 MEMCARD_Save(int slotIdx, char *name, char *icon, u8 *ptrMemcard, int memcardFileSize, u32 flags);
 
 void RaceConfig_LoadGameOptions(void);
@@ -409,6 +410,8 @@ void RefreshCard_SetScreenText(int screenText);
 void RefreshCard_Unknown2(void);
 void RefreshCard_GetNumGhostsTotal(void);
 void RefreshCard_GameProgressAndOptions(void);
+void RefreshCard_Unknown3(void);
+void RefreshCard_Unknown4(void);
 
 void SelectProfile_MuteCursors(void);
 void SelectProfile_UnMuteCursors(void);
@@ -416,6 +419,7 @@ void SelectProfile_ThTick(struct Thread *t);
 void SelectProfile_PrintInteger(int value, int posX, int posY, int usePaddedFormat, int color);
 int SelectProfile_UI_ConvertX(int param_1, int param_2);
 int SelectProfile_UI_ConvertY(int param_1, int param_2);
+void SelectProfile_DrawAdvProfile(struct AdvProgress *adv, int posX, int posY, s16 isHighlighted, s16 slotIndex, u16 menuFlag);
 void SelectProfile_GetTrackID(void);
 void SelectProfile_Init(u16 flags);
 void SelectProfile_Destroy(void);

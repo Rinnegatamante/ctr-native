@@ -679,7 +679,7 @@ int MEMCARD_ReadFile(int start_offset, int end_offset);
 u8 MEMCARD_WriteFile(int start_offset, const u8 *data, int end_offset);
 void MEMCARD_GetFreeBytes(int slotIdx);
 u8 MEMCARD_GetInfo(int slotIdx);
-// MEMCARD_Load()
+u8 MEMCARD_Load(int slotIdx, char *name, u8 *ptrMemcard, int memcardFileSize, u32 param5);
 // MEMCARD_Save()
 u8 MEMCARD_Format(int slotIdx);
 int MEMCARD_IsFile(int slotIdx, char *save_name);
@@ -828,6 +828,8 @@ void RefreshCard_SetScreenText(int screenText);
 void RefreshCard_Unknown2(void);
 void RefreshCard_GetNumGhostsTotal(void);
 void RefreshCard_GameProgressAndOptions(void);
+void RefreshCard_Unknown3(void);
+void RefreshCard_Unknown4(void);
 
 // Load...
 
@@ -837,7 +839,7 @@ void SelectProfile_ThTick(struct Thread *t);
 void SelectProfile_PrintInteger(int value, int posX, int posY, int usePaddedFormat, int color);
 int SelectProfile_UI_ConvertX(int param_1, int param_2);
 int SelectProfile_UI_ConvertY(int param_1, int param_2);
-// SelectProfile_DrawAdvProfile()
+void SelectProfile_DrawAdvProfile(struct AdvProgress *adv, int posX, int posY, s16 isHighlighted, s16 slotIndex, u16 menuFlag);
 void SelectProfile_GetTrackID(void);
 void SelectProfile_Init(u16 flags);
 void SelectProfile_Destroy(void);
@@ -1330,6 +1332,5 @@ void MainGameEnd_Initialize(void);
 void SetDrawEnv(void *, DRAWENV *);
 u32 VehCalc_FastSqrt(u32, u32);
 void VehBirth_NullThread(struct Thread *t);
-void SelectProfile_DrawAdvProfile(struct AdvProgress *adv, int posX, int posY, u32 isHighlighted, s16 slotIndex, u16 menuFlag);
 void Seal_CheckColl(struct Instance *sealInst, struct Thread *sealTh, int damage, int radius, int sound);
 void DotLights_AudioAndVideo(struct GameTracker *gGT);

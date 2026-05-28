@@ -43,7 +43,7 @@ void RECTMENU_GetHeight(struct RectMenu *m, s16 *height, int boolCheckSubmenu)
 	}
 
 	// handle menu title
-	if (m->stringIndexTitle != -1)
+	if (m->stringIndexTitle >= 0)
 	{
 		// if not drawing title big
 		if ((m->state & BIG_TEXT_IN_TITLE) == 0)
@@ -62,7 +62,7 @@ void RECTMENU_GetHeight(struct RectMenu *m, s16 *height, int boolCheckSubmenu)
 	// if submenu needs to be drawn
 	if ((m->state & DRAW_NEXT_MENU_IN_HIERARCHY) != 0)
 	{
-		if (boolCheckSubmenu != 0)
+		if ((boolCheckSubmenu & 0xffff) != 0)
 		{
 			// recursively check height for more submenus
 			RECTMENU_GetHeight(m->ptrNextBox_InHierarchy, height, 1);
