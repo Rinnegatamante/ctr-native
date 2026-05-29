@@ -21,10 +21,11 @@ void MEMCARD_GetFreeBytes(int slotIdx)
 
 u8 MEMCARD_GetInfo(int slotIdx)
 {
-	(void)slotIdx;
-
 	// NOTE(aalhendi): Native treats the host save directory as an inserted card;
-	// returning NEWCARD makes the retail RefreshCard path refresh file presence.
+	// PSX updates free space while handling the async info event that native skips.
+	MEMCARD_GetFreeBytes(slotIdx);
+
+	// Returning NEWCARD makes the retail RefreshCard path refresh file presence.
 	return MC_RETURN_NEWCARD;
 }
 
