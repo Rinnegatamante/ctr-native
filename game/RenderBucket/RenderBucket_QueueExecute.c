@@ -4308,11 +4308,15 @@ static int RenderBucket_PrepareDrawContext(struct RenderBucketDrawContext *ctx, 
 
 	anim = RenderBucket_GetAnim(inst, mh);
 
-	*CTR_SCRATCHPAD_PTR(u32, 0xc) = (u32)(uintptr_t)primMem;
 	*CTR_SCRATCHPAD_PTR(u32, 0x10) = (u32)(uintptr_t)inst;
-	*CTR_SCRATCHPAD_PTR(u32, 0x8) = (u32)(uintptr_t)pb;
-	*CTR_SCRATCHPAD_PTR(s16, 0x1c) = pb->rect.w;
-	*CTR_SCRATCHPAD_PTR(s16, 0x1e) = pb->rect.h;
+	if (*CTR_SCRATCHPAD_PTR(u32, 0x8) != (u32)(uintptr_t)pb)
+	{
+		*CTR_SCRATCHPAD_PTR(u32, 0x8) = (u32)(uintptr_t)pb;
+		*CTR_SCRATCHPAD_PTR(s16, 0x1c) = pb->rect.w;
+		*CTR_SCRATCHPAD_PTR(s16, 0x1e) = pb->rect.h;
+		gte_SetGeomOffset(pb->rect.w >> 1, pb->rect.h >> 1);
+		gte_SetGeomScreen(pb->distanceToScreen_PREV);
+	}
 	if (nextFrame != 0)
 	{
 		*CTR_SCRATCHPAD_PTR(s16, 0x30) = mf->pos[0] + nextFrame->pos[0];
@@ -4328,8 +4332,6 @@ static int RenderBucket_PrepareDrawContext(struct RenderBucketDrawContext *ctx, 
 
 	gte_SetRotMatrix(&idpp->mvp);
 	gte_SetTransMatrix(&idpp->mvp);
-	gte_SetGeomOffset(pb->rect.w >> 1, pb->rect.h >> 1);
-	gte_SetGeomScreen(pb->distanceToScreen_PREV);
 	*CTR_SCRATCHPAD_PTR(u32, 0x24) = idpp->instFlags;
 	*CTR_SCRATCHPAD_PTR(s16, 0x120) = idpp->alphaScale;
 	if ((idpp->instFlags & RB_INSTANCE_SPLIT_STATE_MASK) != 0)
@@ -4369,6 +4371,8 @@ void RenderBucket_Execute(void *param_1, struct PrimMem *param_2)
 	// NOTE(aalhendi): Source-backed partial for NTSC-U 926
 	// 0x8006aaa8-0x8006ad6c. Full scratchpad/register ABI audit is still
 	// pending before this can be ASM-verified.
+	*CTR_SCRATCHPAD_PTR(u32, 0xc) = (u32)(uintptr_t)param_2;
+	*CTR_SCRATCHPAD_PTR(u32, 0x8) = 0;
 	for (; entry->inst != 0; entry++)
 	{
 		struct RenderBucketDrawContext ctx = {0};
