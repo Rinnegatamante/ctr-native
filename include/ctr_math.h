@@ -123,7 +123,7 @@ static inline int FP_Mult(int x, int y)
 
 // misc //
 
-#ifndef REBUILD_PC
+#ifndef CTR_NATIVE
 int abs(int value);
 #endif
 

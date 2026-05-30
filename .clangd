@@ -2,7 +2,6 @@ CompileFlags:
   Add:
     - -std=c99
     - -m32
-    - -DREBUILD_PC
     - -DCTR_NATIVE
     - -DREBUILD_PS1
     - -DUSE_EXTENDED_PRIM_POINTERS=0

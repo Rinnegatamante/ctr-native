@@ -1324,7 +1324,7 @@ struct GameTracker
 #endif
 };
 
-#ifndef REBUILD_PC
+#ifndef CTR_NATIVE
 #if BUILD == SepReview
 _Static_assert(sizeof(struct GameTracker) == 0x24F8);
 #elif BUILD == UsaRetail

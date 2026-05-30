@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef REBUILD_PC
+#ifdef CTR_NATIVE
 #define ADD_PSX_ADDRESS
 #else
 #define ADD_PSX_ADDRESS ^0x80000000
@@ -159,7 +159,7 @@ force_inline void addLineG4(u_long *ot, LINE_G4 *p)
 	p->p1, p->p2 = 0;
 }
 
-#ifndef REBUILD_PC
+#ifndef CTR_NATIVE
 force_inline void addFill(u_long *ot, FILL *p)
 {
 	p->tag = 0x3000000 | *ot;

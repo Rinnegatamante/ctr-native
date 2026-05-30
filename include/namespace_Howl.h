@@ -7,7 +7,7 @@ struct SndVolume
 };
 #endif
 
-#ifndef REBUILD_PC
+#ifndef CTR_NATIVE
 // from TOMB5, not from psyq
 // https://github.com/TOMB5/TOMB5/blob/master/EMULATOR/LIBSPU.H
 typedef struct

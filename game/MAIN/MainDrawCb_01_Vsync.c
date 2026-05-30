@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80034aa4-0x80034b48 for the retail body.
-// NOTE(aalhendi): REBUILD_PC keeps native input/audio/VRAM bridge work.
+// NOTE(aalhendi): CTR_NATIVE keeps native input/audio/VRAM bridge work.
 void MainDrawCb_Vsync()
 {
 	struct GameTracker *gGT;
@@ -20,7 +20,7 @@ void MainDrawCb_Vsync()
 	sdata->rcntTotalUnits += GetRCnt(0xf2000001);
 	ResetRCnt(0xf2000001);
 
-#ifdef REBUILD_PC
+#ifdef CTR_NATIVE
 	// NOTE(aalhendi): Retail calls HOWL unconditionally. Native skips only while
 	// channel lists are mid-edit.
 	if (sdata->criticalSectionCount == 0)
@@ -29,7 +29,7 @@ void MainDrawCb_Vsync()
 		howl_PlayAudio_Update();
 	}
 
-#ifdef REBUILD_PC
+#ifdef CTR_NATIVE
 	PsyX_UpdateInput();
 #endif
 

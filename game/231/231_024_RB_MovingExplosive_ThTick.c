@@ -255,7 +255,6 @@ LAB_800adc08:;
 	posB[1] = inst->matrix.t[1] + 0x100;
 	posB[2] = inst->matrix.t[2];
 
-#if !defined(REBUILD_PC) || defined(CTR_NATIVE)
 	struct ScratchpadStruct *sps = (struct ScratchpadStruct *)0x1f800108;
 
 	sps->Union.QuadBlockColl.searchFlags = 0x41;
@@ -360,15 +359,13 @@ LAB_800adc08:;
 
 			    (((instDef->ptrInstance != 0) && (instDef->modelID == STATIC_TEETH))))
 			{
-#if (!defined(REBUILD_PS1) || defined(REBUILD_PC))
+#if !defined(REBUILD_PS1) || defined(CTR_NATIVE)
 				RB_Teeth_OpenDoor(instDef->ptrInstance);
 #endif
 			}
 			goto LAB_800ae42c;
 		}
 	}
-
-#endif
 
 	struct Instance *hitInst;
 

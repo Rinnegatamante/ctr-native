@@ -2,7 +2,7 @@
 
 static int bi = 0;
 
-#ifdef REBUILD_PC
+#ifdef CTR_NATIVE
 #ifndef __GNUC__
 inline
 #endif
@@ -19,7 +19,7 @@ inline
 
 // copied out of PsyCross library,
 // is this equal to the CTR function?
-#ifndef REBUILD_PC
+#ifndef CTR_NATIVE
 VECTOR *ApplyMatrixLV(MATRIX *m, VECTOR *v0, VECTOR *v1)
 {
 #if 1
@@ -266,7 +266,7 @@ void DrawOneInst(struct Instance *curr)
 // the idea is that it loads vertices to scratchpad and with proper sorting,
 // you can draw may trigles of the list with minimum additional loads
 // then once you don't need vertex data, you can overwrite same indices with new data
-#ifdef REBUILD_PC
+#ifdef CTR_NATIVE
 		V4 stack[256] = {0};
 #else
 		V4 *stack = 0x1f800000;

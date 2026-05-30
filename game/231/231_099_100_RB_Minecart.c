@@ -45,7 +45,7 @@ void RB_Minecart_NewPoint(struct Instance *minecartInst, struct Minecart *mineca
 		minecartObj->dir[i] = start - end;
 	}
 
-#if (!defined(REBUILD_PS1) || defined(REBUILD_PC))
+#if !defined(REBUILD_PS1) || defined(CTR_NATIVE)
 	minecartObj->rotDesired[0] =
 	    ratan2(minecartObj->dir[1], SquareRoot0_stub(minecartObj->dir[0] * minecartObj->dir[0] + minecartObj->dir[2] * minecartObj->dir[2]));
 #endif

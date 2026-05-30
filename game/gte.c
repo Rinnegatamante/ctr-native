@@ -2,7 +2,7 @@
 
 void RotateVector(SVec3 *out, const SVec3 *in)
 {
-#ifndef REBUILD_PC
+#ifndef CTR_NATIVE
 	gte_ldv0(in);
 	gte_rtv0();
 	gte_stlvnl(0x1f800000);
@@ -15,7 +15,7 @@ void RotateVector(SVec3 *out, const SVec3 *in)
 
 void MulMatrixVec(Vec3 *out, const Matrix *m, const SVec3 *in)
 {
-#ifndef REBUILD_PC
+#ifndef CTR_NATIVE
 	gte_SetColorMatrix(m);
 	gte_ldv0(in);
 	gte_lcv0();

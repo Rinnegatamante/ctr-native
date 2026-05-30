@@ -46,7 +46,7 @@ typedef int8_t s8;
 
 #define nullptr      ((void *)0)
 
-#ifndef REBUILD_PC
+#ifndef CTR_NATIVE
 #define force_inline static inline __attribute__((always_inline))
 #else
 #define force_inline static inline

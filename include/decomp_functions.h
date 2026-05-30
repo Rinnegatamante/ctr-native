@@ -1,4 +1,4 @@
-#if defined(REBUILD_PC) /* && !defined (REBUILD_PS1)*/
+#if defined(CTR_NATIVE)
 typedef enum _CdlIntrResult
 {
 	_CdlNoIntr = 0,

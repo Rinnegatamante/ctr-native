@@ -3,7 +3,7 @@
 
 // where is this included
 // that's not ifndef guarded?
-#ifndef REBUILD_PC
+#ifndef CTR_NATIVE
 
 #include <math.h>
 #include <psn00bsdk/include/inline_c.h>

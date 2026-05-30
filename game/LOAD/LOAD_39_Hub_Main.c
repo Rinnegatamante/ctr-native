@@ -1,6 +1,6 @@
 #include <common.h>
 
-// NOTE(aalhendi): Native mirrors retail rdata 0x80011180 because REBUILD_PC
+// NOTE(aalhendi): Native mirrors retail rdata 0x80011180 because CTR_NATIVE
 // does not expose the retail rdata object.
 #if defined(CTR_NATIVE)
 static const int s_advHubConnectedLevID[5][3] = {

@@ -1,6 +1,6 @@
 #include <ctr_math.h>
 
-#ifndef REBUILD_PC
+#ifndef CTR_NATIVE
 int abs(int value)
 {
 	return value < 0 ? -value : value;

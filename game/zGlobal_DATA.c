@@ -43,46 +43,6 @@ void AH_Sign_LInB(struct Instance *inst);
 
 // CS_Thread_LInB moved to game/233/233_01_CS_Thread_LInB.c
 
-// temporary, until 231 compiles into PC port
-#ifdef REBUILD_PC
-// void RB_Default_LInB() {}	-- DONE
-// void RB_Fruit_LInB() {}	-- DONE
-// int RB_Fruit_LInC() {}		-- DONE
-// void RB_GenericMine_LInB() {}		-- DONE
-// int RB_CrateFruit_LInC() {}	-- DONE
-// int RB_CrateWeapon_LInC() {}	-- DONE
-// int RB_CrateTime_LInC() {}		-- DONE
-// void RB_FlameJet_LInB() {}	-- DONE
-// void RB_Plant_LInB() {}	-- DONE
-// void RB_Minecart_LInB() {}	-- DONE
-// void RB_Snowball_LInB() {}	-- DONE
-// void RB_Armadillo_LInB() {}-- DONE
-// void RB_Blade_LInB() {}	-- DONE
-// void RB_Seal_LInB() {}		-- DONE
-// void RB_Orca_LInB() {}	-- DONE
-// void RB_Baron_LInB() {}	-- DONE
-// void RB_Turtle_LInB() {}	-- DONE
-// void RB_Turtle_LInC() {}	-- DONE
-// void RB_Spider_LInB() {}	-- DONE
-// void RB_Fireball_LInB() {}	-- DONE
-// void RB_StartText_LInB() {} -- DONE
-// void RB_Banner_LInB() {} -- DONE
-// void RB_CtrLetter_LInB() {}	-- DONE
-// int RB_CtrLetter_LInC() {}	-- DONE
-// void RB_Crystal_LInB() {}	-- DONE
-// int RB_Crystal_LInC() {}	-- DONE
-// void RB_Teeth_LInB() {}	-- DONE
-// int RB_Teeth_LInC() {}		-- DONE
-
-// void AH_Sign_LInB() {}		-- DONE
-// void AH_Door_LInB() {}		-- DONE
-// void AH_Garage_LInB() {}	-- DONE
-// void AH_SaveObj_LInB() {}	-- DONE
-// void AH_WarpPad_LInB() {}	-- DONE
-
-// CS_Thread_LInB moved to game/233/233_01_CS_Thread_LInB.c
-#endif
-
 // Missing from Decomp/General:
 // GenericMine, CS
 
@@ -1178,7 +1138,7 @@ struct Data
             .MetaDataModels =
                 {
 // turn off for rebuild_ps1,
-// leave on for rebuild_pc,
+// leave on for CTR_NATIVE,
 // leave on for decomp/General
 #if 1
 

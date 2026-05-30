@@ -110,11 +110,7 @@ void VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 		modelID = DYNAMIC_ROCKET;
 		int bucket = TRACKING;
 		struct Thread *parentTh = 0;
-#ifdef REBUILD_PC
-		char *weaponName = "bombtracker1";
-#else
 		char *weaponName = rdata.s_bombtracker1;
-#endif
 
 		// bomb
 		if ((d->heldItemID == 1) || (d->heldItemID == 10))
@@ -466,13 +462,8 @@ void VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 	// Shield Bubble
 	case 6:
 
-#ifdef REBUILD_PC
-		char *shieldDarkName = "shielddark";
-		char *highlightName = "highlight";
-#else
 		char *shieldDarkName = rdata.s_shielddark;
 		char *highlightName = rdata.s_highlight;
-#endif
 
 		weaponInst = INSTANCE_BirthWithThread(0x5a, shieldDarkName, MEDIUM, OTHER, RB_ShieldDark_ThTick_Grow, sizeof(struct Shield), d->instSelf->thread);
 
@@ -576,11 +567,7 @@ void VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 		GAMEPAD_ShockForce1(d, 8, 0x7f);
 
 		// MEDIUM
-#ifdef REBUILD_PC
-		char *warpballName = "warpball";
-#else
 		char *warpballName = rdata.s_warpball;
-#endif
 
 		weaponInst = INSTANCE_BirthWithThread(0x36, warpballName, MEDIUM, TRACKING, RB_Warpball_ThTick, sizeof(struct TrackerWeapon), 0);
 

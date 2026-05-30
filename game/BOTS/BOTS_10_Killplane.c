@@ -1,11 +1,5 @@
 #include <common.h>
 
-#ifdef REBUILD_PC
-#define BOTS_KILLPLANE_TINY_ARENA_NAME "asphalt2"
-#else
-#define BOTS_KILLPLANE_TINY_ARENA_NAME rdata.s_asphalt2_thisAppearsTwice
-#endif
-
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80013a70-0x80013c18.
 void BOTS_Killplane(struct Thread *botThread)
 {
@@ -23,7 +17,7 @@ void BOTS_Killplane(struct Thread *botThread)
 	boolOverride = false;
 
 	// check for Tiny Arena
-	if (strcmp(sdata->gGT->levelName, BOTS_KILLPLANE_TINY_ARENA_NAME) == 0)
+	if (strcmp(sdata->gGT->levelName, rdata.s_asphalt2_thisAppearsTwice) == 0)
 	{
 		// edge-case override?
 		switch (bot->unknown_lap_related[1])
@@ -106,5 +100,3 @@ void BOTS_Killplane(struct Thread *botThread)
 	BOTS_MaskGrab(botThread);
 	return;
 }
-
-#undef BOTS_KILLPLANE_TINY_ARENA_NAME

@@ -1,6 +1,6 @@
 #include <common.h>
 
-#ifdef REBUILD_PC
+#ifdef CTR_NATIVE
 struct rData rdata = {
     .s_asphalt2_thisAppearsTwice = "asphalt2",
 
@@ -53,5 +53,10 @@ struct rData rdata = {
     .s_lightredon = "lightredon",
     .s_lightgreenoff = "lightgreenoff",
     .s_lightgreenon = "lightgreenon",
+
+    .s_bombtracker1 = "bombtracker1",
+    .s_shielddark = "shielddark",
+    .s_highlight = "highlight",
+    .s_warpball = "warpball",
 };
 #endif

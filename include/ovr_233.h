@@ -160,7 +160,7 @@ struct CutsceneObj
 	struct CsOpcodeMeta decodedOpcode;
 };
 
-#ifndef REBUILD_PC
+#ifndef CTR_NATIVE
 _Static_assert(sizeof(struct CsOpcodeMeta) == 0x14);
 _Static_assert(OFFSETOF(struct CutsceneObj, frameOverrideRoot) == 0x48);
 _Static_assert(OFFSETOF(struct CutsceneObj, decodedOpcode) == 0x4c);
@@ -594,7 +594,7 @@ struct CreditsLevHeader
 
 #define CREDITSHEADER_GETSTRINGS(x) ((u32)x + sizeof(struct CreditsLevHeader))
 
-#ifndef REBUILD_PC
+#ifndef CTR_NATIVE
 _Static_assert(OFFSETOF(struct CreditsLevHeader, numStrings) == 0x4);
 _Static_assert(sizeof(struct CreditsLevHeader) == 0x8);
 #endif
@@ -653,7 +653,7 @@ struct CreditsObj
 	s16 epiloguePosX; // unused
 };
 
-#ifndef REBUILD_PC
+#ifndef CTR_NATIVE
 _Static_assert(OFFSETOF(struct CreditsObj, countdown) == 0x320);
 _Static_assert(OFFSETOF(struct CreditsObj, credits_posY) == 0x32c);
 _Static_assert(OFFSETOF(struct CreditsObj, credits_topString) == 0x330);
@@ -744,7 +744,7 @@ _Static_assert(sizeof(struct Ovr233_Credits_BSS) == 0x374);
 
 #undef OVR233_CREDITS_BSS_ASSERT
 
-#ifndef REBUILD_PC
+#ifndef CTR_NATIVE
 _Static_assert(OFFSETOF(struct Ovr233_Credits_BSS, numStrings) == 0x20);
 _Static_assert(OFFSETOF(struct Ovr233_Credits_BSS, ptrStrings) == 0x24);
 _Static_assert(OFFSETOF(struct Ovr233_Credits_BSS, boolAllBlue) == 0x28);

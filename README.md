@@ -112,15 +112,13 @@ ctr_native.c (platform layer)
               +-- include/ (headers: structs, globals, declarations)
 ```
 
-- `REBUILD_PC` is defined, so all existing `#ifdef REBUILD_PC` guards activate
-- `CTR_NATIVE` is also defined for our own platform-specific code
+- `CTR_NATIVE` is defined for native host/platform-specific code
 - The build uses 32-bit mode because the game stores 24-bit pointers in data structures. A fixed base address is not currently set (requires Clang/LLD or a custom linker script for GCC). This constraint will be removed in Phase 3.
 
 ## Roadmap
 
-1. **Phase 1** (current): Get game booting via PsyCross + SDL2
-2. **Phase 2**: Clean up `game/` copies — remove `#ifdef REBUILD_PC` guards, strip byte budget hacks, route everything through `platform.h`
-3. **Phase 3**: Replace PsyCross with SDL3 + custom renderer. Remove 32-bit constraint. Own the full stack.
+- Clean up `game/` copies strip byte budget hacks and route platform-specific code through `CTR_NATIVE`
+- Replace PsyCross with SDL3 + custom renderer. Remove 32-bit constraint. Own the full stack.
 
 ## Credits
 

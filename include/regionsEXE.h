@@ -5017,7 +5017,7 @@ extern struct sData sdata_static;
 // 0x8008d668 - 0x8009f6fc
 extern struct BSS bss;
 
-#ifndef REBUILD_PC
+#ifndef CTR_NATIVE
 // optimal use for modding
 register struct sData *sdata asm("$gp");
 #else

@@ -1,5 +1,5 @@
 
-#ifndef REBUILD_PC
+#ifndef CTR_NATIVE
 #define NO_BSS 1
 #endif
 

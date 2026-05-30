@@ -83,7 +83,7 @@ s16 bubbleScaleArr3[] =
 #include "231_058_RB_Blade_ThTick.c"
 #include "231_059_RB_Blade_LInB.c"
 
-#ifndef REBUILD_PC
+#ifndef CTR_NATIVE
 #include "231_060_RB_Bubbles_RoosTubes.c"
 #include "231_061_068_RB_Crate.c"
 #include "231_069_072_RB_Crystal.c"
