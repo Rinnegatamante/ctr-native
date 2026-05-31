@@ -1408,9 +1408,9 @@ void GR_CopyRGBAFramebufferToVRAM(u_int* src, int x, int y, int w, int h, int up
 		{
 			uint c = *data_src++;
 
-			u_char b = ((c >> 3) & 0x1F);
+			u_char r = ((c >> 3) & 0x1F);
 			u_char g = ((c >> 11) & 0x1F);
-			u_char r = ((c >> 19) & 0x1F);
+			u_char b = ((c >> 19) & 0x1F);
 			// NOTE(aalhendi): framebuffer alpha carries the PS1 E6 mask/STP bit.
 			u_char a = (c >> 31) & 1;
 
