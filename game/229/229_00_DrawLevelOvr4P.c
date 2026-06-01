@@ -9,8 +9,11 @@ enum Ovr229DrawLevelConstants
 	OVR229_WATER_BSP_LIST_HANDLER = 0x800a1178,
 	OVR229_WATER_RENDERED_HANDLER = 0x800a1c3c,
 	OVR229_SPLIT_GROUND_LIST_A_HANDLER = 0x800a29dc,
+	OVR229_SPLIT_GROUND_RENDERED_A_HANDLER = 0x800a386c,
 	OVR229_WATER_RENDERED_DEFAULT_WRAPPER = 0x800a22d8,
 	OVR229_WATER_BSP_LIST_PRIM_RESERVE_BIAS = 0x1d40,
+	OVR229_SPLIT_GROUND_RENDERED_A_SETUP_INDEX = 3,
+	OVR229_CANONICAL_DYNAMIC_RENDERED_SETUP_INDEX = 8,
 };
 
 static const struct OverlayRDATA_229_BucketSetupRecord *Ovr229_800a106c_FindBucketSetupRecord(u32 setupAddress, int *setupIndex)
@@ -47,6 +50,23 @@ static const u32 *Ovr229_800a106c_GetCopySource(const struct OverlayRDATA_229_Bu
 	return NULL;
 }
 
+static u32 Ovr229_800a106c_TranslateCopiedWord(int setupIndex, const struct OverlayRDATA_229_BucketSetupCopy *copy, u32 wordIndex, u32 value)
+{
+	if (setupIndex != OVR229_SPLIT_GROUND_RENDERED_A_SETUP_INDEX)
+		return value;
+
+	// NOTE(aalhendi): 229 rendered-A helper/direct labels overlap 228 virtual
+	// labels. Keep R229 exact, then alias the copied scratch setup to the
+	// canonical 226 dynamic-rendered helpers after target objdump proof.
+	if ((copy->scratchOffset == 0x14c) && (wordIndex < OVR226_SETUP_COPY0_WORD_COUNT))
+		return R226.bucketSetups[OVR229_CANONICAL_DYNAMIC_RENDERED_SETUP_INDEX].copy0[wordIndex];
+
+	if ((copy->scratchOffset == 0x188) && (wordIndex < OVR226_SETUP_COPY1_WORD_COUNT))
+		return R226.bucketSetups[OVR229_CANONICAL_DYNAMIC_RENDERED_SETUP_INDEX].copy1[wordIndex];
+
+	return value;
+}
+
 static void Ovr229_800a106c_CopyScratchWords(const struct OverlayRDATA_229_BucketSetupRecord *setup, int setupIndex,
                                              const struct OverlayRDATA_229_BucketSetupCopy *copy)
 {
@@ -57,7 +77,7 @@ static void Ovr229_800a106c_CopyScratchWords(const struct OverlayRDATA_229_Bucke
 		return;
 
 	for (u32 i = 0; i <= copy->loopCounter; i++)
-		scratch[i] = source[i];
+		scratch[i] = Ovr229_800a106c_TranslateCopiedWord(setupIndex, copy, i, source[i]);
 }
 
 static void Ovr229_800a106c_ApplyBucketSetup(u32 setupAddress, u32 handlerAddress)
@@ -208,7 +228,13 @@ static int Ovr229_800a29dc_DrawSplitGroundListA(void *bucketValue, struct PushBu
 	return DrawLevelOvr1P_DrawSplitGroundListABspList((struct VisMemBspListNode *)bucketValue, pb, mesh, primMem, visFaceList);
 }
 
-static int Ovr229_800a1178_800a386c_BucketDispatch(u32 handlerAddress, void *bucketValue, struct PushBuffer *pb, struct mesh_info *mesh,
+static int Ovr229_800a386c_DrawSplitGroundRenderedA(void *bucketValue, struct PushBuffer *pb, struct mesh_info *mesh, struct PrimMem *primMem)
+{
+	DrawLevelOvr1P_SetPrimReserveBias(OVR229_WATER_BSP_LIST_PRIM_RESERVE_BIAS);
+	return Ovr226_800a7ba8_DrawDynamicRenderedList((struct QuadBlock **)bucketValue, pb, mesh, primMem);
+}
+
+static int Ovr229_800a1178_800a481c_BucketDispatch(u32 handlerAddress, void *bucketValue, struct PushBuffer *pb, struct mesh_info *mesh,
                                                    struct PrimMem *primMem, const int *visFaceList)
 {
 	if (handlerAddress == OVR229_WATER_BSP_LIST_HANDLER)
@@ -220,7 +246,10 @@ static int Ovr229_800a1178_800a386c_BucketDispatch(u32 handlerAddress, void *buc
 	if (handlerAddress == OVR229_SPLIT_GROUND_LIST_A_HANDLER)
 		return Ovr229_800a29dc_DrawSplitGroundListA(bucketValue, pb, mesh, primMem, visFaceList);
 
-	// NOTE(aalhendi): Bucket families outside 0x800a1178..0x800a386c remain
+	if (handlerAddress == OVR229_SPLIT_GROUND_RENDERED_A_HANDLER)
+		return Ovr229_800a386c_DrawSplitGroundRenderedA(bucketValue, pb, mesh, primMem);
+
+	// NOTE(aalhendi): Bucket families outside 0x800a1178..0x800a481c remain
 	// unported. Fail closed if this audit-only entry reaches them.
 	return 0;
 }
@@ -324,5 +353,5 @@ int Ovr229_800a0cbc_Entry(void *LevRenderList, struct PushBuffer *pb, struct BSP
                           void *VisMem18, void *VisMem1C, void *waterEnvMap)
 {
 	return Ovr229_800a0cbc_EntryWithCallbacks(LevRenderList, pb, bspList, primMem, VisMem10, VisMem14, VisMem18, VisMem1C, waterEnvMap,
-	                                          Ovr229_800a1178_800a386c_BucketDispatch, Ovr229_UnportedClipConsumer);
+	                                          Ovr229_800a1178_800a481c_BucketDispatch, Ovr229_UnportedClipConsumer);
 }
