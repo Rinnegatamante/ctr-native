@@ -8,7 +8,7 @@ static s32 RenderStars_MulLowShift(s32 value, s32 scale)
 static void RenderStars_LinkPrimitive(u32 *prim, u_long *ot, u32 tag)
 {
 	prim[0] = *ot | tag;
-	*ot = (u_long)((uintptr_t)prim & 0xffffff);
+	*ot = (u_long)CtrGpu_PrimToOTLink24(prim);
 }
 
 static u32 RenderStars_NextRngSelfOr(u32 *state0, u32 *state1)
