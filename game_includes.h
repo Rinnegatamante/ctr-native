@@ -10,6 +10,7 @@
 #include "game/229/R229.c"
 #include "game/226/226_00_DrawLevelOvr1P.c"
 #include "game/227/227_00_DrawLevelOvr2P.c"
+#include "game/228/228_00_DrawLevelOvr3P.c"
 #include "game/TEST_DrawSkybox.c"
 #include "game/TEST_DrawInstances.c"
 #include "game/DrawConfetti/DrawConfetti.c"
