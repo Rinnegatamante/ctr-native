@@ -73,6 +73,11 @@ void DotLights_Video(struct GameTracker *gGT, int red1, int red2, int red3, int 
 void DropRain_MakeSound(struct GameTracker *gGT);
 void DropRain_Reset(struct GameTracker *gGT);
 
+int Ovr228_800a0cbc_Entry(void *LevRenderList, struct PushBuffer *pb, struct BSP *bspList, struct PrimMem *primMem, void *VisMem10, void *VisMem14,
+                          void *VisMem18, void *waterEnvMap);
+int Ovr229_800a0cbc_Entry(void *LevRenderList, struct PushBuffer *pb, struct BSP *bspList, struct PrimMem *primMem, void *VisMem10, void *VisMem14,
+                          void *VisMem18, void *VisMem1C, void *waterEnvMap);
+
 void EngineSound_Player(struct Driver *driver);
 int EngineSound_VolumeAdjust(int desired, int current, int step);
 void EngineSound_AI(struct Driver *ai, struct Driver *cameraDriver, int slotIndex, int distance, int distanceDelta, u32 lr);

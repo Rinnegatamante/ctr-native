@@ -9868,20 +9868,11 @@ void DrawLevelOvr1P(void *LevRenderList, struct PushBuffer *pb, struct BSP *bspL
 void DrawLevelOvr3P(void *LevRenderList, struct PushBuffer *pb, struct BSP *bspList, struct PrimMem *primMem, void *VisMem10, void *VisMem14, void *VisMem18,
                     void *waterEnvMap)
 {
-	// TODO(aalhendi): Port overlay 228. Native keeps the legacy fallback until
-	// the 3P renderer is audited against retail.
-	(void)VisMem14;
-	(void)VisMem18;
-	TEST_226((struct RenderList *)LevRenderList, pb, (struct mesh_info *)bspList, primMem, VisMem10, (int)waterEnvMap);
+	(void)Ovr228_800a0cbc_Entry(LevRenderList, pb, bspList, primMem, VisMem10, VisMem14, VisMem18, waterEnvMap);
 }
 
 void DrawLevelOvr4P(void *LevRenderList, struct PushBuffer *pb, struct BSP *bspList, struct PrimMem *primMem, void *VisMem10, void *VisMem14, void *VisMem18,
                     void *VisMem1C, void *waterEnvMap)
 {
-	// TODO(aalhendi): Port overlay 229. Native keeps the legacy fallback until
-	// the 4P renderer is audited against retail.
-	(void)VisMem14;
-	(void)VisMem18;
-	(void)VisMem1C;
-	TEST_226((struct RenderList *)LevRenderList, pb, (struct mesh_info *)bspList, primMem, VisMem10, (int)waterEnvMap);
+	(void)Ovr229_800a0cbc_Entry(LevRenderList, pb, bspList, primMem, VisMem10, VisMem14, VisMem18, VisMem1C, waterEnvMap);
 }

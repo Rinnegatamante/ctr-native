@@ -367,8 +367,8 @@ static int Ovr229_800a0cbc_EntryWithCallbacks(void *LevRenderList, struct PushBu
 	u32 hostStackAnchor;
 
 	// NOTE(aalhendi): ASM-audited against NTSC-U 926 229 entry/setup
-	// 0x800a0cbc-0x800a1178. The public 4P renderer still uses the 226
-	// fallback until the final public route-promotion and runtime proof phase.
+	// 0x800a0cbc-0x800a1178. Runtime proof is tracked separately from
+	// source ownership and public route promotion.
 	*CTR_SCRATCHPAD_PTR(u32, 0x38) = (u32)(uintptr_t)&hostStackAnchor;
 	*CTR_SCRATCHPAD_PTR(u32, 0xcc) = (u32)(uintptr_t)VisMem10;
 	if (VisMem10 == NULL)
