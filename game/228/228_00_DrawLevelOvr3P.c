@@ -8,6 +8,7 @@ enum Ovr228DrawLevelConstants
 {
 	OVR228_WATER_BSP_LIST_HANDLER = 0x800a10c4,
 	OVR228_WATER_RENDERED_HANDLER = 0x800a1b88,
+	OVR228_SPLIT_GROUND_LIST_A_HANDLER = 0x800a2928,
 	OVR228_WATER_RENDERED_DEFAULT_WRAPPER = 0x800a2224,
 	OVR228_WATER_BSP_LIST_PRIM_RESERVE_BIAS = 0x1040,
 };
@@ -195,7 +196,14 @@ static int Ovr228_800a1b88_DrawWaterRenderedList(void *bucketValue, struct PushB
 	return Ovr226_800a2904_DrawWaterRenderedListWithDefaultHandler((struct QuadBlock **)bucketValue, pb, mesh, primMem, OVR228_WATER_RENDERED_DEFAULT_WRAPPER);
 }
 
-static int Ovr228_800a10c4_800a2928_BucketDispatch(u32 handlerAddress, void *bucketValue, struct PushBuffer *pb, struct mesh_info *mesh,
+static int Ovr228_800a2928_DrawSplitGroundListA(void *bucketValue, struct PushBuffer *pb, struct mesh_info *mesh, struct PrimMem *primMem,
+                                                const int *visFaceList)
+{
+	DrawLevelOvr1P_SetPrimReserveBias(OVR228_WATER_BSP_LIST_PRIM_RESERVE_BIAS);
+	return DrawLevelOvr1P_DrawSplitGroundListABspList((struct VisMemBspListNode *)bucketValue, pb, mesh, primMem, visFaceList);
+}
+
+static int Ovr228_800a10c4_800a37b8_BucketDispatch(u32 handlerAddress, void *bucketValue, struct PushBuffer *pb, struct mesh_info *mesh,
                                                    struct PrimMem *primMem, const int *visFaceList)
 {
 	if (handlerAddress == OVR228_WATER_BSP_LIST_HANDLER)
@@ -204,7 +212,10 @@ static int Ovr228_800a10c4_800a2928_BucketDispatch(u32 handlerAddress, void *buc
 	if (handlerAddress == OVR228_WATER_RENDERED_HANDLER)
 		return Ovr228_800a1b88_DrawWaterRenderedList(bucketValue, pb, mesh, primMem);
 
-	// NOTE(aalhendi): Bucket families outside 0x800a10c4..0x800a2928 remain
+	if (handlerAddress == OVR228_SPLIT_GROUND_LIST_A_HANDLER)
+		return Ovr228_800a2928_DrawSplitGroundListA(bucketValue, pb, mesh, primMem, visFaceList);
+
+	// NOTE(aalhendi): Bucket families outside 0x800a10c4..0x800a37b8 remain
 	// unported. Fail closed if this audit-only entry reaches them.
 	return 0;
 }
@@ -295,5 +306,5 @@ int Ovr228_800a0cbc_Entry(void *LevRenderList, struct PushBuffer *pb, struct BSP
                           void *VisMem18, void *waterEnvMap)
 {
 	return Ovr228_800a0cbc_EntryWithCallbacks(LevRenderList, pb, bspList, primMem, VisMem10, VisMem14, VisMem18, waterEnvMap,
-	                                          Ovr228_800a10c4_800a2928_BucketDispatch, Ovr228_UnportedClipConsumer);
+	                                          Ovr228_800a10c4_800a37b8_BucketDispatch, Ovr228_UnportedClipConsumer);
 }

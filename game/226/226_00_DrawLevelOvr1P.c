@@ -781,6 +781,20 @@ static int DrawLevelOvr1P_GetDeepestMosaicReloadGate(u32 directHandlerAddress, u
 		*reloadSpan = 0xc0;
 		break;
 
+	case 0x800a3670:
+	case 0x800a3668:
+	case 0x800a36f4:
+		expectedHandlerAddress = 0x800a3014;
+		*reloadSpan = 0xc0;
+		break;
+
+	case 0x800a3724:
+	case 0x800a371c:
+	case 0x800a37a8:
+		expectedHandlerAddress = 0x800a30c8;
+		*reloadSpan = 0xc0;
+		break;
+
 	case 0x800a87d4:
 	case 0x800a87cc:
 	case 0x800a8888:
@@ -7668,14 +7682,52 @@ static int Ovr226_800a1cc4_EmitFullDynamicDirectTail(struct PushBuffer *pb, stru
 	switch (handlerAddress)
 	{
 	case 0x800a1ce8:
+	case 0x800a3670:
+	case 0x800a3724:
 		return Ovr226_800a1ce8_EmitFullDynamicGT3Raw(pb, primMem, block, projected, indices, faceIndex, texture, 0);
 	case 0x800a1ce0:
+	case 0x800a3668:
+	case 0x800a371c:
 		return Ovr226_800a1ce8_EmitFullDynamicGT3Raw(pb, primMem, block, projected, indices, faceIndex, texture, 1);
 	case 0x800a1d6c:
+	case 0x800a36f4:
+	case 0x800a37a8:
 		return Ovr226_800a1d6c_EmitFullDynamicGT4Raw(pb, primMem, block, projected, indices, faceIndex, texture);
 	default:
 		return 1;
 	}
+}
+
+static int Ovr226_800a1cc4_IsSplitGroundListADirectHandler(u32 handlerAddress)
+{
+	switch (handlerAddress)
+	{
+	case 0x800a3670:
+	case 0x800a3668:
+	case 0x800a36f4:
+	case 0x800a3724:
+	case 0x800a371c:
+	case 0x800a37a8:
+		return 1;
+	default:
+		return 0;
+	}
+}
+
+static int Ovr226_800a1cc4_EmitFullDynamicDeepestDirectTail(struct PushBuffer *pb, struct PrimMem *primMem, struct QuadBlock *block,
+                                                            struct DrawLevelOvr1PScratchVertex *projected, const int *indices, int faceIndex,
+                                                            struct TextureLayout *texture)
+{
+	u32 handlerAddress = DrawLevelOvr1P_GetDirectHandlerAddress(*CTR_SCRATCHPAD_PTR(u32, 0x70));
+	int result;
+
+	if (!Ovr226_800a1cc4_IsSplitGroundListADirectHandler(handlerAddress))
+		return Ovr226_800a1cc4_EmitFullDynamicDirectTail(pb, primMem, block, projected, indices, faceIndex, texture);
+
+	DrawLevelOvr1P_PrepareDeepestMosaicUv(projected, indices, handlerAddress);
+	result = Ovr226_800a1cc4_EmitFullDynamicDirectTail(pb, primMem, block, projected, indices, faceIndex, texture);
+	DrawLevelOvr1P_RestoreProjectedUvScratch();
+	return result;
 }
 
 static u32 Ovr226_800a1be8_SelectFullDynamicNearMask(const struct DrawLevelOvr1PScratchVertex *projected, const int *indices, u32 scratchOffset)
@@ -7724,7 +7776,7 @@ static int DrawLevelOvr1P_EmitFullDynamicTerminalFaceSlotMode(struct PushBuffer 
 		return 1;
 
 	if (gate.forceDirect)
-		return Ovr226_800a1cc4_EmitFullDynamicDirectTail(pb, primMem, block, projected, indices, faceIndex, texture);
+		return Ovr226_800a1cc4_EmitFullDynamicDeepestDirectTail(pb, primMem, block, projected, indices, faceIndex, texture);
 
 	return Ovr226_800a1be8_DispatchFullDynamicNearSubdivision(pb, primMem, block, projected, indices, faceIndex, texture, depth, gate.directMask, 0x28);
 }
@@ -7969,22 +8021,40 @@ static int Ovr226_800a1534_800a17d8_DispatchFullDynamicHelperSequence(struct Pus
 	switch (handlerAddress)
 	{
 	case 0x800a15d4:
+	case 0x800a2eb4:
+	case 0x800a2f68:
 		return Ovr226_800a15d4_FullDynamicHelperSlot0(pb, primMem, block, projected, texture, depth);
 	case 0x800a1614:
+	case 0x800a2ef4:
+	case 0x800a2fa8:
 		return Ovr226_800a1614_FullDynamicHelperSlot1(pb, primMem, block, projected, texture, depth);
 	case 0x800a1634:
+	case 0x800a2f14:
+	case 0x800a2fc8:
 		return Ovr226_800a1634_FullDynamicHelperSlot3(pb, primMem, block, projected, texture, depth);
 	case 0x800a1654:
+	case 0x800a2f34:
+	case 0x800a2fe8:
 		return Ovr226_800a1654_FullDynamicHelperSlot7(pb, primMem, block, projected, texture, depth);
 	case 0x800a1694:
+	case 0x800a2f74:
+	case 0x800a3028:
 		return Ovr226_800a1694_FullDynamicHelperSlot2(pb, primMem, block, projected, texture, depth);
 	case 0x800a16bc:
+	case 0x800a2f9c:
+	case 0x800a3050:
 		return Ovr226_800a16bc_FullDynamicHelperSlot4(pb, primMem, block, projected, texture, depth);
 	case 0x800a16e4:
+	case 0x800a2fc4:
+	case 0x800a3078:
 		return Ovr226_800a16e4_FullDynamicHelperSlot9(pb, primMem, block, projected, texture, depth);
 	case 0x800a170c:
+	case 0x800a2fec:
+	case 0x800a30a0:
 		return Ovr226_800a170c_FullDynamicHelperSlot11(pb, primMem, block, projected, texture, depth);
 	case 0x800a1734:
+	case 0x800a3014:
+	case 0x800a30c8:
 		return Ovr226_800a1734_FullDynamicDefaultHelper(pb, primMem, block, projected, texture, depth);
 	default:
 		return 1;
@@ -8183,6 +8253,106 @@ static int Ovr226_800a0ef4_DrawFullDynamicBspList(struct VisMemBspListNode *slot
 		slot = slot->next;
 	}
 
+	return 1;
+}
+
+static void DrawLevelOvr1P_SetSplitGroundListAThresholdScratch(void)
+{
+	*CTR_SCRATCHPAD_PTR(u32, 0x14) = 0x780;
+	*CTR_SCRATCHPAD_PTR(u32, 0x1c) = 0x640;
+	*CTR_SCRATCHPAD_PTR(u32, 0x20) = 0x500;
+	*CTR_SCRATCHPAD_PTR(u32, 0x24) = 0x280;
+	*CTR_SCRATCHPAD_PTR(u32, 0x28) = 0x140;
+}
+
+static int DrawLevelOvr1P_ProjectSplitGroundListALowGrid(struct LevVertex *vertices, const struct QuadBlock *block,
+                                                         struct DrawLevelOvr1PScratchVertex *projected)
+{
+	DrawLevelOvr1P_SetGridFaceSlot(projected, 0);
+	if (Ovr226_800a3738_ProjectGround4x1ListVertexTriple(vertices, block, projected, 0, 1, 2))
+		return 1;
+
+	DrawLevelOvr1P_SetActiveDrawOrderLow(block);
+	return Ovr226_800a3738_ProjectGround4x1ListVertexTriple(vertices, block, projected, 3, 4, 5);
+}
+
+static int DrawLevelOvr1P_ProjectSplitGroundListATransitionGrid(struct LevVertex *vertices, const struct QuadBlock *block,
+                                                                struct DrawLevelOvr1PScratchVertex *projected)
+{
+	if (Ovr226_800a3738_ProjectGround4x1ListVertexTriple(vertices, block, projected, 6, 7, 8))
+		return 1;
+
+	DrawLevelOvr1P_AdjustFullDynamicMidUvs(projected);
+	return 0;
+}
+
+static int DrawLevelOvr1P_EmitSplitGroundListAQuadBlock(struct PushBuffer *pb, struct PrimMem *primMem, struct mesh_info *mesh, struct QuadBlock *block)
+{
+	struct LevVertex *vertices = mesh->ptrVertexArray;
+	struct DrawLevelOvr1PScratchVertex *projected = DrawLevelOvr1P_GetScratchVertices();
+	struct TextureLayout *texture;
+	u32 maxDepth;
+	u32 nearMask;
+
+	if (DrawLevelOvr1P_ProjectSplitGroundListALowGrid(vertices, block, projected))
+	{
+		DrawLevelOvr1P_AppendRenderedQuadBlock(block);
+		return 1;
+	}
+
+	texture = Ovr226_800a1058_PrepareFullDynamicLowUv(block, projected);
+	maxDepth = DrawLevelOvr1P_GetProjectedMaxDepth(projected, sDrawLevelOvr1PFullDynamicLowIndices);
+	Ovr226_800a108c_800a1b10_SetFullDynamicInheritedOtIndex(block, projected, maxDepth, -1);
+	nearMask = Ovr226_800a10dc_SelectFullDynamicTopNearMask(projected);
+	if (nearMask == 0)
+		return Ovr226_800a1338_DispatchFullDynamicLowDirect(pb, primMem, block, projected, texture);
+
+	if (DrawLevelOvr1P_ProjectSplitGroundListATransitionGrid(vertices, block, projected))
+	{
+		DrawLevelOvr1P_AppendRenderedQuadBlock(block);
+		return 1;
+	}
+
+	return Ovr226_800a1534_800a17d8_DispatchFullDynamicHelperSequence(pb, primMem, block, projected,
+	                                                                  DrawLevelOvr1P_GetNearSubdivisionHandlerAddress(
+	                                                                      nearMask, DRAW_LEVEL_OVR1P_CLIP_BYTES_LIST),
+	                                                                  texture, 0);
+}
+
+static int DrawLevelOvr1P_DrawSplitGroundListABspList(struct VisMemBspListNode *slot, struct PushBuffer *pb, struct mesh_info *mesh,
+                                                      struct PrimMem *primMem, const int *visFaceList)
+{
+	DrawLevelOvr1P_SetSplitGroundListAThresholdScratch();
+
+	while (slot != NULL)
+	{
+		struct BSP *bsp = slot->bsp;
+		struct QuadBlock *block = bsp->data.leaf.ptrQuadBlockArray;
+		s32 quadCount = bsp->data.leaf.numQuads;
+
+		*CTR_SCRATCHPAD_PTR(s32, 0x68) = quadCount;
+		Ovr226_800a0f0c_SeedFullDynamicVisibilityScratch(visFaceList, block);
+
+		while (quadCount > 0)
+		{
+			if (!DrawLevelOvr1P_HasBucketPrimReserve(primMem, DRAW_LEVEL_OVR1P_BUCKET_RESERVE_DEFAULT))
+				return 0;
+
+			if (Ovr226_800a0f34_ConsumeFullDynamicVisibilityBit())
+			{
+				if (!DrawLevelOvr1P_EmitSplitGroundListAQuadBlock(pb, primMem, mesh, block))
+					return 0;
+			}
+
+			block++;
+			quadCount--;
+			*CTR_SCRATCHPAD_PTR(s32, 0x68) = quadCount;
+		}
+
+		slot = slot->next;
+	}
+
+	DrawLevelOvr1P_TerminateRenderedListCursor();
 	return 1;
 }
 
