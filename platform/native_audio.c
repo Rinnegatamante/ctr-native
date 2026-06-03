@@ -8,40 +8,43 @@
 
 typedef s32 b32;
 
-#define NATIVE_AUDIO_SAMPLE_RATE       44100
-#define NATIVE_AUDIO_CHANNELS          2
-#define NATIVE_AUDIO_SPU_VOICE_COUNT   24
-#define NATIVE_AUDIO_SPU_MEMSIZE       (512 * 1024)
-#define NATIVE_AUDIO_FP_SHIFT          16
-#define NATIVE_AUDIO_FP_ONE            (1 << NATIVE_AUDIO_FP_SHIFT)
-#define NATIVE_AUDIO_GAUSS_INDEX_SHIFT 8
-#define NATIVE_AUDIO_DIRECT_VOL_MAX    0x4000
-#define NATIVE_AUDIO_VBLANK_FRAMES     (NATIVE_AUDIO_SAMPLE_RATE / 60)
-#define NATIVE_AUDIO_RING_FRAMES       (NATIVE_AUDIO_VBLANK_FRAMES * 8)
-#define NATIVE_AUDIO_STATE_MAGIC       0x41525443
-#define NATIVE_AUDIO_STATE_VERSION     1
-#define NATIVE_AUDIO_ARENA_ALIGN       16
-#define NATIVE_AUDIO_ADSR_MIN          (-0x8000)
-#define NATIVE_AUDIO_ADSR_MAX          0x7fff
-#define NATIVE_AUDIO_ADSR_STEP_BIT     0x8000u
+#define NATIVE_AUDIO_SAMPLE_RATE        44100
+#define NATIVE_AUDIO_CHANNELS           2
+#define NATIVE_AUDIO_SPU_VOICE_COUNT    24
+#define NATIVE_AUDIO_SPU_MEMSIZE        (512 * 1024)
+#define NATIVE_AUDIO_FP_SHIFT           16
+#define NATIVE_AUDIO_FP_ONE             (1 << NATIVE_AUDIO_FP_SHIFT)
+#define NATIVE_AUDIO_GAUSS_INDEX_SHIFT  8
+#define NATIVE_AUDIO_DIRECT_VOL_MAX     0x4000
+#define NATIVE_AUDIO_VBLANK_FRAMES      (NATIVE_AUDIO_SAMPLE_RATE / 60)
+#define NATIVE_AUDIO_RING_FRAMES        (NATIVE_AUDIO_VBLANK_FRAMES * 8)
+#define NATIVE_AUDIO_STATE_MAGIC        0x41525443
+#define NATIVE_AUDIO_STATE_VERSION      1
+#define NATIVE_AUDIO_ARENA_ALIGN        16
+#define NATIVE_AUDIO_ADSR_MIN           (-0x8000)
+#define NATIVE_AUDIO_ADSR_MAX           0x7fff
+#define NATIVE_AUDIO_ADSR_STEP_BIT      0x8000u
+#define NATIVE_AUDIO_REVERB_MAX_BYTES   0x18040
+#define NATIVE_AUDIO_REVERB_MAX_SAMPLES (NATIVE_AUDIO_REVERB_MAX_BYTES / (int)sizeof(s16))
+#define NATIVE_AUDIO_REVERB_FIR_TAPS    39
 
-#define XA_NUM_TYPES                   3
-#define XA_HEADER_SIZE                 0x44
-#define XA_NUM_XAS_TOTAL_OFFSET        0x0c
-#define XA_NUM_TRACKS_TOTAL_OFFSET     0x10
-#define XA_NUM_SONGS_OFFSET            0x2c
-#define XA_FIRST_SONG_INDEX_OFFSET     0x38
-#define XA_SIZE_ENTRY_BYTES            4
-#define XA_FORM2_SECTOR_SIZE           2336
-#define XA_FULL_SECTOR_SIZE            2352
-#define XA_FRAMES_PER_SECTOR           18
-#define XA_FRAME_SIZE                  128
-#define XA_SUBHEADER_SIZE              8
-#define XA_SAMPLES_PER_SOUND_UNIT      28
-#define XA_BLOCKS_PER_FRAME            4
-#define XA_SUBFRAMES_PER_FRAME         8
-#define XA_SAMPLE_RATE_37800           37800
-#define XA_SAMPLE_RATE_18900           18900
+#define XA_NUM_TYPES                    3
+#define XA_HEADER_SIZE                  0x44
+#define XA_NUM_XAS_TOTAL_OFFSET         0x0c
+#define XA_NUM_TRACKS_TOTAL_OFFSET      0x10
+#define XA_NUM_SONGS_OFFSET             0x2c
+#define XA_FIRST_SONG_INDEX_OFFSET      0x38
+#define XA_SIZE_ENTRY_BYTES             4
+#define XA_FORM2_SECTOR_SIZE            2336
+#define XA_FULL_SECTOR_SIZE             2352
+#define XA_FRAMES_PER_SECTOR            18
+#define XA_FRAME_SIZE                   128
+#define XA_SUBHEADER_SIZE               8
+#define XA_SAMPLES_PER_SOUND_UNIT       28
+#define XA_BLOCKS_PER_FRAME             4
+#define XA_SUBFRAMES_PER_FRAME          8
+#define XA_SAMPLE_RATE_37800            37800
+#define XA_SAMPLE_RATE_18900            18900
 
 enum
 {
@@ -57,6 +60,67 @@ enum NativeAudioAdsrPhase
 	NATIVE_AUDIO_ADSR_DECAY,
 	NATIVE_AUDIO_ADSR_SUSTAIN,
 	NATIVE_AUDIO_ADSR_RELEASE
+};
+
+enum NativeAudioReverbRegister
+{
+	NATIVE_AUDIO_REV_DAPF1,
+	NATIVE_AUDIO_REV_DAPF2,
+	NATIVE_AUDIO_REV_VIIR,
+	NATIVE_AUDIO_REV_VCOMB1,
+	NATIVE_AUDIO_REV_VCOMB2,
+	NATIVE_AUDIO_REV_VCOMB3,
+	NATIVE_AUDIO_REV_VCOMB4,
+	NATIVE_AUDIO_REV_VWALL,
+	NATIVE_AUDIO_REV_VAPF1,
+	NATIVE_AUDIO_REV_VAPF2,
+	NATIVE_AUDIO_REV_MLSAME,
+	NATIVE_AUDIO_REV_MRSAME,
+	NATIVE_AUDIO_REV_MLCOMB1,
+	NATIVE_AUDIO_REV_MRCOMB1,
+	NATIVE_AUDIO_REV_MLCOMB2,
+	NATIVE_AUDIO_REV_MRCOMB2,
+	NATIVE_AUDIO_REV_DLSAME,
+	NATIVE_AUDIO_REV_DRSAME,
+	NATIVE_AUDIO_REV_MLDIFF,
+	NATIVE_AUDIO_REV_MRDIFF,
+	NATIVE_AUDIO_REV_MLCOMB3,
+	NATIVE_AUDIO_REV_MRCOMB3,
+	NATIVE_AUDIO_REV_MLCOMB4,
+	NATIVE_AUDIO_REV_MRCOMB4,
+	NATIVE_AUDIO_REV_DLDIFF,
+	NATIVE_AUDIO_REV_DRDIFF,
+	NATIVE_AUDIO_REV_MLAPF1,
+	NATIVE_AUDIO_REV_MRAPF1,
+	NATIVE_AUDIO_REV_MLAPF2,
+	NATIVE_AUDIO_REV_MRAPF2,
+	NATIVE_AUDIO_REV_VLIN,
+	NATIVE_AUDIO_REV_VRIN,
+	NATIVE_AUDIO_REV_REG_COUNT
+};
+
+struct NativeAudioReverbPreset
+{
+	s32 mode;
+	s32 sizeBytes;
+	s16 reg[NATIVE_AUDIO_REV_REG_COUNT];
+};
+
+struct NativeAudioReverbState
+{
+	s16 buffer[NATIVE_AUDIO_REVERB_MAX_SAMPLES];
+	s16 inputHistoryLeft[NATIVE_AUDIO_REVERB_FIR_TAPS];
+	s16 inputHistoryRight[NATIVE_AUDIO_REVERB_FIR_TAPS];
+	s16 outputHistoryLeft[NATIVE_AUDIO_REVERB_FIR_TAPS];
+	s16 outputHistoryRight[NATIVE_AUDIO_REVERB_FIR_TAPS];
+	s32 mode;
+	s32 sizeSamples;
+	s32 cursor;
+	s32 inputHistoryCursor;
+	s32 outputHistoryCursor;
+	s32 samplePhase;
+	s16 lastOutLeft;
+	s16 lastOutRight;
 };
 
 struct NativeAudioSpuArena
@@ -113,9 +177,6 @@ struct NativeAudioVoice
 	u8 adsrPhase;
 };
 
-// TODO(aalhendi): Implement PS1 SPU reverb mixing. CTR uses reverb
-// modes and per-voice reverb flags; SPU noise controls are unused by NTSC-U 926.
-
 struct NativeAudioXA
 {
 	// NOTE(aalhendi): Points into xaPcmArena; rebuild from the XA file identity during restore.
@@ -145,6 +206,7 @@ struct NativeAudioState
 	s16 masterVolumeRight;
 	u32 reverbVoiceBits;
 	SpuReverbAttr reverbAttr;
+	struct NativeAudioReverbState reverb;
 	SpuCommonAttr commonAttr;
 	struct NativeAudioSpuArena spu;
 	struct NativeAudioDecodeArena voicePcmArena;
@@ -229,6 +291,7 @@ struct NativeAudioSnapshot
 	s16 masterVolumeRight;
 	u32 reverbVoiceBits;
 	SpuReverbAttr reverbAttr;
+	struct NativeAudioReverbState reverb;
 	SpuCommonAttr commonAttr;
 	struct NativeAudioVoiceState voices[NATIVE_AUDIO_SPU_VOICE_COUNT];
 	struct NativeAudioXAState xa;
@@ -268,6 +331,102 @@ static const s16 s_gaussTable[512] = {
     22948, 22953, 22957, 22960, 22962, 22963,
 };
 
+// NOTE(aalhendi): PS1 SPU reverb 44.1kHz<->22.05kHz FIR resampler.
+// Source reference: https://psx-spx.consoledev.net/soundprocessingunitspu/
+static const s16 s_reverbFirCoeffs[NATIVE_AUDIO_REVERB_FIR_TAPS] = {
+    -0x0001, 0x0000, 0x0002, 0x0000,  -0x000A, 0x0000, 0x0023, 0x0000, -0x0067, 0x0000,  0x010A, 0x0000, -0x0268,
+    0x0000,  0x0534, 0x0000, -0x0B90, 0x0000,  0x2806, 0x4000, 0x2806, 0x0000,  -0x0B90, 0x0000, 0x0534, 0x0000,
+    -0x0268, 0x0000, 0x010A, 0x0000,  -0x0067, 0x0000, 0x0023, 0x0000, -0x000A, 0x0000,  0x0002, 0x0000, -0x0001,
+};
+
+#define NATIVE_AUDIO_REV(value) ((s16)(value))
+
+// NOTE(aalhendi): PS1 SPU reverb preset registers in libspu mode order.
+// Source reference: https://psx-spx.consoledev.net/soundprocessingunitspu/
+static const struct NativeAudioReverbPreset s_reverbPresets[] = {
+    {SPU_REV_MODE_OFF, 0x10, {NATIVE_AUDIO_REV(0x0000), NATIVE_AUDIO_REV(0x0000), NATIVE_AUDIO_REV(0x0000), NATIVE_AUDIO_REV(0x0000), NATIVE_AUDIO_REV(0x0000),
+                              NATIVE_AUDIO_REV(0x0000), NATIVE_AUDIO_REV(0x0000), NATIVE_AUDIO_REV(0x0000), NATIVE_AUDIO_REV(0x0000), NATIVE_AUDIO_REV(0x0000),
+                              NATIVE_AUDIO_REV(0x0001), NATIVE_AUDIO_REV(0x0001), NATIVE_AUDIO_REV(0x0001), NATIVE_AUDIO_REV(0x0001), NATIVE_AUDIO_REV(0x0001),
+                              NATIVE_AUDIO_REV(0x0001), NATIVE_AUDIO_REV(0x0000), NATIVE_AUDIO_REV(0x0000), NATIVE_AUDIO_REV(0x0001), NATIVE_AUDIO_REV(0x0001),
+                              NATIVE_AUDIO_REV(0x0001), NATIVE_AUDIO_REV(0x0001), NATIVE_AUDIO_REV(0x0001), NATIVE_AUDIO_REV(0x0001), NATIVE_AUDIO_REV(0x0000),
+                              NATIVE_AUDIO_REV(0x0000), NATIVE_AUDIO_REV(0x0001), NATIVE_AUDIO_REV(0x0001), NATIVE_AUDIO_REV(0x0001), NATIVE_AUDIO_REV(0x0001),
+                              NATIVE_AUDIO_REV(0x0000), NATIVE_AUDIO_REV(0x0000)}},
+    {SPU_REV_MODE_ROOM, 0x26C0, {NATIVE_AUDIO_REV(0x007D), NATIVE_AUDIO_REV(0x005B), NATIVE_AUDIO_REV(0x6D80), NATIVE_AUDIO_REV(0x54B8),
+                                 NATIVE_AUDIO_REV(0xBED0), NATIVE_AUDIO_REV(0x0000), NATIVE_AUDIO_REV(0x0000), NATIVE_AUDIO_REV(0xBA80),
+                                 NATIVE_AUDIO_REV(0x5800), NATIVE_AUDIO_REV(0x5300), NATIVE_AUDIO_REV(0x04D6), NATIVE_AUDIO_REV(0x0333),
+                                 NATIVE_AUDIO_REV(0x03F0), NATIVE_AUDIO_REV(0x0227), NATIVE_AUDIO_REV(0x0374), NATIVE_AUDIO_REV(0x01EF),
+                                 NATIVE_AUDIO_REV(0x0334), NATIVE_AUDIO_REV(0x01B5), NATIVE_AUDIO_REV(0x0000), NATIVE_AUDIO_REV(0x0000),
+                                 NATIVE_AUDIO_REV(0x0000), NATIVE_AUDIO_REV(0x0000), NATIVE_AUDIO_REV(0x0000), NATIVE_AUDIO_REV(0x0000),
+                                 NATIVE_AUDIO_REV(0x0000), NATIVE_AUDIO_REV(0x0000), NATIVE_AUDIO_REV(0x01B4), NATIVE_AUDIO_REV(0x0136),
+                                 NATIVE_AUDIO_REV(0x00B8), NATIVE_AUDIO_REV(0x005C), NATIVE_AUDIO_REV(0x8000), NATIVE_AUDIO_REV(0x8000)}},
+    {SPU_REV_MODE_STUDIO_A, 0x1F40, {NATIVE_AUDIO_REV(0x0033), NATIVE_AUDIO_REV(0x0025), NATIVE_AUDIO_REV(0x70F0), NATIVE_AUDIO_REV(0x4FA8),
+                                     NATIVE_AUDIO_REV(0xBCE0), NATIVE_AUDIO_REV(0x4410), NATIVE_AUDIO_REV(0xC0F0), NATIVE_AUDIO_REV(0x9C00),
+                                     NATIVE_AUDIO_REV(0x5280), NATIVE_AUDIO_REV(0x4EC0), NATIVE_AUDIO_REV(0x03E4), NATIVE_AUDIO_REV(0x031B),
+                                     NATIVE_AUDIO_REV(0x03A4), NATIVE_AUDIO_REV(0x02AF), NATIVE_AUDIO_REV(0x0372), NATIVE_AUDIO_REV(0x0266),
+                                     NATIVE_AUDIO_REV(0x031C), NATIVE_AUDIO_REV(0x025D), NATIVE_AUDIO_REV(0x025C), NATIVE_AUDIO_REV(0x018E),
+                                     NATIVE_AUDIO_REV(0x022F), NATIVE_AUDIO_REV(0x0135), NATIVE_AUDIO_REV(0x01D2), NATIVE_AUDIO_REV(0x00B7),
+                                     NATIVE_AUDIO_REV(0x018F), NATIVE_AUDIO_REV(0x00B5), NATIVE_AUDIO_REV(0x00B4), NATIVE_AUDIO_REV(0x0080),
+                                     NATIVE_AUDIO_REV(0x004C), NATIVE_AUDIO_REV(0x0026), NATIVE_AUDIO_REV(0x8000), NATIVE_AUDIO_REV(0x8000)}},
+    {SPU_REV_MODE_STUDIO_B, 0x4840, {NATIVE_AUDIO_REV(0x00B1), NATIVE_AUDIO_REV(0x007F), NATIVE_AUDIO_REV(0x70F0), NATIVE_AUDIO_REV(0x4FA8),
+                                     NATIVE_AUDIO_REV(0xBCE0), NATIVE_AUDIO_REV(0x4510), NATIVE_AUDIO_REV(0xBEF0), NATIVE_AUDIO_REV(0xB4C0),
+                                     NATIVE_AUDIO_REV(0x5280), NATIVE_AUDIO_REV(0x4EC0), NATIVE_AUDIO_REV(0x0904), NATIVE_AUDIO_REV(0x076B),
+                                     NATIVE_AUDIO_REV(0x0824), NATIVE_AUDIO_REV(0x065F), NATIVE_AUDIO_REV(0x07A2), NATIVE_AUDIO_REV(0x0616),
+                                     NATIVE_AUDIO_REV(0x076C), NATIVE_AUDIO_REV(0x05ED), NATIVE_AUDIO_REV(0x05EC), NATIVE_AUDIO_REV(0x042E),
+                                     NATIVE_AUDIO_REV(0x050F), NATIVE_AUDIO_REV(0x0305), NATIVE_AUDIO_REV(0x0462), NATIVE_AUDIO_REV(0x02B7),
+                                     NATIVE_AUDIO_REV(0x042F), NATIVE_AUDIO_REV(0x0265), NATIVE_AUDIO_REV(0x0264), NATIVE_AUDIO_REV(0x01B2),
+                                     NATIVE_AUDIO_REV(0x0100), NATIVE_AUDIO_REV(0x0080), NATIVE_AUDIO_REV(0x8000), NATIVE_AUDIO_REV(0x8000)}},
+    {SPU_REV_MODE_STUDIO_C, 0x6FE0, {NATIVE_AUDIO_REV(0x00E3), NATIVE_AUDIO_REV(0x00A9), NATIVE_AUDIO_REV(0x6F60), NATIVE_AUDIO_REV(0x4FA8),
+                                     NATIVE_AUDIO_REV(0xBCE0), NATIVE_AUDIO_REV(0x4510), NATIVE_AUDIO_REV(0xBEF0), NATIVE_AUDIO_REV(0xA680),
+                                     NATIVE_AUDIO_REV(0x5680), NATIVE_AUDIO_REV(0x52C0), NATIVE_AUDIO_REV(0x0DFB), NATIVE_AUDIO_REV(0x0B58),
+                                     NATIVE_AUDIO_REV(0x0D09), NATIVE_AUDIO_REV(0x0A3C), NATIVE_AUDIO_REV(0x0BD9), NATIVE_AUDIO_REV(0x0973),
+                                     NATIVE_AUDIO_REV(0x0B59), NATIVE_AUDIO_REV(0x08DA), NATIVE_AUDIO_REV(0x08D9), NATIVE_AUDIO_REV(0x05E9),
+                                     NATIVE_AUDIO_REV(0x07EC), NATIVE_AUDIO_REV(0x04B0), NATIVE_AUDIO_REV(0x06EF), NATIVE_AUDIO_REV(0x03D2),
+                                     NATIVE_AUDIO_REV(0x05EA), NATIVE_AUDIO_REV(0x031D), NATIVE_AUDIO_REV(0x031C), NATIVE_AUDIO_REV(0x0238),
+                                     NATIVE_AUDIO_REV(0x0154), NATIVE_AUDIO_REV(0x00AA), NATIVE_AUDIO_REV(0x8000), NATIVE_AUDIO_REV(0x8000)}},
+    {SPU_REV_MODE_HALL, 0xADE0, {NATIVE_AUDIO_REV(0x01A5), NATIVE_AUDIO_REV(0x0139), NATIVE_AUDIO_REV(0x6000), NATIVE_AUDIO_REV(0x5000),
+                                 NATIVE_AUDIO_REV(0x4C00), NATIVE_AUDIO_REV(0xB800), NATIVE_AUDIO_REV(0xBC00), NATIVE_AUDIO_REV(0xC000),
+                                 NATIVE_AUDIO_REV(0x6000), NATIVE_AUDIO_REV(0x5C00), NATIVE_AUDIO_REV(0x15BA), NATIVE_AUDIO_REV(0x11BB),
+                                 NATIVE_AUDIO_REV(0x14C2), NATIVE_AUDIO_REV(0x10BD), NATIVE_AUDIO_REV(0x11BC), NATIVE_AUDIO_REV(0x0DC1),
+                                 NATIVE_AUDIO_REV(0x11C0), NATIVE_AUDIO_REV(0x0DC3), NATIVE_AUDIO_REV(0x0DC0), NATIVE_AUDIO_REV(0x09C1),
+                                 NATIVE_AUDIO_REV(0x0BC4), NATIVE_AUDIO_REV(0x07C1), NATIVE_AUDIO_REV(0x0A00), NATIVE_AUDIO_REV(0x06CD),
+                                 NATIVE_AUDIO_REV(0x09C2), NATIVE_AUDIO_REV(0x05C1), NATIVE_AUDIO_REV(0x05C0), NATIVE_AUDIO_REV(0x041A),
+                                 NATIVE_AUDIO_REV(0x0274), NATIVE_AUDIO_REV(0x013A), NATIVE_AUDIO_REV(0x8000), NATIVE_AUDIO_REV(0x8000)}},
+    {SPU_REV_MODE_SPACE, 0xF6C0, {NATIVE_AUDIO_REV(0x033D), NATIVE_AUDIO_REV(0x0231), NATIVE_AUDIO_REV(0x7E00), NATIVE_AUDIO_REV(0x5000),
+                                  NATIVE_AUDIO_REV(0xB400), NATIVE_AUDIO_REV(0xB000), NATIVE_AUDIO_REV(0x4C00), NATIVE_AUDIO_REV(0xB000),
+                                  NATIVE_AUDIO_REV(0x6000), NATIVE_AUDIO_REV(0x5400), NATIVE_AUDIO_REV(0x1ED6), NATIVE_AUDIO_REV(0x1A31),
+                                  NATIVE_AUDIO_REV(0x1D14), NATIVE_AUDIO_REV(0x183B), NATIVE_AUDIO_REV(0x1BC2), NATIVE_AUDIO_REV(0x16B2),
+                                  NATIVE_AUDIO_REV(0x1A32), NATIVE_AUDIO_REV(0x15EF), NATIVE_AUDIO_REV(0x15EE), NATIVE_AUDIO_REV(0x1055),
+                                  NATIVE_AUDIO_REV(0x1334), NATIVE_AUDIO_REV(0x0F2D), NATIVE_AUDIO_REV(0x11F6), NATIVE_AUDIO_REV(0x0C5D),
+                                  NATIVE_AUDIO_REV(0x1056), NATIVE_AUDIO_REV(0x0AE1), NATIVE_AUDIO_REV(0x0AE0), NATIVE_AUDIO_REV(0x07A2),
+                                  NATIVE_AUDIO_REV(0x0464), NATIVE_AUDIO_REV(0x0232), NATIVE_AUDIO_REV(0x8000), NATIVE_AUDIO_REV(0x8000)}},
+    {SPU_REV_MODE_ECHO, 0x18040, {NATIVE_AUDIO_REV(0x0001), NATIVE_AUDIO_REV(0x0001), NATIVE_AUDIO_REV(0x7FFF), NATIVE_AUDIO_REV(0x7FFF),
+                                  NATIVE_AUDIO_REV(0x0000), NATIVE_AUDIO_REV(0x0000), NATIVE_AUDIO_REV(0x0000), NATIVE_AUDIO_REV(0x8100),
+                                  NATIVE_AUDIO_REV(0x0000), NATIVE_AUDIO_REV(0x0000), NATIVE_AUDIO_REV(0x1FFF), NATIVE_AUDIO_REV(0x0FFF),
+                                  NATIVE_AUDIO_REV(0x1005), NATIVE_AUDIO_REV(0x0005), NATIVE_AUDIO_REV(0x0000), NATIVE_AUDIO_REV(0x0000),
+                                  NATIVE_AUDIO_REV(0x1005), NATIVE_AUDIO_REV(0x0005), NATIVE_AUDIO_REV(0x0000), NATIVE_AUDIO_REV(0x0000),
+                                  NATIVE_AUDIO_REV(0x0000), NATIVE_AUDIO_REV(0x0000), NATIVE_AUDIO_REV(0x0000), NATIVE_AUDIO_REV(0x0000),
+                                  NATIVE_AUDIO_REV(0x0000), NATIVE_AUDIO_REV(0x0000), NATIVE_AUDIO_REV(0x1004), NATIVE_AUDIO_REV(0x1002),
+                                  NATIVE_AUDIO_REV(0x0004), NATIVE_AUDIO_REV(0x0002), NATIVE_AUDIO_REV(0x8000), NATIVE_AUDIO_REV(0x8000)}},
+    {SPU_REV_MODE_DELAY, 0x18040, {NATIVE_AUDIO_REV(0x0001), NATIVE_AUDIO_REV(0x0001), NATIVE_AUDIO_REV(0x7FFF), NATIVE_AUDIO_REV(0x7FFF),
+                                   NATIVE_AUDIO_REV(0x0000), NATIVE_AUDIO_REV(0x0000), NATIVE_AUDIO_REV(0x0000), NATIVE_AUDIO_REV(0x0000),
+                                   NATIVE_AUDIO_REV(0x0000), NATIVE_AUDIO_REV(0x0000), NATIVE_AUDIO_REV(0x1FFF), NATIVE_AUDIO_REV(0x0FFF),
+                                   NATIVE_AUDIO_REV(0x1005), NATIVE_AUDIO_REV(0x0005), NATIVE_AUDIO_REV(0x0000), NATIVE_AUDIO_REV(0x0000),
+                                   NATIVE_AUDIO_REV(0x1005), NATIVE_AUDIO_REV(0x0005), NATIVE_AUDIO_REV(0x0000), NATIVE_AUDIO_REV(0x0000),
+                                   NATIVE_AUDIO_REV(0x0000), NATIVE_AUDIO_REV(0x0000), NATIVE_AUDIO_REV(0x0000), NATIVE_AUDIO_REV(0x0000),
+                                   NATIVE_AUDIO_REV(0x0000), NATIVE_AUDIO_REV(0x0000), NATIVE_AUDIO_REV(0x1004), NATIVE_AUDIO_REV(0x1002),
+                                   NATIVE_AUDIO_REV(0x0004), NATIVE_AUDIO_REV(0x0002), NATIVE_AUDIO_REV(0x8000), NATIVE_AUDIO_REV(0x8000)}},
+    {SPU_REV_MODE_PIPE, 0x3C00, {NATIVE_AUDIO_REV(0x0017), NATIVE_AUDIO_REV(0x0013), NATIVE_AUDIO_REV(0x70F0), NATIVE_AUDIO_REV(0x4FA8),
+                                 NATIVE_AUDIO_REV(0xBCE0), NATIVE_AUDIO_REV(0x4510), NATIVE_AUDIO_REV(0xBEF0), NATIVE_AUDIO_REV(0x8500),
+                                 NATIVE_AUDIO_REV(0x5F80), NATIVE_AUDIO_REV(0x54C0), NATIVE_AUDIO_REV(0x0371), NATIVE_AUDIO_REV(0x02AF),
+                                 NATIVE_AUDIO_REV(0x02E5), NATIVE_AUDIO_REV(0x01DF), NATIVE_AUDIO_REV(0x02B0), NATIVE_AUDIO_REV(0x01D7),
+                                 NATIVE_AUDIO_REV(0x0358), NATIVE_AUDIO_REV(0x026A), NATIVE_AUDIO_REV(0x01D6), NATIVE_AUDIO_REV(0x011E),
+                                 NATIVE_AUDIO_REV(0x012D), NATIVE_AUDIO_REV(0x00B1), NATIVE_AUDIO_REV(0x011F), NATIVE_AUDIO_REV(0x0059),
+                                 NATIVE_AUDIO_REV(0x01A0), NATIVE_AUDIO_REV(0x00E3), NATIVE_AUDIO_REV(0x0058), NATIVE_AUDIO_REV(0x0040),
+                                 NATIVE_AUDIO_REV(0x0028), NATIVE_AUDIO_REV(0x0014), NATIVE_AUDIO_REV(0x8000), NATIVE_AUDIO_REV(0x8000)}},
+};
+
+#undef NATIVE_AUDIO_REV
+
 static int NativeAudio_Clamp16(int value)
 {
 	if (value > 32767)
@@ -291,6 +450,253 @@ static int NativeAudio_ApplyVolume(int sample, s16 volume, s16 masterVolume)
 	int scaledVolume = NativeAudio_VolumeScale(volume);
 	int scaledMasterVolume = NativeAudio_VolumeScale(masterVolume);
 	return (int)(((s64)sample * scaledVolume * scaledMasterVolume) / (NATIVE_AUDIO_DIRECT_VOL_MAX * NATIVE_AUDIO_DIRECT_VOL_MAX));
+}
+
+static int NativeAudio_ApplyMasterVolume(int sample, s16 masterVolume)
+{
+	int scaledMasterVolume = NativeAudio_VolumeScale(masterVolume);
+
+	return (int)(((s64)sample * scaledMasterVolume) / NATIVE_AUDIO_DIRECT_VOL_MAX);
+}
+
+static const struct NativeAudioReverbPreset *NativeAudio_FindReverbPreset(int mode)
+{
+	int i;
+
+	for (i = 0; i < (int)(sizeof(s_reverbPresets) / sizeof(s_reverbPresets[0])); i++)
+	{
+		if (s_reverbPresets[i].mode == mode)
+			return &s_reverbPresets[i];
+	}
+
+	return &s_reverbPresets[0];
+}
+
+static int NativeAudio_ReverbModeFromRaw(int mode)
+{
+	mode &= 0xff;
+	if ((mode < SPU_REV_MODE_OFF) || (mode >= SPU_REV_MODE_MAX))
+		mode = SPU_REV_MODE_OFF;
+	return mode;
+}
+
+static int NativeAudio_ReverbOffsetSamples(s16 reg)
+{
+	return (int)((u16)reg) * 4;
+}
+
+static int NativeAudio_ReverbWrapIndex(int index, int sizeSamples)
+{
+	if (sizeSamples <= 0)
+		return 0;
+
+	index %= sizeSamples;
+	if (index < 0)
+		index += sizeSamples;
+	return index;
+}
+
+static int NativeAudio_ReverbRead(const struct NativeAudioReverbPreset *preset, int reg, int deltaSamples)
+{
+	int index;
+
+	if (s_audio.reverb.sizeSamples <= 0)
+		return 0;
+
+	index = s_audio.reverb.cursor + NativeAudio_ReverbOffsetSamples(preset->reg[reg]) + deltaSamples;
+	index = NativeAudio_ReverbWrapIndex(index, s_audio.reverb.sizeSamples);
+	return s_audio.reverb.buffer[index];
+}
+
+static int NativeAudio_ReverbReadAtOffset(int offsetSamples)
+{
+	int index;
+
+	if (s_audio.reverb.sizeSamples <= 0)
+		return 0;
+
+	index = NativeAudio_ReverbWrapIndex(s_audio.reverb.cursor + offsetSamples, s_audio.reverb.sizeSamples);
+	return s_audio.reverb.buffer[index];
+}
+
+static void NativeAudio_ReverbWrite(const struct NativeAudioReverbPreset *preset, int reg, int value)
+{
+	int index;
+
+	if (s_audio.reverb.sizeSamples <= 0)
+		return;
+
+	index = s_audio.reverb.cursor + NativeAudio_ReverbOffsetSamples(preset->reg[reg]);
+	index = NativeAudio_ReverbWrapIndex(index, s_audio.reverb.sizeSamples);
+	s_audio.reverb.buffer[index] = (s16)NativeAudio_Clamp16(value);
+}
+
+static int NativeAudio_ReverbMul(int sample, s16 volume)
+{
+	return (int)(((s64)sample * (int)volume) / 0x8000);
+}
+
+static int NativeAudio_ReverbFirApply(const s16 *history, s32 cursor)
+{
+	s64 sum = 0;
+	int i;
+
+	for (i = 0; i < NATIVE_AUDIO_REVERB_FIR_TAPS; i++)
+	{
+		int index = (cursor + i) % NATIVE_AUDIO_REVERB_FIR_TAPS;
+
+		sum += (s64)s_reverbFirCoeffs[i] * history[index];
+	}
+
+	return NativeAudio_Clamp16((int)(sum / 0x8000));
+}
+
+static int NativeAudio_ReverbFirApplyUpsampled(const s16 *history, s32 cursor)
+{
+	return NativeAudio_Clamp16(NativeAudio_ReverbFirApply(history, cursor) * 2);
+}
+
+static void NativeAudio_ReverbPushInputSampleNoLock(int left, int right)
+{
+	s_audio.reverb.inputHistoryLeft[s_audio.reverb.inputHistoryCursor] = (s16)NativeAudio_Clamp16(left);
+	s_audio.reverb.inputHistoryRight[s_audio.reverb.inputHistoryCursor] = (s16)NativeAudio_Clamp16(right);
+	s_audio.reverb.inputHistoryCursor = (s_audio.reverb.inputHistoryCursor + 1) % NATIVE_AUDIO_REVERB_FIR_TAPS;
+}
+
+static void NativeAudio_ReverbPushOutputSampleNoLock(int left, int right)
+{
+	s_audio.reverb.outputHistoryLeft[s_audio.reverb.outputHistoryCursor] = (s16)NativeAudio_Clamp16(left);
+	s_audio.reverb.outputHistoryRight[s_audio.reverb.outputHistoryCursor] = (s16)NativeAudio_Clamp16(right);
+	s_audio.reverb.outputHistoryCursor = (s_audio.reverb.outputHistoryCursor + 1) % NATIVE_AUDIO_REVERB_FIR_TAPS;
+}
+
+static void NativeAudio_ReverbClearBufferNoLock(void)
+{
+	memset(s_audio.reverb.buffer, 0, sizeof(s_audio.reverb.buffer));
+	memset(s_audio.reverb.inputHistoryLeft, 0, sizeof(s_audio.reverb.inputHistoryLeft));
+	memset(s_audio.reverb.inputHistoryRight, 0, sizeof(s_audio.reverb.inputHistoryRight));
+	memset(s_audio.reverb.outputHistoryLeft, 0, sizeof(s_audio.reverb.outputHistoryLeft));
+	memset(s_audio.reverb.outputHistoryRight, 0, sizeof(s_audio.reverb.outputHistoryRight));
+	s_audio.reverb.cursor = 0;
+	s_audio.reverb.inputHistoryCursor = 0;
+	s_audio.reverb.outputHistoryCursor = 0;
+	s_audio.reverb.samplePhase = 0;
+	s_audio.reverb.lastOutLeft = 0;
+	s_audio.reverb.lastOutRight = 0;
+}
+
+static void NativeAudio_ReverbConfigureModeNoLock(int rawMode)
+{
+	const struct NativeAudioReverbPreset *preset;
+	int mode = NativeAudio_ReverbModeFromRaw(rawMode);
+	int clearWorkArea = (rawMode & SPU_REV_MODE_CLEAR_WA) != 0;
+	int oldMode = s_audio.reverb.mode;
+	int oldSizeSamples = s_audio.reverb.sizeSamples;
+
+	preset = NativeAudio_FindReverbPreset(mode);
+	s_audio.reverb.mode = preset->mode;
+	s_audio.reverb.sizeSamples = preset->sizeBytes / (int)sizeof(s16);
+
+	if ((s_audio.reverb.sizeSamples < 0) || (s_audio.reverb.sizeSamples > NATIVE_AUDIO_REVERB_MAX_SAMPLES))
+		s_audio.reverb.sizeSamples = 0;
+
+	if (clearWorkArea || (oldMode != s_audio.reverb.mode) || (oldSizeSamples != s_audio.reverb.sizeSamples))
+		NativeAudio_ReverbClearBufferNoLock();
+}
+
+static int NativeAudio_ReverbRunReflectionStage(const struct NativeAudioReverbPreset *preset, int input, int feedbackReg, int writeReg)
+{
+	int previous = NativeAudio_ReverbRead(preset, writeReg, -1);
+	int feedback = NativeAudio_ReverbMul(NativeAudio_ReverbRead(preset, feedbackReg, 0), preset->reg[NATIVE_AUDIO_REV_VWALL]);
+	int value = NativeAudio_ReverbMul(input + feedback - previous, preset->reg[NATIVE_AUDIO_REV_VIIR]) + previous;
+
+	return value;
+}
+
+static int NativeAudio_ReverbRunCombStage(const struct NativeAudioReverbPreset *preset, int baseReg)
+{
+	int value = 0;
+
+	value += NativeAudio_ReverbMul(NativeAudio_ReverbRead(preset, baseReg, 0), preset->reg[NATIVE_AUDIO_REV_VCOMB1]);
+	value += NativeAudio_ReverbMul(NativeAudio_ReverbRead(preset, baseReg + 2, 0), preset->reg[NATIVE_AUDIO_REV_VCOMB2]);
+	value += NativeAudio_ReverbMul(NativeAudio_ReverbRead(preset, baseReg + 8, 0), preset->reg[NATIVE_AUDIO_REV_VCOMB3]);
+	value += NativeAudio_ReverbMul(NativeAudio_ReverbRead(preset, baseReg + 10, 0), preset->reg[NATIVE_AUDIO_REV_VCOMB4]);
+	return value;
+}
+
+static int NativeAudio_ReverbRunApfStage(const struct NativeAudioReverbPreset *preset, int input, int apfReg, int deltaReg, int volumeReg)
+{
+	int delta = NativeAudio_ReverbOffsetSamples(preset->reg[apfReg]) - NativeAudio_ReverbOffsetSamples(preset->reg[deltaReg]);
+	int delayed = NativeAudio_ReverbReadAtOffset(delta);
+	int stored = input - NativeAudio_ReverbMul(delayed, preset->reg[volumeReg]);
+
+	if (s_audio.reverbEnabled)
+		NativeAudio_ReverbWrite(preset, apfReg, stored);
+	delayed = NativeAudio_ReverbReadAtOffset(delta);
+	return NativeAudio_ReverbMul(stored, preset->reg[volumeReg]) + delayed;
+}
+
+static void NativeAudio_ReverbProcessNoLock(int sendLeft, int sendRight, int *wetLeft, int *wetRight)
+{
+	const struct NativeAudioReverbPreset *preset;
+	int processThisFrame;
+	int lin;
+	int rin;
+	int sameLeft;
+	int sameRight;
+	int diffLeft;
+	int diffRight;
+	int outLeft;
+	int outRight;
+
+	NativeAudio_ReverbPushInputSampleNoLock(sendLeft, sendRight);
+
+	s_audio.reverb.samplePhase ^= 1;
+	processThisFrame = s_audio.reverb.samplePhase == 0;
+
+	if (!processThisFrame || s_audio.reverb.sizeSamples <= 0)
+	{
+		NativeAudio_ReverbPushOutputSampleNoLock(0, 0);
+		goto output_fir;
+	}
+
+	preset = NativeAudio_FindReverbPreset(s_audio.reverb.mode);
+	lin = NativeAudio_ReverbMul(NativeAudio_ReverbFirApply(s_audio.reverb.inputHistoryLeft, s_audio.reverb.inputHistoryCursor),
+	                            preset->reg[NATIVE_AUDIO_REV_VLIN]);
+	rin = NativeAudio_ReverbMul(NativeAudio_ReverbFirApply(s_audio.reverb.inputHistoryRight, s_audio.reverb.inputHistoryCursor),
+	                            preset->reg[NATIVE_AUDIO_REV_VRIN]);
+
+	sameLeft = NativeAudio_ReverbRunReflectionStage(preset, lin, NATIVE_AUDIO_REV_DLSAME, NATIVE_AUDIO_REV_MLSAME);
+	sameRight = NativeAudio_ReverbRunReflectionStage(preset, rin, NATIVE_AUDIO_REV_DRSAME, NATIVE_AUDIO_REV_MRSAME);
+	diffLeft = NativeAudio_ReverbRunReflectionStage(preset, lin, NATIVE_AUDIO_REV_DRDIFF, NATIVE_AUDIO_REV_MLDIFF);
+	diffRight = NativeAudio_ReverbRunReflectionStage(preset, rin, NATIVE_AUDIO_REV_DLDIFF, NATIVE_AUDIO_REV_MRDIFF);
+
+	if (s_audio.reverbEnabled)
+	{
+		NativeAudio_ReverbWrite(preset, NATIVE_AUDIO_REV_MLSAME, sameLeft);
+		NativeAudio_ReverbWrite(preset, NATIVE_AUDIO_REV_MRSAME, sameRight);
+		NativeAudio_ReverbWrite(preset, NATIVE_AUDIO_REV_MLDIFF, diffLeft);
+		NativeAudio_ReverbWrite(preset, NATIVE_AUDIO_REV_MRDIFF, diffRight);
+	}
+
+	outLeft = NativeAudio_ReverbRunCombStage(preset, NATIVE_AUDIO_REV_MLCOMB1);
+	outRight = NativeAudio_ReverbRunCombStage(preset, NATIVE_AUDIO_REV_MRCOMB1);
+	outLeft = NativeAudio_ReverbRunApfStage(preset, outLeft, NATIVE_AUDIO_REV_MLAPF1, NATIVE_AUDIO_REV_DAPF1, NATIVE_AUDIO_REV_VAPF1);
+	outRight = NativeAudio_ReverbRunApfStage(preset, outRight, NATIVE_AUDIO_REV_MRAPF1, NATIVE_AUDIO_REV_DAPF1, NATIVE_AUDIO_REV_VAPF1);
+	outLeft = NativeAudio_ReverbRunApfStage(preset, outLeft, NATIVE_AUDIO_REV_MLAPF2, NATIVE_AUDIO_REV_DAPF2, NATIVE_AUDIO_REV_VAPF2);
+	outRight = NativeAudio_ReverbRunApfStage(preset, outRight, NATIVE_AUDIO_REV_MRAPF2, NATIVE_AUDIO_REV_DAPF2, NATIVE_AUDIO_REV_VAPF2);
+	NativeAudio_ReverbPushOutputSampleNoLock(outLeft, outRight);
+	s_audio.reverb.cursor = NativeAudio_ReverbWrapIndex(s_audio.reverb.cursor + 1, s_audio.reverb.sizeSamples);
+
+output_fir:
+	outLeft = NativeAudio_ReverbFirApplyUpsampled(s_audio.reverb.outputHistoryLeft, s_audio.reverb.outputHistoryCursor);
+	outRight = NativeAudio_ReverbFirApplyUpsampled(s_audio.reverb.outputHistoryRight, s_audio.reverb.outputHistoryCursor);
+	outLeft = NativeAudio_ReverbMul(outLeft, s_audio.reverbAttr.depth.left);
+	outRight = NativeAudio_ReverbMul(outRight, s_audio.reverbAttr.depth.right);
+	s_audio.reverb.lastOutLeft = (s16)NativeAudio_Clamp16(outLeft);
+	s_audio.reverb.lastOutRight = (s16)NativeAudio_Clamp16(outRight);
+	*wetLeft = s_audio.reverb.lastOutLeft;
+	*wetRight = s_audio.reverb.lastOutRight;
 }
 
 static s16 NativeAudio_GetVoicePcmSample(const struct NativeAudioVoice *voice, int sampleIndex)
@@ -1105,6 +1511,25 @@ static int NativeAudio_ValidateXASnapshot(const struct NativeAudioXAState *xa)
 	return 1;
 }
 
+static int NativeAudio_ValidateReverbSnapshot(const struct NativeAudioReverbState *reverb)
+{
+	if ((reverb->mode < SPU_REV_MODE_OFF) || (reverb->mode >= SPU_REV_MODE_MAX))
+		return 0;
+	if ((reverb->sizeSamples < 0) || (reverb->sizeSamples > NATIVE_AUDIO_REVERB_MAX_SAMPLES))
+		return 0;
+	if ((reverb->inputHistoryCursor < 0) || (reverb->inputHistoryCursor >= NATIVE_AUDIO_REVERB_FIR_TAPS))
+		return 0;
+	if ((reverb->outputHistoryCursor < 0) || (reverb->outputHistoryCursor >= NATIVE_AUDIO_REVERB_FIR_TAPS))
+		return 0;
+	if ((reverb->samplePhase < 0) || (reverb->samplePhase > 1))
+		return 0;
+	if (reverb->sizeSamples == 0)
+		return reverb->cursor == 0;
+	if ((reverb->cursor < 0) || (reverb->cursor >= reverb->sizeSamples))
+		return 0;
+	return 1;
+}
+
 static void NativeAudio_ClearOutputQueueNoLock(void)
 {
 	memset(s_audio.output.ring, 0, sizeof(s_audio.output.ring));
@@ -1636,6 +2061,7 @@ int NativeAudio_CaptureState(void *dst, int dstSize)
 	snapshot->masterVolumeRight = s_audio.masterVolumeRight;
 	snapshot->reverbVoiceBits = s_audio.reverbVoiceBits;
 	snapshot->reverbAttr = s_audio.reverbAttr;
+	snapshot->reverb = s_audio.reverb;
 	snapshot->commonAttr = s_audio.commonAttr;
 	for (i = 0; i < NATIVE_AUDIO_SPU_VOICE_COUNT; i++)
 		NativeAudio_CopyVoiceToState(&snapshot->voices[i], &s_audio.voices[i]);
@@ -1672,6 +2098,8 @@ int NativeAudio_RestoreState(const void *src, int srcSize)
 	}
 	if (!NativeAudio_ValidateXASnapshot(&snapshot->xa))
 		return 0;
+	if (!NativeAudio_ValidateReverbSnapshot(&snapshot->reverb))
+		return 0;
 
 	restoreInit = snapshot->init != 0;
 	if (restoreInit && !NativeAudio_OpenDevice())
@@ -1700,6 +2128,7 @@ int NativeAudio_RestoreState(const void *src, int srcSize)
 	s_audio.masterVolumeRight = snapshot->masterVolumeRight;
 	s_audio.reverbVoiceBits = snapshot->reverbVoiceBits;
 	s_audio.reverbAttr = snapshot->reverbAttr;
+	s_audio.reverb = snapshot->reverb;
 	s_audio.commonAttr = snapshot->commonAttr;
 	memcpy(s_audio.spu.memory, snapshot->spuSampleMem, sizeof(s_audio.spu.memory));
 	s_audio.spu.transferOffset = snapshot->spuTransferOffset;
@@ -1747,6 +2176,10 @@ static void NativeAudio_MixFrame(s16 *outLeft, s16 *outRight)
 {
 	int mixLeft = 0;
 	int mixRight = 0;
+	int reverbSendLeft = 0;
+	int reverbSendRight = 0;
+	int reverbWetLeft = 0;
+	int reverbWetRight = 0;
 	int i;
 
 	if (s_audio.xa.active && s_audio.xa.pcm != NULL)
@@ -1769,6 +2202,11 @@ static void NativeAudio_MixFrame(s16 *outLeft, s16 *outRight)
 			int right = NativeAudio_ApplyVolume(srcRight, s_audio.xa.volumeRight, s_audio.masterVolumeRight);
 
 			NativeAudio_MixSample(&mixLeft, &mixRight, left, right);
+			if (s_audio.cdReverbEnabled)
+			{
+				NativeAudio_MixSample(&reverbSendLeft, &reverbSendRight, NativeAudio_ApplyVolume(srcLeft, s_audio.xa.volumeLeft, NATIVE_AUDIO_DIRECT_VOL_MAX),
+				                      NativeAudio_ApplyVolume(srcRight, s_audio.xa.volumeRight, NATIVE_AUDIO_DIRECT_VOL_MAX));
+			}
 			s_audio.xa.positionFp += s_audio.xa.stepFp;
 		}
 	}
@@ -1816,6 +2254,11 @@ static void NativeAudio_MixFrame(s16 *outLeft, s16 *outRight)
 			left = NativeAudio_ApplyVolume(sample, voice->attr.volume.left, s_audio.masterVolumeLeft);
 			right = NativeAudio_ApplyVolume(sample, voice->attr.volume.right, s_audio.masterVolumeRight);
 			NativeAudio_MixSample(&mixLeft, &mixRight, left, right);
+			if (voice->reverb)
+			{
+				NativeAudio_MixSample(&reverbSendLeft, &reverbSendRight, NativeAudio_ApplyVolume(sample, voice->attr.volume.left, NATIVE_AUDIO_DIRECT_VOL_MAX),
+				                      NativeAudio_ApplyVolume(sample, voice->attr.volume.right, NATIVE_AUDIO_DIRECT_VOL_MAX));
+			}
 			NativeAudio_AdsrAdvance(voice);
 
 			stepFp = ((u32)voice->attr.pitch << NATIVE_AUDIO_FP_SHIFT) / 0x1000u;
@@ -1825,6 +2268,10 @@ static void NativeAudio_MixFrame(s16 *outLeft, s16 *outRight)
 				NativeAudio_WrapVoiceLoop(voice);
 		}
 	}
+
+	NativeAudio_ReverbProcessNoLock(reverbSendLeft, reverbSendRight, &reverbWetLeft, &reverbWetRight);
+	NativeAudio_MixSample(&mixLeft, &mixRight, NativeAudio_ApplyMasterVolume(reverbWetLeft, s_audio.masterVolumeLeft),
+	                      NativeAudio_ApplyMasterVolume(reverbWetRight, s_audio.masterVolumeRight));
 
 	*outLeft = (s16)NativeAudio_Clamp16(mixLeft);
 	*outRight = (s16)NativeAudio_Clamp16(mixRight);
@@ -1933,12 +2380,14 @@ s32 NativeAudio_SpuInit(void)
 	{
 		memset(&s_audio.spu, 0, sizeof(s_audio.spu));
 		memset(&s_audio.voices, 0, sizeof(s_audio.voices));
+		memset(&s_audio.reverb, 0, sizeof(s_audio.reverb));
 		s_audio.cdMixEnabled = 1;
 		s_audio.masterVolumeLeft = 0x3fff;
 		s_audio.masterVolumeRight = 0x3fff;
 		s_audio.commonAttr.mvol.left = 0x3fff;
 		s_audio.commonAttr.mvol.right = 0x3fff;
 		s_audio.commonAttr.cd.mix = 1;
+		s_audio.reverbAttr.mode = SPU_REV_MODE_OFF;
 	}
 
 	if (!NativeAudio_OpenDevice())
@@ -2112,7 +2561,7 @@ s32 NativeAudio_SpuSetReverb(s32 on_off)
 		SDL_LockAudioDevice(s_audio.output.device);
 
 	oldState = s_audio.reverbEnabled;
-	s_audio.reverbEnabled = on_off;
+	s_audio.reverbEnabled = on_off != 0;
 
 	if (s_audio.output.device != 0)
 		SDL_UnlockAudioDevice(s_audio.output.device);
@@ -2129,7 +2578,11 @@ s32 NativeAudio_SpuSetReverbModeParam(SpuReverbAttr *attr)
 		SDL_LockAudioDevice(s_audio.output.device);
 
 	if (attr->mask & SPU_REV_MODE)
+	{
 		s_audio.reverbAttr.mode = attr->mode;
+		if (attr->mode != SPU_REV_MODE_CHECK)
+			NativeAudio_ReverbConfigureModeNoLock(attr->mode);
+	}
 	if (attr->mask & SPU_REV_DEPTHL)
 		s_audio.reverbAttr.depth.left = attr->depth.left;
 	if (attr->mask & SPU_REV_DEPTHR)
