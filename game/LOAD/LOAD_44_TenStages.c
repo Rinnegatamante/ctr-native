@@ -343,12 +343,6 @@ int LOAD_TenStages(struct GameTracker *gGT, int loadingStage, struct BigHeader *
 				iVar12 = 0x68800;
 			}
 
-#ifdef CTR_NATIVE
-			// NOTE(aalhendi): Native keeps host-side loaded data in the same packs, so these pools need extra headroom.
-			iVar9 = 0x68800 << 1;
-			iVar12 = 0x68800 << 1;
-#endif
-
 			// Allocate room for LEV swapping
 			iVar5 = (int)MEMPACK_AllocMem(iVar9 + iVar12); // "HUB ALLOC"
 			sdata->ptrHubAlloc = (void *)iVar5;

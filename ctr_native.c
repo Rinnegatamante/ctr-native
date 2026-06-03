@@ -107,17 +107,11 @@ typedef enum
 #include "platform/native_audio.h"
 
 #ifndef CTR_NATIVE_MEMPACK_RETAIL_PRESSURE
-#define CTR_NATIVE_MEMPACK_RETAIL_PRESSURE 0
+#define CTR_NATIVE_MEMPACK_RETAIL_PRESSURE 1
 #endif
 
-// TODO(aalhendi): Make retail-pressure mode runnable by moving native-only
-// loaded-file ownership/header state out of MEMPACK.
-// TODO(aalhendi): Shrink native Adventure hub swap packs back to retail
-// 0x68800 sizes after host-side load state no longer lives in those packs.
 // TODO(aalhendi): Re-audit LOAD_ReadFile_ex, LOAD_DramFileCallback, LEV/PTR
-// callbacks, and hub swapping under CTR_NATIVE_MEMPACK_RETAIL_PRESSURE=1.
-// TODO(aalhendi): Keep a pressure-mode repro for Time Trial -> quit ->
-// Adventure save load so this does not regress silently.
+// callbacks, and hub swapping before removing the expanded arena escape hatch.
 #if CTR_NATIVE_MEMPACK_RETAIL_PRESSURE
 // NOTE(aalhendi): Retail pressure mode exposes the NTSC-U 926 mempack window inside a 2 MiB backing store.
 #define CTR_NATIVE_MEMPACK_BUFFER_SIZE  0x200000u
