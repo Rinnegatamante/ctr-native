@@ -54,15 +54,22 @@ void AH_WarpPad_ThTick(struct Thread *t)
 	warppadInst = t->inst;
 	visInstSrc = gGT->cameraDC[0].visInstSrc;
 
-	while (visInstSrc[0] != 0)
+#if defined(CTR_NATIVE)
+	// NOTE(aalhendi): Retail can read PS1 low RAM when the hub-swap frame
+	// leaves this list null; native treats that as an empty visible-instance list.
+	if (visInstSrc != NULL)
+#endif
 	{
-		if (visInstSrc[0] == warppadInst)
+		while (visInstSrc[0] != 0)
 		{
-			boolOpen = 1;
-			break;
-		}
+			if (visInstSrc[0] == warppadInst)
+			{
+				boolOpen = 1;
+				break;
+			}
 
-		visInstSrc++;
+			visInstSrc++;
+		}
 	}
 
 	// array of instances in warppad object

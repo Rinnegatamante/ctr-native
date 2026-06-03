@@ -13,6 +13,13 @@ char CS_Instance_BoolPlaySound(struct CutsceneObj *cs, struct Instance *desiredI
 	// pointer to array of visible instances
 	visInstSrc = sdata->gGT->cameraDC[0].visInstSrc;
 
+#if defined(CTR_NATIVE)
+	// NOTE(aalhendi): Same native low-RAM guard as AH_WarpPad_ThTick:
+	// a null camera list behaves like "desired instance is not visible."
+	if (visInstSrc == NULL)
+		return 0;
+#endif
+
 	// Same code as warppad_thtick
 	while (visInstSrc[0] != 0)
 	{
