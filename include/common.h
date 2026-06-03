@@ -8,25 +8,11 @@
 #endif
 
 
-// Native always uses PCDRV as its extracted-asset transport. Non-native builds
-// may still define USE_PCDRV externally for PSX debugger/emulator host-file IO.
-#ifdef CTR_NATIVE
-#ifndef USE_PCDRV
-#define USE_PCDRV
-#endif
-#endif
-
-
 // headers we wrote to simplify the code
 #include <macros.h>
 #include <ctr_math.h>
 #include <ctr_scratchpad.h>
 #include <prim.h>
-
-
-#ifdef USE_PCDRV
-#include "PCDRV/pcdrv.h"
-#endif
 
 #include <psn00bsdk/include/sys/fcntl.h>
 

@@ -285,7 +285,7 @@ struct OverlayDATA_230 D230 = {
         {
             {4,
              {CHEAT_S, CHEAT_O, CHEAT_A, CHEAT_R},
-#if defined(USE_PCDRV)
+#if defined(CTR_NATIVE)
              NULL},
 #else
              MainKillGame_LaunchSpyro2},

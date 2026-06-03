@@ -15,9 +15,8 @@ void MM_TrackSelect_Video_State(int state)
 		return;
 	}
 
-#ifdef USE_PCDRV
-	// dont start video
-	// can also enable this for no$psx
+#ifdef CTR_NATIVE
+	// NOTE(aalhendi): Native does not compile the STR/MDEC preview path yet.
 	return;
 #endif
 

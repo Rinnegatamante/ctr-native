@@ -51,7 +51,3 @@
 #include "LOAD_48_IsOpen_MainMenu.c"
 #include "LOAD_49_IsOpen_AdvHub.c"
 #include "LOAD_50_IsOpen_Podiums.c"
-
-#ifdef USE_PCDRV
-#include "../PCDRV/pcdrv.c"
-#endif

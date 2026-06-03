@@ -19,6 +19,7 @@ set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE NEVER)
 set(GAME_SOURCES
     ctr_native.c
     platform/native_audio.c
+    platform/native_cd.c
     platform/native_input.c
     platform/native_libpad.c
     platform/native_libspu.c
@@ -46,11 +47,9 @@ target_include_directories(SDL2-static PUBLIC externals/SDL/include)
 set(PSYCROSS_C
     externals/PsyCross/src/psx/INLINE_C.C
     externals/PsyCross/src/psx/LIBAPI.C
-    externals/PsyCross/src/psx/LIBCD.C
     externals/PsyCross/src/psx/LIBETC.C
     externals/PsyCross/src/psx/LIBGPU.C
     externals/PsyCross/src/psx/LIBGTE.C
-    externals/PsyCross/src/psx/LIBSN.C
     externals/PsyCross/src/render/glad.c
 )
 set(PSYCROSS_CPP
@@ -74,7 +73,6 @@ target_include_directories(ctr_native PRIVATE ${GAME_INCLUDES})
 target_compile_definitions(ctr_native PRIVATE
     CTR_NATIVE
     USE_EXTENDED_PRIM_POINTERS=0
-    USE_PCDRV
     BUILD=926
     CTR_INTERNAL
 )

@@ -15,7 +15,7 @@ int CDSYS_XAPlay(int categoryID, int xaID)
 #if defined(CTR_NATIVE)
 		int nativeVol = (categoryID == CDSYS_XA_TYPE_MUSIC) ? sdata->vol_Music : sdata->vol_Voice;
 
-		// NOTE(aalhendi): Native PCDRV has no CD-XA IRQ stream. Feed extracted
+		// NOTE(aalhendi): Native CD has no CD-XA IRQ stream. Feed extracted
 		// XA assets to the native SDL mixer and synthesize the minimal retail XA
 		// state gates.
 		if (NativeAudio_PlayXATrack(categoryID, xaID, nativeVol << 7, nativeVol << 7) == 0)
