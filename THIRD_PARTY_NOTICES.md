@@ -15,8 +15,6 @@ platform layer while preserving Psy-Q-shaped APIs.
 CTR Native contains project-owned derivatives of these PsyCross source files:
 
 - `include/platform/native_gpu.h` from `externals/PsyCross/src/gpu/PsyX_GPU.h`
-- `include/platform/native_psyx_shell.h` from
-  `externals/PsyCross/src/PsyX_main.h`
 - `include/platform/native_renderer_backend.h` and
   `include/platform/native_renderer_types.h` from
   `externals/PsyCross/include/PsyX/PsyX_render.h`
@@ -31,7 +29,7 @@ CTR Native contains project-owned derivatives of these PsyCross source files:
   `externals/PsyCross/src/psx/LIBGTE.C` and
   `externals/PsyCross/src/gte/*_tbl.h`
 - `platform/native_libgpu.c` from `externals/PsyCross/src/psx/LIBGPU.C`
-- `platform/native_psyx_shell.c` from
+- native shell portions of `ctr_native.c` from
   `externals/PsyCross/src/PsyX_main.cpp`
 - `platform/native_renderer_backend.c` from
   `externals/PsyCross/src/render/PsyX_render.cpp`

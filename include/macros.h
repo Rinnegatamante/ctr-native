@@ -52,8 +52,14 @@ typedef int8_t s8;
 #define force_inline static inline
 #endif
 
-#define len(arr)                   (sizeof(arr) / sizeof(arr[0]))
-#define OFFSETOF(TYPE, ELEMENT)    ((u32)offsetof(TYPE, ELEMENT))
+#define len(arr)                (sizeof(arr) / sizeof(arr[0]))
+#define OFFSETOF(TYPE, ELEMENT) ((u32)offsetof(TYPE, ELEMENT))
+
+#if defined(__GNUC__) || defined(__clang__)
+#define CTR_PRINTF_FORMAT(fmtArg, firstVararg) __attribute__((format(printf, fmtArg, firstVararg)))
+#else
+#define CTR_PRINTF_FORMAT(fmtArg, firstVararg)
+#endif
 
 #define RGBtoBGR(color)            ((color & 0xFF0000) >> 16) | (color & 0xFF00) | ((color & 0xFF) << 16)
 

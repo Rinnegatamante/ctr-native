@@ -15,10 +15,6 @@ struct PlatformInputPadSnapshot
 	u8 reserved[3];
 };
 
-#if defined(_LANGUAGE_C_PLUS_PLUS) || defined(__cplusplus) || defined(c_plusplus)
-extern "C" {
-#endif
-
 int Platform_InputInit(void);
 void Platform_InputShutdown(void);
 void Platform_InputUpdate(void);
@@ -35,9 +31,5 @@ void Platform_InputClearInstalledPadSnapshots(void);
 int Platform_InputGetStateSize(void);
 int Platform_InputCaptureState(void *dst, int dstSize);
 int Platform_InputRestoreState(const void *src, int srcSize);
-
-#if defined(_LANGUAGE_C_PLUS_PLUS) || defined(__cplusplus) || defined(c_plusplus)
-}
-#endif
 
 #endif

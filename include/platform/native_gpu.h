@@ -7,15 +7,9 @@
 #ifndef NATIVE_GPU_H
 #define NATIVE_GPU_H
 
+#include <macros.h>
 #include <psx/libgte.h>
 #include <psx/libgpu.h>
-#include <psx/types.h>
-
-#if defined(_LANGUAGE_C_PLUS_PLUS) || defined(__cplusplus) || defined(c_plusplus)
-extern "C" {
-#endif
-
-extern OT_TAG prim_terminator;
 
 extern int g_splitIndex;
 extern DISPENV activeDispEnv;
@@ -24,10 +18,6 @@ extern int g_GPUDisabledState;
 
 void ClearSplits(void);
 void DrawAllSplits(void);
-void ParsePrimitivesLinkedList(u_int *p, int singlePrimitive);
-
-#if defined(_LANGUAGE_C_PLUS_PLUS) || defined(__cplusplus) || defined(c_plusplus)
-}
-#endif
+void ParsePrimitivesLinkedList(u32 *p, int singlePrimitive);
 
 #endif

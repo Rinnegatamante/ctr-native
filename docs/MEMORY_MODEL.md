@@ -146,31 +146,18 @@ overwrite, can cause parity bugs.
 
 ## 24-bit Primitive Links
 
-PS1 CPU pointers are 32-bit. GPU primitive and ordering table links are not.
-Primitive tags store a 24-bit address and an 8-bit packet length:
+PS1 CPU pointers are 32-bit, but GPU primitive and ordering-table links store
+only a 24-bit address plus an 8-bit packet length:
 
 ```c
 u32 addr : 24;
 u32 size : 8;
 ```
 
-The PS1 GPU macros reconstruct a cached main-RAM pointer by OR-ing the tag address with `0x80000000`:
+Native currently keeps primitive-linkable memory below `0x01000000` and routes
+manual link writes through `CtrGpu_PrimToOTLink24`.
 
-```c
-next = 0x80000000 | tag.addr;
-```
-
-On PS1 this works because all main RAM addresses fit in the low 24 bits:
-
-```text
-0x800ba9f0 -> stored as 0x00ba9f0
-0x801ff800 -> stored as 0x01ff800
-```
-
-On native, a host pointer may not fit in 24 bits. If a pointer like
-`0x09ab1234` is stored in an OT link as `ptr & 0xffffff`, the stored value is
-`0x00ab1234`, which is no longer the same address.
-
-This is why some native paths need the mempack arena below `0x01000000`, or an
-explicit expanded-pointer bridge. The comment "must be a 24-bit address" means
-"this pointer may be packed into PS1 primitive or ordering table links."
+TODO(aalhendi): Replace the low-address MEMPACK requirement with an explicit
+native GPU link bridge before removing the 32-bit build constraint. Keep
+game-visible primitive packets retail-shaped; do not reintroduce PsyCross's
+widened primitive packets.

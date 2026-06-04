@@ -10,7 +10,7 @@
 
 #include <platform/native_renderer.h>
 #include <platform/native_gpu.h>
-#include "PsyX/PsyX_public.h"
+#include "../platform.h"
 
 #include <string.h>
 
@@ -91,12 +91,12 @@ int ResetGraph(int mode)
 		g_GPUDisabledState = 0;
 		ClearImage(&activeDrawEnv.clip, 0, 0, 0);
 		ClearSplits();
-		PsyX_EndScene();
+		Platform_EndScene();
 	}
 	else if (mode == 1)
 	{
 		ClearSplits();
-		PsyX_EndScene();
+		Platform_EndScene();
 	}
 
 	return 0;
@@ -266,7 +266,7 @@ void DrawOTag(u_long *p)
 			return;
 		}
 
-		if (PsyX_BeginScene())
+		if (Platform_BeginScene())
 		{
 			ClearSplits();
 		}
@@ -284,7 +284,7 @@ void DrawPrim(void *p)
 		return;
 	}
 
-	if (PsyX_BeginScene())
+	if (Platform_BeginScene())
 	{
 		ClearSplits();
 	}

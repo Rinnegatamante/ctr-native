@@ -180,23 +180,11 @@ extern	int (*GPU_printf)(const char *fmt, ...);
   * Primitive Handling Macros
   */
 
-#if USE_EXTENDED_PRIM_POINTERS
-
-#define isendprim(p) 		((((P_TAG *)(p))->addr) == (uintptr_t)&prim_terminator)
-#define nextPrim(p)  		(void *)(((P_TAG *)(p))->addr)
-
-#define setaddr(p, _addr)	(((P_TAG *)(p))->addr = (uintptr_t)((u_int*)_addr))
-#define getaddr(p)   		(uintptr_t)(((P_TAG *)(p))->addr)
-
-#else
-
 #define isendprim(p) 		((((P_TAG *)(p))->addr)==0xffffff)
 #define nextPrim(p)  		(void *)((((P_TAG *)(p))->addr))
 
 #define setaddr(p, _addr)	(((P_TAG *)(p))->addr = (u_int)((u_int*)_addr))
 #define getaddr(p)   		(u_int)(((P_TAG *)(p))->addr)
-
-#endif
 
 #define setlen( p, _len) 	(((P_TAG *)(p))->len  = (u_char)(_len))
 #define setcode(p, _code)	(((P_TAG *)(p))->code = (u_char)(_code))
@@ -204,22 +192,13 @@ extern	int (*GPU_printf)(const char *fmt, ...);
 #define getlen(p)    		(u_char)(((P_TAG *)(p))->len)
 #define getcode(p)   		(u_char)(((P_TAG *)(p))->code)
 
-#if USE_PGXP && USE_EXTENDED_PRIM_POINTERS
-#define setpgxpindex(p, i)	(((P_TAG *)(p))->pgxp_index = (u_short)(i))
-#define addPrim(ot, p)		setaddr(p, getaddr(ot)), setaddr(ot, p), setpgxpindex(p, PGXP_GetIndex(1))
-#else
 #define addPrim(ot, p)		setaddr(p, getaddr(ot)), setaddr(ot, p)
-#endif
 
 #define addPrims(ot, p0, p1)	setaddr(p1, getaddr(ot)),setaddr(ot, p0)
 
 #define catPrim(p0, p1)		setaddr(p0, p1)
 
-#if USE_EXTENDED_PRIM_POINTERS
-#define termPrim(p)			setaddr(p, &prim_terminator)
-#else
 #define termPrim(p)			setaddr(p, 0xffffffff)
-#endif
 
 #define setSemiTrans(p, abe) \
 	((abe)?setcode(p, getcode(p)|0x02):setcode(p, getcode(p)&~0x02))
@@ -247,15 +226,9 @@ extern	int (*GPU_printf)(const char *fmt, ...);
 		((0xe1000000)|((dtd)?0x0200:0)| \
 		((dfe)?0x0400:0)|((tpage)&0x9ff))
 
-#if USE_EXTENDED_PRIM_POINTERS
-#define setDrawTPage(p, dfe, dtd, tpage)	\
-	setlen(p, 1),	\
-	((u_int *)(p))[2] = _get_mode(dfe, dtd, tpage)
-#else
 #define setDrawTPage(p, dfe, dtd, tpage)	\
 	setlen(p, 1),	\
 	((u_int *)(p))[1] = _get_mode(dfe, dtd, tpage)
-#endif
 
 #define _get_tw(tw)	\
 		(tw ? ((0xe2000000)|((((tw)->y&0xff)>>3)<<15)| \
@@ -286,17 +259,10 @@ extern	int (*GPU_printf)(const char *fmt, ...);
 		((u_int *)p)[1] = 0xe6000000|(pbw?0x01:0),	\
 		((u_int *)p)[2] = 0
 
-#if USE_EXTENDED_PRIM_POINTERS
-#define setDrawMode(p, dfe, dtd, tpage, tw) 		\
-		setlen(p, 3),					\
-		((u_int *)p)[2] = _get_mode(dfe, dtd, tpage),	\
-		((u_int *)p)[3] = _get_tw((RECT16 *)tw)
-#else
 #define setDrawMode(p, dfe, dtd, tpage, tw) 		\
 		setlen(p, 2),					\
 		((u_int *)p)[1] = _get_mode(dfe, dtd, tpage),	\
 		((u_int *)p)[2] = _get_tw((RECT16 *)tw)
-#endif
 
 	
 /*	Primitive 	Lentgh		Code				*/
@@ -338,34 +304,6 @@ typedef struct _RECT16 {
 	short w, h;		/* width and height */
 } RECT16;
 
-// Psy-X custom struct to handle polygons
-
-#if USE_EXTENDED_PRIM_POINTERS
-
-#if defined(_M_X64) || defined(__amd64__)
-
-#define DECLARE_P_ADDR \
-		uintptr_t addr; \
-		uint len : 16; \
-		uint pgxp_index : 16;
-
-#define P_LEN		3		// 3 longs
-
-#else
-
-#define DECLARE_P_ADDR \
-		uintptr_t addr; \
-		uint len : 16; \
-		uint pgxp_index : 16;
-
-#define P_LEN		2		// 2 longs
-
-#endif // _M_X64 || __amd64__
-
-#define DECLARE_P_ADDR_PTAG DECLARE_P_ADDR
-
-#else // just don't use that, okay... it's just for reference
-
 #define DECLARE_P_ADDR_PTAG \
 	unsigned addr : 24; \
 	unsigned len : 8;
@@ -374,8 +312,6 @@ typedef struct _RECT16 {
 	u_int tag;
 
 #define P_LEN		1		// 1 long
-
-#endif
 
 /*
  * Polygon Primitive Definitions
@@ -734,10 +670,6 @@ typedef struct {
 
 #if defined(_LANGUAGE_C_PLUS_PLUS)||defined(__cplusplus)||defined(c_plusplus)
 extern "C" {
-#endif
-
-#if USE_EXTENDED_PRIM_POINTERS
-extern OT_TAG prim_terminator;
 #endif
 
 #ifdef LoadImage

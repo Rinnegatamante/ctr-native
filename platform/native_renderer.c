@@ -56,22 +56,22 @@ void NativeRenderer_SaveVRAM(const char *outputFileName, int x, int y, int width
 	NativeRendererBackend_SaveVRAM(outputFileName, x, y, width, height, readFromFramebuffer);
 }
 
-void NativeRenderer_Clear(int x, int y, int w, int h, unsigned char r, unsigned char g, unsigned char b)
+void NativeRenderer_Clear(int x, int y, int w, int h, u8 r, u8 g, u8 b)
 {
 	NativeRendererBackend_Clear(x, y, w, h, r, g, b);
 }
 
-void NativeRenderer_ClearVRAM(int x, int y, int w, int h, unsigned char r, unsigned char g, unsigned char b)
+void NativeRenderer_ClearVRAM(int x, int y, int w, int h, u8 r, u8 g, u8 b)
 {
 	NativeRendererBackend_ClearVRAM(x, y, w, h, r, g, b);
 }
 
-void NativeRenderer_CopyVRAM(unsigned short *src, int x, int y, int w, int h, int dstX, int dstY)
+void NativeRenderer_CopyVRAM(u16 *src, int x, int y, int w, int h, int dstX, int dstY)
 {
 	NativeRendererBackend_CopyVRAM(src, x, y, w, h, dstX, dstY);
 }
 
-void NativeRenderer_ReadVRAM(unsigned short *dst, int x, int y, int dstW, int dstH)
+void NativeRenderer_ReadVRAM(u16 *dst, int x, int y, int dstW, int dstH)
 {
 	NativeRendererBackend_ReadVRAM(dst, x, y, dstW, dstH);
 }

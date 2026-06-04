@@ -1,6 +1,5 @@
 #define _CRT_SECURE_NO_WARNINGS
 #define CTR_NATIVE
-#define USE_EXTENDED_PRIM_POINTERS 0
 #define SDL_MAIN_HANDLED
 
 #include <stdio.h>
@@ -39,10 +38,11 @@ __declspec(dllimport) unsigned long __stdcall GetLastError(void);
 #include "psx/libapi.h"
 #include "psx/strings.h"
 #include "psx/inline_c.h"
-#include "PsyX/PsyX_public.h"
-#include "PsyX/PsyX_globals.h"
 #include "ctr_scratchpad.h"
+#include "platform/native_glad.h"
+#include "platform/native_gpu.h"
 #include "platform/native_input.h"
+#include "platform/native_log.h"
 #include "platform/native_renderer.h"
 
 static int s_hostAltKeyState = 0;
@@ -94,6 +94,19 @@ typedef enum
 
 static char s_mempackMemory[CTR_NATIVE_MEMPACK_BUFFER_SIZE];
 static struct PlatformMempackArena s_mempackArena;
+
+SDL_Window *g_window = NULL;
+int g_dbg_polygonSelected = 0;
+
+extern int g_cfg_bilinearFiltering;
+extern int g_dbg_emulatorPaused;
+extern int g_dbg_texturelessMode;
+extern int g_dbg_wireframeMode;
+extern int g_windowHeight;
+extern int g_windowWidth;
+
+static int s_platformInitialized = 0;
+static int s_platformBeginScene = 0;
 
 #include "game_includes.h"
 
@@ -177,12 +190,90 @@ static void CalcFPS(void)
 	printf("FPS: %d\n", (1000 * frameGap) / delta);
 }
 
-void PsyXKeyboardHandler(int key, char down)
+static void Platform_GetWindowName(const char *appName, char *buffer, size_t bufferSize)
+{
+#ifdef CTR_INTERNAL
+	snprintf(buffer, bufferSize, "%s | Internal", appName);
+#else
+	snprintf(buffer, bufferSize, "%s", appName);
+#endif
+}
+
+static void Platform_HandleWindowResize(int width, int height)
+{
+	g_windowWidth = width;
+	g_windowHeight = height;
+	NativeRenderer_ResetDevice();
+}
+
+static void Platform_HandleFullscreenToggle(void)
+{
+	int fullscreen = (SDL_GetWindowFlags(g_window) & SDL_WINDOW_FULLSCREEN) != 0;
+
+	SDL_SetWindowFullscreen(g_window, fullscreen == 0);
+	SDL_GetWindowSize(g_window, &g_windowWidth, &g_windowHeight);
+	NativeRenderer_ResetDevice();
+}
+
+#if defined(CTR_INTERNAL)
+static void Platform_TakeScreenshot(void)
+{
+	u8 *pixels = (u8 *)malloc(g_windowWidth * g_windowHeight * 4);
+
+	glReadPixels(0, 0, g_windowWidth, g_windowHeight, GL_BGRA, GL_UNSIGNED_BYTE, pixels);
+
+	SDL_Surface *surface = SDL_CreateSurfaceFrom(g_windowWidth, g_windowHeight, SDL_PIXELFORMAT_BGRA8888, pixels, g_windowWidth * 4);
+
+	SDL_SaveBMP(surface, "SCREENSHOT.BMP");
+	SDL_DestroySurface(surface);
+
+	free(pixels);
+}
+#endif
+
+static void Platform_HandleKey(int key, char down)
 {
 	if (down == 0)
-		key = 0;
+		SubmitName_UseKeyboard(0);
+	else
+		SubmitName_UseKeyboard(key);
 
-	SubmitName_UseKeyboard(key);
+#ifdef CTR_INTERNAL
+	if (!down)
+	{
+		switch (key)
+		{
+		case SDL_SCANCODE_F1:
+			g_dbg_wireframeMode ^= 1;
+			Platform_LogWarn("[CTR Native] wireframe mode: %d\n", g_dbg_wireframeMode);
+			break;
+
+		case SDL_SCANCODE_F2:
+			g_dbg_texturelessMode ^= 1;
+			Platform_LogWarn("[CTR Native] textureless mode: %d\n", g_dbg_texturelessMode);
+			break;
+		case SDL_SCANCODE_UP:
+		case SDL_SCANCODE_DOWN:
+			if (g_dbg_emulatorPaused)
+			{
+				g_dbg_polygonSelected += (key == SDL_SCANCODE_UP) ? 3 : -3;
+			}
+			break;
+		case SDL_SCANCODE_F10:
+			Platform_LogWarn("[CTR Native] saving VRAM.TGA\n");
+			NativeRenderer_SaveVRAM("VRAM.TGA", 0, 0, VRAM_WIDTH, VRAM_HEIGHT, 1);
+			break;
+		case SDL_SCANCODE_F12:
+			Platform_LogWarn("[CTR Native] Saving screenshot...\n");
+			Platform_TakeScreenshot();
+			break;
+		case SDL_SCANCODE_F3:
+			g_cfg_bilinearFiltering ^= 1;
+			Platform_LogWarn("[CTR Native] filtering mode: %d\n", g_cfg_bilinearFiltering);
+			break;
+		}
+	}
+#endif
 }
 
 #ifndef CC
@@ -254,14 +345,6 @@ int main(int argc, char *argv[])
 
 	Platform_InitScratchpad();
 
-	// NOTE(aalhendi): CTR already throttles through the retail VSync/draw-sync
-	// path. Do not add a second SDL swap wait; some GL drivers charge that wait
-	// to the next frame's first clear instead of SDL_GL_SwapWindow.
-	PsyX_SetSwapInterval(0);
-	PsyX_EnableSwapInterval(0);
-
-	g_dbg_gameDebugKeys = PsyXKeyboardHandler;
-
 	int result = CTR_Main();
 
 	Platform_Shutdown();
@@ -270,34 +353,124 @@ int main(int argc, char *argv[])
 
 void Platform_Init(const char *title, int width, int height)
 {
-	g_cfg_swapInterval = 1;
-	PsyX_Initialise(title, width, height, 0);
+	char windowName[128];
+
+	Platform_LogInit(title);
+	Platform_GetWindowName(title, windowName, sizeof(windowName));
+
+	Platform_Log("[CTR Native] Initialising platform\n");
+
+	if (SDL_Init(SDL_INIT_VIDEO) == 0)
+	{
+		Platform_LogError("[CTR Native] Failed to initialise SDL\n");
+		Platform_LogShutdown();
+		return;
+	}
+
+	s_platformInitialized = 1;
+
+	if (!NativeRenderer_InitialiseRender(windowName, width, height, 0))
+	{
+		Platform_LogError("[CTR Native] Failed to initialise window\n");
+		Platform_Shutdown();
+		return;
+	}
+
+	if (!NativeRenderer_InitialisePSX())
+	{
+		Platform_LogError("[CTR Native] Failed to initialise PSX renderer state\n");
+		Platform_Shutdown();
+		return;
+	}
+
+	atexit(Platform_Shutdown);
+	SDL_HideCursor();
 	Platform_InputInit();
 }
 
 void Platform_Shutdown(void)
 {
+	if (s_platformInitialized == 0)
+		return;
+
+	s_platformInitialized = 0;
 	Platform_InputShutdown();
+
+	if (g_window != NULL)
+	{
+		SDL_DestroyWindow(g_window);
+		g_window = NULL;
+	}
+
+	NativeAudio_Shutdown();
+	NativeRenderer_Shutdown();
+
+	SDL_Quit();
+
+	Platform_LogShutdown();
 }
 
 void Platform_BeginFrame(void)
 {
 	// NOTE(aalhendi): Normal rendering begins from DrawOTag after the current
-	// draw env is installed. Starting PsyCross here clears the previous env and
-	// can force the host GL driver to block before the retail render-submit path.
+	// draw env is installed. Starting a host scene here clears the previous env
+	// and can force the host GL driver to block before the retail render-submit path.
+}
+
+int Platform_BeginScene(void)
+{
+	if (s_platformBeginScene)
+		return 0;
+
+	// NOTE(aalhendi): CTR already throttles through the retail VSync/draw-sync
+	// path. Do not add a second SDL swap wait; some GL drivers charge that wait
+	// to the next frame's first clear instead of SDL_GL_SwapWindow.
+	NativeRenderer_UpdateSwapIntervalState(0);
+
+	NativeRenderer_BeginScene();
+
+	if (activeDrawEnv.isbg)
+	{
+		const RECT16 clipenv = activeDrawEnv.clip;
+		const u8 r = activeDrawEnv.r0;
+		const u8 g = activeDrawEnv.g0;
+		const u8 b = activeDrawEnv.b0;
+
+		NativeRenderer_Clear(clipenv.x, clipenv.y, clipenv.w, clipenv.h, r, g, b);
+	}
+
+	s_platformBeginScene = 1;
+
+	Platform_LogFlush();
+
+	return 1;
+}
+
+void Platform_EndScene(void)
+{
+	if (!s_platformBeginScene)
+		return;
+
+	s_platformBeginScene = 0;
+
+	NativeRenderer_EndScene();
+
+	NativeRenderer_StoreFrameBuffer(activeDispEnv.disp.x, activeDispEnv.disp.y, activeDispEnv.disp.w, activeDispEnv.disp.h);
+
+	NativeRenderer_SwapWindow();
 }
 
 // NOTE(aalhendi): Frame timing is handled by VSync() in the platform layer,
 // matching PS1 hardware behavior. Platform_EndFrame only does buffer swap + FPS.
 void Platform_EndFrame(void)
 {
-	PsyX_EndScene();
+	Platform_EndScene();
 	CalcFPS();
 }
 
 void Platform_PresentVRAMDisplay(void)
 {
-	PsyX_BeginScene();
+	Platform_BeginScene();
 	NativeRenderer_PresentVRAMDisplay();
 	Platform_EndFrame();
 }
@@ -317,16 +490,13 @@ void Platform_PollHostEvents(void)
 			Platform_InputControllerRemoved(event.gdevice.which);
 			break;
 		case SDL_EVENT_QUIT:
-			PsyX_RequestExit();
+			exit(0);
 			break;
 		case SDL_EVENT_WINDOW_RESIZED:
-			PsyX_HandleHostWindowResize(event.window.data1, event.window.data2);
+			Platform_HandleWindowResize(event.window.data1, event.window.data2);
 			break;
 		case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
-			PsyX_RequestExit();
-			break;
-		case SDL_EVENT_MOUSE_MOTION:
-			PsyX_HandleHostMouseMotion(event.motion.x, event.motion.y);
+			exit(0);
 			break;
 		case SDL_EVENT_KEY_DOWN:
 		case SDL_EVENT_KEY_UP:
@@ -341,7 +511,7 @@ void Platform_PollHostEvents(void)
 			else if (key == SDL_SCANCODE_RETURN)
 			{
 				if ((s_hostAltKeyState != 0) && (down != 0))
-					PsyX_HandleHostFullscreenToggle();
+					Platform_HandleFullscreenToggle();
 				break;
 			}
 
@@ -352,21 +522,17 @@ void Platform_PollHostEvents(void)
 			else if (key == SDL_SCANCODE_RALT)
 				key = SDL_SCANCODE_LALT;
 
-			if ((key == SDL_SCANCODE_BACKSPACE) && (down != 0))
-				PsyX_HandleHostTextInput(NULL);
-
 			if ((key == SDL_SCANCODE_F4) && (down == 0))
 			{
-				PsyX_Log_Warning("[Psy-X] Active keyboard controller: %d\n", Platform_InputCycleKeyboardController());
+#ifdef CTR_INTERNAL
+				Platform_LogWarn("[CTR Native] Active keyboard controller: %d\n", Platform_InputCycleKeyboardController());
+#endif
 				break;
 			}
 
-			PsyX_HandleHostKey(key, down);
+			Platform_HandleKey(key, down);
 			break;
 		}
-		case SDL_EVENT_TEXT_INPUT:
-			PsyX_HandleHostTextInput(event.text.text);
-			break;
 		}
 	}
 }
@@ -394,7 +560,7 @@ static int s_nativeVBlankCount = 0;
 static void Native_WaitNextVBlank(void)
 {
 	const Uint64 freq = SDL_GetPerformanceFrequency();
-	const Uint64 hz = VBLANK_FREQUENCY_NTSC; // NOTE(aalhendi): ctr-native targets NTSC-U 926.
+	const Uint64 hz = 60; // NOTE(aalhendi): ctr-native targets NTSC-U 926.
 	const Uint64 now = SDL_GetPerformanceCounter();
 
 	if (s_nextVBlankCounter == 0)

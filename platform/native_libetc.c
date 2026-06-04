@@ -5,9 +5,9 @@
  */
 
 #include <psx/libetc.h>
-#include <platform/native_psyx_shell.h>
 
 void (*vsync_callback)(void) = NULL;
+static int s_videoMode = -1;
 
 int VSyncCallback(void (*func)(void))
 {
@@ -32,10 +32,13 @@ int ResetCallback(void)
 
 int SetVideoMode(int mode)
 {
-	return PsyX_Sys_SetVMode(mode);
+	int old = s_videoMode;
+
+	s_videoMode = mode;
+	return old;
 }
 
 int GetVideoMode(void)
 {
-	return g_vmode;
+	return s_videoMode;
 }

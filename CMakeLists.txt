@@ -29,8 +29,8 @@ set(GAME_SOURCES
     platform/native_libgpu.c
     platform/native_libpad.c
     platform/native_libspu.c
+    platform/native_log.c
     platform/native_memcard.c
-    platform/native_psyx_shell.c
     platform/native_renderer.c
     platform/native_renderer_backend.c
 )
@@ -69,7 +69,6 @@ add_executable(ctr_native ${GAME_SOURCES})
 target_include_directories(ctr_native PRIVATE ${GAME_INCLUDES})
 target_compile_definitions(ctr_native PRIVATE
     CTR_NATIVE
-    USE_EXTENDED_PRIM_POINTERS=0
     BUILD=926
     CTR_INTERNAL
 )

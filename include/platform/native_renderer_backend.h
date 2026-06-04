@@ -9,13 +9,7 @@
 
 #include <platform/native_renderer_types.h>
 
-#if !defined(__cplusplus)
 #include <stdbool.h>
-#endif
-
-#if defined(_LANGUAGE_C_PLUS_PLUS) || defined(__cplusplus) || defined(c_plusplus)
-extern "C" {
-#endif
 
 int NativeRendererBackend_InitialiseRender(char *windowName, int width, int height, int fullscreen);
 int NativeRendererBackend_InitialisePSX(void);
@@ -28,21 +22,19 @@ void NativeRendererBackend_SwapWindow(void);
 void NativeRendererBackend_StoreFrameBuffer(int x, int y, int w, int h);
 void NativeRendererBackend_PresentVRAMDisplay(void);
 void NativeRendererBackend_SaveVRAM(const char *outputFileName, int x, int y, int width, int height, int readFromFramebuffer);
-void NativeRendererBackend_Clear(int x, int y, int w, int h, unsigned char r, unsigned char g, unsigned char b);
-void NativeRendererBackend_ClearVRAM(int x, int y, int w, int h, unsigned char r, unsigned char g, unsigned char b);
-void NativeRendererBackend_CopyVRAM(unsigned short *src, int x, int y, int w, int h, int dstX, int dstY);
-void NativeRendererBackend_ReadVRAM(unsigned short *dst, int x, int y, int dstW, int dstH);
+void NativeRendererBackend_Clear(int x, int y, int w, int h, u8 r, u8 g, u8 b);
+void NativeRendererBackend_ClearVRAM(int x, int y, int w, int h, u8 r, u8 g, u8 b);
+void NativeRendererBackend_CopyVRAM(u16 *src, int x, int y, int w, int h, int dstX, int dstY);
+void NativeRendererBackend_ReadVRAM(u16 *dst, int x, int y, int dstW, int dstH);
 void NativeRendererBackend_UpdateVRAM(void);
 void NativeRendererBackend_ReadFramebufferDataToVRAM(void);
 TextureID NativeRendererBackend_GetVRAMTexture(void);
 TextureID NativeRendererBackend_GetWhiteTexture(void);
-TextureID NativeRendererBackend_CreateRGBATexture(int width, int height, u_char *data);
+TextureID NativeRendererBackend_CreateRGBATexture(int width, int height, u8 *data);
 ShaderID NativeRendererBackend_Shader_Compile(const char *source, bool isPsxShader);
 void NativeRendererBackend_SetShader(const ShaderID shader);
-void NativeRendererBackend_Perspective3D(const float fov, const float width, const float height, const float zNear, const float zFar);
 void NativeRendererBackend_Ortho2D(float left, float right, float bottom, float top, float znear, float zfar);
 void NativeRendererBackend_SetBlendMode(BlendMode blendMode);
-void NativeRendererBackend_SetPolygonOffset(float ofs);
 void NativeRendererBackend_SetStencilMode(int drawPrim);
 void NativeRendererBackend_EnableDepth(int enable);
 void NativeRendererBackend_SetScissorState(int enable);
@@ -59,9 +51,5 @@ void NativeRendererBackend_UpdateVertexBuffer(const GrVertex *vertices, int coun
 void NativeRendererBackend_DrawTriangles(int startVertex, int triangles);
 void NativeRendererBackend_PushDebugLabel(const char *label);
 void NativeRendererBackend_PopDebugLabel(void);
-
-#if defined(_LANGUAGE_C_PLUS_PLUS) || defined(__cplusplus) || defined(c_plusplus)
-}
-#endif
 
 #endif

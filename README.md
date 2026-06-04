@@ -110,12 +110,12 @@ ctr_native.c (platform layer)
 ```
 
 - `CTR_NATIVE` is defined for native host/platform-specific code
-- The build uses 32-bit mode because the game stores 24-bit pointers in data structures. A fixed base address is not currently set (requires Clang/LLD or a custom linker script for GCC). This constraint will be removed in Phase 3.
+- The build currently uses 32-bit mode because some native paths still pack host pointers into retail-shaped 24-bit GPU primitive links. See `docs/MEMORY_MODEL.md` for the roadmap to replace that with an explicit native GPU link bridge.
 
 ## Roadmap
 
 - Clean up `game/` copies strip byte budget hacks and route platform-specific code through `CTR_NATIVE`
-- Replace the remaining PsyCross GTE/libetc compatibility tail, remove the 32-bit constraint, and own the full stack.
+- Replace the remaining PsyCross GTE/libetc compatibility tail, replace low-address primitive-link assumptions with an explicit native GPU link bridge, remove the 32-bit constraint, and own the full stack.
 
 ## Credits
 
