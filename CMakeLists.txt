@@ -23,6 +23,7 @@ set(GAME_SOURCES
     platform/native_gpu.c
     platform/native_glad.c
     platform/native_input.c
+    platform/native_libetc.c
     platform/native_libgpu.c
     platform/native_libpad.c
     platform/native_libspu.c
@@ -53,7 +54,6 @@ target_include_directories(SDL2-static PUBLIC externals/SDL/include)
 set(PSYCROSS_C
     externals/PsyCross/src/psx/INLINE_C.C
     externals/PsyCross/src/psx/LIBAPI.C
-    externals/PsyCross/src/psx/LIBETC.C
     externals/PsyCross/src/psx/LIBGTE.C
 )
 set(PSYCROSS_CPP

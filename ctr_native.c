@@ -423,21 +423,11 @@ int NikoGetEnterKey(void)
 }
 
 // NOTE(aalhendi): Native owns the CTR VBlank clock instead of PsyCross's
-// autonomous interrupt thread. CTR only registers MainDrawCb_Vsync (or clears
-// it on shutdown), so native mirrors the SDK VSyncCallback contract directly
-// and emits the registered callback from VSync().
+// autonomous interrupt thread. The retail-shaped VSyncCallback storage lives in
+// native_libetc.c; native VSync emits that callback at each emulated VBlank.
 static Uint64 s_nextVBlankCounter = 0;
 static Uint64 s_vblankRemainder = 0;
 static int s_nativeVBlankCount = 0;
-static void (*s_nativeVSyncCallback)(void) = NULL;
-
-int VSyncCallback(void (*func)(void))
-{
-	int old = (int)s_nativeVSyncCallback;
-
-	s_nativeVSyncCallback = func;
-	return old;
-}
 
 static void Native_WaitNextVBlank(void)
 {
@@ -484,8 +474,8 @@ int VSync(int mode)
 	for (int i = 0; i < vblankCount; i++)
 	{
 		Native_WaitNextVBlank();
-		if (s_nativeVSyncCallback != NULL)
-			s_nativeVSyncCallback();
+		if (vsync_callback != NULL)
+			vsync_callback();
 
 		NativeAudio_StepVBlank();
 		s_nativeVBlankCount++;
