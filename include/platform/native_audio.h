@@ -27,6 +27,10 @@ int NativeAudio_GetXAMaxSampleAtOffset(int xaCurrOffset);
 void NativeAudio_SetXAVolume(int volumeLeft, int volumeRight);
 void NativeAudio_StopXA(void);
 void NativeAudio_StepVBlank(void);
+int NativeAudio_RenderFrames(s16 *out, int frameCount);
+void NativeAudio_SetDeterministicRenderMode(int enabled);
+int NativeAudio_IsDeterministicRenderMode(void);
+int NativeAudio_QueueRenderedFrames(const s16 *frames, int frameCount);
 void NativeAudio_ClearOutputQueue(void);
 void NativeAudio_Shutdown(void);
 #ifdef CTR_INTERNAL

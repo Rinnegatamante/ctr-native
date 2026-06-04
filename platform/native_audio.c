@@ -16,19 +16,20 @@ typedef s32 b32;
 #define NATIVE_AUDIO_FP_ONE             (1 << NATIVE_AUDIO_FP_SHIFT)
 #define NATIVE_AUDIO_GAUSS_INDEX_SHIFT  8
 #define NATIVE_AUDIO_DIRECT_VOL_MAX     0x4000
-#define NATIVE_AUDIO_VBLANK_FRAMES      (NATIVE_AUDIO_SAMPLE_RATE / 60)
-#define NATIVE_AUDIO_XA_ZIGZAG_TAPS     29
-#define NATIVE_AUDIO_XA_ZIGZAG_PHASES   7
-#define NATIVE_AUDIO_XA_ZIGZAG_INPUTS   6
-#define NATIVE_AUDIO_STATE_MAGIC        0x41525443
-#define NATIVE_AUDIO_STATE_VERSION      1
-#define NATIVE_AUDIO_ARENA_ALIGN        16
-#define NATIVE_AUDIO_ADSR_MIN           (-0x8000)
-#define NATIVE_AUDIO_ADSR_MAX           0x7fff
-#define NATIVE_AUDIO_ADSR_STEP_BIT      0x8000u
-#define NATIVE_AUDIO_REVERB_MAX_BYTES   0x18040
-#define NATIVE_AUDIO_REVERB_MAX_SAMPLES (NATIVE_AUDIO_REVERB_MAX_BYTES / (int)sizeof(s16))
-#define NATIVE_AUDIO_REVERB_FIR_TAPS    39
+#define NATIVE_AUDIO_VBLANK_FRAMES         (NATIVE_AUDIO_SAMPLE_RATE / 60)
+#define NATIVE_AUDIO_SCHEDULED_QUEUE_FRAMES (NATIVE_AUDIO_VBLANK_FRAMES * 16)
+#define NATIVE_AUDIO_XA_ZIGZAG_TAPS        29
+#define NATIVE_AUDIO_XA_ZIGZAG_PHASES      7
+#define NATIVE_AUDIO_XA_ZIGZAG_INPUTS      6
+#define NATIVE_AUDIO_STATE_MAGIC           0x41525443
+#define NATIVE_AUDIO_STATE_VERSION         1
+#define NATIVE_AUDIO_ARENA_ALIGN           16
+#define NATIVE_AUDIO_ADSR_MIN              (-0x8000)
+#define NATIVE_AUDIO_ADSR_MAX              0x7fff
+#define NATIVE_AUDIO_ADSR_STEP_BIT         0x8000u
+#define NATIVE_AUDIO_REVERB_MAX_BYTES      0x18040
+#define NATIVE_AUDIO_REVERB_MAX_SAMPLES    (NATIVE_AUDIO_REVERB_MAX_BYTES / (int)sizeof(s16))
+#define NATIVE_AUDIO_REVERB_FIR_TAPS       39
 
 #define XA_NUM_TYPES                    3
 #define XA_HEADER_SIZE                  0x44
@@ -137,6 +138,10 @@ struct NativeAudioOutput
 {
 	SDL_AudioDeviceID device;
 	SDL_AudioStream *stream;
+	b32 deterministicRenderMode;
+	s16 scheduledPcm[NATIVE_AUDIO_SCHEDULED_QUEUE_FRAMES * NATIVE_AUDIO_CHANNELS];
+	int scheduledReadFrame;
+	int scheduledFrameCount;
 #ifdef CTR_INTERNAL
 	int underrunFrames;
 	int overflowFrames;
@@ -1691,12 +1696,16 @@ static int NativeAudio_ValidateReverbSnapshot(const struct NativeAudioReverbStat
 
 static void NativeAudio_ClearOutputQueueNoLock(void)
 {
+	s_audio.output.scheduledReadFrame = 0;
+	s_audio.output.scheduledFrameCount = 0;
+
 	if (s_audio.output.stream != NULL)
 		SDL_ClearAudioStream(s_audio.output.stream);
 }
 
 static int NativeAudio_OpenDevice(void);
 static void NativeAudio_MixFrame(s16 *outLeft, s16 *outRight);
+static int NativeAudio_RenderFramesNoLock(s16 *out, int frameCount);
 
 static void NativeAudio_SelectDriverHint(void)
 {
@@ -2113,15 +2122,16 @@ static int NativeAudio_GetQueuedFramesNoLock(void)
 {
 	const int frameBytes = (int)sizeof(s16) * NATIVE_AUDIO_CHANNELS;
 	int queuedBytes;
+	int queuedFrames = s_audio.output.scheduledFrameCount;
 
 	if (s_audio.output.stream != NULL)
 	{
 		queuedBytes = SDL_GetAudioStreamQueued(s_audio.output.stream);
 		if (queuedBytes > 0)
-			return queuedBytes / frameBytes;
+			queuedFrames += queuedBytes / frameBytes;
 	}
 
-	return 0;
+	return queuedFrames;
 }
 
 static void NativeAudio_AddUnderrunFramesNoLock(int frameCount)
@@ -2137,6 +2147,84 @@ static void NativeAudio_AddUnderrunFramesNoLock(int frameCount)
 #else
 	(void)frameCount;
 #endif
+}
+
+static void NativeAudio_AddOverflowFramesNoLock(int frameCount)
+{
+#ifdef CTR_INTERNAL
+	if (frameCount <= 0)
+		return;
+
+	if (frameCount > INT_MAX - s_audio.output.overflowFrames)
+		s_audio.output.overflowFrames = INT_MAX;
+	else
+		s_audio.output.overflowFrames += frameCount;
+#else
+	(void)frameCount;
+#endif
+}
+
+static int NativeAudio_QueueRenderedFramesNoLock(const s16 *frames, int frameCount)
+{
+	const int frameSamples = NATIVE_AUDIO_CHANNELS;
+	int framesQueued = 0;
+
+	if ((frames == NULL) || (frameCount <= 0))
+		return 0;
+
+	while ((framesQueued < frameCount) && (s_audio.output.scheduledFrameCount < NATIVE_AUDIO_SCHEDULED_QUEUE_FRAMES))
+	{
+		int writeFrame = (s_audio.output.scheduledReadFrame + s_audio.output.scheduledFrameCount) % NATIVE_AUDIO_SCHEDULED_QUEUE_FRAMES;
+		int writable = NATIVE_AUDIO_SCHEDULED_QUEUE_FRAMES - s_audio.output.scheduledFrameCount;
+		int contiguous = NATIVE_AUDIO_SCHEDULED_QUEUE_FRAMES - writeFrame;
+		int remaining = frameCount - framesQueued;
+		int chunkFrames = remaining;
+
+		if (chunkFrames > writable)
+			chunkFrames = writable;
+		if (chunkFrames > contiguous)
+			chunkFrames = contiguous;
+
+		memcpy(&s_audio.output.scheduledPcm[writeFrame * frameSamples], &frames[framesQueued * frameSamples],
+		       (size_t)chunkFrames * frameSamples * sizeof(s16));
+		s_audio.output.scheduledFrameCount += chunkFrames;
+		framesQueued += chunkFrames;
+	}
+
+	if (framesQueued < frameCount)
+		NativeAudio_AddOverflowFramesNoLock(frameCount - framesQueued);
+
+	return framesQueued;
+}
+
+static int NativeAudio_DrainRenderedFramesNoLock(s16 *out, int frameCount)
+{
+	const int frameSamples = NATIVE_AUDIO_CHANNELS;
+	int framesDrained = 0;
+
+	if ((out == NULL) || (frameCount <= 0))
+		return 0;
+
+	while ((framesDrained < frameCount) && (s_audio.output.scheduledFrameCount > 0))
+	{
+		int contiguous = NATIVE_AUDIO_SCHEDULED_QUEUE_FRAMES - s_audio.output.scheduledReadFrame;
+		int remaining = frameCount - framesDrained;
+		int chunkFrames = remaining;
+
+		if (chunkFrames > s_audio.output.scheduledFrameCount)
+			chunkFrames = s_audio.output.scheduledFrameCount;
+		if (chunkFrames > contiguous)
+			chunkFrames = contiguous;
+
+		memcpy(&out[framesDrained * frameSamples], &s_audio.output.scheduledPcm[s_audio.output.scheduledReadFrame * frameSamples],
+		       (size_t)chunkFrames * frameSamples * sizeof(s16));
+
+		s_audio.output.scheduledReadFrame = (s_audio.output.scheduledReadFrame + chunkFrames) % NATIVE_AUDIO_SCHEDULED_QUEUE_FRAMES;
+		s_audio.output.scheduledFrameCount -= chunkFrames;
+		framesDrained += chunkFrames;
+	}
+
+	return framesDrained;
 }
 
 static void SDLCALL NativeAudio_StreamCallback(void *userdata, SDL_AudioStream *stream, int additional_amount, int total_amount)
@@ -2156,20 +2244,28 @@ static void SDLCALL NativeAudio_StreamCallback(void *userdata, SDL_AudioStream *
 	if (framesNeeded > s_audio.output.callbackMaxRequestFrames)
 		s_audio.output.callbackMaxRequestFrames = framesNeeded;
 #endif
+
 	while (framesNeeded > 0)
 	{
 		int chunkFrames = framesNeeded < NATIVE_AUDIO_VBLANK_FRAMES ? framesNeeded : NATIVE_AUDIO_VBLANK_FRAMES;
-		int frame;
+		int framesReady;
 
-		for (frame = 0; frame < chunkFrames; frame++)
+		if (s_audio.output.deterministicRenderMode)
 		{
-			if (s_audio.init)
-				NativeAudio_MixFrame(&out[frame * NATIVE_AUDIO_CHANNELS], &out[frame * NATIVE_AUDIO_CHANNELS + 1]);
-			else
+			// NOTE(aalhendi): Deterministic replay/TAS mode must advance audio
+			// from its scheduler. SDL only drains already-rendered PCM here.
+			framesReady = NativeAudio_DrainRenderedFramesNoLock(out, chunkFrames);
+			if (framesReady < chunkFrames)
 			{
-				out[frame * NATIVE_AUDIO_CHANNELS] = 0;
-				out[frame * NATIVE_AUDIO_CHANNELS + 1] = 0;
+				memset(&out[framesReady * NATIVE_AUDIO_CHANNELS], 0, (size_t)(chunkFrames - framesReady) * frameBytes);
+				NativeAudio_AddUnderrunFramesNoLock(chunkFrames - framesReady);
 			}
+		}
+		else
+		{
+			framesReady = NativeAudio_RenderFramesNoLock(out, chunkFrames);
+			if (framesReady < chunkFrames)
+				memset(&out[framesReady * NATIVE_AUDIO_CHANNELS], 0, (size_t)(chunkFrames - framesReady) * frameBytes);
 		}
 
 		if (!SDL_PutAudioStreamData(stream, out, chunkFrames * frameBytes))
@@ -2189,6 +2285,51 @@ void NativeAudio_ClearOutputQueue(void)
 	NativeAudio_ClearOutputQueueNoLock();
 
 	NativeAudio_UnlockOutput();
+}
+
+void NativeAudio_SetDeterministicRenderMode(int enabled)
+{
+	NativeAudio_LockOutput();
+
+	if (s_audio.output.deterministicRenderMode != (enabled != 0))
+	{
+		s_audio.output.deterministicRenderMode = enabled != 0;
+		NativeAudio_ClearOutputQueueNoLock();
+	}
+
+	NativeAudio_UnlockOutput();
+}
+
+int NativeAudio_IsDeterministicRenderMode(void)
+{
+	int enabled;
+
+	NativeAudio_LockOutput();
+
+	enabled = s_audio.output.deterministicRenderMode;
+
+	NativeAudio_UnlockOutput();
+
+	return enabled;
+}
+
+int NativeAudio_QueueRenderedFrames(const s16 *frames, int frameCount)
+{
+	int framesQueued;
+
+	if (frameCount <= 0)
+		return 0;
+
+	NativeAudio_LockOutput();
+
+	if (s_audio.output.deterministicRenderMode)
+		framesQueued = NativeAudio_QueueRenderedFramesNoLock(frames, frameCount);
+	else
+		framesQueued = 0;
+
+	NativeAudio_UnlockOutput();
+
+	return framesQueued;
 }
 
 #ifdef CTR_INTERNAL
@@ -2482,6 +2623,43 @@ static void NativeAudio_MixFrame(s16 *outLeft, s16 *outRight)
 
 	*outLeft = (s16)NativeAudio_Clamp16(mixLeft);
 	*outRight = (s16)NativeAudio_Clamp16(mixRight);
+}
+
+static int NativeAudio_RenderFramesNoLock(s16 *out, int frameCount)
+{
+	int frame;
+
+	if ((out == NULL) || (frameCount <= 0) || (frameCount > INT_MAX / NATIVE_AUDIO_CHANNELS))
+		return 0;
+
+	for (frame = 0; frame < frameCount; frame++)
+	{
+		if (s_audio.init)
+			NativeAudio_MixFrame(&out[frame * NATIVE_AUDIO_CHANNELS], &out[frame * NATIVE_AUDIO_CHANNELS + 1]);
+		else
+		{
+			out[frame * NATIVE_AUDIO_CHANNELS] = 0;
+			out[frame * NATIVE_AUDIO_CHANNELS + 1] = 0;
+		}
+	}
+
+	return frameCount;
+}
+
+int NativeAudio_RenderFrames(s16 *out, int frameCount)
+{
+	int framesRendered;
+
+	if ((out == NULL) || (frameCount <= 0))
+		return 0;
+
+	NativeAudio_LockOutput();
+
+	framesRendered = NativeAudio_RenderFramesNoLock(out, frameCount);
+
+	NativeAudio_UnlockOutput();
+
+	return framesRendered;
 }
 
 void NativeAudio_StepVBlank(void)
