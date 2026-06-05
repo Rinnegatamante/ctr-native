@@ -3,7 +3,6 @@
 
 #include <common.h>
 
-#include "game/TEST_226.c"
 #include "game/226/R226.c"
 #include "game/227/R227.c"
 #include "game/228/R228.c"
@@ -12,8 +11,6 @@
 #include "game/227/227_00_DrawLevelOvr2P.c"
 #include "game/228/228_00_DrawLevelOvr3P.c"
 #include "game/229/229_00_DrawLevelOvr4P.c"
-#include "game/TEST_DrawSkybox.c"
-#include "game/TEST_DrawInstances.c"
 #include "game/DrawConfetti/DrawConfetti.c"
 #include "game/DrawSky/DrawSky.c"
 
