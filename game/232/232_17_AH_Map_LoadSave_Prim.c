@@ -28,10 +28,17 @@ void AH_Map_LoadSave_Prim(s16 *vertPos, char *vertCol, void *ot, struct PrimMem 
 	p->g3 = vertCol[13];
 	p->b3 = vertCol[14];
 
-	*(int *)&p->x0 = *(int *)&vertPos[0x0];
-	*(int *)&p->x1 = *(int *)&vertPos[0x2];
-	*(int *)&p->x2 = *(int *)&vertPos[0x4];
-	*(int *)&p->x3 = *(int *)&vertPos[0x6];
+	p->x0 = vertPos[0x0];
+	p->y0 = vertPos[0x1];
+
+	p->x1 = vertPos[0x2];
+	p->y1 = vertPos[0x3];
+
+	p->x2 = vertPos[0x4];
+	p->y2 = vertPos[0x5];
+
+	p->x3 = vertPos[0x6];
+	p->y3 = vertPos[0x7];
 
 	AddPrim(ot, p);
 }
