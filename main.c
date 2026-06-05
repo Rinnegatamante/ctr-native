@@ -6,6 +6,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+#if defined(_WIN32)
+#include <io.h>
+#else
+#include <unistd.h>
+#endif
+
 #if __GNUC__
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
@@ -30,8 +36,8 @@
 
 #ifndef __GNUC__
 #define _Static_assert(x)
-#endif
 #define __attribute__(x)
+#endif
 
 #define RECT RECT16
 typedef enum
@@ -57,6 +63,8 @@ typedef enum
 #include "game/zGlobal_RDATA.c"
 #include "game/zGlobal_DATA.c"
 #include "game/zGlobal_SDATA.c"
+
+#undef RECT
 
 #include "platform/native_assets.c"
 #include "platform/native_audio.c"

@@ -1,7 +1,7 @@
 #include <platform/native_memcard.h>
 
 #if defined(_WIN32)
-#include <windows.h>
+#include "platform/native_win32.h"
 #else
 #include <dirent.h>
 #endif
