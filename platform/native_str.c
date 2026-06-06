@@ -1,4 +1,5 @@
 #include <macros.h>
+#include <platform/native_assets.h>
 #include <platform/native_str.h>
 #include <psx/libgpu.h>
 
@@ -12,6 +13,7 @@
 #define NATIVE_STR_MAX_RECORD_SIZE       NATIVE_STR_CD_SECTOR_SIZE
 #define NATIVE_STR_MAX_FRAME_SECTORS     10
 #define NATIVE_STR_MAX_FRAME_BYTES       (NATIVE_STR_MAX_FRAME_SECTORS * NATIVE_STR_SECTOR_PAYLOAD)
+#define NATIVE_STR_PATH_MAX              1024
 #define NATIVE_STR_MAX_WIDTH             512
 #define NATIVE_STR_MAX_HEIGHT            240
 #define NATIVE_STR_ID                    0x80010160u
@@ -19,7 +21,7 @@
 #define NATIVE_STR_END_OF_BLOCK          0xfe00u
 #define NATIVE_STR_IDCT_SHIFT            14
 #define NATIVE_STR_IDCT_SCALE            (1 << NATIVE_STR_IDCT_SHIFT)
-#define NATIVE_STR_SCRAPBOOK_PATH        "assets/TEST.STR"
+#define NATIVE_STR_SCRAPBOOK_PATH        "TEST.STR"
 #define NATIVE_STR_SCRAPBOOK_FRAME_COUNT 0x1148
 
 enum NativeSTRFormat
@@ -549,7 +551,7 @@ static s32 NativeSTR_ResolveBigfilePath(s32 bigfileIndex, char *dst, s32 dstCoun
 	if ((dst == NULL) || (dstCount <= 0))
 		return 0;
 
-	file = fopen("assets/bigfile.txt", "r");
+	file = NativeAssets_Open("bigfile.txt", "r");
 	if (file == NULL)
 		return 0;
 
@@ -557,15 +559,18 @@ static s32 NativeSTR_ResolveBigfilePath(s32 bigfileIndex, char *dst, s32 dstCoun
 	{
 		if (index == bigfileIndex)
 		{
-			s32 i;
+			NativeStr8 lineText = NativeStr8_FromCString(line);
+			char relativePath[256];
+			int written;
 
-			line[strcspn(line, "\r\n")] = '\0';
-			snprintf(dst, (size_t)dstCount, "assets/bigfile/%s", line);
+			while ((lineText.len != 0) && ((lineText.ptr[lineText.len - 1u] == '\r') || (lineText.ptr[lineText.len - 1u] == '\n')))
+				lineText.len--;
 
-			for (i = 0; dst[i] != '\0'; i++)
+			written = snprintf(relativePath, sizeof(relativePath), "bigfile/%.*s", (int)lineText.len, (const char *)lineText.ptr);
+			if ((written <= 0) || ((size_t)written >= sizeof(relativePath)) || !NativeAssets_BuildPath(relativePath, dst, (size_t)dstCount))
 			{
-				if (dst[i] == '\\')
-					dst[i] = '/';
+				fclose(file);
+				return 0;
 			}
 
 			fclose(file);
@@ -581,7 +586,7 @@ static s32 NativeSTR_ResolveBigfilePath(s32 bigfileIndex, char *dst, s32 dstCoun
 
 s32 NativeSTR_StartTrackPreview(s32 bigfileIndex, s32 frameCount)
 {
-	char path[256];
+	char path[NATIVE_STR_PATH_MAX];
 
 	if ((s_str.active != 0) && (s_str.bigfileIndex == bigfileIndex))
 		return 1;
@@ -611,7 +616,7 @@ s32 NativeSTR_StartScrapbook(void)
 
 	NativeSTR_Stop();
 
-	s_str.file = fopen(NATIVE_STR_SCRAPBOOK_PATH, "rb");
+	s_str.file = NativeAssets_Open(NATIVE_STR_SCRAPBOOK_PATH, "rb");
 	if (s_str.file == NULL)
 		return 0;
 

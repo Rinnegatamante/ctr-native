@@ -1,5 +1,7 @@
 #include <macros.h>
+#include <platform/native_assets.h>
 #include <platform/native_cd.h>
+#include <platform/native_path.h>
 #include <psx/libcd.h>
 
 #include <stdio.h>
@@ -26,37 +28,28 @@ int boolDecodeXaDuringVsyncCallback;
 
 static s32 NativeCD_NormalizeFilename(char *dst, s32 dstCount, const char *src)
 {
-	s32 i;
+	NativeStr8 filename = NativeStr8_FromCString(src);
+	size_t i;
 
 	if ((dstCount <= 0) || (src == NULL))
 		return 0;
 
-	for (i = 0; src[i] != '\0'; i++)
+	for (i = 0; i < filename.len; i++)
 	{
-		char c = src[i];
-
-		if (i + 1 >= dstCount)
-			return 0;
-
-		if (c == ';')
+		if (filename.ptr[i] == ';')
+		{
+			filename.len = i;
 			break;
-
-#if !defined(_WIN32)
-		if (c == '\\')
-			c = '/';
-#endif
-
-		dst[i] = c;
+		}
 	}
 
-	dst[i] = '\0';
-	return 1;
+	return NativePath_NormalizeSlashes(dst, (size_t)dstCount, filename);
 }
 
-static const char *NativeCD_PathAfterRoot(const char *filename)
+static NativeStr8 NativeCD_PathAfterRoot(NativeStr8 filename)
 {
-	if ((filename[0] == '/') || (filename[0] == '\\'))
-		return filename + 1;
+	if ((filename.len != 0) && NativePath_IsSeparator(filename.ptr[0]))
+		return NativeStr8_Skip(filename, 1);
 
 	return filename;
 }
@@ -64,8 +57,8 @@ static const char *NativeCD_PathAfterRoot(const char *filename)
 static s32 NativeCD_OpenHostFile(const char *filename, s32 *outSize)
 {
 	char normalized[256];
-	char assetPath[256];
-	const char *rootless;
+	char rootlessPath[256];
+	NativeStr8 rootless;
 	FILE *file;
 	s32 fileIndex;
 	long fileSize;
@@ -76,12 +69,11 @@ static s32 NativeCD_OpenHostFile(const char *filename, s32 *outSize)
 	if (NativeCD_NormalizeFilename(normalized, sizeof(normalized), filename) == 0)
 		return -1;
 
-	rootless = NativeCD_PathAfterRoot(normalized);
-	snprintf(assetPath, sizeof(assetPath), "assets/%s", rootless);
+	rootless = NativeCD_PathAfterRoot(NativeStr8_FromCString(normalized));
 
-	file = fopen(assetPath, "rb");
-	if (file == NULL)
-		file = fopen(rootless, "rb");
+	file = NativeAssets_OpenStr8(rootless, "rb");
+	if ((file == NULL) && NativeStr8_CopyToCString(rootlessPath, sizeof(rootlessPath), rootless))
+		file = fopen(rootlessPath, "rb");
 
 	if (file == NULL)
 		return -1;
@@ -114,7 +106,8 @@ static s32 NativeCD_OpenHostFile(const char *filename, s32 *outSize)
 static s32 NativeCD_SearchHostFile(CdlFILE *loc, const char *filename)
 {
 	char normalized[256];
-	const char *rootless;
+	char rootlessPath[256];
+	NativeStr8 rootless;
 	s32 fileIndex;
 	s32 fileSize;
 	s32 encodedPos;
@@ -129,13 +122,16 @@ static s32 NativeCD_SearchHostFile(CdlFILE *loc, const char *filename)
 	if (NativeCD_NormalizeFilename(normalized, sizeof(normalized), filename) == 0)
 		return 0;
 
-	rootless = NativeCD_PathAfterRoot(normalized);
+	rootless = NativeCD_PathAfterRoot(NativeStr8_FromCString(normalized));
+	if (!NativeStr8_CopyToCString(rootlessPath, sizeof(rootlessPath), rootless))
+		return 0;
+
 	encodedPos = fileIndex << 24;
 
 	memcpy(&loc->pos, &encodedPos, sizeof(encodedPos));
 	loc->size = fileSize;
 	memset(loc->name, 0, sizeof(loc->name));
-	strncpy(loc->name, rootless, sizeof(loc->name) - 1);
+	strncpy(loc->name, rootlessPath, sizeof(loc->name) - 1);
 
 	return 1;
 }

@@ -6,6 +6,7 @@
 #include "platform/native_checkpoint_file.h"
 #include "platform/native_input.h"
 #include "platform/native_log.h"
+#include "platform/native_path.h"
 #include "platform/native_state.h"
 
 #include <errno.h>
@@ -301,11 +302,12 @@ static void NativeReplayScheduler_LogHeaderIdentityMismatch(const struct NativeR
 
 static const char *NativeReplayScheduler_ArgValue(int argc, char **argv, const char *arg)
 {
+	NativeStr8 argText = NativeStr8_FromCString(arg);
 	int i;
 
 	for (i = 1; i < argc - 1; i++)
 	{
-		if (strcmp(argv[i], arg) == 0)
+		if (NativeStr8_Equals(NativeStr8_FromCString(argv[i]), argText))
 			return argv[i + 1];
 	}
 
@@ -314,11 +316,12 @@ static const char *NativeReplayScheduler_ArgValue(int argc, char **argv, const c
 
 static s32 NativeReplayScheduler_ArgPresent(int argc, char **argv, const char *arg)
 {
+	NativeStr8 argText = NativeStr8_FromCString(arg);
 	int i;
 
 	for (i = 1; i < argc; i++)
 	{
-		if (strcmp(argv[i], arg) == 0)
+		if (NativeStr8_Equals(NativeStr8_FromCString(argv[i]), argText))
 			return 1;
 	}
 
@@ -327,11 +330,13 @@ static s32 NativeReplayScheduler_ArgPresent(int argc, char **argv, const char *a
 
 static s32 NativeReplayScheduler_ArgMissingValue(int argc, char **argv, const char *arg)
 {
+	NativeStr8 argText = NativeStr8_FromCString(arg);
 	int i;
 
 	for (i = 1; i < argc; i++)
 	{
-		if ((strcmp(argv[i], arg) == 0) && ((i + 1 >= argc) || (strncmp(argv[i + 1], "--", 2) == 0)))
+		if (NativeStr8_Equals(NativeStr8_FromCString(argv[i]), argText) &&
+		    ((i + 1 >= argc) || NativeStr8_StartsWith(NativeStr8_FromCString(argv[i + 1]), NATIVE_STR8_LIT("--"))))
 			return 1;
 	}
 
@@ -340,31 +345,24 @@ static s32 NativeReplayScheduler_ArgMissingValue(int argc, char **argv, const ch
 
 static char *NativeReplayScheduler_MakeSiblingPath(const char *path, const char *filename)
 {
-	const char *lastSlash;
-	const char *lastBackslash;
-	const char *lastSeparator;
+	NativeStr8 pathText = NativeStr8_FromCString(path);
+	NativeStr8 filenameText = NativeStr8_FromCString(filename);
 	size_t dirLen;
-	size_t filenameLen;
+	size_t separatorIndex;
 	char *siblingPath;
 
 	if ((path == NULL) || (filename == NULL))
 		return NULL;
 
-	lastSlash = strrchr(path, '/');
-	lastBackslash = strrchr(path, '\\');
-	lastSeparator = lastSlash;
-	if ((lastSeparator == NULL) || ((lastBackslash != NULL) && (lastBackslash > lastSeparator)))
-		lastSeparator = lastBackslash;
+	dirLen = NativeStr8_LastIndexOfAny(pathText, '/', '\\', &separatorIndex) ? separatorIndex + 1u : 0u;
 
-	dirLen = (lastSeparator != NULL) ? (size_t)(lastSeparator - path + 1) : 0u;
-	filenameLen = strlen(filename);
-
-	siblingPath = (char *)malloc(dirLen + filenameLen + 1u);
+	siblingPath = (char *)malloc(dirLen + filenameText.len + 1u);
 	if (siblingPath == NULL)
 		return NULL;
 
 	memcpy(siblingPath, path, dirLen);
-	memcpy(&siblingPath[dirLen], filename, filenameLen + 1u);
+	memcpy(&siblingPath[dirLen], filenameText.ptr, filenameText.len);
+	siblingPath[dirLen + filenameText.len] = '\0';
 	return siblingPath;
 }
 
@@ -392,48 +390,39 @@ static s32 NativeReplayScheduler_PathExists(const char *path)
 
 static char *NativeReplayScheduler_DupString(const char *text)
 {
-	size_t len;
+	NativeStr8 textView = NativeStr8_FromCString(text);
 	char *copy;
 
 	if (text == NULL)
 		return NULL;
 
-	len = strlen(text);
-	copy = (char *)malloc(len + 1u);
+	copy = (char *)malloc(textView.len + 1u);
 	if (copy == NULL)
 		return NULL;
 
-	memcpy(copy, text, len + 1u);
+	NativeStr8_CopyToCString(copy, textView.len + 1u, textView);
 	return copy;
-}
-
-static s32 NativeReplayScheduler_IsPathSeparator(char c)
-{
-	return (c == '/') || (c == '\\');
 }
 
 static char *NativeReplayScheduler_JoinPath(const char *left, const char *right)
 {
-	size_t leftLen;
-	size_t rightLen;
-	s32 needsSeparator;
+	NativeStr8 leftText = NativeStr8_FromCString(left);
+	NativeStr8 rightText = NativeStr8_FromCString(right);
 	char *path;
 
 	if ((left == NULL) || (right == NULL))
 		return NULL;
 
-	leftLen = strlen(left);
-	rightLen = strlen(right);
-	needsSeparator = (leftLen != 0) && !NativeReplayScheduler_IsPathSeparator(left[leftLen - 1u]);
-
-	path = (char *)malloc(leftLen + (size_t)needsSeparator + rightLen + 1u);
+	path = (char *)malloc(leftText.len + 1u + rightText.len + 1u);
 	if (path == NULL)
 		return NULL;
 
-	memcpy(path, left, leftLen);
-	if (needsSeparator != 0)
-		path[leftLen++] = '/';
-	memcpy(&path[leftLen], right, rightLen + 1u);
+	if (!NativePath_Join(path, leftText.len + 1u + rightText.len + 1u, leftText, rightText))
+	{
+		free(path);
+		return NULL;
+	}
+
 	return path;
 }
 
@@ -467,16 +456,16 @@ static s32 NativeReplayScheduler_CreateDirs(const char *path)
 		return 0;
 
 	cursor = copy;
-	if (NativeReplayScheduler_IsPathSeparator(cursor[0]))
+	if (NativePath_IsSeparator(cursor[0]))
 		cursor++;
 #if defined(_WIN32)
-	if ((cursor[0] != '\0') && (cursor[1] == ':') && NativeReplayScheduler_IsPathSeparator(cursor[2]))
+	if ((cursor[0] != '\0') && (cursor[1] == ':') && NativePath_IsSeparator(cursor[2]))
 		cursor += 3;
 #endif
 
 	while (*cursor != '\0')
 	{
-		if (NativeReplayScheduler_IsPathSeparator(*cursor))
+		if (NativePath_IsSeparator(*cursor))
 		{
 			char saved = *cursor;
 

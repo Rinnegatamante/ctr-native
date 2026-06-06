@@ -123,32 +123,22 @@ int main(int argc, char *argv[])
 	printf("[CTR Native] SDL base path: %s\n", sdlBasePath ? sdlBasePath : "(null)");
 	fflush(stdout);
 
-	char baseDir[1024];
-
-	if (sdlBasePath)
+	if (!NativeAssets_Init(sdlBasePath))
 	{
-		snprintf(baseDir, sizeof(baseDir), "%s", sdlBasePath);
-		char *sep = strrchr(baseDir, '\\');
-		if (!sep)
-			sep = strrchr(baseDir, '/');
-		if (sep)
-			*sep = '\0';
-		sep = strrchr(baseDir, '\\');
-		if (!sep)
-			sep = strrchr(baseDir, '/');
-		if (sep)
-			*sep = '\0';
-	}
-	else
-	{
-		getcwd(baseDir, sizeof(baseDir));
+		fprintf(stderr, "[CTR Native] Failed to initialize asset paths.\n");
+		return 1;
 	}
 
 	printf("[CTR Native] Built with: " CC "\n");
-	printf("[CTR Native] Base: %s\n", baseDir);
+	printf("[CTR Native] Base: %s\n", NativeAssets_GetBaseDir());
+	printf("[CTR Native] Assets: %s\n", NativeAssets_GetAssetDir());
 	fflush(stdout);
 
-	chdir(baseDir);
+	if (chdir(NativeAssets_GetBaseDir()) != 0)
+	{
+		fprintf(stderr, "[CTR Native] Failed to enter base directory: %s\n", NativeAssets_GetBaseDir());
+		return 1;
+	}
 
 	if (!NativeAssets_Validate())
 		return 1;

@@ -1,13 +1,19 @@
 #include "platform/native_assets.h"
 
+#include <psx/types.h>
+
+#include <platform/native_path.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#define NATIVE_ASSETS_BIGFILE_PATH               "assets/BIGFILE.BIG"
-#define NATIVE_ASSETS_KART_HWL_PATH              "assets/SOUNDS/KART.HWL"
-#define NATIVE_ASSETS_TEST_STR_PATH              "assets/TEST.STR"
-#define NATIVE_ASSETS_XNF_PATH                   "assets/XA/ENG.XNF"
+#define NATIVE_ASSETS_PATH_MAX                   1024
+#define NATIVE_ASSETS_DIR_NAME                   "assets"
+#define NATIVE_ASSETS_BIGFILE_PATH               "BIGFILE.BIG"
+#define NATIVE_ASSETS_KART_HWL_PATH              "SOUNDS/KART.HWL"
+#define NATIVE_ASSETS_TEST_STR_PATH              "TEST.STR"
+#define NATIVE_ASSETS_XNF_PATH                   "XA/ENG.XNF"
 
 #define NATIVE_ASSETS_XA_TYPE_COUNT              3
 #define NATIVE_ASSETS_XA_HEADER_SIZE             0x44
@@ -24,6 +30,10 @@ struct NativeAssetsByteBuffer
 	int size;
 };
 
+static char s_nativeAssetsBaseDir[NATIVE_ASSETS_PATH_MAX] = ".";
+static char s_nativeAssetsDir[NATIVE_ASSETS_PATH_MAX] = NATIVE_ASSETS_DIR_NAME;
+static int s_nativeAssetsInitialized;
+
 static int NativeAssets_FileExists(const char *path)
 {
 	FILE *file = fopen(path, "rb");
@@ -33,6 +43,91 @@ static int NativeAssets_FileExists(const char *path)
 
 	fclose(file);
 	return 1;
+}
+
+static int NativeAssets_BaseHasRequiredFile(NativeStr8 baseDir)
+{
+	char path[NATIVE_ASSETS_PATH_MAX];
+
+	if (!NativePath_Join(path, sizeof(path), baseDir, NATIVE_STR8_LIT(NATIVE_ASSETS_DIR_NAME "/" NATIVE_ASSETS_BIGFILE_PATH)))
+		return 0;
+
+	return NativeAssets_FileExists(path);
+}
+
+static int NativeAssets_SetBaseDir(NativeStr8 baseDir)
+{
+	baseDir = NativePath_TrimTrailingSeparators(baseDir);
+	if (!NativePath_NormalizeSlashes(s_nativeAssetsBaseDir, sizeof(s_nativeAssetsBaseDir), baseDir))
+		return 0;
+
+	if (!NativePath_Join(s_nativeAssetsDir, sizeof(s_nativeAssetsDir), NativeStr8_FromCString(s_nativeAssetsBaseDir), NATIVE_STR8_LIT(NATIVE_ASSETS_DIR_NAME)))
+		return 0;
+
+	s_nativeAssetsInitialized = 1;
+	return 1;
+}
+
+int NativeAssets_Init(const char *executableBasePath)
+{
+	char parentDir[NATIVE_ASSETS_PATH_MAX];
+	NativeStr8 exeDir;
+
+	if ((executableBasePath == NULL) || (executableBasePath[0] == '\0'))
+		executableBasePath = ".";
+
+	exeDir = NativePath_TrimTrailingSeparators(NativeStr8_FromCString(executableBasePath));
+
+	if (NativeAssets_BaseHasRequiredFile(exeDir))
+		return NativeAssets_SetBaseDir(exeDir);
+
+	if (NativePath_Parent(parentDir, sizeof(parentDir), exeDir))
+	{
+		NativeStr8 parent = NativeStr8_FromCString(parentDir);
+
+		if (NativeAssets_BaseHasRequiredFile(parent))
+			return NativeAssets_SetBaseDir(parent);
+	}
+
+	return NativeAssets_SetBaseDir(exeDir);
+}
+
+const char *NativeAssets_GetBaseDir(void)
+{
+	return s_nativeAssetsBaseDir;
+}
+
+const char *NativeAssets_GetAssetDir(void)
+{
+	return s_nativeAssetsDir;
+}
+
+int NativeAssets_BuildPathStr8(NativeStr8 relativePath, char *dst, size_t dstSize)
+{
+	if (!s_nativeAssetsInitialized && !NativeAssets_Init("."))
+		return 0;
+
+	return NativePath_Join(dst, dstSize, NativeStr8_FromCString(s_nativeAssetsDir), relativePath);
+}
+
+int NativeAssets_BuildPath(const char *relativePath, char *dst, size_t dstSize)
+{
+	return NativeAssets_BuildPathStr8(NativeStr8_FromCString(relativePath), dst, dstSize);
+}
+
+FILE *NativeAssets_OpenStr8(NativeStr8 relativePath, const char *mode)
+{
+	char path[NATIVE_ASSETS_PATH_MAX];
+
+	if (!NativeAssets_BuildPathStr8(relativePath, path, sizeof(path)))
+		return NULL;
+
+	return fopen(path, mode);
+}
+
+FILE *NativeAssets_Open(const char *relativePath, const char *mode)
+{
+	return NativeAssets_OpenStr8(NativeStr8_FromCString(relativePath), mode);
 }
 
 static int NativeAssets_ReadExact(FILE *file, void *dst, size_t size)
@@ -53,7 +148,7 @@ static int NativeAssets_ReadFileBytes(const char *path, struct NativeAssetsByteB
 	bytes->data = NULL;
 	bytes->size = 0;
 
-	file = fopen(path, "rb");
+	file = NativeAssets_Open(path, "rb");
 	if (file == NULL)
 		return 0;
 
@@ -106,7 +201,7 @@ static void NativeAssets_FreeByteBuffer(struct NativeAssetsByteBuffer *bytes)
 static void NativeAssets_PrintHeader(void)
 {
 	fprintf(stderr, "[CTR Native] Missing or incomplete assets.\n");
-	fprintf(stderr, "[CTR Native] Expected NTSC-U retail assets under ./assets next to the source checkout.\n");
+	fprintf(stderr, "[CTR Native] Expected NTSC-U retail assets under: %s\n", NativeAssets_GetAssetDir());
 }
 
 static void NativeAssets_PrintFooter(void)
@@ -117,19 +212,27 @@ static void NativeAssets_PrintFooter(void)
 
 static int NativeAssets_CheckRequiredFile(const char *path)
 {
-	if (NativeAssets_FileExists(path))
+	char assetPath[NATIVE_ASSETS_PATH_MAX];
+
+	if (!NativeAssets_BuildPath(path, assetPath, sizeof(assetPath)))
+	{
+		fprintf(stderr, "[CTR Native] asset path too long: %s\n", path);
+		return 0;
+	}
+
+	if (NativeAssets_FileExists(assetPath))
 		return 1;
 
-	fprintf(stderr, "[CTR Native] missing asset: %s\n", path);
+	fprintf(stderr, "[CTR Native] missing asset: %s\n", assetPath);
 	return 0;
 }
 
 static int NativeAssets_ValidateXA(void)
 {
 	static const char *xaDirs[NATIVE_ASSETS_XA_TYPE_COUNT] = {
-	    "assets/XA/MUSIC",
-	    "assets/XA/ENG/EXTRA",
-	    "assets/XA/ENG/GAME",
+	    "XA/MUSIC",
+	    "XA/ENG/EXTRA",
+	    "XA/ENG/GAME",
 	};
 	struct NativeAssetsByteBuffer xnf;
 	u8 required[NATIVE_ASSETS_XA_TYPE_COUNT][NATIVE_ASSETS_XA_MAX_FILE_NUMBER];
@@ -193,14 +296,22 @@ static int NativeAssets_ValidateXA(void)
 
 		for (fileNumber = 0; fileNumber < NATIVE_ASSETS_XA_MAX_FILE_NUMBER; fileNumber++)
 		{
-			char path[256];
+			char relativePath[256];
+			char path[NATIVE_ASSETS_PATH_MAX];
 			int written;
 
 			if (!required[categoryID][fileNumber])
 				continue;
 
-			written = snprintf(path, sizeof(path), "%s/S%02u.XA", xaDirs[categoryID], (unsigned int)fileNumber);
-			if ((written <= 0) || ((size_t)written >= sizeof(path)) || !NativeAssets_FileExists(path))
+			written = snprintf(relativePath, sizeof(relativePath), "%s/S%02u.XA", xaDirs[categoryID], (unsigned int)fileNumber);
+			if ((written <= 0) || ((size_t)written >= sizeof(relativePath)) || !NativeAssets_BuildPath(relativePath, path, sizeof(path)))
+			{
+				fprintf(stderr, "[CTR Native] XA asset path too long: %s/S%02u.XA\n", xaDirs[categoryID], (unsigned int)fileNumber);
+				missing++;
+				continue;
+			}
+
+			if (!NativeAssets_FileExists(path))
 			{
 				fprintf(stderr, "[CTR Native] missing XA asset: %s\n", path);
 				missing++;

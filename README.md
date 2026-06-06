@@ -69,7 +69,8 @@ build.bat            # Rebuild everything
 
 ## Running
 
-1. Create an `assets/` directory next to the source files
+1. Create an `assets/` directory next to the executable for packaged builds, or
+   next to the source files for development builds run from `build/`
 2. Extract the following from a CTR NTSC-U retail disc image:
    - `BIGFILE.BIG`
    - `SOUNDS/KART.HWL`
@@ -80,9 +81,26 @@ build.bat            # Rebuild everything
    - `XA/MUSIC/S00.XA` through `S01.XA`
 3. Run `build/ctr_native.exe`
 
-Directory structure:
+Packaged directory structure:
+```
+CTR-Native/
+  ctr_native.exe
+  assets/
+    BIGFILE.BIG
+    SOUNDS/KART.HWL
+    TEST.STR
+    XA/
+      ENG.XNF
+      ENG/EXTRA/S00.XA ... S05.XA
+      ENG/GAME/S00.XA ... S20.XA
+      MUSIC/S00.XA ... S01.XA
+```
+
+Development directory structure:
 ```
 ctr_native/
+  build/
+    ctr_native.exe
   assets/
     BIGFILE.BIG
     SOUNDS/KART.HWL

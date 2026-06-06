@@ -1,4 +1,5 @@
 #include <platform/native_audio.h>
+#include <platform/native_assets.h>
 
 #include <SDL3/SDL.h>
 #include <limits.h>
@@ -1322,7 +1323,7 @@ static int NativeAudio_ReadFileBytes(const char *path, struct NativeAudioByteBuf
 	bytes->data = NULL;
 	bytes->size = 0;
 
-	fp = fopen(path, "rb");
+	fp = NativeAssets_Open(path, "rb");
 	if (fp == NULL)
 		return 0;
 
@@ -1728,11 +1729,11 @@ static int NativeAudio_BuildXAPath(char *path, size_t pathSize, int categoryID, 
 	int written;
 
 	if (categoryID == 0)
-		dir = "assets/XA/MUSIC";
+		dir = "XA/MUSIC";
 	else if (categoryID == 1)
-		dir = "assets/XA/ENG/EXTRA";
+		dir = "XA/ENG/EXTRA";
 	else if (categoryID == 2)
-		dir = "assets/XA/ENG/GAME";
+		dir = "XA/ENG/GAME";
 	else
 		return 0;
 
@@ -1755,7 +1756,7 @@ static int NativeAudio_LookupXATrackInfo(int categoryID, int xaID, struct Native
 	if ((categoryID < 0) || (categoryID >= XA_NUM_TYPES) || (xaID < 0))
 		return 0;
 
-	if (!NativeAudio_ReadFileBytes("assets/XA/ENG.XNF", &xnf))
+	if (!NativeAudio_ReadFileBytes("XA/ENG.XNF", &xnf))
 		return 0;
 
 	if (xnf.size < XA_HEADER_SIZE)
