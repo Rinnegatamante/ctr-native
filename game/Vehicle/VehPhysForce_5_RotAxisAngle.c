@@ -115,8 +115,17 @@ void VehPhysForce_RotAxisAngle(MATRIX *m, s16 *normVec, s16 angle)
 	m->m[1][2] = (s16)outY;
 	m->m[2][2] = (s16)outZ;
 
-	// Retail uses GTE `OP(sf=12)` with the normal vector and the generated third column to derive the first matrix column.
-	m->m[0][0] = (s16)(((s32)m->m[2][2] * normalY - (s32)m->m[1][2] * normalZ) >> 12);
-	m->m[1][0] = (s16)(((s32)m->m[0][2] * normalZ - (s32)m->m[2][2] * normalX) >> 12);
-	m->m[2][0] = (s16)(((s32)m->m[1][2] * normalX - (s32)m->m[0][2] * normalY) >> 12);
+	// NOTE(aalhendi): Retail uses GTE `OP(sf=12)` with the normal vector and the generated
+	// third column to derive the first matrix column. The partial register
+	// writes are intentional; callers observe this exact GTE state.
+	CTC2((u32)normalX, 0);
+	CTC2((u32)normalY, 2);
+	CTC2((u32)normalZ, 4);
+	MTC2((u32)(s32)m->m[0][2], 9);
+	MTC2((u32)(s32)m->m[1][2], 10);
+	MTC2((u32)(s32)m->m[2][2], 11);
+	gte_op12();
+	m->m[0][0] = (s16)MFC2_S(25);
+	m->m[1][0] = (s16)MFC2_S(26);
+	m->m[2][0] = (s16)MFC2_S(27);
 }

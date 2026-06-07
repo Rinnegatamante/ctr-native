@@ -1694,7 +1694,7 @@ give_this_label_a_better_name2:
 		};
 
 		gte_ldv0(&wiggle);
-		gte_mvmva(0, 0, 0, 3, 0);
+		gte_mvmva(1, 0, 0, 3, 0);
 
 		botDriver->botData.unk5bc.ai_turboMeter = 0;
 
