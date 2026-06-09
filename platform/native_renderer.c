@@ -72,6 +72,10 @@ TextureID NativeRenderer_GetWhiteTexture(void)
 int g_windowWidth = 0;
 int g_windowHeight = 0;
 
+global_variable int s_presentAspectW = 4;
+global_variable int s_presentAspectH = 3;
+global_variable SDL_Rect s_presentViewport = {0, 0, 0, 0};
+
 int g_dbg_wireframeMode = 0;
 int g_dbg_texturelessMode = 0;
 
@@ -103,6 +107,9 @@ internal void NativeRenderer_DestroyTexture(TextureID texture);
 internal void NativeRenderer_SetScissorState(int enable);
 internal void NativeRenderer_EnableDepth(int enable);
 internal void NativeRenderer_SetViewPort(int x, int y, int width, int height);
+internal void NativeRenderer_SetPresentationAspect(int width, int height);
+internal void NativeRenderer_UpdatePresentationViewport(void);
+internal void NativeRenderer_ClearPresentationBars(void);
 internal void NativeRenderer_SetWireframe(int enable);
 internal void NativeRenderer_BindVertexBuffer(void);
 
@@ -313,6 +320,7 @@ int NativeRenderer_InitialiseRender(char *windowName, int width, int height, int
 {
 	g_windowWidth = width;
 	g_windowHeight = height;
+	NativeRenderer_SetPresentationAspect(width, height);
 
 	// Due to debugging in fullscreen
 	SDL_SetHint(SDL_HINT_WINDOW_ALLOW_TOPMOST, "0");
@@ -365,10 +373,12 @@ void NativeRenderer_BeginScene(void)
 	NativePerf_BeginScope(NATIVE_PERF_BUCKET_RENDERER_BEGIN_SCENE);
 	s_lastBoundTexture = 0;
 
+	NativeRenderer_UpdatePresentationViewport();
+	NativeRenderer_ClearPresentationBars();
 	glClear(GL_STENCIL_BUFFER_BIT);
 
 	NativeRenderer_UpdateVRAM();
-	NativeRenderer_SetViewPort(0, 0, g_windowWidth, g_windowHeight);
+	NativeRenderer_SetViewPort(s_presentViewport.x, s_presentViewport.y, s_presentViewport.w, s_presentViewport.h);
 
 	if (g_dbg_wireframeMode)
 	{
@@ -395,8 +405,122 @@ void NativeRenderer_EndScene(void)
 u16 vram[VRAM_WIDTH * VRAM_HEIGHT];
 global_variable u8 rgLUT[LUT_WIDTH * LUT_HEIGHT * sizeof(u32)];
 
+internal int NativeRenderer_IntAbs(int value)
+{
+	return value < 0 ? -value : value;
+}
+
+internal int NativeRenderer_GCD(int a, int b)
+{
+	a = NativeRenderer_IntAbs(a);
+	b = NativeRenderer_IntAbs(b);
+
+	while (b != 0)
+	{
+		int t = a % b;
+		a = b;
+		b = t;
+	}
+
+	return a;
+}
+
+internal void NativeRenderer_SetPresentationAspect(int width, int height)
+{
+	const int divisor = NativeRenderer_GCD(width, height);
+
+	if ((width <= 0) || (height <= 0) || (divisor <= 0))
+		return;
+
+	s_presentAspectW = width / divisor;
+	s_presentAspectH = height / divisor;
+}
+
+internal void NativeRenderer_UpdatePresentationViewport(void)
+{
+	int viewportW;
+	int viewportH;
+
+	if ((g_windowWidth <= 0) || (g_windowHeight <= 0) || (s_presentAspectW <= 0) || (s_presentAspectH <= 0))
+	{
+		s_presentViewport.x = 0;
+		s_presentViewport.y = 0;
+		s_presentViewport.w = g_windowWidth;
+		s_presentViewport.h = g_windowHeight;
+		return;
+	}
+
+	viewportW = g_windowWidth;
+	viewportH = (viewportW * s_presentAspectH) / s_presentAspectW;
+
+	if (viewportH > g_windowHeight)
+	{
+		viewportH = g_windowHeight;
+		viewportW = (viewportH * s_presentAspectW) / s_presentAspectH;
+	}
+
+	if (viewportW < 1)
+		viewportW = 1;
+	if (viewportH < 1)
+		viewportH = 1;
+
+	s_presentViewport.w = viewportW;
+	s_presentViewport.h = viewportH;
+	s_presentViewport.x = (g_windowWidth - viewportW) / 2;
+	s_presentViewport.y = (g_windowHeight - viewportH) / 2;
+}
+
+internal void NativeRenderer_ClearHostRect(int x, int y, int width, int height)
+{
+	if ((width <= 0) || (height <= 0))
+		return;
+
+	glScissor(x, y, width, height);
+	glClear(GL_COLOR_BUFFER_BIT);
+}
+
+internal void NativeRenderer_ClearPresentationBars(void)
+{
+	GLint previousScissorBox[4];
+	GLfloat previousClearColor[4];
+	const GLboolean previousScissorEnabled = glIsEnabled(GL_SCISSOR_TEST);
+	const int viewportRight = s_presentViewport.x + s_presentViewport.w;
+	const int viewportTop = s_presentViewport.y + s_presentViewport.h;
+
+	if ((g_windowWidth <= 0) || (g_windowHeight <= 0))
+		return;
+
+	if ((s_presentViewport.x == 0) && (s_presentViewport.y == 0) && (s_presentViewport.w == g_windowWidth) && (s_presentViewport.h == g_windowHeight))
+		return;
+
+	glGetIntegerv(GL_SCISSOR_BOX, previousScissorBox);
+	glGetFloatv(GL_COLOR_CLEAR_VALUE, previousClearColor);
+
+	glEnable(GL_SCISSOR_TEST);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
+	NativeRenderer_ClearHostRect(0, 0, s_presentViewport.x, g_windowHeight);
+	NativeRenderer_ClearHostRect(viewportRight, 0, g_windowWidth - viewportRight, g_windowHeight);
+	NativeRenderer_ClearHostRect(s_presentViewport.x, 0, s_presentViewport.w, s_presentViewport.y);
+	NativeRenderer_ClearHostRect(s_presentViewport.x, viewportTop, s_presentViewport.w, g_windowHeight - viewportTop);
+
+	if (previousScissorEnabled)
+	{
+		glEnable(GL_SCISSOR_TEST);
+		glScissor(previousScissorBox[0], previousScissorBox[1], previousScissorBox[2], previousScissorBox[3]);
+	}
+	else
+	{
+		glDisable(GL_SCISSOR_TEST);
+	}
+
+	glClearColor(previousClearColor[0], previousClearColor[1], previousClearColor[2], previousClearColor[3]);
+	s_previousScissorState = previousScissorEnabled ? 1 : 0;
+}
+
 void NativeRenderer_ResetDevice(void)
 {
+	NativeRenderer_UpdatePresentationViewport();
 	NativeRenderer_UpdateSwapIntervalState(0);
 }
 
@@ -1001,11 +1125,15 @@ void NativeRenderer_SetupClipMode(const RECT16 *rect, const DISPENV *displayEnv,
 	}
 
 	// adjust scissor rectangle by the backbuffer size (window dimensions)
-	const float flipOffset = g_windowHeight - clipRectH * (float)g_windowHeight;
-	const float crx = clipRectX * (float)g_windowWidth;
-	const float cry = clipRectY * (float)g_windowHeight;
-	const float crw = clipRectW * (float)g_windowWidth;
-	const float crh = clipRectH * (float)g_windowHeight;
+	const float viewportX = (float)s_presentViewport.x;
+	const float viewportY = (float)s_presentViewport.y;
+	const float viewportW = (float)s_presentViewport.w;
+	const float viewportH = (float)s_presentViewport.h;
+	const float flipOffset = viewportY + viewportH - clipRectH * viewportH;
+	const float crx = viewportX + clipRectX * viewportW;
+	const float cry = clipRectY * viewportH;
+	const float crw = clipRectW * viewportW;
+	const float crh = clipRectH * viewportH;
 
 	glScissor(crx, flipOffset - cry, crw, crh);
 }
@@ -1213,10 +1341,10 @@ void NativeRenderer_Clear(int x, int y, int w, int h, u8 r, u8 g, u8 b)
 	const int relRight = overlapRight - displayX;
 	const int relBottom = overlapBottom - displayY;
 
-	const int scissorX = (relX * g_windowWidth) / displayW;
-	const int scissorRight = (relRight * g_windowWidth + displayW - 1) / displayW;
-	const int scissorTop = (relY * g_windowHeight) / displayH;
-	const int scissorBottom = (relBottom * g_windowHeight + displayH - 1) / displayH;
+	const int scissorX = s_presentViewport.x + (relX * s_presentViewport.w) / displayW;
+	const int scissorRight = s_presentViewport.x + (relRight * s_presentViewport.w + displayW - 1) / displayW;
+	const int scissorTop = (relY * s_presentViewport.h) / displayH;
+	const int scissorBottom = (relBottom * s_presentViewport.h + displayH - 1) / displayH;
 	const int scissorW = scissorRight - scissorX;
 	const int scissorH = scissorBottom - scissorTop;
 
@@ -1230,7 +1358,7 @@ void NativeRenderer_Clear(int x, int y, int w, int h, u8 r, u8 g, u8 b)
 	s_framebufferNeedsUpdate = 1;
 
 	glEnable(GL_SCISSOR_TEST);
-	glScissor(scissorX, g_windowHeight - scissorBottom, scissorW, scissorH);
+	glScissor(scissorX, s_presentViewport.y + s_presentViewport.h - scissorBottom, scissorW, scissorH);
 	glClearColor(NativeRenderer_PSXColorComponentFloat(r), NativeRenderer_PSXColorComponentFloat(g), NativeRenderer_PSXColorComponentFloat(b), 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
@@ -1411,7 +1539,7 @@ void NativeRenderer_SetOffscreenState(const RECT16 *offscreenRect, const DISPENV
 	}
 	else
 	{
-		NativeRenderer_SetViewPort(0, 0, g_windowWidth, g_windowHeight);
+		NativeRenderer_SetViewPort(s_presentViewport.x, s_presentViewport.y, s_presentViewport.w, s_presentViewport.h);
 
 		// before drawing set source and target
 		{
@@ -1475,7 +1603,8 @@ void NativeRenderer_StoreFrameBuffer(int x, int y, int w, int h)
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, 0); // source is backbuffer
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, s_glBlitFramebuffer);
 
-		glBlitFramebuffer(0, 0, g_windowWidth, g_windowHeight, x, y + h, x + w, y, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+		glBlitFramebuffer(s_presentViewport.x, s_presentViewport.y, s_presentViewport.x + s_presentViewport.w, s_presentViewport.y + s_presentViewport.h, x, y + h,
+		                  x + w, y, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
 		// done, unbind
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
@@ -1707,7 +1836,7 @@ void NativeRenderer_PresentVRAMDisplay(void)
 	if (displayTexture == (TextureID)-1)
 		displayTexture = NativeRenderer_CreateRGBATexture(maxChunkW, maxChunkH, NULL);
 
-	NativeRenderer_SetViewPort(0, 0, g_windowWidth, g_windowHeight);
+	NativeRenderer_SetViewPort(s_presentViewport.x, s_presentViewport.y, s_presentViewport.w, s_presentViewport.h);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	NativeRenderer_SetScissorState(0);
