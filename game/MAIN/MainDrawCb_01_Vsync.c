@@ -14,9 +14,7 @@ void MainDrawCb_Vsync()
 	sdata->vsyncTillFlip--;
 	gGT->vSync_between_drawSync++;
 
-	// 1 unit = 1/16th millisecond
-	// 1 second = ~16,000 units
-	// increment timer, and reset system clock
+	// NOTE(aalhend): accumulate root-counter 1 units between VSync callbacks; Timer_GetTime_Total converts them through the retail 0x147e divisor.
 	sdata->rcntTotalUnits += GetRCnt(0xf2000001);
 	ResetRCnt(0xf2000001);
 

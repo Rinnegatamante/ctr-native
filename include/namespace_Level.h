@@ -199,7 +199,7 @@ struct QuadBlock
 	char terrain_type;
 	char weather_intensity;
 	char weather_vanishRate;
-	char mulNormVecY; // -127 for AntiGrav Sewer
+	s8 mulNormVecY; // -127 for AntiGrav Sewer
 
 	// 0x3C
 	s16 blockID;

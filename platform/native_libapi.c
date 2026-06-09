@@ -9,7 +9,11 @@
 #include <SDL3/SDL.h>
 #include <psx/libapi.h>
 
-#define CTR_NATIVE_RCNT1_HZ 15720u
+// CTR's retail timer reads root counter 1 once per VSync and converts units
+// through divisor 0x147e before MainFrame_GameLogic scales to elapsedTimeMS.
+// Native emits VSync at 60 Hz, so feed that retail path 263 scanline ticks per
+// VBlank; two VBlanks then land on the normal 0x20 gameplay frame step.
+#define CTR_NATIVE_RCNT1_HZ (263u * 60u)
 
 global_variable u64 s_rootCounterBase = 0;
 
