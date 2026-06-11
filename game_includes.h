@@ -98,9 +98,7 @@
 
 #include "game/GAMEPROG.c"
 
-#include "game/GHOST/GhostReplay_00_ThTick.c"
-#include "game/GHOST/GhostReplay_01_Init1.c"
-#include "game/GHOST/GhostReplay_02_Init2.c"
+#include "game/GhostReplay.c"
 
 #include "game/GHOST/GhostTape_00_Start.c"
 #include "game/GHOST/GhostTape_01_End.c"
