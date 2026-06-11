@@ -227,8 +227,8 @@ void DrawEnvOffset(float *ofsX, float *ofsY)
 	}
 	else
 	{
-		*ofsX = 0.0f;
-		*ofsY = 0.0f;
+		*ofsX = activeDrawEnv.ofs[0] - activeDrawEnv.clip.x;
+		*ofsY = activeDrawEnv.ofs[1] - activeDrawEnv.clip.y;
 	}
 }
 
@@ -1479,6 +1479,7 @@ internal int ProcessDrawEnv(P_TAG *polyTag)
 {
 	const u32 *codePtr = (u32 *)&polyTag->pad0;
 	int processedLongs = 0;
+	bool fullDrawEnvPacket = false;
 	for (int i = 0; i < polyTag->len; ++i)
 	{
 		const u32 code = codePtr[i];
@@ -1498,10 +1499,11 @@ internal int ProcessDrawEnv(P_TAG *polyTag)
 			// DR_TPAGE
 			activeDrawEnv.tpage = (code & 0x1FF);
 			activeDrawEnv.dtd = (code >> 9) & 1;
-			// NOTE(aalhendi): ctr-native local divergence. CTR uses
-			// DR_TPAGE packets for blend changes inside the OT; native
-			// target selection must stay owned by DRAWENV.
-			// activeDrawEnv.dfe = (code >> 10) & 1;
+			// NOTE(aalhendi): Standalone DR_TPAGE packets use the same E1 word
+			// for blend changes; only full DRAWENV packets retarget native
+			// on-screen/offscreen rendering.
+			if (fullDrawEnvPacket)
+				activeDrawEnv.dfe = (code >> 10) & 1;
 			break;
 		}
 		case 0x2:
@@ -1518,6 +1520,7 @@ internal int ProcessDrawEnv(P_TAG *polyTag)
 			// DR_AREA
 			activeDrawEnv.clip.x = code & 1023;
 			activeDrawEnv.clip.y = (code >> 10) & 1023;
+			fullDrawEnvPacket = true;
 			break;
 		}
 		case 0x4:
@@ -1528,6 +1531,7 @@ internal int ProcessDrawEnv(P_TAG *polyTag)
 
 			activeDrawEnv.clip.w = activeDrawEnv.clip.w - activeDrawEnv.clip.x + 1;
 			activeDrawEnv.clip.h = activeDrawEnv.clip.h - activeDrawEnv.clip.y + 1;
+			fullDrawEnvPacket = true;
 			break;
 		}
 		case 0x5:
@@ -1535,6 +1539,7 @@ internal int ProcessDrawEnv(P_TAG *polyTag)
 			// DR_OFFSET
 			activeDrawEnv.ofs[0] = NativeGpu_SignExtend11(code);
 			activeDrawEnv.ofs[1] = NativeGpu_SignExtend11(code >> 11);
+			fullDrawEnvPacket = true;
 			break;
 		}
 		case 0x6:
