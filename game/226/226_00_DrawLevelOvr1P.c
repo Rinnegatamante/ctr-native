@@ -449,6 +449,25 @@ static const struct Mempack *DrawLevelOvr1P_FindMempackContaining(uintptr_t ptr)
 	return bestPack;
 }
 
+static int DrawLevelOvr1P_IsNativeLevelSpan(uintptr_t ptr, uintptr_t size)
+{
+	const struct Mempack *pack;
+	uintptr_t end;
+
+	if (size == 0)
+		return 0;
+
+	pack = DrawLevelOvr1P_FindMempackContaining(ptr);
+	if (pack == NULL)
+		return 0;
+
+	end = ptr + size;
+	if (end < ptr)
+		return 0;
+
+	return end <= (uintptr_t)pack->endOfAllocator;
+}
+
 static const struct Mempack *DrawLevelOvr1P_GetLevelMempack(void)
 {
 	struct GameTracker *gGT = sdata->gGT;
@@ -467,22 +486,8 @@ static int DrawLevelOvr1P_IsNativeLevelTexturePointer(u32 value)
 	// NOTE(aalhendi): Native classifies host-rebased level texture pointers at
 	// the data boundary; renderer control flow still follows retail sign tests.
 	uintptr_t ptr = (uintptr_t)value;
-	uintptr_t levelStart;
-	uintptr_t levelEnd;
-	const struct Mempack *levelPack;
-	struct Level *level;
 
-	level = sdata->gGT != NULL ? sdata->gGT->level1 : sdata->ptrLevelFile;
-	levelPack = DrawLevelOvr1P_GetLevelMempack();
-	if (levelPack == NULL || level == NULL)
-		return 0;
-
-	levelStart = (uintptr_t)level;
-	levelEnd = (uintptr_t)levelPack->firstFreeByte;
-	if ((levelEnd <= levelStart) || (levelEnd > (uintptr_t)levelPack->endOfAllocator))
-		levelEnd = (uintptr_t)levelPack->endOfAllocator;
-
-	if (ptr < levelStart || ptr >= levelEnd || levelEnd - ptr < sizeof(struct TextureLayout))
+	if (!DrawLevelOvr1P_IsNativeLevelSpan(ptr, sizeof(struct TextureLayout)))
 		return 0;
 
 	return DrawLevelOvr1P_IsPlausibleTextureLayout((const struct TextureLayout *)ptr);
@@ -495,11 +500,6 @@ static int DrawLevelOvr1P_IsNativeLevelTexturePointer(u32 value)
 static int DrawLevelOvr1P_TreatAsRetailNegativeTextureWord(u32 value)
 {
 	return (s32)value < 0 || DrawLevelOvr1P_IsNativeLevelTexturePointer(value);
-}
-
-static int DrawLevelOvr1P_IsRepresentableActiveSlotWord(u32 slotWord)
-{
-	return (slotWord & 3) == 0 && slotWord <= 0xc;
 }
 
 static int DrawLevelOvr1P_IsRetailOtActiveSlotWord(u32 slotWord)
@@ -545,6 +545,37 @@ static int DrawLevelOvr1P_TryConvertNativeMempackPointerToPsxWord(u32 hostWord, 
 }
 #endif
 
+static struct TextureLayout *DrawLevelOvr1P_ResolveTexturePointerChecked(uintptr_t texturePtr)
+{
+#ifdef CTR_NATIVE
+	struct TextureLayout *texture;
+
+	if (texturePtr == 0)
+		return NULL;
+
+	if ((texturePtr & 1) != 0)
+	{
+		uintptr_t activePtrSlot = texturePtr - 1;
+
+		if (!DrawLevelOvr1P_IsNativeLevelSpan(activePtrSlot, sizeof(texture)))
+			return NULL;
+
+		texture = *(struct TextureLayout **)activePtrSlot;
+	}
+	else
+	{
+		texture = (struct TextureLayout *)texturePtr;
+	}
+
+	if (!DrawLevelOvr1P_IsNativeLevelSpan((uintptr_t)texture, sizeof(*texture)))
+		return NULL;
+
+	return DrawLevelOvr1P_IsPlausibleTextureLayout(texture) ? texture : NULL;
+#else
+	return DrawLevelOvr1P_ResolveTexturePointer(texturePtr);
+#endif
+}
+
 static s8 DrawLevelOvr1P_ReadRetailQuadBlockByte(const struct QuadBlock *block, u32 byteOffset)
 {
 #ifdef CTR_NATIVE
@@ -572,13 +603,12 @@ static struct TextureLayout *DrawLevelOvr1P_ResolveProjectedMidTexture(const str
 		return NULL;
 
 	slotWord = DrawLevelOvr1P_GetGridFaceSlotWord(projected);
-
-	// NOTE(aalhendi): Retail selector bodies load raw `quad+0x1c+slot` bytes,
-	// but current ASM/probes only show representable selector slots here.
-	if (!DrawLevelOvr1P_IsRepresentableActiveSlotWord(slotWord))
+	if (!DrawLevelOvr1P_IsRetailOtActiveSlotWord(slotWord))
 		return NULL;
 
-	return DrawLevelOvr1P_ResolveTexturePointer((uintptr_t)*(void *const *)((const u8 *)block + 0x1c + slotWord));
+	// NOTE(aalhendi): Retail selector bodies load raw `quad+0x1c+slot`.
+	// Native validates the host-rebased word before following it.
+	return DrawLevelOvr1P_ResolveTexturePointerChecked((uintptr_t)*(void *const *)((const u8 *)block + 0x1c + slotWord));
 }
 
 static struct TextureLayout *DrawLevelOvr1P_GetTexture(const struct QuadBlock *block, int faceIndex, int numFaces)
@@ -600,15 +630,12 @@ static struct TextureLayout *DrawLevelOvr1P_GetProjectedMidTexture(const struct 
                                                                    int faceIndex, u32 maxDepth)
 {
 	struct TextureLayout *texture = DrawLevelOvr1P_ResolveProjectedMidTexture(block, projected);
-	int hasWideActiveSlot;
 	u32 mosaicWord;
 
-	hasWideActiveSlot = projected != NULL && !DrawLevelOvr1P_IsRepresentableActiveSlotWord(DrawLevelOvr1P_GetGridFaceSlotWord(projected));
-
 	// NOTE(aalhendi): Retail 0x800a8504/0x800aa124 uses the active slot, not
-	// the caller face index. If the active slot is a still-unported wide slot,
-	// preserve inherited UVs rather than force-mapping it to ptr_texture_mid[0..3].
-	if (texture == NULL && !hasWideActiveSlot)
+	// the caller face index. Fall back only when the active slot itself is not
+	// a retail slot, matching the caller's face-index fallback contract.
+	if (texture == NULL && (projected == NULL || !DrawLevelOvr1P_IsRetailOtActiveSlotWord(DrawLevelOvr1P_GetGridFaceSlotWord(projected))))
 		texture = DrawLevelOvr1P_ResolveMidTexture(block, faceIndex);
 
 	if (texture == NULL)

@@ -54,15 +54,19 @@ static const struct OverlayRDATA_227_BucketSetupRecord *DrawLevelOvr2P_FindBucke
 	return NULL;
 }
 
-static void Ovr227_800a0f04_ApplyBucketSetup(u32 setupAddress)
+static void Ovr227_800a0f04_ApplyBucketSetup(u32 setupAddress, u32 handlerAddress)
 {
 	const struct OverlayRDATA_227_BucketSetupRecord *setup = DrawLevelOvr2P_FindBucketSetupRecord(setupAddress);
 
 	if (setup == NULL)
+	{
+		*CTR_SCRATCHPAD_PTR(u32, 0x74) = handlerAddress;
 		return;
+	}
 
 	Ovr227_CopyScratchWordsTranslated(setup->copy0, &setup->copies[0]);
 	Ovr227_CopyScratchWordsTranslated(setup->copy1, &setup->copies[1]);
+	*CTR_SCRATCHPAD_PTR(u32, 0x74) = handlerAddress;
 }
 
 static void Ovr227_800a0d68_CopyScratchInitTable(void)
@@ -71,6 +75,18 @@ static void Ovr227_800a0d68_CopyScratchInitTable(void)
 
 	for (int i = 0; i < OVR227_SCRATCH_INIT_WORD_COUNT; i++)
 		scratch[i] = R227.scratchInitTable[i];
+}
+
+static void Ovr227_SeedSharedHelperThresholdScratch(void)
+{
+	// NOTE(aalhendi): Retail 227 bakes these thresholds as immediates in
+	// copied BSP handler bodies. Native reuses 226 C helpers that still read
+	// the equivalent thresholds from scratch, so seed the shared-helper view.
+	*CTR_SCRATCHPAD_PTR(u32, 0x14) = 0x19c0;
+	*CTR_SCRATCHPAD_PTR(u32, 0x1c) = 0x1000;
+	*CTR_SCRATCHPAD_PTR(u32, 0x20) = 0x800;
+	*CTR_SCRATCHPAD_PTR(u32, 0x24) = 0x600;
+	*CTR_SCRATCHPAD_PTR(u32, 0x28) = 0x300;
 }
 
 static const struct DrawLevelOvr1PBucket *Ovr227_800a0ddc_FindBucketByHandler(u32 handlerAddress)
@@ -116,16 +132,19 @@ static int Ovr227_800a0ddc_DispatchBucketHandler(u32 handlerAddress, void *bucke
 	return 0;
 }
 
+static void Ovr227_ClearRenderedOverflowBase(int playerIndex)
+{
+	struct QuadBlock **renderedOverflowBase = (struct QuadBlock **)data.ptrRenderedQuadblockDestination_forEachPlayer[playerIndex];
+
+	if (renderedOverflowBase != NULL)
+		*renderedOverflowBase = NULL;
+}
+
 static void Ovr227_800a0f60_SetViewportContext(struct PushBuffer *pb, const int *visFaceList, u8 *clipStart, u8 *clipCursor,
                                                struct QuadBlock **renderedOverflowBase)
 {
 	*CTR_SCRATCHPAD_PTR(u32, 0x64) = (u32)(uintptr_t)renderedOverflowBase;
 	*CTR_SCRATCHPAD_PTR(u32, 0x10) = (u32)(uintptr_t)clipCursor;
-	*CTR_SCRATCHPAD_PTR(u32, 0x14) = 0x19c0;
-	*CTR_SCRATCHPAD_PTR(u32, 0x1c) = 0x1000;
-	*CTR_SCRATCHPAD_PTR(u32, 0x20) = 0x800;
-	*CTR_SCRATCHPAD_PTR(u32, 0x24) = 0x600;
-	*CTR_SCRATCHPAD_PTR(u32, 0x28) = 0x300;
 	*CTR_SCRATCHPAD_PTR(u32, 0xc8) = (u32)(uintptr_t)visFaceList;
 	DrawLevelOvr1P_SetClipRecordStart(clipStart);
 	DrawLevelOvr1P_SetRenderedOverflowBase(renderedOverflowBase);
@@ -136,7 +155,6 @@ static int Ovr227_DrawViewportBucket(struct DrawLevelOvr1PRenderList *renderList
                                      struct PrimMem *primMem, const int *visFaceList, u8 **clipCursor, int playerIndex, int applySetup)
 {
 	u32 bucketIndex = (u32)renderListOffset / sizeof(u32);
-	const struct DrawLevelOvr1PBucket *bucket = &sDrawLevelOvr1PBuckets[bucketIndex];
 	void *bucketValue = DrawLevelOvr1P_GetRenderListField(renderList, renderListOffset);
 	u32 setupAddress = R227.bucketSetupAddresses[bucketIndex];
 	u32 handlerAddress = R227.bucketHandlerAddresses[bucketIndex];
@@ -144,12 +162,12 @@ static int Ovr227_DrawViewportBucket(struct DrawLevelOvr1PRenderList *renderList
 
 	if (bucketValue == NULL)
 	{
-		DrawLevelOvr1P_ClearRenderedListForRole(renderList, bucket->role);
+		Ovr227_ClearRenderedOverflowBase(playerIndex);
 		return 1;
 	}
 
 	if (applySetup)
-		Ovr227_800a0f04_ApplyBucketSetup(setupAddress);
+		Ovr227_800a0f04_ApplyBucketSetup(setupAddress, handlerAddress);
 
 	Ovr227_800a0f60_SetViewportContext(pb, visFaceList, data.PtrClipBuffer[playerIndex], *clipCursor, renderedOverflowBase);
 	if (!Ovr227_800a0ddc_DispatchBucketHandler(handlerAddress, bucketValue, pb, mesh, primMem, visFaceList))
@@ -223,6 +241,7 @@ static int Ovr227_800a0cbc_Entry(void *LevRenderList, struct PushBuffer *pb, str
 	DrawLevelOvr1P_SetListHandlersSeedRenderedCursor(0);
 	Ovr226_800a0dc4_ClearProjectedScratch();
 	Ovr227_800a0d68_CopyScratchInitTable();
+	Ovr227_SeedSharedHelperThresholdScratch();
 
 	if (!Ovr227_800a0d9c_DispatchBucketTable(renderLists, pb, mesh, primMem, visFaceList0, visFaceList1, clipCursors))
 		return 0;

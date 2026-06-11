@@ -7,11 +7,22 @@ void UI_RenderFrame_Wumpa3D_2P3P4P(struct GameTracker *gGT)
 	RECT viewport3P4P;
 	RECT *viewport;
 	struct PushBuffer *wumpaPushBuffer;
+	u32 packedRect;
 
-	*(u32 *)&viewport2P.x = sdata->multiplayerWumpaHudData[0];
-	*(u32 *)&viewport2P.w = sdata->multiplayerWumpaHudData[1];
-	*(u32 *)&viewport3P4P.x = sdata->multiplayerWumpaHudData[2];
-	*(u32 *)&viewport3P4P.w = sdata->multiplayerWumpaHudData[3];
+	// NOTE(aalhendi): Retail copies packed RECT halfwords; native unpacks them
+	// explicitly to avoid strict-aliasing UB from writing RECT fields as u32.
+	packedRect = sdata->multiplayerWumpaHudData[0];
+	viewport2P.x = (s16)packedRect;
+	viewport2P.y = (s16)(packedRect >> 16);
+	packedRect = sdata->multiplayerWumpaHudData[1];
+	viewport2P.w = (s16)packedRect;
+	viewport2P.h = (s16)(packedRect >> 16);
+	packedRect = sdata->multiplayerWumpaHudData[2];
+	viewport3P4P.x = (s16)packedRect;
+	viewport3P4P.y = (s16)(packedRect >> 16);
+	packedRect = sdata->multiplayerWumpaHudData[3];
+	viewport3P4P.w = (s16)packedRect;
+	viewport3P4P.h = (s16)(packedRect >> 16);
 
 	viewport = &viewport2P;
 	if (gGT->numPlyrCurrGame >= 3)
