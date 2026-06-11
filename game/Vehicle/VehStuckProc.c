@@ -1,0 +1,1606 @@
+#include <common.h>
+
+static void VehStuckProc_MaskGrab_SearchBsp(struct Driver *d, struct ScratchpadStruct *sps)
+{
+	struct GameTracker *gGT = sdata->gGT;
+	s16 topX = d->posCurr.x >> 8;
+	s16 topY = d->posCurr.y >> 8;
+	s16 topZ = d->posCurr.z >> 8;
+	s16 bottomY = topY - 0x100;
+
+	sps->Input1.pos[0] = topX;
+	sps->Input1.pos[1] = bottomY;
+	sps->Input1.pos[2] = topZ;
+
+	sps->Union.QuadBlockColl.pos[0] = topX;
+	sps->Union.QuadBlockColl.pos[1] = topY;
+	sps->Union.QuadBlockColl.pos[2] = topZ;
+
+	sps->Union.QuadBlockColl.searchFlags = 0;
+	if (gGT->numPlyrCurrGame < 3)
+	{
+		sps->Union.QuadBlockColl.searchFlags = 2;
+	}
+
+	sps->boolDidTouchQuadblock = 0;
+	sps->unk3C = 0;
+	sps->countByOne_ForWhatReason = 0x1000;
+	*(u32 *)&sps->dataOutput[0] = 0;
+
+	sps->bbox.min[0] = topX;
+	sps->bbox.max[0] = topX;
+	sps->bbox.min[1] = (bottomY < topY) ? bottomY : topY;
+	sps->bbox.max[1] = (topY < bottomY) ? bottomY : topY;
+	sps->bbox.min[2] = topZ;
+	sps->bbox.max[2] = topZ;
+
+	sps->Union.QuadBlockColl.hitPos[0] = sps->Input1.pos[0];
+	sps->Union.QuadBlockColl.hitPos[1] = sps->Input1.pos[1];
+	sps->Union.QuadBlockColl.hitPos[2] = sps->Input1.pos[2];
+
+	COLL_SearchBSP_CallbackPARAM(sps->ptr_mesh_info->bspRoot, &sps->bbox, COLL_FIXED_BSPLEAF_TestQuadblocks, sps);
+}
+
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x8006677c-0x80066cb0.
+void VehStuckProc_MaskGrab_FindDestPos(struct Driver *d, struct QuadBlock *quad)
+{
+	struct GameTracker *gGT = sdata->gGT;
+	struct Level *level = gGT->level1;
+	struct mesh_info *mesh = level->ptr_mesh_info;
+
+	if ((level->cnt_restart_points < 1) || (level->ptr_restart_points == NULL) || (quad->checkpointIndex == 0xff))
+	{
+		struct LevVertex *verts = mesh->ptrVertexArray;
+		struct LevVertex *v0 = &verts[quad->index[0]];
+		struct LevVertex *v3 = &verts[quad->index[3]];
+
+		d->posCurr.x = (v0->pos[0] + v3->pos[0]) * 0x80;
+		d->posCurr.y = (v0->pos[1] + v3->pos[1] + 0x80) * 0x80;
+		d->posCurr.z = (v0->pos[2] + v3->pos[2]) * 0x80;
+	}
+	else
+	{
+		struct ScratchpadStruct *sps = CTR_SCRATCHPAD_PTR(struct ScratchpadStruct, 0x108);
+		struct Thread *driverThread = d->instSelf->thread;
+		struct CheckpointNode *respawn = &level->ptr_restart_points[quad->checkpointIndex];
+		struct CheckpointNode *nextRespawn;
+
+		sps->Input1.hitRadius = driverThread->driver_HitRadius;
+		sps->Input1.hitRadiusSquared = driverThread->driver_unk1;
+		sps->Union.QuadBlockColl.hitRadius = driverThread->driver_HitRadius;
+		sps->Union.QuadBlockColl.hitRadiusSquared = driverThread->driver_unk1;
+		sps->ptr_mesh_info = mesh;
+		sps->Union.QuadBlockColl.qbFlagsIgnored = 0x4010;
+		sps->Union.QuadBlockColl.qbFlagsWanted = 0x1000;
+		d->distanceDrivenBackwards = 0;
+
+		do
+		{
+			do
+			{
+				nextRespawn = &level->ptr_restart_points[respawn->nextIndex_forward];
+
+				d->posCurr.x = respawn->pos[0] << 8;
+				d->posCurr.y = (respawn->pos[1] + 0x80) << 8;
+				d->posCurr.z = respawn->pos[2] << 8;
+
+				d->rotCurr.x = 0;
+				d->rotCurr.y = ratan2(nextRespawn->pos[0] - respawn->pos[0], nextRespawn->pos[2] - respawn->pos[2]);
+				d->rotCurr.z = 0;
+
+				VehStuckProc_MaskGrab_SearchBsp(d, sps);
+				respawn = nextRespawn;
+			} while ((sps->boolDidTouchQuadblock == 0) || ((*(u32 *)&sps->dataOutput[0] & 0x4000) != 0));
+
+			struct Thread *playerThread = gGT->threadBuckets[PLAYER].thread;
+			while (playerThread != NULL)
+			{
+				struct Driver *other = playerThread->object;
+
+				if (other != d)
+				{
+					int diffX = d->posCurr.x - other->posCurr.x;
+					int diffZ = d->posCurr.z - other->posCurr.z;
+
+					if (diffX < 0)
+						diffX = -diffX;
+
+					if (diffX < 0x2000)
+						break;
+
+					if (diffZ < 0)
+						diffZ = -diffZ;
+
+					if (diffZ < 0x2000)
+						break;
+				}
+
+				playerThread = playerThread->siblingThread;
+			}
+
+			if (playerThread == NULL)
+				break;
+		} while (1);
+	}
+
+	gGT->cameraDC[d->driverID].flags |= 1;
+}
+
+
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80066cb0-0x80066d4c.
+void VehStuckProc_MaskGrab_Particles(struct Driver *d)
+{
+	struct Particle *p;
+
+	for (char i = 10; i > 0; i--)
+	{
+		// Create instance in particle pool
+		p = Particle_Init(0, sdata->gGT->iconGroup[0], &data.emSet_Maskgrab[0]);
+
+		if (p == NULL)
+			return;
+
+		// position variables
+		p->axis[0].startVal += d->posCurr.x;
+		p->axis[1].startVal += d->posCurr.y;
+		p->axis[2].startVal += d->posCurr.z;
+	}
+}
+
+
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80066d4c-0x80066e3c.
+void VehStuckProc_MaskGrab_Update(struct Thread *t, struct Driver *d)
+{
+	struct GameTracker *gGT = sdata->gGT;
+
+	d->NoInputTimer -= gGT->elapsedTimeMS;
+
+	if (d->NoInputTimer < 0)
+		d->NoInputTimer = 0;
+
+	if (d->NoInputTimer != 0)
+		return;
+
+	// when input is allowed,
+	// which is when driver is spawned back over track
+
+	struct MaskHeadWeapon *mask = d->KartStates.MaskGrab.maskObj;
+
+	if (mask != NULL)
+	{
+		// mask rotZ
+		mask->rot[2] &= ~(1);
+
+		// scale = 100%
+		mask->scale = 0x1000;
+	}
+
+
+	// CameraDC flag
+	gGT->cameraDC[d->driverID].flags |= 8;
+
+
+	VehStuckProc_MaskGrab_FindDestPos(d, d->lastValid);
+
+	VehBirth_TeleportSelf(d, 0, 0x80);
+
+	VehStuckProc_RevEngine_Init(t, d);
+}
+
+
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80066e3c-0x80066e8c.
+void VehStuckProc_MaskGrab_PhysLinear(struct Thread *t, struct Driver *d)
+{
+	VehPhysProc_Driving_PhysLinear(t, d);
+
+	d->baseSpeed = 0;
+	d->fireSpeed = 0;
+	d->jump_TenBuffer = 0;
+
+	// reset turning state
+	d->simpTurnState = 0;
+
+	d->actionsFlagSet &= ~(0x20024);
+	d->actionsFlagSet |= 8;
+}
+
+
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80066e8c-0x800671b0.
+void VehStuckProc_MaskGrab_Animate(struct Thread *t, struct Driver *d)
+{
+	char frame;
+	s16 sVar2;
+	int numFrames;
+	struct GameTracker *gGT = sdata->gGT;
+	struct Instance *inst = t->inst;
+
+	// if driver touched ground before mask grab
+	if (d->KartStates.MaskGrab.boolStillFalling == false)
+	{
+		d->matrixArray = 0;
+		d->matrixIndex = 0;
+		inst->animIndex = 0;
+
+		numFrames = VehFrameInst_GetNumAnimFrames(inst, 0);
+
+		inst->animFrame = VehFrameInst_GetStartFrame(0, numFrames);
+
+		d->AxisAngle2_normalVec[0] = d->KartStates.MaskGrab.AngleAxis_NormalVec[0];
+		d->AxisAngle2_normalVec[1] = d->KartStates.MaskGrab.AngleAxis_NormalVec[1];
+		d->AxisAngle2_normalVec[2] = d->KartStates.MaskGrab.AngleAxis_NormalVec[2];
+	}
+
+	// if driver did not touch ground (and is falling)
+	else
+	{
+		if (
+		    // if whistle sound has not played
+		    (d->KartStates.MaskGrab.boolWhistle == false) &&
+
+		    // no input less than 1 sec
+		    (d->NoInputTimer < 960))
+
+		{
+			// whistle sound has played
+			d->KartStates.MaskGrab.boolWhistle = true;
+
+			// "falling" sound, like a whistle
+			OtherFX_Play(0x55, 1);
+		}
+
+
+		// Crashing animation at a frozen frame
+		// makes it look like the driver is falling
+		d->matrixArray = 4;
+		inst->animIndex = 2;
+
+
+		int maskGrabAnimFrame = d->KartStates.MaskGrab.animFrame;
+
+
+		// logic specific to matrix set
+		if (maskGrabAnimFrame < 3)
+			d->matrixIndex = 7;
+		else
+			d->matrixIndex = maskGrabAnimFrame + 5;
+
+
+		// logic specific to instance
+		frame = 7;
+		if (2 < maskGrabAnimFrame)
+			frame = maskGrabAnimFrame + 5;
+		inst->animFrame = frame;
+
+
+		// logic specific to maskgrab
+		frame = maskGrabAnimFrame + 1;
+
+		if (frame > 7)
+			frame = 7;
+		d->KartStates.MaskGrab.animFrame = frame;
+
+		// no input is less than 1.35 s
+		if (d->NoInputTimer < 1296)
+		{
+			// Crashing
+			d->matrixArray = 4;
+
+			d->matrixIndex = 12;
+
+			// set animation
+			inst->animIndex = 2;
+
+			// set animation frame
+			inst->animFrame = 12;
+
+			if (d->NoInputTimer < 0x3c1)
+			{
+				d->jumpSquishStretch -= 800;
+				if (d->jumpSquishStretch < 0)
+					d->jumpSquishStretch = 0;
+			}
+			else
+			{
+				// if particles are not spawned
+				if (d->KartStates.MaskGrab.boolParticlesSpawned == false)
+				{
+					VehStuckProc_MaskGrab_Particles(d);
+
+					// now they are spawned
+					d->KartStates.MaskGrab.boolParticlesSpawned = true;
+				}
+
+				d->jumpSquishStretch += 0x2d0;
+				if (d->jumpSquishStretch > 8000)
+					d->jumpSquishStretch = 8000;
+			}
+		}
+		else
+		{
+			// reset Speed and Speed Approximate
+			d->speed = 0;
+			d->speedApprox = 0;
+
+			// position backups
+			d->posCurr.x = d->posPrev.x;
+			d->posCurr.y = d->posPrev.y;
+			d->posCurr.z = d->posPrev.z;
+		}
+	}
+
+	struct MaskHeadWeapon *mask = d->KartStates.MaskGrab.maskObj;
+
+	// if maskObj
+	if (mask == 0)
+		return;
+
+	// set mask duration
+	mask->duration = 7680;
+
+	// less than 0.5s after player fell
+	if (d->NoInputTimer > 960)
+	{
+		// scale = 0%
+		mask->scale = 0;
+		return;
+	}
+
+	// if more than 0.5s after player fell
+
+	// if not lifting player
+	if (d->KartStates.MaskGrab.boolLiftingPlayer == false)
+	{
+		// decrease mask posY by elapsed time
+		mask->pos[1] -= gGT->elapsedTimeMS;
+	}
+
+	// if lifting player (if driver isn't falling infinitely)
+	else
+	{
+		d->speed = 0;
+
+		// increase driver height, both posCurr and posPrev
+		d->posCurr.y += (gGT->elapsedTimeMS * 0x80);
+		d->posPrev.y = d->posCurr.y;
+	}
+
+	// maskPosX = driverPosX
+	mask->pos[0] = (s16)(d->posCurr.x >> 8);
+
+	// set mask posZ
+	mask->pos[2] = (s16)(d->posCurr.z >> 8);
+
+	// if mask posY < driver posY
+	if (mask->pos[1] < (s16)(d->posCurr.y >> 8))
+	{
+		// mask posY = driver posY
+		mask->pos[1] = (s16)(d->posCurr.y >> 8);
+
+		d->KartStates.MaskGrab.boolLiftingPlayer = true;
+	}
+
+	// if more than halfway through mask pickup
+	if (d->NoInputTimer < 721)
+	{
+		// scale = 100%
+		mask->scale = 0x1000;
+	}
+
+	// if less than half
+	else
+	{
+		// interpolate scale
+		mask->scale = (s16)(((960 - d->NoInputTimer) * 0x1000) / 0xf0);
+	}
+}
+
+
+extern void *PlayerMaskGrabFuncTable[13];
+
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800671b0-0x8006749c.
+void VehStuckProc_MaskGrab_Init(struct Thread *t, struct Driver *d)
+{
+	struct GameTracker *gGT = sdata->gGT;
+	struct Instance *inst = t->inst;
+
+	d->kartState = KS_MASK_GRABBED;
+
+	d->KartStates.MaskGrab.animFrame = 0;
+
+	*(int *)&d->KartStates.MaskGrab.boolParticlesSpawned = 0;
+
+	d->KartStates.MaskGrab.maskObj = VehPickupItem_MaskUseWeapon(d, 1);
+
+	d->matrixArray = 0;
+	d->matrixIndex = 0;
+
+	d->turbo_MeterRoomLeft = 0;
+	d->turbo_outsideTimer = 0;
+	d->reserves = 0;
+
+	d->NoInputTimer = 1440;
+
+	d->actionsFlagSet &= 0xfff7ffbf;
+
+	if ((LOAD_IsOpen_RacingOrBattle() != 0) && ((gGT->gameMode1 & ADVENTURE_ARENA) == 0))
+	{
+		RB_Player_ModifyWumpa(d, -2);
+	}
+
+	if (d->quadBlockHeight + 0x8000 < d->posCurr.y)
+	{
+		d->numTimesMaskGrab++;
+
+		if ((d->posCurr.y < -0x8000) && ((gGT->level1->configFlags & 2) != 0))
+		{
+			d->KartStates.MaskGrab.AngleAxis_NormalVec[0] = d->AxisAngle2_normalVec[0];
+			d->KartStates.MaskGrab.AngleAxis_NormalVec[1] = d->AxisAngle2_normalVec[1];
+			d->KartStates.MaskGrab.AngleAxis_NormalVec[2] = d->AxisAngle2_normalVec[2];
+
+			for (int i = 10; i > 0; i--)
+			{
+				struct Particle *p = Particle_Init(0, gGT->iconGroup[9], &data.emSet_Falling[0]);
+				if (p == NULL)
+					break;
+
+				p->unk18 = d->instSelf->unk50;
+				p->driverInst = d->instSelf;
+				p->unk19 = d->driverID;
+			}
+		}
+		else
+		{
+			d->KartStates.MaskGrab.boolStillFalling = true;
+		}
+	}
+	else
+	{
+		d->KartStates.MaskGrab.AngleAxis_NormalVec[0] = d->AxisAngle2_normalVec[0];
+		d->KartStates.MaskGrab.AngleAxis_NormalVec[1] = d->AxisAngle2_normalVec[1];
+		d->KartStates.MaskGrab.AngleAxis_NormalVec[2] = d->AxisAngle2_normalVec[2];
+	}
+
+	d->posCurr.x = inst->matrix.t[0] << 8;
+	d->posCurr.y = inst->matrix.t[1] << 8;
+	d->posCurr.z = inst->matrix.t[2] << 8;
+
+	d->posPrev.x = d->posCurr.x;
+	d->posPrev.y = d->posCurr.y;
+	d->posPrev.z = d->posCurr.z;
+
+	for (int i = 0; i < 13; i++)
+	{
+		d->funcPtrs[i] = PlayerMaskGrabFuncTable[i];
+	}
+
+	struct MaskHeadWeapon *mask = d->KartStates.MaskGrab.maskObj;
+	if (mask == NULL)
+		return;
+
+	mask->rot[2] |= 1;
+
+	mask->pos[0] = d->posCurr.x >> 8;
+	mask->pos[1] = (d->posCurr.y >> 8) + 0x140;
+	mask->pos[2] = d->posCurr.z >> 8;
+}
+
+
+void *PlayerMaskGrabFuncTable[13] = {NULL,
+                                     VehStuckProc_MaskGrab_Update,
+                                     VehStuckProc_MaskGrab_PhysLinear,
+                                     VehPhysProc_Driving_Audio,
+                                     VehPhysGeneral_PhysAngular,
+                                     VehPhysForce_OnApplyForces,
+                                     COLL_MOVED_PlayerSearch,
+                                     VehPhysForce_CollideDrivers,
+                                     COLL_FIXED_PlayerSearch,
+                                     VehPhysGeneral_JumpAndFriction,
+                                     VehPhysForce_TranslateMatrix,
+                                     VehStuckProc_MaskGrab_Animate,
+                                     VehEmitter_DriverMain};
+
+
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x8006749c-0x80067554.
+void VehStuckProc_PlantEaten_Update(struct Thread *t, struct Driver *d)
+{
+	d->NoInputTimer -= sdata->gGT->elapsedTimeMS;
+
+	if (d->NoInputTimer <= 0)
+	{
+		d->NoInputTimer = 0;
+
+		// respawn driver at last valid quadblock
+		VehStuckProc_MaskGrab_FindDestPos(d, d->lastValid);
+		VehBirth_TeleportSelf(d, 0, 0x80);
+
+		// enable collision, make visible
+		t->flags &= ~(0x1000);
+		t->inst->flags &= ~(HIDE_MODEL);
+
+		// this lets you rev engine while falling
+		VehStuckProc_RevEngine_Init(t, d);
+	}
+}
+
+
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80067554-0x800675c0.
+void VehStuckProc_PlantEaten_PhysLinear(struct Thread *t, struct Driver *d)
+{
+	VehPhysProc_Driving_PhysLinear(t, d);
+
+	d->simpTurnState = 0;
+
+	// reset two speed variables
+	d->fireSpeed = 0;
+	d->baseSpeed = 0;
+
+	// reset jump variable
+	d->jump_TenBuffer = 0;
+
+	// acceleration prevention,
+	// drop bits for jump button, 0x20?, reversing engine
+	d->actionsFlagSet &= ~(0x20024);
+	d->actionsFlagSet |= 8;
+
+	d->timeSpentEaten += sdata->gGT->elapsedTimeMS;
+}
+
+
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800675c0-0x800677d0.
+void VehStuckProc_PlantEaten_Animate(struct Thread *t, struct Driver *d)
+{
+	s32 dist;
+	struct Instance *inst;
+	SVECTOR plantVector;
+	VECTOR camVec;
+	s32 alStack32[2];
+
+	struct GameTracker *gGT = sdata->gGT;
+
+	struct Thread *plant = d->plantEatingMe;
+
+	// if any plant is eating me
+	if (((plant != NULL) &&
+
+	     // if not initialized
+	     (d->KartStates.EatenByPlant.boolInited == false)) &&
+
+	    // if more than 0.5s since player death
+	    (d->NoInputTimer < 2880))
+	{
+		// get instance from thread
+		inst = plant->inst;
+
+		// initialized, player eaten
+		d->KartStates.EatenByPlant.boolInited = true;
+
+		plantVector.vx = (((struct Plant *)plant->object)->LeftOrRight == 0) ? 250 : -250;
+		plantVector.vy = 0;
+		plantVector.vz = 750;
+
+		SetRotMatrix(&inst->matrix);
+
+		SetTransMatrix(&inst->matrix);
+
+		camVec.vx = 0;
+		camVec.vy = 0;
+		camVec.vz = 0;
+		alStack32[0] = 0;
+		alStack32[1] = 0;
+
+		RotTrans(&plantVector, &camVec, (long *)alStack32);
+
+		struct PushBuffer *pb = &gGT->pushBuffer[d->driverID];
+
+		pb->pos[0] = camVec.vx;
+		pb->pos[1] = inst->matrix.t[1] + 0xc0;
+		pb->pos[2] = camVec.vz;
+
+		int camX = camVec.vx - inst->matrix.t[0];
+		int camZ = camVec.vz - inst->matrix.t[2];
+
+		pb->rot[1] = (s16)ratan2(camX, camZ);
+
+		// get distance between car and camera
+		dist = SquareRoot0_stub(camX * camX + camZ * camZ);
+
+		pb->rot[0] = (s16)0x800 - ratan2(pb->pos[1] - inst->matrix.t[1], dist);
+
+		pb->rot[2] = 0;
+	}
+}
+
+
+extern void *PlayerEatenFuncTable[13];
+
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800677d0-0x80067930.
+// when eaten by plant on papu pyramid
+void VehStuckProc_PlantEaten_Init(struct Thread *t, struct Driver *d)
+{
+	// when this function executes, you are lifted
+	// above the track by the mask, where you respawn
+
+	char i;
+	struct Instance *inst = t->inst;
+
+	// set state to mask grab, so nobody hits you with weapon
+	d->kartState = KS_MASK_GRABBED;
+
+	d->KartStates.EatenByPlant.boolInited = false;
+
+	d->turbo_MeterRoomLeft = 0;
+	d->turbo_outsideTimer = 0;
+	d->reserves = 0;
+
+	// drop bits for airborne and kart-on-ground
+	d->actionsFlagSet &= ~(0x80000 | 0x40);
+
+	// "cloud" is the raincloud after hitting red potion
+
+	// if thread of "cloud" exists
+	if (d->thCloud != NULL)
+	{
+		((struct RainCloud *)d->thCloud->object)->timeMS = 0;
+
+		d->thCloud->funcThTick = RB_RainCloud_FadeAway;
+		d->thCloud = NULL;
+	}
+
+	if ((LOAD_IsOpen_RacingOrBattle() != 0) && ((sdata->gGT->gameMode1 & ADVENTURE_ARENA) == 0))
+	{
+		RB_Player_ModifyWumpa(d, -2);
+	}
+
+	// allow this thread to ignore all collisions
+	t->flags |= 0x1000;
+
+	// make invisible
+	inst->flags |= HIDE_MODEL;
+
+	OtherFX_Stop1((int)d->driverAudioPtrs[1]);
+	d->driverAudioPtrs[1] = NULL;
+	OtherFX_Stop1((int)d->driverAudioPtrs[2]);
+	d->driverAudioPtrs[2] = NULL;
+	OtherFX_Stop1((int)d->driverAudioPtrs[0]);
+	d->driverAudioPtrs[0] = NULL;
+
+	for (i = 0; i < 13; i++)
+		d->funcPtrs[i] = PlayerEatenFuncTable[i];
+}
+
+void *PlayerEatenFuncTable[13] = {
+    NULL,
+    VehStuckProc_PlantEaten_Update,
+    VehStuckProc_PlantEaten_PhysLinear,
+    VehPhysProc_Driving_Audio,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    VehPhysForce_TranslateMatrix,
+    VehStuckProc_PlantEaten_Animate,
+    NULL,
+};
+
+
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80067930-0x80067960.
+void VehStuckProc_RIP_Init(struct Thread *t, struct Driver *d)
+{
+	VehStuckProc_PlantEaten_Init(t, d);
+	d->invisibleTimer = 0;
+	d->funcPtrs[1] = NULL;
+	d->funcPtrs[11] = NULL;
+}
+
+
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80067960-0x80067a74.
+void VehStuckProc_RevEngine_Update(struct Thread *t, struct Driver *d)
+{
+	int revFireLevel;
+
+	// If race has not started
+	if (d->KartStates.RevEngine.boolMaskGrab == false)
+	{
+		// If Traffic Lights are not done counting down
+		if (0 < sdata->gGT->trafficLightsTimer)
+		{
+			// Dont continue with the function,
+			// let your kart stay in a revving state
+			return;
+		}
+	}
+
+	// If race has started
+	else
+	{
+		// If mask grab has not lowered you close
+		// enough to the track to let you go
+		if (d->quadBlockHeight + 0x4000 <= d->posCurr.y)
+		{
+			// Dont continue with the function,
+			// let your kart stay in a revving state
+			return;
+		}
+	}
+
+	// Assume it's time to transition out of being
+	// frozen, and into driving, last iteration of
+	// this function
+
+	if ((d->KartStates.RevEngine.boolMaskGrab == true) && (d->KartStates.RevEngine.maskObj != NULL))
+		d->KartStates.RevEngine.maskObj->duration = 0;
+
+	if ((d->const_AccelSpeed_ClassStat < d->KartStates.RevEngine.fireLevel) && (d->KartStates.RevEngine.unk[1] & 3) == 0)
+	{
+		// While not moving, if you rev'd your engine less than...
+		if (d->KartStates.RevEngine.boostMeter < (d->const_AccelSpeed_ClassStat + d->const_SacredFireSpeed))
+		{
+			// You get a small boost
+			revFireLevel = 0x20;
+		}
+
+		// if you rev'd your engine high
+		else
+		{
+			// you get a big boost
+			revFireLevel = 0x80;
+		}
+
+		// one full second of reserves
+		VehFire_Increment(d, 960, 0, revFireLevel);
+	}
+
+	// full meter
+	d->turbo_MeterRoomLeft = 0;
+	d->revEngineState = 0;
+
+	VehPhysProc_Driving_Init(t, d);
+}
+
+
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80067a74-0x80067b7c.
+void VehStuckProc_RevEngine_PhysLinear(struct Thread *t, struct Driver *d)
+{
+	u32 unkTimer;
+
+	struct GameTracker *gGT = sdata->gGT;
+
+	unkTimer = (u16)d->KartStates.RevEngine.unk58e;
+	unkTimer -= (u16)gGT->elapsedTimeMS;
+	if ((unkTimer & 0x8000) != 0)
+		unkTimer = 0;
+	d->KartStates.RevEngine.unk58e = (s16)unkTimer;
+
+	unkTimer = (u16)d->KartStates.RevEngine.unk590;
+	unkTimer -= (u16)gGT->elapsedTimeMS;
+	if ((unkTimer & 0x8000) != 0)
+		unkTimer = 0;
+	d->KartStates.RevEngine.unk590 = (s16)unkTimer;
+
+	VehPhysProc_Driving_PhysLinear(t, d);
+
+	if (d->KartStates.RevEngine.boolMaskGrab == 0)
+		return;
+
+	d->posCurr.y -= 0x200;
+
+	// if maskObj exists
+	if (d->KartStates.RevEngine.maskObj != 0)
+		d->KartStates.RevEngine.maskObj->duration = 7680;
+
+	struct CameraDC *cDC = &gGT->cameraDC[d->driverID];
+	cDC->flags |= 0x10;
+	cDC->unk98 = 0x40;
+}
+
+
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80067b7c-0x80067f4c.
+void VehStuckProc_RevEngine_Animate(struct Thread *t, struct Driver *d)
+{
+	char bVar1;
+	u8 bVar2;
+	s16 uVar3;
+	int iVar4;
+	int local_18;
+	s16 sVar5;
+	int uVar6;
+	int iVar7;
+	u32 uVar8;
+	int iVar9;
+
+	struct Instance *inst = t->inst;
+
+	if ((d->fireSpeed > 0) && (d->KartStates.RevEngine.unk58e == 0) && ((d->KartStates.RevEngine.unk[1] & 3) == 0))
+	{
+		// Curr revving meter - Max revving meter
+		iVar4 = d->KartStates.RevEngine.fireLevel - d->KartStates.RevEngine.boostMeter;
+
+		// absolute value
+		if (iVar4 < 0)
+		{
+			iVar4 = -iVar4;
+		}
+
+		iVar4 = iVar4 >> 1;
+
+		iVar7 = iVar4;
+
+		// Speed of filling the meter changes
+		// depending on how full the meter is,
+		// there are two speeds
+
+		if (5000 < iVar4)
+		{
+			iVar7 = 5000;
+		}
+
+		if (iVar4 < 0x100)
+		{
+			iVar7 = 0x100;
+		}
+
+		iVar4 = VehCalc_InterpBySpeed(d->KartStates.RevEngine.fireLevel, iVar7, d->KartStates.RevEngine.boostMeter);
+
+		// Set new curr rev
+		d->KartStates.RevEngine.fireLevel = iVar4;
+		d->KartStates.RevEngine.unk[0] = 2;
+
+		// if max revv > filling speed
+		if (iVar4 < d->KartStates.RevEngine.boostMeter)
+		{
+			d->KartStates.RevEngine.timeMS = 0;
+		}
+
+		else
+		{
+			// elapsed milliseconds per frame, ~32
+			sVar5 = d->KartStates.RevEngine.timeMS + sdata->gGT->elapsedTimeMS;
+			d->KartStates.RevEngine.timeMS = sVar5;
+
+			// if more than 0.192s
+			if (192 < sVar5)
+			{
+				d->KartStates.RevEngine.unk[0] = 0;
+				d->KartStates.RevEngine.unk[1] |= 3;
+
+				OtherFX_Play_Echo(0xf, 1, d->actionsFlagSet & 0x10000);
+			}
+		}
+		goto LAB_80067dec;
+	}
+	d->KartStates.RevEngine.timeMS = 0;
+	if (d->KartStates.RevEngine.unk[0] == 2)
+	{
+		d->KartStates.RevEngine.unk58e = 0x100;
+		d->KartStates.RevEngine.unk[0] = 0;
+
+		// if curr rev > ???
+		if (d->const_AccelSpeed_ClassStat < d->KartStates.RevEngine.fireLevel)
+		{
+			d->KartStates.RevEngine.unk[0] = 1;
+		}
+	}
+	if ((d->KartStates.RevEngine.unk[0] != 0) &&
+
+	    // curr rev < ???
+	    (d->KartStates.RevEngine.fireLevel < d->const_AccelSpeed_ClassStat))
+	{
+		d->KartStates.RevEngine.unk[0] = 0;
+
+		uVar6 = VehCalc_InterpBySpeed(d->KartStates.RevEngine.boostMeter, d->const_SacredFireSpeed / 3 + 3,
+		                              d->const_SacredFireSpeed + d->const_AccelSpeed_ClassStat);
+
+		d->KartStates.RevEngine.boostMeter = uVar6;
+	}
+
+	// if curr rev < 1
+	if (d->KartStates.RevEngine.fireLevel < 1)
+	{
+		d->KartStates.RevEngine.unk[1] &= ~(2);
+
+		// max rev = ???
+		d->KartStates.RevEngine.boostMeter = d->const_AccelSpeed_ClassStat + d->const_SacredFireSpeed / 3;
+	}
+
+	// if curr rev >= 1
+	else
+	{
+		// rev deacceleration rate = curr rev / 2
+		uVar8 = d->KartStates.RevEngine.fireLevel >> 1;
+
+		if ((d->KartStates.RevEngine.unk[1] & 2) == 0)
+		{
+			bVar2 = (int)uVar8 < 0x100;
+
+			// if rev deacceleration rate > 1000
+			if (1000 < (int)uVar8)
+			{
+				// rev deacceleration rate = 1000
+				uVar8 = 1000;
+				goto LAB_80067d64;
+			}
+		}
+
+		else
+		{
+			bVar2 = (int)uVar8 < 0x100;
+
+			// if rev deacceleration rate > 3000
+			if (3000 < (int)uVar8)
+			{
+				// rev deacceleration rate = 3000
+				uVar8 = 3000;
+			LAB_80067d64:
+				bVar2 = uVar8 < 0x100;
+			}
+		}
+		if (bVar2)
+		{
+			// rev deacceleration rate = 0x100
+			uVar8 = 0x100;
+		}
+
+		// new rev = curr rev - rev deacceleration rate
+		iVar4 = d->KartStates.RevEngine.fireLevel - uVar8;
+
+		// curr rev = new rev
+		d->KartStates.RevEngine.fireLevel = iVar4;
+
+		// if new rev < 1
+		if (iVar4 < 1)
+		{
+			d->KartStates.RevEngine.unk590 = 0xc0;
+
+			// curr rev = 0
+			d->KartStates.RevEngine.fireLevel = 0;
+		}
+	}
+	if (d->fireSpeed < 1)
+	{
+		d->KartStates.RevEngine.unk[1] &= ~(1);
+	}
+
+LAB_80067dec:
+
+	if ((*(u32 *)&d->KartStates.RevEngine.unk590 & 0x200ffff) == 0)
+	{
+		// if curr rev < ???
+		if (d->KartStates.RevEngine.fireLevel < d->const_AccelSpeed_ClassStat)
+		{
+			d->revEngineState = 0;
+		}
+		else
+		{
+			d->revEngineState = 1;
+		}
+	}
+	else
+	{
+		d->revEngineState = 2;
+	}
+
+	iVar4 = d->const_AccelSpeed_ClassStat;
+
+	// ??? = curr rev
+	d->unk36E = d->KartStates.RevEngine.fireLevel;
+
+	// if curr rev < ???
+	if (d->KartStates.RevEngine.fireLevel < iVar4)
+	{
+		// 476 and 447 can be absolutely any value,
+		// by default they are 15 and 30, but as long as
+		// they are proportional (1 and 2, 4 and 8), they
+		// behave the same as 15 and 30
+
+		bVar1 = d->const_turboMaxRoom;
+
+		// 477 changes when meter turns red
+		local_18 = d->const_turboLowRoomWarning * 0x20 + 1;
+
+		// min, max
+		iVar7 = 0;
+		iVar9 = iVar4;
+	}
+	else
+	{
+		// 477 changes when meter turns red
+		bVar1 = d->const_turboLowRoomWarning;
+
+		local_18 = 1;
+
+		// min, max
+		iVar7 = iVar4;
+		iVar9 = iVar4 + d->const_SacredFireSpeed;
+	}
+
+	uVar3 = VehCalc_MapToRange(d->KartStates.RevEngine.fireLevel, iVar7, iVar9, (u32)bVar1 << 5, local_18);
+
+	d->turbo_MeterRoomLeft = uVar3;
+
+	d->distanceDrivenBackwards = 0;
+	iVar4 = d->unk36E >> 6;
+
+	if (iVar4 < 0x401)
+	{
+		if (iVar4 < 0)
+		{
+			iVar4 = 0;
+		}
+	}
+	else
+	{
+		iVar4 = 0x400;
+	}
+
+	// Set the scale of the car while revving the engine,
+	// this is a basic "squash and stretch" concept of animation, before motion
+
+	// Reduce height a little
+	inst->scale[1] = 3276 - iVar4;
+	inst->scale[0] = (s16)((iVar4 * 6) / 10) + 3276;
+	inst->scale[2] = (s16)((iVar4 * 6) / 10) + 3276;
+
+	d->jumpSquishStretch = iVar4;
+}
+
+
+extern void *PlayerRevEngineFuncTable[13];
+
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80067f4c-0x8006809c.
+void VehStuckProc_RevEngine_Init(struct Thread *t, struct Driver *d)
+{
+	// spawn function that waits for traffic lights
+
+	// kart state to rev
+	d->kartState = KS_ENGINE_REVVING;
+	d->revEngineState = 0;
+
+	// assume reason for revving is: start of race
+	d->KartStates.RevEngine.boolMaskGrab = false;
+	d->KartStates.RevEngine.maskObj = NULL;
+	d->KartStates.RevEngine.fireLevel = 0;
+
+	// if this is a mask grab
+	if (d->quadBlockHeight + 0x1000 < d->posCurr.y)
+	{
+		// assume reason for revving is: mask grab
+		d->KartStates.RevEngine.boolMaskGrab = true;
+		d->KartStates.RevEngine.maskObj = VehPickupItem_MaskUseWeapon(d, 0);
+
+		// Driver flag
+		d->actionsFlagSet &= ~(1);
+
+		// CameraDC flag
+		sdata->gGT->cameraDC[d->driverID].flags |= 8;
+	}
+
+	for (char i = 0; i < 13; i++)
+	{
+		d->funcPtrs[i] = PlayerRevEngineFuncTable[i];
+	}
+
+	d->boolFirstFrameSinceRevEngine = true;
+
+	d->KartStates.RevEngine.timeMS = 0;
+	d->KartStates.RevEngine.unk58e = 0;
+	d->KartStates.RevEngine.unk590 = 0;
+	d->KartStates.RevEngine.unk[0] = 0;
+	d->KartStates.RevEngine.unk[1] = 0;
+
+	d->KartStates.RevEngine.boostMeter = d->const_AccelSpeed_ClassStat + d->const_AccelSpeed_ClassStat / 3;
+}
+
+void *PlayerRevEngineFuncTable[13] = {
+    NULL, VehStuckProc_RevEngine_Update, VehStuckProc_RevEngine_PhysLinear, VehPhysProc_Driving_Audio, NULL, NULL, NULL, NULL, NULL,
+    NULL, VehPhysForce_TranslateMatrix,  VehStuckProc_RevEngine_Animate,    VehEmitter_DriverMain,
+};
+
+
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x8006809c-0x800680d0.
+void VehStuckProc_Tumble_Update(struct Thread *thread, struct Driver *driver)
+{
+	if (driver->NoInputTimer != 0)
+		return;
+
+	driver->matrixArray = 0;
+	driver->matrixIndex = 0;
+	VehPhysProc_Driving_Init(thread, driver);
+}
+
+
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800680d0-0x80068150.
+void VehStuckProc_Tumble_PhysLinear(struct Thread *thread, struct Driver *driver)
+{
+	driver->NoInputTimer -= sdata->gGT->elapsedTimeMS;
+
+	if (driver->NoInputTimer < 0)
+		driver->NoInputTimer = 0;
+
+	VehPhysProc_Driving_PhysLinear(thread, driver);
+
+	driver->jump_ForcedMS = 0x60;
+	driver->baseSpeed = 0;
+	driver->fireSpeed = 0;
+	driver->actionsFlagSet |= 0x5808;
+	driver->jump_InitialVelY = driver->NoInputTimer * 2 + 6000;
+}
+
+
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80068150-0x80068244.
+void VehStuckProc_Tumble_PhysAngular(struct Thread *thread, struct Driver *driver)
+{
+	int elapsedTimeMS = sdata->gGT->elapsedTimeMS;
+
+	driver->numFramesSpentSteering = 10000;
+
+	driver->unk3D4[0] -= (driver->unk3D4[0] >> 3);
+	driver->rotationSpinRate -= (driver->rotationSpinRate >> 3);
+	driver->unk_LerpToForwards -= (driver->unk_LerpToForwards >> 3);
+
+	driver->ampTurnState = driver->rotationSpinRate;
+
+	driver->turnAngleCurr += driver->unk_LerpToForwards;
+	driver->turnAngleCurr += 0x800;
+	driver->turnAngleCurr &= 0xfff;
+	driver->turnAngleCurr -= 0x800;
+
+	driver->angle += (s16)(((int)driver->rotationSpinRate * elapsedTimeMS) >> 0xd);
+	driver->angle &= 0xfff;
+
+	(driver->rotCurr).y = driver->unk3D4[0] + driver->angle + driver->turnAngleCurr;
+
+	(driver->rotCurr).w = VehCalc_InterpBySpeed((int)(driver->rotCurr).w, (elapsedTimeMS << 5) >> 5, 0);
+
+	VehPhysForce_RotAxisAngle(&driver->matrixMovingDir, (s16 *)&driver->AxisAngle1_normalVec, driver->angle);
+}
+
+
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80068244-0x800682a4.
+void VehStuckProc_Tumble_Animate(struct Thread *thread, struct Driver *driver)
+{
+	int matrixIndex;
+	int arrLength;
+
+	driver->matrixArray = 6;
+	arrLength = data.bakedGteMath[6].numEntries;
+
+	// divide by 32ms to get frame index
+	matrixIndex = driver->NoInputTimer >> 5;
+
+	// modulus to wrap repeat animation
+	matrixIndex %= arrLength;
+
+	if (driver->KartStates.Blasted.boolPlayBackwards != 0)
+	{
+		matrixIndex = arrLength - (matrixIndex + 1);
+	}
+
+	driver->matrixIndex = matrixIndex;
+}
+
+
+void *PlayerBlastedFuncTable[0xD] = {(void *)0x0,
+                                     VehStuckProc_Tumble_Update,
+                                     VehStuckProc_Tumble_PhysLinear,
+                                     VehPhysProc_Driving_Audio,
+                                     VehStuckProc_Tumble_PhysAngular,
+                                     VehPhysForce_OnApplyForces,
+                                     COLL_MOVED_PlayerSearch,
+                                     VehPhysForce_CollideDrivers,
+                                     COLL_FIXED_PlayerSearch,
+                                     VehPhysGeneral_JumpAndFriction,
+                                     VehPhysForce_TranslateMatrix,
+                                     VehStuckProc_Tumble_Animate,
+                                     VehEmitter_DriverMain};
+
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800682a4-0x800683f4.
+void VehStuckProc_Tumble_Init(struct Thread *thread, struct Driver *driver)
+{
+	int i;
+	int iVar2;
+	char bVar3;
+	char simpTurnState;
+
+	driver->kartState = KS_BLASTED;
+	driver->turbo_MeterRoomLeft = 0;
+
+	if ((LOAD_IsOpen_RacingOrBattle() != 0) && ((sdata->gGT->gameMode1 & ADVENTURE_ARENA) == 0))
+	{
+		RB_Player_ModifyWumpa(driver, -3);
+	}
+
+	driver->instSelf->animIndex = 0;
+
+	iVar2 = VehFrameInst_GetNumAnimFrames(driver->instSelf, 0);
+	iVar2 = VehFrameInst_GetStartFrame(0, iVar2);
+
+	driver->instSelf->animFrame = (s16)iVar2;
+
+	iVar2 = MixRNG_Scramble();
+	driver->KartStates.Blasted.boolPlayBackwards = iVar2 & 4;
+
+	simpTurnState = driver->simpTurnState;
+	if (simpTurnState < 1)
+	{
+		bVar3 = 0x19;
+	}
+	else
+	{
+		bVar3 = 0x29;
+	}
+
+	for (i = 0; i < 0xD; i++)
+	{
+		driver->funcPtrs[i] = PlayerBlastedFuncTable[i];
+	}
+
+	GAMEPAD_JogCon1(driver, bVar3, 0x60);
+}
+
+
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800683f4-0x800685b0.
+void VehStuckProc_Warp_MoveDustPuff(s16 *points, int span, int radius, s16 *jitterScale)
+{
+	int radiusHalf = radius >> 1;
+
+	int jitterX = ((MixRNG_Scramble() & 0xfff) * radius) >> 0xc;
+	if (jitterX < radiusHalf)
+		jitterX -= radius;
+
+	int jitterY = ((MixRNG_Scramble() & 0xfff) * radius) >> 0xc;
+	if (jitterY < radiusHalf)
+		jitterY -= radius;
+
+	int jitterZ = ((MixRNG_Scramble() & 0xfff) * radius) >> 0xc;
+	if (jitterZ < radiusHalf)
+		jitterZ -= radius;
+
+	s16 *end = points + span * 4;
+	int halfSpan = span >> 1;
+	s16 *mid = points + halfSpan * 4;
+
+	mid[0] = (s16)((points[0] + end[0]) >> 1) + (s16)((jitterScale[0] * jitterX) >> 0xc);
+	mid[1] = (s16)((points[1] + end[1]) >> 1) + (s16)((jitterScale[1] * jitterY) >> 0xc);
+	mid[2] = (s16)((points[2] + end[2]) >> 1) + (s16)((jitterScale[2] * jitterZ) >> 0xc);
+
+	if (span > 2)
+	{
+		int nextRadius = (radius * 0xc00) >> 0xc;
+		VehStuckProc_Warp_MoveDustPuff(points, halfSpan, nextRadius, jitterScale);
+		VehStuckProc_Warp_MoveDustPuff(mid, halfSpan, nextRadius, jitterScale);
+	}
+}
+
+
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800685b0-0x80068644.
+void VehStuckProc_Warp_AddDustPuff1(struct ScratchpadStruct *sps)
+{
+	struct GameTracker *gGT = sdata->gGT;
+
+	// if even frame don't spawn
+	if (gGT->timer & 1)
+		return;
+
+	struct Particle *p = Particle_Init(0, gGT->iconGroup[1], &data.emSet_Warppad[0]);
+
+	if (p == NULL)
+		return;
+
+	// position variables
+	for (char i = 0; i < 3; i++)
+		p->axis[i].startVal += sps->Input1.pos[i];
+}
+
+
+#define VEH_WARP_DUST_SEGMENTS 16
+
+struct VehWarpDustProjected
+{
+	u32 sxy0;
+	u32 sxy1;
+	u32 sxy2;
+	u32 depth;
+};
+
+static s16 VehWarpDust_AddHalf(s16 value, int delta)
+{
+	return (s16)((u16)value + delta);
+}
+
+static u32 VehWarpDust_Ptr24(const void *ptr)
+{
+	return CtrGpu_PrimToOTLink24(ptr);
+}
+
+static void VehWarpDust_Project(SVECTOR *point, int offsetX, int offsetY, int offsetZ, struct VehWarpDustProjected *out)
+{
+	SVECTOR *left = CTR_SCRATCHPAD_PTR(SVECTOR, 0x190);
+	SVECTOR *right = CTR_SCRATCHPAD_PTR(SVECTOR, 0x198);
+
+	left->vx = VehWarpDust_AddHalf(point->vx, offsetX);
+	left->vy = VehWarpDust_AddHalf(point->vy, offsetY);
+	left->vz = VehWarpDust_AddHalf(point->vz, offsetZ);
+
+	right->vx = VehWarpDust_AddHalf(point->vx, -offsetX);
+	right->vy = VehWarpDust_AddHalf(point->vy, -offsetY);
+	right->vz = VehWarpDust_AddHalf(point->vz, -offsetZ);
+
+	gte_ldv3(left, point, right);
+	gte_rtpt_b();
+
+	out->sxy0 = MFC2(12);
+	out->sxy1 = MFC2(13);
+	out->sxy2 = MFC2(14);
+	out->depth = MFC2(17);
+}
+
+static void VehWarpDust_EmitSegment(u32 **primCursor, struct PushBuffer *pb, const struct VehWarpDustProjected *prev, const struct VehWarpDustProjected *curr)
+{
+	u32 *prim = *primCursor;
+	u_long *ot = pb->ptrOT + ((s32)curr->depth >> 6);
+
+	prim[1] = 0xe1000a20;
+	prim[2] = 0x3a000000;
+	prim[3] = curr->sxy0;
+	prim[4] = 0x007f1f3f;
+	prim[5] = curr->sxy1;
+	prim[6] = 0;
+	prim[7] = prev->sxy0;
+	prim[8] = 0x007f1f3f;
+	prim[9] = prev->sxy1;
+	prim[10] = 0x3a000000;
+	prim[11] = curr->sxy2;
+	prim[12] = 0x007f1f3f;
+	prim[13] = curr->sxy1;
+	prim[14] = 0;
+	prim[15] = prev->sxy2;
+	prim[16] = 0x007f1f3f;
+	prim[17] = prev->sxy1;
+
+	prim[0] = (u32)*ot | 0x11000000;
+	*ot = (u_long)VehWarpDust_Ptr24(prim);
+	*primCursor = prim + 18;
+}
+
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80068644-0x80068be8.
+void VehStuckProc_Warp_AddDustPuff2(struct Driver *d, int *warp)
+{
+	struct GameTracker *gGT = sdata->gGT;
+	struct PushBuffer *pb = &gGT->pushBuffer[d->driverID];
+	struct DB *backBuffer = gGT->backBuffer;
+	u32 *prim = backBuffer->primMem.curr;
+	SVECTOR *points = CTR_SCRATCHPAD_PTR(SVECTOR, 0x108);
+	SVECTOR *endpoint = &points[VEH_WARP_DUST_SEGMENTS];
+	s16 *jitterScale = CTR_SCRATCHPAD_PTR(s16, 0x1c0);
+	int offsetX;
+	int offsetY;
+	int offsetZ;
+
+	gte_SetRotMatrix(&pb->matrix_ViewProj);
+	gte_SetTransMatrix(&pb->matrix_ViewProj);
+
+	jitterScale[0] = (pb->matrix_CameraTranspose.m[0][0] + pb->matrix_CameraTranspose.m[0][1]) >> 5;
+	jitterScale[1] = (pb->matrix_CameraTranspose.m[1][0] + pb->matrix_CameraTranspose.m[1][1]) >> 5;
+	jitterScale[2] = (pb->matrix_CameraTranspose.m[2][0] + pb->matrix_CameraTranspose.m[2][1]) >> 5;
+
+	offsetX = pb->matrix_CameraTranspose.m[0][0] >> 10;
+	offsetY = pb->matrix_CameraTranspose.m[1][0] >> 10;
+	offsetZ = pb->matrix_CameraTranspose.m[2][0] >> 10;
+
+	if ((d->instSelf->flags & HIDE_MODEL) != 0)
+	{
+		endpoint->vx = d->posCurr.x >> 8;
+		endpoint->vy = warp[4] >> 8;
+		endpoint->vz = d->posCurr.z >> 8;
+		VehStuckProc_Warp_AddDustPuff1((struct ScratchpadStruct *)endpoint);
+	}
+
+	for (int ring = 0; ring < 6; ring++)
+	{
+		int baseAngle = ((ring << 12) / 6) + warp[3];
+		struct VehWarpDustProjected *prev = CTR_SCRATCHPAD_PTR(struct VehWarpDustProjected, 0x1a0);
+		struct VehWarpDustProjected *curr = CTR_SCRATCHPAD_PTR(struct VehWarpDustProjected, 0x1b0);
+
+		points[0].vx = (d->posCurr.x >> 8) - (MATH_Sin(baseAngle) >> 5);
+		points[0].vy = warp[2] >> 8;
+		points[0].vz = (d->posCurr.z >> 8) - (MATH_Cos(baseAngle) >> 5);
+
+		endpoint->vx = d->posCurr.x >> 8;
+		endpoint->vy = warp[4] >> 8;
+		endpoint->vz = d->posCurr.z >> 8;
+
+		if ((d->instSelf->flags & HIDE_MODEL) == 0)
+		{
+			points[0].vx = VehWarpDust_AddHalf(points[0].vx, -(MATH_Sin(baseAngle) >> 6));
+			points[0].vz = VehWarpDust_AddHalf(points[0].vz, -(MATH_Cos(baseAngle) >> 6));
+			endpoint->vx = VehWarpDust_AddHalf(endpoint->vx, MATH_Sin(baseAngle) >> 8);
+			endpoint->vz = VehWarpDust_AddHalf(endpoint->vz, MATH_Cos(baseAngle) >> 8);
+		}
+		else
+		{
+			VehStuckProc_Warp_AddDustPuff1((struct ScratchpadStruct *)points);
+		}
+
+		VehStuckProc_Warp_MoveDustPuff((s16 *)points, VEH_WARP_DUST_SEGMENTS, 0x100, jitterScale);
+
+		for (int i = 1; i < VEH_WARP_DUST_SEGMENTS; i++)
+			points[i].vy = VehWarpDust_AddHalf(points[i].vy, MATH_Sin(i << 7) >> 7);
+
+		VehWarpDust_Project(&points[0], offsetX, offsetY, offsetZ, prev);
+
+		for (int seg = 0; seg < VEH_WARP_DUST_SEGMENTS; seg++)
+		{
+			struct VehWarpDustProjected *tmp;
+
+			VehWarpDust_Project(&points[seg + 1], offsetX, offsetY, offsetZ, curr);
+			VehWarpDust_EmitSegment(&prim, pb, prev, curr);
+
+			tmp = prev;
+			prev = curr;
+			curr = tmp;
+		}
+	}
+
+	backBuffer->primMem.curr = prim;
+}
+
+
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80068be8-0x80068e04.
+void VehStuckProc_Warp_PhysAngular(struct Thread *th, struct Driver *d)
+{
+	s16 sVar2;
+	int iVar3;
+	int timer;
+	s16 pos[4];
+
+	// get instance from driver object
+	struct Instance *inst = d->instSelf;
+
+	// if driver is visible
+	if ((inst->flags & HIDE_MODEL) == 0)
+	{
+		// height + 0x100
+		iVar3 = d->posCurr.y + 0x100;
+
+		if (iVar3 < d->KartStates.Warp.quadHeight)
+			iVar3 = d->KartStates.Warp.quadHeight;
+
+		d->KartStates.Warp.beamHeight = iVar3;
+
+		d->KartStates.Warp.numParticle -= 100;
+
+		// add dust puff
+		VehStuckProc_Warp_AddDustPuff2(d, &d->KartStates.Warp.timer);
+	}
+
+	timer = d->KartStates.Warp.timer;
+	timer += 26;
+
+	if (timer <= 800)
+	{
+		// interpolate until scale is [0x12c0, 0x960, 0x12c0],
+		// car is wide and s16
+
+		for (char i = 0; i < 3; i++)
+			inst->scale[i] = VehCalc_InterpBySpeed(inst->scale[i], 120, 4800 >> (i & 1));
+
+		if (d->posCurr.y < d->quadBlockHeight + 0x8000)
+			d->posCurr.y += 0x800;
+	}
+	else
+	{
+		// cap to 800
+		timer = 800;
+
+		d->revEngineState = 2;
+
+		// interpolate until scale is [0, 24000, 0],
+		// car is tall and thin
+
+		for (char i = 0; i < 3; i++)
+			inst->scale[i] = VehCalc_InterpBySpeed(inst->scale[i], (i == 1) ? 3200 : 600, 24000 * (i & 1));
+
+		// if scale shrinks to zero
+		if (inst->scale[0] == 0)
+		{
+			// if car is visible
+			if ((inst->flags & HIDE_MODEL) == 0)
+			{
+				// position above kart
+				pos[0] = (s16)(d->posCurr.x >> 8);
+				pos[1] = (s16)(d->KartStates.Warp.quadHeight >> 8) + 0x40;
+				pos[2] = (s16)(d->posCurr.z >> 8);
+
+				FLARE_Init((s16 *)&pos);
+			}
+
+			// make invisible
+			inst->flags |= HIDE_MODEL;
+		}
+
+		else
+		{
+			d->KartStates.Warp.heightOffset -= 0x1800;
+			d->posCurr.y += d->KartStates.Warp.heightOffset;
+		}
+	}
+
+	// drift angle = ((drift angle + warp timer + 0x800) & 0xfff) - 0x800
+	sVar2 = (d->turnAngleCurr + (s16)(timer) + 0x800U & 0xfff) - 0x800;
+	d->turnAngleCurr = sVar2;
+
+	// cameraRotY = ??? + kart angle + drift angle
+	d->rotCurr.y = d->unk3D4[0] + d->angle + sVar2;
+
+	// driver is warping
+	d->actionsFlagSet |= 0x4000;
+
+	d->KartStates.Warp.timer = timer;
+}
+
+
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80068e04-0x80068f90.
+void VehStuckProc_Warp_Init(struct Thread *th, struct Driver *d)
+{
+	if (d->kartState == KS_WARP_PAD)
+		return;
+
+	// If you are not in a warp pad
+
+	d->KartStates.Warp.timer = 0x3c;
+	d->KartStates.Warp.heightOffset = 0;
+	d->KartStates.Warp.quadHeight = d->quadBlockHeight;
+
+	// Warp sound?
+	OtherFX_Play(0x97, 1);
+
+	OtherFX_Stop1((int)d->driverAudioPtrs[1]);
+	d->driverAudioPtrs[1] = NULL;
+	OtherFX_Stop1((int)d->driverAudioPtrs[2]);
+	d->driverAudioPtrs[2] = NULL;
+	OtherFX_Stop1((int)d->driverAudioPtrs[0]);
+	d->driverAudioPtrs[0] = NULL;
+
+	u8 playerID = d->driverID;
+
+	int engine = data.MetaDataCharacters[data.characterIDs[playerID]].engineID;
+
+	EngineAudio_Stop((engine * 4) + playerID);
+
+	// CameraDC, freecam mode
+	sdata->gGT->cameraDC[playerID].cameraMode = 3;
+
+	// driver -> instSelf
+	struct Instance *inst = d->instSelf;
+
+	// instance flags, now reflective
+	inst->flags |= 0x4000;
+
+	// vertical line for split or reflection
+	inst->vertSplit = (s16)(d->quadBlockHeight >> 8);
+
+	// you are now in a warp pad
+	d->kartState = KS_WARP_PAD;
+
+	d->speed = 0;
+	d->speedApprox = 0;
+
+	d->funcPtrs[0] = NULL;
+	d->funcPtrs[1] = NULL;
+	d->funcPtrs[2] = NULL;
+	d->funcPtrs[3] = VehPhysProc_Driving_Audio;
+	d->funcPtrs[4] = VehStuckProc_Warp_PhysAngular;
+	d->funcPtrs[5] = NULL;
+	d->funcPtrs[6] = NULL;
+	d->funcPtrs[7] = NULL;
+	d->funcPtrs[8] = NULL;
+	d->funcPtrs[9] = NULL;
+	d->funcPtrs[10] = VehPhysForce_TranslateMatrix;
+	d->funcPtrs[11] = VehFrameProc_Driving;
+	d->funcPtrs[12] = VehEmitter_DriverMain;
+
+	// driver is warping
+	d->actionsFlagSet |= 0x4000;
+}
