@@ -114,16 +114,7 @@
 
 #include "game/GAMEPAD.c"
 
-#include "game/GAMEPROG/GAMEPROG_00_AdvPercent.c"
-#include "game/GAMEPROG/GAMEPROG_01_ResetHighScores.c"
-#include "game/GAMEPROG/GAMEPROG_02_CheckGhostsBeaten.c"
-#include "game/GAMEPROG/GAMEPROG_03_NewProfile_OutsideAdv.c"
-#include "game/GAMEPROG/GAMEPROG_04_InitFullMemcard.c"
-#include "game/GAMEPROG/GAMEPROG_05_NewProfile_InsideAdv.c"
-#include "game/GAMEPROG/GAMEPROG_06_SaveCupProgress.c"
-#include "game/GAMEPROG/GAMEPROG_07_SyncGameAndCard.c"
-#include "game/GAMEPROG/GAMEPROG_08_NewGame_OnBoot.c"
-#include "game/GAMEPROG/GAMEPROG_09_GetPtrHighScoreTrack.c"
+#include "game/GAMEPROG.c"
 
 #include "game/GHOST/GhostReplay_00_ThTick.c"
 #include "game/GHOST/GhostReplay_01_Init1.c"
