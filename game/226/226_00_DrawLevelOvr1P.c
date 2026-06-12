@@ -8898,30 +8898,48 @@ static int Ovr226_800a22a4_DispatchWaterListHelperWrappers(struct PushBuffer *pb
 		return Ovr226_800a25d0_WaterListFaceGate(pb, primMem, block, projected, sDrawLevelOvr1PGridExtraFaceIndices[3], faceIndex, depth, allowedMask,
 		                                         inheritedOtEntry);
 	case 0x800a2344:
+	case 0x800a15cc:
+	case 0x800a1680:
 		slot = 0;
 		break;
 	case 0x800a2384:
+	case 0x800a160c:
+	case 0x800a16c0:
 		slot = 1;
 		break;
 	case 0x800a2404:
+	case 0x800a168c:
+	case 0x800a1740:
 		slot = 2;
 		break;
 	case 0x800a23a4:
+	case 0x800a162c:
+	case 0x800a16e0:
 		slot = 3;
 		break;
 	case 0x800a242c:
+	case 0x800a16b4:
+	case 0x800a1768:
 		slot = 4;
 		break;
 	case 0x800a23c4:
+	case 0x800a164c:
+	case 0x800a1700:
 		slot = 7;
 		break;
 	case 0x800a2454:
+	case 0x800a16dc:
+	case 0x800a1790:
 		slot = 9;
 		break;
 	case 0x800a247c:
+	case 0x800a1704:
+	case 0x800a17b8:
 		slot = 11;
 		break;
 	case 0x800a24a4:
+	case 0x800a172c:
+	case 0x800a17e0:
 		slot = 5;
 		break;
 	default:
@@ -9154,16 +9172,22 @@ static int Ovr226_800a27b8_EmitWaterListDirectTail(struct PushBuffer *pb, struct
 	{
 	case 0x800a27dc:
 	case 0x800a28d0:
+	case 0x800a1a60:
+	case 0x800a1b14:
 	case 0x800a25bc:
 	case 0x800a2670:
 		return Ovr226_800a27dc_EmitWaterListGT3Raw(pb, primMem, block, projected, indices, faceIndex, 0, inheritedOtEntry);
 	case 0x800a27d4:
 	case 0x800a28c8:
+	case 0x800a1a58:
+	case 0x800a1b0c:
 	case 0x800a25b4:
 	case 0x800a2668:
 		return Ovr226_800a27dc_EmitWaterListGT3Raw(pb, primMem, block, projected, indices, faceIndex, 1, inheritedOtEntry);
 	case 0x800a2850:
 	case 0x800a2944:
+	case 0x800a1ad4:
+	case 0x800a1b88:
 	case 0x800a2660:
 	case 0x800a2714:
 		return Ovr226_800a2850_EmitWaterListGT4Raw(pb, primMem, block, projected, indices, faceIndex, inheritedOtEntry);
