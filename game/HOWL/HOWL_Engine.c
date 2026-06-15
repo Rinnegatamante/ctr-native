@@ -197,7 +197,7 @@ void EngineSound_Player(struct Driver *driver)
 
 			if (driver->kartState == KS_DRIFTING)
 			{
-				if (cooldown < 2000)
+				if ((s16)cooldown < 2000)
 					driver->fill_3B6[0] = 2000;
 			}
 			else if ((s16)cooldown < 0)
@@ -432,11 +432,11 @@ void EngineSound_AI(struct Driver *ai, struct Driver *cameraDriver, int slotInde
 static int EngineSound_NearestAIs_GetDistance(struct Driver *ai, int pushBufferIndex)
 {
 	struct PushBuffer *pb = &sdata->gGT->pushBuffer[pushBufferIndex];
-	int dx = pb->pos[0] - (ai->posCurr.x >> 8);
-	int dy = pb->pos[1] - (ai->posCurr.y >> 8);
-	int dz = pb->pos[2] - (ai->posCurr.z >> 8);
+	int dx = CTR_MipsSubLo(pb->pos[0], CTR_MipsSra(ai->posCurr.x, 8));
+	int dy = CTR_MipsSubLo(pb->pos[1], CTR_MipsSra(ai->posCurr.y, 8));
+	int dz = CTR_MipsSubLo(pb->pos[2], CTR_MipsSra(ai->posCurr.z, 8));
 
-	return SquareRoot0_stub(dx * dx + dy * dy + dz * dz);
+	return SquareRoot0_stub(CTR_MipsAddLo(CTR_MipsAddLo(CTR_MipsMulLo(dx, dx), CTR_MipsMulLo(dy, dy)), CTR_MipsMulLo(dz, dz)));
 }
 
 static void EngineSound_NearestAIs_InsertClosest(struct Driver *ai, int playerIndex, int distance, struct Driver **closestDrivers, int *closestDistances,
@@ -462,7 +462,8 @@ static void EngineSound_NearestAIs_InsertClosest(struct Driver *ai, int playerIn
 
 static int EngineSound_NearestAIs_CalculateLR(s32 *dir)
 {
-	int lr = (ratan2(dir[0], -dir[2]) + 0x800) * -0x100000 >> 0x17;
+	int angle = CTR_MipsAddLo(ratan2(dir[0], CTR_MipsNegLo(dir[2])), 0x800);
+	int lr = CTR_MipsSra(CTR_MipsNegLo(CTR_MipsSll(angle, 20)), 23);
 
 	if (lr < 0x81)
 	{

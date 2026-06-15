@@ -133,9 +133,19 @@ static inline s32 CTR_MipsSra(s32 value, u32 shift)
 	return (s32)(((u32)value >> shift) | ((value < 0) ? ~(0xffffffffu >> shift) : 0));
 }
 
+static inline u32 CTR_MipsSrl(s32 value, u32 shift)
+{
+	return (u32)value >> (shift & 0x1f);
+}
+
 static inline s32 CTR_MipsMulLo(s32 lhs, s32 rhs)
 {
 	return (s32)((u32)lhs * (u32)rhs);
+}
+
+static inline u32 CTR_MipsMulHiU(u32 lhs, u32 rhs)
+{
+	return (u32)(((u64)lhs * (u64)rhs) >> 32);
 }
 
 static inline s32 CTR_MipsAddLo(s32 lhs, s32 rhs)
@@ -163,6 +173,16 @@ static inline s32 CTR_MipsDiv(s32 dividend, s32 divisor)
 	const s32 minS32 = (-2147483647 - 1);
 
 	if ((divisor == 0) || ((divisor == -1) && (dividend == minS32)))
+	{
+		__builtin_trap();
+	}
+
+	return dividend / divisor;
+}
+
+static inline u32 CTR_MipsDivU(u32 dividend, u32 divisor)
+{
+	if (divisor == 0)
 	{
 		__builtin_trap();
 	}

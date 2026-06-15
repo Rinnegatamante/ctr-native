@@ -3,7 +3,7 @@
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80050c20-0x80050e6c.
 void UI_DrawNumWumpa(s16 posX, s16 posY, struct Driver *d)
 {
-	char currWumpa;
+	s8 currWumpa;
 	int currWumpa10s;
 	int i;
 	int iconID;

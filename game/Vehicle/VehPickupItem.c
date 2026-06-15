@@ -359,12 +359,10 @@ void VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 					if (tempD->BattleHUD.teamID == d->BattleHUD.teamID)
 						continue;
 
-					int distX = tempD->posCurr.x - d->posCurr.x;
-					int distZ = tempD->posCurr.z - d->posCurr.z;
-					distX = distX >> 8;
-					distZ = distZ >> 8;
+					int distX = CTR_MipsSra(CTR_MipsSubLo(tempD->posCurr.x, d->posCurr.x), 8);
+					int distZ = CTR_MipsSra(CTR_MipsSubLo(tempD->posCurr.z, d->posCurr.z), 8);
 
-					int dist = distX * distX + distZ * distZ;
+					int dist = CTR_MipsAddLo(CTR_MipsMulLo(distX, distX), CTR_MipsMulLo(distZ, distZ));
 					if (dist < closest)
 					{
 						closest = dist;

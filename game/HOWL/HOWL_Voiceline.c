@@ -172,7 +172,7 @@ void Voiceline_RequestPlay(u32 voiceID, u32 characterID, u32 characterID2)
 			return;
 	}
 
-	elapsedFrames = (u32)(sdata->gGT->frameTimer_MainFrame_ResetDB - sdata->timeSet2[characterID]);
+	elapsedFrames = (u32)CTR_MipsSubLo(sdata->gGT->frameTimer_MainFrame_ResetDB, sdata->timeSet2[characterID]);
 	canImmediate = 0;
 	if (elapsedFrames >= 0x3d)
 	{
@@ -325,7 +325,7 @@ void Voiceline_Update(void)
 
 	if (sdata->voicelineCooldown != 0)
 	{
-		sdata->voicelineCooldown--;
+		sdata->voicelineCooldown = (s16)CTR_MipsSubLo((u16)sdata->voicelineCooldown, 1);
 		if (sdata->voicelineCooldown != 0)
 			return;
 	}

@@ -40,5 +40,9 @@ int GTE_GetSquaredLength(s32 *vec)
 	MTC2(vec[2], 11);
 	gte_sqr0();
 
-	return MFC2(25) + MFC2(26) + MFC2(27);
+	s32 x2 = MFC2(25);
+	s32 y2 = MFC2(26);
+	s32 z2 = MFC2(27);
+
+	return CTR_MipsAddLo(CTR_MipsAddLo(x2, y2), z2);
 }

@@ -389,6 +389,10 @@ void VehBirth_TeleportSelf(struct Driver *d, u8 spawnFlag, int spawnPosY)
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80058898-0x80058948.
 void VehBirth_TeleportAll(struct GameTracker *gGT, u32 spawnFlags)
 {
+	// NOTE(aalhendi): Retail ignores this parameter and reloads gGT from globals.
+	(void)gGT;
+	gGT = sdata->gGT;
+
 	struct Driver *d;
 
 	for (int i = 0; i < 8; i++)

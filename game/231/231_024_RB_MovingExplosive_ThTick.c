@@ -359,9 +359,7 @@ LAB_800adc08:;
 
 			    (((instDef->ptrInstance != 0) && (instDef->modelID == STATIC_TEETH))))
 			{
-#if defined(CTR_NATIVE)
 				RB_Teeth_OpenDoor(instDef->ptrInstance);
-#endif
 			}
 			goto LAB_800ae42c;
 		}

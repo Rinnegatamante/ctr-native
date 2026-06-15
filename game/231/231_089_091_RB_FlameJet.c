@@ -263,9 +263,11 @@ void RB_FlameJet_Particles(struct Instance *inst, struct FlameJet *fjObj)
 	if (gGT->numPlyrCurrGame > 1)
 		return;
 
+#if defined(CTR_NATIVE)
 	// NOTE(aalhendi): Retail would read PS1 null-space if the fire particle allocation failed.
 	if (particle1 == NULL)
 		return;
+#endif
 
 	particle2 = Particle_Init(0, (struct IconGroup *)gGT->ptrSparkle, &emSet_fjHeat[0]);
 

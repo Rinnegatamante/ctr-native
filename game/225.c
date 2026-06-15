@@ -31,6 +31,7 @@ enum VersusBattleEndMenuConstants
 
 	VB_BATTLE_BLOCK_BOTTOM_Y = 0xd8,
 	VB_BATTLE_TEAM_SCORE_GAP = 10,
+	VB_BATTLE_TITLE_PLAYER_HEIGHT = 0x1a,
 	VB_BATTLE_PLAYER_ICON_SPACING = 0x1b,
 	VB_BATTLE_BLOCK_HEADER_HEIGHT = 0x28,
 	VB_BATTLE_RANK_TEXT_CENTER_Y = 0xd,
@@ -111,7 +112,7 @@ void VB_EndEvent_DrawMenu(void)
 		}
 
 		titleY = (VB_BATTLE_BLOCK_BOTTOM_Y -
-		          ((gGT->battleSetup.numTeams - 1) * VB_BATTLE_TEAM_SCORE_GAP + numPlayers * VB_BATTLE_PLAYER_ICON_SPACING + VB_BATTLE_BLOCK_HEADER_HEIGHT)) >>
+		          ((gGT->battleSetup.numTeams - 1) * VB_BATTLE_TEAM_SCORE_GAP + numPlayers * VB_BATTLE_TITLE_PLAYER_HEIGHT + VB_BATTLE_BLOCK_HEADER_HEIGHT)) >>
 		         1;
 	}
 

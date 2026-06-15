@@ -71,10 +71,10 @@ void cseq_opcode04_empty(struct SongSeq *seq)
 void howl_InitChannelAttr_Music(struct SongSeq *seq, struct ChannelAttr *attr, int index, int channelVol)
 {
 	int pitch;
-	u32 sampleVol;
+	s32 sampleVol;
 	int songIndex = seq->songPoolIndex;
 
-	sampleVol = (sdata->vol_Music * sdata->songPool[songIndex].vol_Curr * seq->vol_Curr) >> 10;
+	sampleVol = CTR_MipsSra(CTR_MipsMulLo(CTR_MipsMulLo(sdata->vol_Music, sdata->songPool[songIndex].vol_Curr), seq->vol_Curr), 10);
 
 	// instrument
 	if ((seq->flags & 4) == 0)
@@ -89,7 +89,7 @@ void howl_InitChannelAttr_Music(struct SongSeq *seq, struct ChannelAttr *attr, i
 		attr->ad = longSample->ad;
 		attr->sr = longSample->sr;
 
-		sampleVol *= (u32)longSample->volume;
+		sampleVol = CTR_MipsMulLo(sampleVol, longSample->volume);
 	}
 
 	// drums
@@ -104,7 +104,7 @@ void howl_InitChannelAttr_Music(struct SongSeq *seq, struct ChannelAttr *attr, i
 
 		else
 		{
-			pitch = shortSample->pitch * data.distortConst_OtherFX[seq->distort] >> 0x10;
+			pitch = CTR_MipsSrl(CTR_MipsMulLo((u16)shortSample->pitch, data.distortConst_OtherFX[seq->distort]), 16);
 		}
 
 		attr->spuStartAddr = (void *)(sdata->howl_spuAddrs[shortSample->spuIndex].spuAddr << 3);
@@ -113,10 +113,10 @@ void howl_InitChannelAttr_Music(struct SongSeq *seq, struct ChannelAttr *attr, i
 		attr->ad = 0x80ff;
 		attr->sr = 0x1fc2;
 
-		sampleVol *= (u32)shortSample->volume;
+		sampleVol = CTR_MipsMulLo(sampleVol, shortSample->volume);
 	}
 
-	Channel_SetVolume(attr, (u32)(sampleVol * channelVol) >> 0xf, seq->LR);
+	Channel_SetVolume(attr, CTR_MipsSrl(CTR_MipsMulLo(sampleVol, channelVol), 15), seq->LR);
 
 	attr->pitch = pitch;
 	attr->reverb = seq->reverb;
@@ -131,7 +131,7 @@ void cseq_opcode_from06and07(struct SongSeq *seq)
 	int soundID = seq->soundID;
 	int songIndex = seq->songPoolIndex;
 
-	int sampleVol = (sdata->vol_Music * sdata->songPool[songIndex].vol_Curr * seq->vol_Curr);
+	int sampleVol = CTR_MipsMulLo(CTR_MipsMulLo(sdata->vol_Music, sdata->songPool[songIndex].vol_Curr), seq->vol_Curr);
 
 	for (curr = (struct ChannelStats *)sdata->channelTaken.first; curr != NULL; curr = backupNext)
 	{
@@ -145,7 +145,7 @@ void cseq_opcode_from06and07(struct SongSeq *seq)
 		if (curr->soundID != soundID)
 			continue;
 
-		Channel_SetVolume(&sdata->channelAttrNew[curr->channelID], (sampleVol * curr->vol) >> 0x12, seq->LR);
+		Channel_SetVolume(&sdata->channelAttrNew[curr->channelID], CTR_MipsSra(CTR_MipsMulLo(sampleVol, curr->vol), 18), seq->LR);
 
 		// update volume
 		sdata->ChannelUpdateFlags[curr->channelID] |= 0x40;
@@ -196,7 +196,7 @@ void cseq_opcode05_noteon(struct SongSeq *seq)
 	stats->drumIndex_pitchIndex = currNote[1];
 	stats->soundID = seq->soundID;
 
-	seq->unk0A++;
+	seq->unk0A = (u8)CTR_MipsAddLo(seq->unk0A, 1);
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002a3a8-0x8002a3d4
@@ -293,7 +293,7 @@ void cseq_opcode0a(struct SongSeq *seq)
 
 			else
 			{
-				pitch = shortSample->pitch * data.distortConst_OtherFX[seq->distort] >> 0x10;
+				pitch = CTR_MipsSrl(CTR_MipsMulLo((u16)shortSample->pitch, data.distortConst_OtherFX[seq->distort]), 16);
 			}
 		}
 

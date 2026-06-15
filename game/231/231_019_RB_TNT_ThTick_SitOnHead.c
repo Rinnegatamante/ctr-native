@@ -132,12 +132,6 @@ LAB_800ad5f8:
 		// add to the frame counter
 		mw->numFramesOnHead += 1;
 		numFrames = mw->numFramesOnHead;
-
-		// set scale of TNT, given frame of animation
-		uVar3 = s_tntSitScale[numFrames * 2 + 0];
-		inst->scale[0] = uVar3;
-		inst->scale[2] = uVar3;
-		inst->scale[1] = s_tntSitScale[numFrames * 2 + 1];
 	}
 
 	// If time runs out
@@ -160,4 +154,10 @@ LAB_800ad5f8:
 
 		mw->driverTarget->instTntRecv = NULL;
 	}
+
+	// set scale of TNT, given frame of animation
+	uVar3 = s_tntSitScale[numFrames * 2 + 0];
+	inst->scale[0] = uVar3;
+	inst->scale[2] = uVar3;
+	inst->scale[1] = s_tntSitScale[numFrames * 2 + 1];
 }

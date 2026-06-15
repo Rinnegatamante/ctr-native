@@ -588,18 +588,18 @@ void VehStuckProc_PlantEaten_Animate(struct Thread *t, struct Driver *d)
 		struct PushBuffer *pb = &gGT->pushBuffer[d->driverID];
 
 		pb->pos[0] = camVec.vx;
-		pb->pos[1] = inst->matrix.t[1] + 0xc0;
+		pb->pos[1] = CTR_MipsAddLo(inst->matrix.t[1], 0xc0);
 		pb->pos[2] = camVec.vz;
 
-		int camX = camVec.vx - inst->matrix.t[0];
-		int camZ = camVec.vz - inst->matrix.t[2];
+		int camX = CTR_MipsSubLo(camVec.vx, inst->matrix.t[0]);
+		int camZ = CTR_MipsSubLo(camVec.vz, inst->matrix.t[2]);
 
 		pb->rot[1] = (s16)ratan2(camX, camZ);
 
 		// get distance between car and camera
-		dist = SquareRoot0_stub(camX * camX + camZ * camZ);
+		dist = SquareRoot0_stub(CTR_MipsAddLo(CTR_MipsMulLo(camX, camX), CTR_MipsMulLo(camZ, camZ)));
 
-		pb->rot[0] = (s16)0x800 - ratan2(pb->pos[1] - inst->matrix.t[1], dist);
+		pb->rot[0] = CTR_MipsSubLo(0x800, ratan2(CTR_MipsSubLo(pb->pos[1], inst->matrix.t[1]), dist));
 
 		pb->rot[2] = 0;
 	}

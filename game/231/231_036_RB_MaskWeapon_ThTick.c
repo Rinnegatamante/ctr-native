@@ -147,14 +147,15 @@ void RB_MaskWeapon_ThTick(struct Thread *maskTh)
 	if (mask->duration == 0)
 	{
 		ThTick_SetAndExec(maskTh, RB_MaskWeapon_FadeAway);
-		return;
 	}
+	else
+	{
+		// if duration is not over
+		mask->duration -= gGT->elapsedTimeMS;
 
-	// if duration is not over
-	mask->duration -= gGT->elapsedTimeMS;
-
-	if (mask->duration < 0)
-		mask->duration = 0;
+		if (mask->duration < 0)
+			mask->duration = 0;
+	}
 
 	// first pass
 	instCurr = maskBeamInst;

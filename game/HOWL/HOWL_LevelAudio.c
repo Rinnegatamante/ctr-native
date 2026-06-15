@@ -12,7 +12,11 @@ int GTE_GetSquaredDistance(s16 *pos1, s16 *pos2)
 	MTC2(dz, 11);
 	gte_sqr0();
 
-	return MFC2(25) + MFC2(26) + MFC2(27);
+	s32 x2 = MFC2(25);
+	s32 y2 = MFC2(26);
+	s32 z2 = MFC2(27);
+
+	return CTR_MipsAddLo(CTR_MipsAddLo(x2, y2), z2);
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002e84c-0x8002e994
@@ -287,7 +291,8 @@ void Level_AmbientSound(void)
 
 static u32 PlaySound3D_CalculateLR(s32 *dir)
 {
-	int lr = (ratan2(dir[0], -dir[2]) + 0x800) * -0x100000 >> 0x17;
+	int angle = CTR_MipsAddLo(ratan2(dir[0], CTR_MipsNegLo(dir[2])), 0x800);
+	int lr = CTR_MipsSra(CTR_MipsNegLo(CTR_MipsSll(angle, 20)), 23);
 
 	if (lr >= 0x81)
 		lr = 0x100 - lr;
@@ -328,9 +333,9 @@ void PlaySound3D(u32 soundID, struct Instance *inst)
 
 	for (int i = 0; i < (u8)gGT->numPlyrCurrGame; i++)
 	{
-		dir[i][0] = inst->matrix.t[0] - gGT->pushBuffer[i].pos[0];
-		dir[i][1] = inst->matrix.t[1] - gGT->pushBuffer[i].pos[1];
-		dir[i][2] = inst->matrix.t[2] - gGT->pushBuffer[i].pos[2];
+		dir[i][0] = CTR_MipsSubLo(inst->matrix.t[0], gGT->pushBuffer[i].pos[0]);
+		dir[i][1] = CTR_MipsSubLo(inst->matrix.t[1], gGT->pushBuffer[i].pos[1]);
+		dir[i][2] = CTR_MipsSubLo(inst->matrix.t[2], gGT->pushBuffer[i].pos[2]);
 
 		distance[i] = GTE_GetSquaredLength(dir[i]);
 		distance[i] = SquareRoot0_stub(distance[i]);
@@ -348,25 +353,6 @@ void PlaySound3D(u32 soundID, struct Instance *inst)
 	GTE_AudioLR_Inst(&gGT->pushBuffer[closestCamera].matrix_Camera, dir[closestCamera]);
 
 	OtherFX_Play_LowLevel(soundID & 0xffff, 1, PlaySound3D_BuildFlags(gGT, closestCamera, closestDistance, PlaySound3D_CalculateLR(dir[closestCamera])));
-}
-
-static u32 PlaySound3D_Flags_CalculateLR(s32 *dir)
-{
-	int lr = (ratan2(dir[0], -dir[2]) + 0x800) * -0x100000 >> 0x17;
-
-	if (lr >= 0x81)
-		lr = 0x100 - lr;
-	else if (lr <= -0x81)
-		lr = -0x100 - lr;
-
-	lr += 0x80;
-	if (lr < 0)
-		return 0;
-
-	if (lr > 0xff)
-		return 0xff;
-
-	return lr;
 }
 
 static u32 PlaySound3D_Flags_BuildFlags(struct GameTracker *gGT, int cameraIndex, u32 distance, u32 lr)
@@ -403,9 +389,9 @@ void PlaySound3D_Flags(u32 *flags, u32 soundID, struct Instance *inst)
 
 	for (int i = 0; i < (u8)gGT->numPlyrCurrGame; i++)
 	{
-		dir[i][0] = inst->matrix.t[0] - gGT->pushBuffer[i].pos[0];
-		dir[i][1] = inst->matrix.t[1] - gGT->pushBuffer[i].pos[1];
-		dir[i][2] = inst->matrix.t[2] - gGT->pushBuffer[i].pos[2];
+		dir[i][0] = CTR_MipsSubLo(inst->matrix.t[0], gGT->pushBuffer[i].pos[0]);
+		dir[i][1] = CTR_MipsSubLo(inst->matrix.t[1], gGT->pushBuffer[i].pos[1]);
+		dir[i][2] = CTR_MipsSubLo(inst->matrix.t[2], gGT->pushBuffer[i].pos[2]);
 
 		distance[i] = GTE_GetSquaredLength(dir[i]);
 		distance[i] = SquareRoot0_stub(distance[i]);
@@ -422,7 +408,7 @@ void PlaySound3D_Flags(u32 *flags, u32 soundID, struct Instance *inst)
 
 	GTE_AudioLR_Inst(&gGT->pushBuffer[closestCamera].matrix_Camera, dir[closestCamera]);
 
-	modifyFlags = PlaySound3D_Flags_BuildFlags(gGT, closestCamera, closestDistance, PlaySound3D_Flags_CalculateLR(dir[closestCamera]));
+	modifyFlags = PlaySound3D_Flags_BuildFlags(gGT, closestCamera, closestDistance, PlaySound3D_CalculateLR(dir[closestCamera]));
 	if (*flags == 0)
 		*flags = OtherFX_Play_LowLevel(soundID & 0xffff, 0, modifyFlags);
 	else

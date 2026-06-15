@@ -63,26 +63,26 @@ struct ChannelStats
 	u8 flags;
 
 	// 0x9
-	char channelID;
+	u8 channelID;
 
 	// 0xa
 	// ??? set in "noteon"
-	char unk1;
+	u8 unk1;
 
 	// 0xb
 	// Type (0=engineFX,1=otherFX,2=music)
-	char type;
+	u8 type;
 
 	// 0xc
 	// ??? set in "noteon"
-	char unk2;
+	u8 unk2;
 
 	// 0xd
 	// union, either or
-	char drumIndex_pitchIndex;
+	u8 drumIndex_pitchIndex;
 
 	// 0xe
-	char echo;
+	u8 echo;
 
 	// 0xf
 	u8 vol;
@@ -209,7 +209,7 @@ struct CseqHeader
 struct SampleInstrument
 {
 	// 0x0
-	char alwaysOne;
+	u8 alwaysOne;
 	u8 volume;
 
 	// 0x2
@@ -232,7 +232,7 @@ struct SampleInstrument
 struct SampleDrums
 {
 	// 0x0
-	char alwaysOne;
+	u8 alwaysOne;
 	u8 volume;
 
 	// 0x2
@@ -251,8 +251,8 @@ struct SampleDrums
 struct CseqSongHeader
 {
 	// 0x0
-	char unk;
-	char numSeqs;
+	u8 unk;
+	u8 numSeqs;
 
 	// 0x2
 	s16 bpm; // beats per minute
@@ -270,9 +270,9 @@ struct CseqSongHeader
 struct SongNoteHeader
 {
 	// instrument or drums
-	char flags;
+	u8 flags;
 
-	char unk;
+	u8 unk;
 
 	// char notes[0];
 };
@@ -311,17 +311,17 @@ struct SongSeq
 	// & 2 - song loops
 	// & 4 - instrument or drums
 	// & 8 - restart song
-	char flags;
+	u8 flags;
 
 	// 0x1
 	u8 soundID;
-	char unk;
+	u8 unk;
 
 	// 0x3 (SampleInstrument*)
-	char instrumentID;
+	u8 instrumentID;
 
 	// 0x4
-	char reverb;
+	u8 reverb;
 
 	// one is curr, one is desired
 
@@ -343,10 +343,10 @@ struct SongSeq
 	u8 LR;
 
 	// 0xA
-	char unk0A;
+	u8 unk0A;
 
 	// 0xb
-	char songPoolIndex;
+	u8 songPoolIndex;
 
 	// 0xc (time until next note is played)
 	int NoteLength;
@@ -377,7 +377,7 @@ struct Song
 	u8 flags;
 
 	// 0x1
-	char songPoolIndex;
+	u8 songPoolIndex;
 
 	// 0x2
 	// songID out of all songs in RAM
@@ -409,7 +409,7 @@ struct Song
 	u8 vol_StepRate;
 
 	// 0x1b
-	char numSequences;
+	u8 numSequences;
 
 	// 0x1c array of all cseq sequences in song
 	struct SongSeq *CseqSequences[0x18];
@@ -418,7 +418,7 @@ struct Song
 struct SongSet
 {
 	int numSeqs;
-	char *ptrSongSetBits;
+	u8 *ptrSongSetBits;
 };
 
 struct SampleBlockHeader

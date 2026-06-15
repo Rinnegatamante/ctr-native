@@ -270,7 +270,7 @@ void AH_Door_ThTick(struct Thread *t)
 					}
 
 					// Make a backup of HUD variable
-					door->hudFlags = (char)gGT->hudFlags;
+					door->hudFlags = (u8)gGT->hudFlags;
 
 					// Disable HUD
 					gGT->hudFlags = 0;
@@ -518,5 +518,5 @@ void AH_Door_ThTick(struct Thread *t)
 	door->camFlags = (door->camFlags & ~WdCam_CutscenePlaying) | WdCam_FlyingIn;
 
 	// bring HUD back
-	gGT->hudFlags = (char)door->hudFlags;
+	gGT->hudFlags = (u8)door->hudFlags;
 }

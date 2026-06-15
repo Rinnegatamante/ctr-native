@@ -4,13 +4,11 @@
 // RB_CrateAny_ThTick_Explode at 800b3d04,
 // and add new LinCs to zGlobalMetaModels.c
 
-void RB_CrateAny_CheckBlockage(struct Thread *crateTh, int hitModelIDValue, struct Thread *mineTh)
+static void RB_CrateAny_CheckBlockage(struct Thread *crateTh, int hitModelIDValue)
 {
 	struct Crate *crateObj;
-	struct MineWeapon *mw;
 
 	crateObj = crateTh->object;
-	mw = mineTh->object;
 
 	// if model is on top of crate
 	if ((hitModelIDValue == PU_EXPLOSIVE_CRATE) || // nitro
@@ -21,9 +19,6 @@ void RB_CrateAny_CheckBlockage(struct Thread *crateTh, int hitModelIDValue, stru
 	{
 		// prevent crate from growing back
 		crateObj->boolPauseCooldown = 1;
-
-		// store crateInst
-		mw->crateInst = crateTh->inst;
 	}
 }
 
@@ -89,10 +84,9 @@ void RB_CrateAny_ThTick_Explode(struct Thread *t)
 	INSTANCE_Death(crateExplodeInst);
 }
 
-void RB_CrateAny_ExplodeInit(struct Instance *crateInst, int color)
+static void RB_CrateAny_ExplodeInit(struct Instance *crateInst, int color, b32 randomizeRotation)
 {
 	struct Instance *explosionInst;
-	struct Crate *crateObj;
 	MATRIX matrix;
 	s16 rot[3];
 
@@ -117,19 +111,26 @@ void RB_CrateAny_ExplodeInit(struct Instance *crateInst, int color)
 	explosionInst->colorRGBA = color;
 	explosionInst->alphaScale = 0x1000;
 
-	// position
-	explosionInst->matrix.t[0] = crateInst->matrix.t[0];
-	explosionInst->matrix.t[1] = crateInst->matrix.t[1];
-	explosionInst->matrix.t[2] = crateInst->matrix.t[2];
+	if (randomizeRotation)
+	{
+		// position
+		explosionInst->matrix.t[0] = crateInst->matrix.t[0];
+		explosionInst->matrix.t[1] = crateInst->matrix.t[1];
+		explosionInst->matrix.t[2] = crateInst->matrix.t[2];
 
-	// rotation matrix
-	rot[0] = 0;
-	rot[1] = rand() % 0xfff;
-	rot[2] = 0;
-	ConvertRotToMatrix(&matrix, &rot[0]);
+		// rotation matrix
+		rot[0] = 0;
+		rot[1] = rand() % 0xfff;
+		rot[2] = 0;
+		ConvertRotToMatrix(&matrix, &rot[0]);
 
-	// explosion matrix = rotated crate matrix
-	MatrixRotate(&explosionInst->matrix, &crateInst->matrix, &matrix);
+		// explosion matrix = rotated crate matrix
+		MatrixRotate(&explosionInst->matrix, &crateInst->matrix, &matrix);
+	}
+	else
+	{
+		explosionInst->matrix = crateInst->matrix;
+	}
 
 	PlaySound3D(0x3c, crateInst);
 }
@@ -240,7 +241,7 @@ int RB_CrateWeapon_ThCollide(struct Thread *crateThread, struct Thread *collidin
 
 		if (crateInst->scale[0] == 0x1000)
 		{
-			RB_CrateAny_ExplodeInit(crateInst, 0xfafafa0);
+			RB_CrateAny_ExplodeInit(crateInst, 0xfafafa0, true);
 
 			driver = RB_CrateAny_GetDriver(collidingTh, sps);
 			if ((int)driver == 1)
@@ -297,7 +298,7 @@ int RB_CrateWeapon_ThCollide(struct Thread *crateThread, struct Thread *collidin
 		return 0;
 
 	sps->Input1.modelID = hitModelIDValue;
-	RB_CrateAny_CheckBlockage(crateThread, hitModelIDValue, collidingTh);
+	RB_CrateAny_CheckBlockage(crateThread, hitModelIDValue);
 	return 0;
 }
 
@@ -345,7 +346,7 @@ int RB_CrateFruit_ThCollide(struct Thread *crateThread, struct Thread *colliding
 
 		if (crateInst->scale[0] == 0x1000)
 		{
-			RB_CrateAny_ExplodeInit(crateInst, 0xf2953a0);
+			RB_CrateAny_ExplodeInit(crateInst, 0xf2953a0, false);
 
 			driver = RB_CrateAny_GetDriver(collidingTh, sps);
 			if ((int)driver == 1)
@@ -377,7 +378,7 @@ int RB_CrateFruit_ThCollide(struct Thread *crateThread, struct Thread *colliding
 		return 0;
 
 	sps->Input1.modelID = hitModelIDValue;
-	RB_CrateAny_CheckBlockage(crateThread, hitModelIDValue, collidingTh);
+	RB_CrateAny_CheckBlockage(crateThread, hitModelIDValue);
 	return 0;
 }
 
@@ -425,7 +426,7 @@ int RB_CrateTime_ThCollide(struct Thread *crateThread, struct Thread *driverTh, 
 
 		if (crateInst->scale[0] == 0x1000)
 		{
-			RB_CrateAny_ExplodeInit(crateInst, 0x80ff000);
+			RB_CrateAny_ExplodeInit(crateInst, 0x80ff000, true);
 
 			gGT = sdata->gGT;
 			driver = RB_CrateAny_GetDriver(driverTh, sps);
@@ -479,7 +480,7 @@ int RB_CrateTime_ThCollide(struct Thread *crateThread, struct Thread *driverTh, 
 		return 0;
 
 	sps->Input1.modelID = hitModelIDValue;
-	RB_CrateAny_CheckBlockage(crateThread, hitModelIDValue, driverTh);
+	RB_CrateAny_CheckBlockage(crateThread, hitModelIDValue);
 	return 0;
 }
 

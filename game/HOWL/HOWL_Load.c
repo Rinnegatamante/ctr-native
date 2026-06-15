@@ -7,14 +7,14 @@ u32 howl_InstrumentPitch(int basePitch, int pitchIndex, u32 distort)
 	// (>> 0) & 0x40 - distortion
 	// (>> 6) & 0xXX - pitch/octave?
 
-	u32 freq = data.noteFrequency[pitchIndex + ((int)distort >> 6) - 2] * basePitch >> 0xc;
+	u32 freq = CTR_MipsSrl(CTR_MipsMulLo(data.noteFrequency[pitchIndex + CTR_MipsSra((s32)distort, 6) - 2], basePitch), 12);
 
 	distort &= 0x3f;
 	freq &= 0xffff;
 
 	if (distort != 0)
 	{
-		freq = freq * (data.distortConst_Music[distort] + 0x100000) >> 0x14;
+		freq = CTR_MipsSrl(CTR_MipsMulLo(freq, CTR_MipsAddLo(data.distortConst_Music[distort], 0x100000)), 20);
 	}
 
 	return freq & 0xffff;
@@ -133,7 +133,7 @@ int howl_LoadHeader(char *filename)
 			howlHeaderSize = sizeof(struct HowlHeader) + alloc->headerSize;
 
 			// align up for sector size
-			numSector = (howlHeaderSize + 0x800 - 1) >> 0xb;
+			numSector = CTR_MipsSra(CTR_MipsAddLo(howlHeaderSize, 0x7ff), 11);
 			MEMPACK_ReallocMem(numSector << 0xb);
 
 			// if header needs more sectors loaded, like CTR-U which needs 3 sectors
@@ -215,7 +215,7 @@ int howl_LoadSong()
 			return 0;
 
 		// CseqHeader->songSize, aligned up to sector size
-		int numSector = (*(int *)&sdata->sampleBlock1[0] + 0x7ff) >> 0xb;
+		int numSector = CTR_MipsSrl(CTR_MipsAddLo(*(s32 *)&sdata->sampleBlock1[0], 0x7ff), 11);
 
 		ret = LOAD_HowlSectorChainStart(&sdata->KartHWL_CdFile,      // CdLoc of HOWL
 		                                sdata->tenSampleBlocks,      // (sampleBlock1+0x800) RAM destination
@@ -259,10 +259,10 @@ char *howl_GetNextNote(char *currNote, int *noteLen)
 {
 	int var1;
 
-	var1 = currNote[0] & 0x7f;
+	var1 = (u8)currNote[0] & 0x7f;
 
 	// find the end opcode of currNote
-	while ((currNote[0] & 0x80) != 0)
+	while (((u8)currNote[0] & 0x80) != 0)
 	{
 		currNote++;
 
@@ -273,7 +273,7 @@ char *howl_GetNextNote(char *currNote, int *noteLen)
 		// 7 bits is number data
 		// so that code skips proper amount of bytes it uses.
 		// it allows to send only 1 byte for s16 events.
-		var1 = (var1 * 0x80) + (currNote[0] & 0x7f);
+		var1 = CTR_MipsAddLo(CTR_MipsSll(var1, 7), (u8)currNote[0] & 0x7f);
 	}
 
 	*noteLen = var1;

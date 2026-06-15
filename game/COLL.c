@@ -1784,7 +1784,7 @@ s32 COLL_MOVED_TRIANGL_ReorderNormals(struct BspSearchResult *candidate, struct 
 	if (baryA == COLL_FRACTION_INVALID)
 		return COLL_TRIANGLE_CLIP_MISS;
 
-	s32 sum = baryA + baryB - COLL_FRACTION_ONE;
+	s32 sum = CTR_MipsSubLo(CTR_MipsAddLo(baryA, baryB), COLL_FRACTION_ONE);
 
 	if (baryA < 0)
 	{

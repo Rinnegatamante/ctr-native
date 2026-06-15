@@ -74,7 +74,6 @@ struct ParticleEmitter emSet_OrcaSplash[7] = {
 
 static void RB_Orca_SpawnSplash(struct Instance *orcaInst)
 {
-#if defined(CTR_NATIVE)
 	struct Particle *particle;
 	struct GameTracker *gGT;
 	int i;
@@ -93,9 +92,6 @@ static void RB_Orca_SpawnSplash(struct Instance *orcaInst)
 		particle->unk1A = 0x1000;
 		particle->axis[2].startVal += (orcaInst->matrix.t[2] << 8) + (particle->axis[2].velocity << 4);
 	}
-#else
-	(void)orcaInst;
-#endif
 }
 
 void RB_Orca_ThTick(struct Thread *t)

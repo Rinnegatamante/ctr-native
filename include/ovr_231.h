@@ -317,10 +317,13 @@ struct Blade
 struct Crate
 {
 	int cooldown;
-	int boolPauseCooldown;
+	s16 boolPauseCooldown;
+	s16 padding;
 
 	// 0x8 bytes large
 };
+
+_Static_assert(sizeof(struct Crate) == 0x8);
 
 struct Crystal
 {
@@ -625,8 +628,11 @@ struct Spider
 	// 0xC
 	struct Instance *shadowInst;
 
-	// end of struct, 8 bytes large
+	// 0x10 bytes large
 };
+_Static_assert(offsetof(struct Spider, delay) == 0x4);
+_Static_assert(offsetof(struct Spider, shadowInst) == 0xc);
+_Static_assert(sizeof(struct Spider) == 0x10);
 
 struct Teeth
 {
@@ -644,6 +650,7 @@ struct Teeth
 
 	// 0x8 bytes large
 };
+_Static_assert(sizeof(struct Teeth) == 0x8);
 
 struct Turtle
 {

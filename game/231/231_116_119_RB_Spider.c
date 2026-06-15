@@ -146,7 +146,7 @@ void RB_Spider_ThTick(struct Thread *t)
 	s16 sVar2;
 	int iVar3;
 
-	char prevKartState;
+	u8 prevKartState;
 	struct GameTracker *gGT;
 	struct Instance *hitInst;
 	struct Driver *victim;

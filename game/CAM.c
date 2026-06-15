@@ -765,7 +765,9 @@ static s32 CAM_FollowDriver_AngleAxis_MulLo(s32 a, s32 b)
 
 static s32 CAM_FollowDriver_AngleAxis_Lerp256(s32 current, s32 previous, s32 ratio)
 {
-	return (CAM_FollowDriver_AngleAxis_MulLo(0x100 - ratio, current) + CAM_FollowDriver_AngleAxis_MulLo(ratio, previous)) >> 8;
+	s32 currentPart = CAM_FollowDriver_AngleAxis_MulLo(0x100 - ratio, current);
+	s32 previousPart = CAM_FollowDriver_AngleAxis_MulLo(ratio, previous);
+	return CTR_MipsSra(CTR_MipsAddLo(currentPart, previousPart), 8);
 }
 
 static void CAM_FollowDriver_AngleAxis_LoadGteMatrix(MATRIX *axisMatrix, struct Driver *d)
@@ -830,7 +832,7 @@ void CAM_FollowDriver_AngleAxis(struct CameraDC *cDC, struct Driver *d, u8 *work
 	*(int *)(workBuffer + 0x254) = dz;
 
 	pushBufferRot[1] = (s16)ratan2(dx, dz);
-	distanceXZ = SquareRoot0_stub(CAM_FollowDriver_AngleAxis_MulLo(dx, dx) + CAM_FollowDriver_AngleAxis_MulLo(dz, dz));
+	distanceXZ = SquareRoot0_stub(CTR_MipsAddLo(CAM_FollowDriver_AngleAxis_MulLo(dx, dx), CAM_FollowDriver_AngleAxis_MulLo(dz, dz)));
 	pushBufferRot[0] = 0x800 - (s16)ratan2(dy, distanceXZ);
 	pushBufferRot[2] = 0;
 
@@ -957,8 +959,8 @@ static int CAM_FollowDriver_TrackPath_Length(struct CheckpointNode *from, struct
 	*dy = to->pos[1] - from->pos[1];
 	*dz = to->pos[2] - from->pos[2];
 
-	return SquareRoot0_stub(CAM_FollowDriver_TrackPath_MulLo(*dx, *dx) + CAM_FollowDriver_TrackPath_MulLo(*dy, *dy) +
-	                        CAM_FollowDriver_TrackPath_MulLo(*dz, *dz));
+	s32 sum = CTR_MipsAddLo(CAM_FollowDriver_TrackPath_MulLo(*dx, *dx), CAM_FollowDriver_TrackPath_MulLo(*dy, *dy));
+	return SquareRoot0_stub(CTR_MipsAddLo(sum, CAM_FollowDriver_TrackPath_MulLo(*dz, *dz)));
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800198f8-0x80019e7c.
@@ -1528,12 +1530,13 @@ LAB_8001ab04:
 		x_00 = ratan2(*(s32 *)(scratchpad + 0x24c), x);
 		pb->rot[1] = (s16)x_00;
 
-		x_00 = SquareRoot0_stub(*(int *)(scratchpad + 0x24c) * *(int *)(scratchpad + 0x24c) + *(int *)(scratchpad + 0x254) * *(int *)(scratchpad + 0x254));
+		x_00 = SquareRoot0_stub(CTR_MipsAddLo(CAM_MulLo(*(int *)(scratchpad + 0x24c), *(int *)(scratchpad + 0x24c)),
+		                                      CAM_MulLo(*(int *)(scratchpad + 0x254), *(int *)(scratchpad + 0x254))));
 
 		x_00 = ratan2(*(s32 *)(scratchpad + 0x250), x_00);
 		pb->rot[0] = 0x800 - (s16)x_00;
 
-		pb->rot[2] = (s16)((u32)((int)zoom->angle[0] * (int)cDC->desiredRot[0]) >> 8);
+		pb->rot[2] = (s16)CTR_MipsSra(CAM_MulLo((int)zoom->angle[0], (int)cDC->desiredRot[0]), 8);
 	}
 
 	// something with pushBuffer position
@@ -2119,8 +2122,9 @@ SkipNewCameraEOR:
 							stackMemPos[2] = -stackMemPos[2];
 						}
 
-						iVar24 = SquareRoot0_stub((int)stackMemPos[0] * (int)stackMemPos[0] + (int)stackMemPos[1] * (int)stackMemPos[1] +
-						                          (int)stackMemPos[2] * (int)stackMemPos[2]);
+						iVar24 = SquareRoot0_stub(CTR_MipsAddLo(
+						    CTR_MipsAddLo(CAM_MulLo((int)stackMemPos[0], (int)stackMemPos[0]), CAM_MulLo((int)stackMemPos[1], (int)stackMemPos[1])),
+						    CAM_MulLo((int)stackMemPos[2], (int)stackMemPos[2])));
 
 						iVar18 = cDC->trackPathProgress << 0xc;
 						iVar25 = iVar18 / iVar24;
@@ -2271,8 +2275,8 @@ SkipNewCameraEOR:
 
 				CAM_LookAtPosition(scratchpadBytes, (int *)&d->posCurr.x, &pb->pos[0], &pb->rot[0]);
 
-				iVar7 = SquareRoot0_stub((*(int *)(scratchpadBytes + 0x24c)) * (*(int *)(scratchpadBytes + 0x24c)) +
-				                         (*(int *)(scratchpadBytes + 0x254)) * (*(int *)(scratchpadBytes + 0x254)));
+				iVar7 = SquareRoot0_stub(CTR_MipsAddLo(CAM_MulLo(*(int *)(scratchpadBytes + 0x24c), *(int *)(scratchpadBytes + 0x24c)),
+				                                       CAM_MulLo(*(int *)(scratchpadBytes + 0x254), *(int *)(scratchpadBytes + 0x254))));
 				iVar17 = (int)(cDC->transitionTo).pos[0];
 				iVar24 = (iVar7 - (cDC->transitionTo).pos[1]) * iVar17;
 				iVar8 = (int)(cDC->transitionTo).pos[2];

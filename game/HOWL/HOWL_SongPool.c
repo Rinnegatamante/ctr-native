@@ -18,7 +18,10 @@ struct SongSeq *SongPool_FindFreeChannel(void)
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002a678-0x8002a6cc
 u32 SongPool_CalculateTempo(s16 const60, s16 tpqn, s16 bpm)
 {
-	return (((tpqn * bpm) / 60) << 0x10) / const60;
+	s32 ticksPerMinute = CTR_MipsMulLo(bpm, tpqn);
+	u32 ticksPerSecond = CTR_MipsMulHiU((u32)ticksPerMinute, 0x88888889u) >> 5;
+
+	return CTR_MipsDivU((u32)CTR_MipsSll((s32)ticksPerSecond, 16), (u32)(s32)const60);
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002a6cc-0x8002a730
@@ -26,7 +29,7 @@ void SongPool_ChangeTempo(struct Song *song, s16 deltaBPM)
 {
 	struct CseqSongHeader *csh = (struct CseqSongHeader *)&sdata->ptrCseqSongData[sdata->ptrCseqSongStartOffset[song->id]];
 
-	song->bpm = csh->bpm + deltaBPM;
+	song->bpm = (s16)CTR_MipsAddLo((u16)csh->bpm, deltaBPM);
 
 	song->tempo = SongPool_CalculateTempo(60, song->tpqn, song->bpm);
 }
@@ -59,7 +62,7 @@ void SongPool_Start(struct Song *song, u16 songID, s16 deltaBPM, int boolLoopAtE
 	}
 
 	song->tpqn = csh->tpqn;
-	song->bpm = csh->bpm + deltaBPM;
+	song->bpm = (s16)CTR_MipsAddLo((u16)csh->bpm, deltaBPM);
 
 	song->tempo = SongPool_CalculateTempo(60, song->tpqn, song->bpm);
 

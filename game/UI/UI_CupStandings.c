@@ -246,10 +246,8 @@ void UI_CupStandings_InputAndDraw(void)
 		sdata->numIconsEOR++;
 	}
 
-	// OPTIMIZATION, replace all pushBuffer RECT values
-	// struct PushBuffer* pb = &gGT->pushBuffer[0];
-	int rectX = 0;
-	int rectW = 0x200;
+	int rectX = gGT->pushBuffer_UI.rect.x;
+	int rectW = gGT->pushBuffer_UI.rect.w;
 
 	int *points = &data.cupPointsPerPosition[0];
 

@@ -1566,7 +1566,7 @@ struct Driver
 	char numTimesHitWeaponBox;
 
 	// 0x569
-	char numTimesWumpa;
+	u8 numTimesWumpa;
 
 	// 0x56a
 	char numTimesMaskGrab;
@@ -1890,6 +1890,7 @@ _Static_assert(offsetof(struct Driver, vShiftCount) == 0x40a);
 _Static_assert(offsetof(struct Driver, checkpoint) == 0x494);
 _Static_assert(offsetof(struct Driver, checkpoint.branchChoiceIndex) == 0x494);
 _Static_assert(offsetof(struct Driver, checkpoint.currentIndex) == 0x495);
+_Static_assert(offsetof(struct Driver, numTimesWumpa) == 0x569);
 _Static_assert(offsetof(struct Driver, rotCurr.x) == 0x2ec);
 _Static_assert(offsetof(struct Driver, rotCurr.y) == 0x2ee);
 _Static_assert(offsetof(struct Driver, KartStates.MaskGrab.AngleAxis_NormalVec) == 0x584);

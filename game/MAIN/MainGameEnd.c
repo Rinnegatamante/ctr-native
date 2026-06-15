@@ -394,7 +394,7 @@ static void MainGameEnd_UpdateStandingsOrder(struct GameTracker *gGT)
 		for (int rank = 0; rank < 3; rank++)
 			score += gGT->standingsPoints[team * 3 + rank] * (3 - rank);
 
-		gGT->battleSetup.standingsScore[team] = score;
+		gGT->battleSetup.standingsScore[team] = (s16)score;
 	}
 
 	u8 usedTeams = 0;
