@@ -95,7 +95,7 @@ thTick_subtitles:
 		textRect[2] = 472;
 		textRect[3] = (u16)((s16)textWidth + 8);
 
-		RECTMENU_DrawInnerRect((RECT *)textRect, 4, gGT->backBuffer->otMem.startPlusFour);
+		RECTMENU_DrawInnerRect((RECT *)textRect, 4, gGT->backBuffer->otMem.uiOT);
 	}
 
 thTick_epilogue:

@@ -53,7 +53,7 @@ static int RenderStars_IsVisible(u32 gteFlag, u32 sxy)
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8006e26c-0x8006e588
 void RenderStars(struct PushBuffer *pb, struct PrimMem *primMem, struct Stars *stars, char numPlyr)
 {
-	u32 *prim = (u32 *)primMem->curr;
+	u32 *prim = (u32 *)primMem->cursor;
 	int playerCount = numPlyr;
 
 	// NOTE(aalhendi): PSX-backfeed blocker: retail uses 0x1f800000-0x1f80002c
@@ -187,5 +187,5 @@ void RenderStars(struct PushBuffer *pb, struct PrimMem *primMem, struct Stars *s
 		prim += 3;
 	}
 
-	primMem->curr = prim;
+	primMem->cursor = prim;
 }

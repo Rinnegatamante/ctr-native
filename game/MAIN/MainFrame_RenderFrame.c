@@ -270,7 +270,7 @@ void DrawUnpluggedMsg(struct GameTracker *gGT, struct GamepadSystem *gGamepads)
 	// add 3 pixels above, 3 pixels bellow
 	window.h += 6;
 
-	RECTMENU_DrawInnerRect(&window, 1, gGT->backBuffer->otMem.startPlusFour);
+	RECTMENU_DrawInnerRect(&window, 1, gGT->backBuffer->otMem.uiOT);
 }
 
 void DrawFinalLap(struct GameTracker *gGT)
@@ -1002,7 +1002,7 @@ void WindowDivsionLines(struct GameTracker *gGT)
 	// horizontal bar
 	if (numPlyrCurrGame > 1)
 	{
-		p = gGT->backBuffer->primMem.curr;
+		p = gGT->backBuffer->primMem.cursor;
 
 		// set R, G, B, CODE, all to zero,
 		// this makes black color, and invalid CODE
@@ -1026,7 +1026,7 @@ void WindowDivsionLines(struct GameTracker *gGT)
 		// dividing the screen in half on top and bottom
 		AddPrim(&gGT->pushBuffer_UI.ptrOT[3], p);
 
-		gGT->backBuffer->primMem.curr = (void *)(p + 1);
+		gGT->backBuffer->primMem.cursor = (void *)(p + 1);
 	}
 
 	// vertical bar
@@ -1039,7 +1039,7 @@ void WindowDivsionLines(struct GameTracker *gGT)
 		gGT->drivers[1]->heldItemID = 3;
 #endif
 
-		p = gGT->backBuffer->primMem.curr;
+		p = gGT->backBuffer->primMem.cursor;
 
 		// set R, G, B, CODE, all to zero,
 		// this makes black color, and invalid CODE
@@ -1063,8 +1063,8 @@ void WindowDivsionLines(struct GameTracker *gGT)
 		// dividing the screen in half on top and bottom
 		AddPrim(&gGT->pushBuffer_UI.ptrOT[3], p);
 
-		// backBuffer->primMem.curr
-		gGT->backBuffer->primMem.curr = (void *)(p + 1);
+		// backBuffer->primMem.cursor
+		gGT->backBuffer->primMem.cursor = (void *)(p + 1);
 	}
 
 	// if numPlyrCurrGame is 3
@@ -1074,7 +1074,7 @@ void WindowDivsionLines(struct GameTracker *gGT)
 		// to black anyway, even without this block,
 		// at least it does it Crash Cove, does it always?
 
-		p = gGT->backBuffer->primMem.curr;
+		p = gGT->backBuffer->primMem.cursor;
 
 		// set R, G, B, CODE, all to zero,
 		// this makes black color, and invalid CODE
@@ -1097,8 +1097,8 @@ void WindowDivsionLines(struct GameTracker *gGT)
 		// dividing the screen in half on top and bottom
 		AddPrim(&gGT->pushBuffer_UI.ptrOT[3], p);
 
-		// backBuffer->primMem.curr
-		gGT->backBuffer->primMem.curr = (void *)(p + 1);
+		// backBuffer->primMem.cursor
+		gGT->backBuffer->primMem.cursor = (void *)(p + 1);
 	}
 }
 

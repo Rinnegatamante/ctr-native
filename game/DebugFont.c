@@ -38,9 +38,9 @@ void DebugFont_DrawNumbers(int index, int screenPosX, int screenPosY)
 	uVar5 = (screenPosY + 0) << 0x10;
 	uVar4 = (screenPosY + 7) << 0x10;
 
-	p = (POLY_FT4 *)gGT->backBuffer->primMem.curr;
+	p = (POLY_FT4 *)gGT->backBuffer->primMem.cursor;
 	ot = (u32 *)gGT->pushBuffer_UI.ptrOT;
-	gGT->backBuffer->primMem.curr = p + 1;
+	gGT->backBuffer->primMem.cursor = p + 1;
 
 	*(int *)&p->r0 = 0x2e000000;
 	*(int *)&p->x0 = screenPosX | uVar5;

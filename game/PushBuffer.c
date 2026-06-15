@@ -193,14 +193,14 @@ void PushBuffer_SetDrawEnv_DecalMP(void *ot, struct DB *backBuffer, RECT *viewpo
 	// isbg (always 0)
 	newDrawEnv.isbg = isbg;
 
-	p = backBuffer->primMem.curr;
+	p = backBuffer->primMem.cursor;
 	void *prim = NULL;
 
-	// curr < endMin100
-	if (p <= backBuffer->primMem.endMin100)
+	// cursor < guardEnd
+	if (p <= backBuffer->primMem.guardEnd)
 	{
 		// advance curr
-		backBuffer->primMem.curr = (void *)((u32)backBuffer->primMem.curr + 0x40);
+		backBuffer->primMem.cursor = (void *)((u32)backBuffer->primMem.cursor + 0x40);
 
 		prim = p;
 	}
@@ -256,10 +256,10 @@ void PushBuffer_SetDrawEnv_Normal(void *ot, struct PushBuffer *pb, struct DB *ba
 
 	newDrawEnv.isbg = isbg;
 
-	void *p = backBuffer->primMem.curr;
-	if (p <= backBuffer->primMem.endMin100)
+	void *p = backBuffer->primMem.cursor;
+	if (p <= backBuffer->primMem.guardEnd)
 	{
-		backBuffer->primMem.curr = (void *)((u32)backBuffer->primMem.curr + 0x40);
+		backBuffer->primMem.cursor = (void *)((u32)backBuffer->primMem.cursor + 0x40);
 
 		SetDrawEnv(p, &newDrawEnv);
 
@@ -868,7 +868,7 @@ void PushBuffer_FadeOneWindow(struct PushBuffer *pb)
 	// some amount of fading
 	if (currValue != 0x1000)
 	{
-		p = (multiCmdPacket *)backBuffer->primMem.curr;
+		p = (multiCmdPacket *)backBuffer->primMem.cursor;
 
 		setlen(p, 7);
 		p->f4.tag = 0;
@@ -913,7 +913,7 @@ void PushBuffer_FadeOneWindow(struct PushBuffer *pb)
 		AddPrim(pb->ptrOT, p);
 
 		// move pointer after writing polygons
-		backBuffer->primMem.curr = p + 1;
+		backBuffer->primMem.cursor = p + 1;
 	}
 
 	// alter the fade value by the fade velocity

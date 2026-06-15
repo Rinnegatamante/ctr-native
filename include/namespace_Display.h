@@ -1,44 +1,46 @@
 struct PrimMem
 {
 	// 0x0
-	int size; // 74 [0]
+	u32 capacityBytes;
 
 	// 0x4
-	void *start; // 78 [1]
+	void *start;
 
 	// 0x8
-	void *end; // 7c [2]
+	void *end;
 
 	// 0xC
-	// Pointer to location of next primitive, as per primitive buffers
-	void *curr; // 80 [3]
+	void *cursor;
 
 	// 0x10
-	void *endMin100; // 84 -- exists why?
+	// NOTE(aalhendi): Retail keeps 0x100 bytes reserved after this guard.
+	void *guardEnd;
 
 	// 0x14
-	int unk1; // 88
+	s32 primitiveCount;
 
 	// 0x18
-	int unk2; // 8c [6] in FUN_800349c4, +0x23 in 8003b0f0
+	// NOTE(aalhendi): Retail mirrors the allocation base here.
+	void *allocationStart;
 };
 
 struct OTMem
 {
 	// 0x0
-	int size; // 90
+	u32 capacityBytes;
 
 	// 0x4
-	u_long *start; // 94
+	u_long *start;
 
 	// 0x8
-	u_long *end; // 98
+	u_long *end;
 
 	// 0xC
-	u_long *curr; // 9c
+	u_long *cursor;
 
 	// 0x10
-	u_long *startPlusFour; // a0
+	// NOTE(aalhendi): UI ordering-table pointer, also stored in pushBuffer_UI.
+	u_long *uiOT;
 };
 
 // 0xA4
@@ -51,7 +53,8 @@ struct DB
 	DISPENV dispEnv;
 
 	// 0x70
-	int unk_primMemRelated;
+	u8 blurCameraMask;
+	u8 blurCameraMaskPadding[3];
 
 	// 0x74
 	struct PrimMem primMem;
@@ -61,7 +64,24 @@ struct DB
 };
 
 _Static_assert(sizeof(struct PrimMem) == 0x1C);
+_Static_assert(offsetof(struct PrimMem, capacityBytes) == 0x0);
+_Static_assert(offsetof(struct PrimMem, start) == 0x4);
+_Static_assert(offsetof(struct PrimMem, end) == 0x8);
+_Static_assert(offsetof(struct PrimMem, cursor) == 0xC);
+_Static_assert(offsetof(struct PrimMem, guardEnd) == 0x10);
+_Static_assert(offsetof(struct PrimMem, primitiveCount) == 0x14);
+_Static_assert(offsetof(struct PrimMem, allocationStart) == 0x18);
 _Static_assert(sizeof(struct OTMem) == 0x14);
+_Static_assert(offsetof(struct OTMem, capacityBytes) == 0x0);
+_Static_assert(offsetof(struct OTMem, start) == 0x4);
+_Static_assert(offsetof(struct OTMem, end) == 0x8);
+_Static_assert(offsetof(struct OTMem, cursor) == 0xC);
+_Static_assert(offsetof(struct OTMem, uiOT) == 0x10);
 #ifndef CTR_NATIVE
+_Static_assert(offsetof(struct DB, drawEnv) == 0x0);
+_Static_assert(offsetof(struct DB, dispEnv) == 0x5C);
+_Static_assert(offsetof(struct DB, blurCameraMask) == 0x70);
+_Static_assert(offsetof(struct DB, primMem) == 0x74);
+_Static_assert(offsetof(struct DB, otMem) == 0x90);
 _Static_assert(sizeof(struct DB) == 0xA4);
 #endif

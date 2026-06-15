@@ -177,13 +177,13 @@ void CS_Garage_MenuProc(struct RectMenu *param_1)
 			if (segmentStart + currSegmentLen <= *barLen)
 			{
 				// primMem curr
-				POLY_G4 *p = primMem->curr;
+				POLY_G4 *p = primMem->cursor;
 
 				// quit if prim mem runs out
 				if (primMem->end < (void *)p)
 					return;
 
-				primMem->curr = p + 1;
+				primMem->cursor = p + 1;
 
 				// color data
 				*(int *)&p->r0 = barColor[0] | 0x38000000;
@@ -235,7 +235,7 @@ void CS_Garage_MenuProc(struct RectMenu *param_1)
 	r.h = 68;
 
 	// Draw 2D Menu rectangle background
-	RECTMENU_DrawInnerRect(&r, 4, gGT->backBuffer->otMem.startPlusFour);
+	RECTMENU_DrawInnerRect(&r, 4, gGT->backBuffer->otMem.uiOT);
 
 	char *name = sdata->lngStrings[nameIndex];
 

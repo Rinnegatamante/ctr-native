@@ -130,14 +130,14 @@ void UI_JumpMeter_Draw(s16 posX, s16 posY, struct Driver *driver)
 	CTR_Box_DrawWireBox(&box, &color, gGT->pushBuffer_UI.ptrOT, &gGT->backBuffer->primMem);
 
 	backDB = gGT->backBuffer;
-	primmemCurr = backDB->primMem.curr;
+	primmemCurr = backDB->primMem.cursor;
 	p = 0;
 
 	// if there is room left for more
-	if (primmemCurr <= (u_long *)backDB->primMem.endMin100)
+	if (primmemCurr <= (u_long *)backDB->primMem.guardEnd)
 	{
 		// add primitives
-		backDB->primMem.curr = &primmemCurr[6];
+		backDB->primMem.cursor = &primmemCurr[6];
 		p = (POLY_F4 *)primmemCurr;
 	}
 
@@ -167,12 +167,12 @@ void UI_JumpMeter_Draw(s16 posX, s16 posY, struct Driver *driver)
 		CTR_Box_DrawWireBox(&box2, &color, gGT->pushBuffer_UI.ptrOT, &backDB->primMem);
 
 		backDB = gGT->backBuffer;
-		primmemCurr = backDB->primMem.curr;
+		primmemCurr = backDB->primMem.cursor;
 		p = 0;
 
-		if (primmemCurr <= (u_long *)backDB->primMem.endMin100)
+		if (primmemCurr <= (u_long *)backDB->primMem.guardEnd)
 		{
-			backDB->primMem.curr = &primmemCurr[6];
+			backDB->primMem.cursor = &primmemCurr[6];
 			p = (POLY_F4 *)primmemCurr;
 		}
 
@@ -218,14 +218,14 @@ void UI_JumpMeter_Draw(s16 posX, s16 posY, struct Driver *driver)
 			*primmemCurr = CtrGpu_PrimToOTLink24(p);
 
 			backDB = gGT->backBuffer;
-			primmemCurr = backDB->primMem.curr;
+			primmemCurr = backDB->primMem.cursor;
 			p = 0;
 
 			// If there is room to add more
-			if (primmemCurr <= (u_long *)backDB->primMem.endMin100)
+			if (primmemCurr <= (u_long *)backDB->primMem.guardEnd)
 			{
 				// Add more primitives
-				backDB->primMem.curr = &primmemCurr[6];
+				backDB->primMem.cursor = &primmemCurr[6];
 				p = (POLY_F4 *)primmemCurr;
 			}
 

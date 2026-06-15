@@ -63,9 +63,9 @@ void RB_Spider_DrawWebs(struct Thread *t, struct PushBuffer *pb)
 	int numPlyr;
 	numPlyr = gGT->numPlyrCurrGame;
 
-	p = primMem->curr;
+	p = primMem->cursor;
 	nextPrim = p + (numSpiders * numPlyr);
-	if (nextPrim >= (multiCmdPacket *)primMem->endMin100)
+	if (nextPrim >= (multiCmdPacket *)primMem->guardEnd)
 		return;
 
 	// loop through all players
@@ -129,7 +129,7 @@ void RB_Spider_DrawWebs(struct Thread *t, struct PushBuffer *pb)
 		pb++;
 	}
 
-	primMem->curr = p;
+	primMem->cursor = p;
 }
 
 s16 spiderArr[] = {

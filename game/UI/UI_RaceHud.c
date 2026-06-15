@@ -91,11 +91,11 @@ void UI_BattleDrawHeadArrows(struct Driver *player)
 
 		struct PrimMem *primMem = &gGT->backBuffer->primMem;
 
-		p = primMem->curr;
-		if ((int)p > (int)primMem->endMin100)
+		p = primMem->cursor;
+		if ((int)p > (int)primMem->guardEnd)
 			return;
 
-		primMem->curr = p + 1;
+		primMem->cursor = p + 1;
 
 		p->tpage = 0xe1000a20;
 		p->g3.tag = 0;
@@ -368,10 +368,10 @@ LAB_8004fe8c:
 				rgb2 = 0x3000ffff;
 			}
 
-			p = primMem->curr;
-			if (p > (POLY_G3 *)primMem->endMin100)
+			p = primMem->cursor;
+			if (p > (POLY_G3 *)primMem->guardEnd)
 				return;
-			primMem->curr = p + 1;
+			primMem->cursor = p + 1;
 
 			*(int *)&p->r0 = rgb0;
 			*(int *)&p->r1 = 0x30ffffff;
@@ -395,10 +395,10 @@ LAB_8004fe8c:
 
 			// next Prim
 			POLY_G3 *pLast = p;
-			p = primMem->curr;
-			if (p > (POLY_G3 *)primMem->endMin100)
+			p = primMem->cursor;
+			if (p > (POLY_G3 *)primMem->guardEnd)
 				return;
-			primMem->curr = p + 1;
+			primMem->cursor = p + 1;
 
 			// if tracking object is warpball
 			if (data.trackerType[driverid] == 1)

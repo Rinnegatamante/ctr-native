@@ -77,7 +77,7 @@ void UI_WeaponBG_DrawShine(struct Icon *icon, s16 posX, s16 posY, struct PrimMem
 	// loop 4 times
 	for (i = 0; i < 4; i++)
 	{
-		p = primMem->curr;
+		p = primMem->cursor;
 		*(int *)&p->u0 = *(int *)&icon->texLayout.u0;
 		*(int *)&p->u1 = *(int *)&icon->texLayout.u1;
 		*(int *)&p->u2 = *(int *)&icon->texLayout.u2;
@@ -164,7 +164,7 @@ void UI_WeaponBG_DrawShine(struct Icon *icon, s16 posX, s16 posY, struct PrimMem
 		AddPrim(ot, p);
 
 		// increment primMem
-		primMem->curr = p + 1;
+		primMem->cursor = p + 1;
 	}
 }
 
@@ -202,8 +202,8 @@ void UI_TrackerBG(struct Icon *targetIcon, s16 centerX, s16 centerY, struct Prim
 	// loop 4 times
 	for (quadIndex = 0; quadIndex < 4; quadIndex++)
 	{
-		p = primMem->curr;
-		primMem->curr = (p + 1);
+		p = primMem->cursor;
+		primMem->cursor = (p + 1);
 
 		*(int *)&p->r0 = *(int *)&color;
 		*(int *)&p->u0 = *(int *)&targetIcon->texLayout.u0;
@@ -263,7 +263,7 @@ void UI_TrackerBG(struct Icon *targetIcon, s16 centerX, s16 centerY, struct Prim
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8004e8d8-0x8004eaa8.
 void UI_DrawDriverIcon(struct Icon *icon, s16 posX, s16 posY, struct PrimMem *primMem, u_long *ot, char transparency, s16 scale, u32 color)
 {
-	PolyFT4 *p = primMem->curr;
+	PolyFT4 *p = primMem->cursor;
 	const PrimCode primCode = {.poly = {.renderCode = RenderCode_Polygon, .quad = 1, .textured = 1}};
 	p->colorCode.self = color;
 	p->colorCode.code = primCode;
@@ -313,5 +313,5 @@ void UI_DrawDriverIcon(struct Icon *icon, s16 posX, s16 posY, struct PrimMem *pr
 	p->v[3].texCoords.v = bottomV;
 
 	AddPrimitive(p, ot);
-	primMem->curr = p + 1;
+	primMem->cursor = p + 1;
 }

@@ -53,8 +53,8 @@ void FLARE_ThTick(struct Thread *th)
 		return;
 	}
 
-	u32 *prim = gGT->backBuffer->primMem.curr;
-	if (prim + 0x34 >= (u32 *)gGT->backBuffer->primMem.endMin100)
+	u32 *prim = gGT->backBuffer->primMem.cursor;
+	if (prim + 0x34 >= (u32 *)gGT->backBuffer->primMem.guardEnd)
 		return;
 
 	PushBuffer_SetPsyqGeom(pb);
@@ -175,7 +175,7 @@ void FLARE_ThTick(struct Thread *th)
 	p3[0] = *ot | 0x0c000000;
 	*ot = FLARE_Ptr24(p0);
 
-	gGT->backBuffer->primMem.curr = prim + 0x34;
+	gGT->backBuffer->primMem.cursor = prim + 0x34;
 }
 
 

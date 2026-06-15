@@ -44,7 +44,7 @@ void UI_Map_DrawMap(struct Icon *mapTop, struct Icon *mapBottom, s16 posX, s16 p
 	// position of the bottom margin of the primitive for the bottom half of the minimap
 	mapBottomHeight = mapBottom->texLayout.v2 - mapBottom->texLayout.v0;
 
-	p = (POLY_FT4 *)primMem->curr;
+	p = (POLY_FT4 *)primMem->cursor;
 
 	// if these conditions are met, then draw the top half of the minimap; otherwise, only draw the bottom half
 	// not sure when the game ever draws only the bottom half
@@ -79,7 +79,7 @@ void UI_Map_DrawMap(struct Icon *mapTop, struct Icon *mapBottom, s16 posX, s16 p
 
 	UI_Map_DrawMap_ExtraFunc(mapBottom, p, posX, 0, primMem, otMem, transparency);
 
-	primMem->curr = p + 1;
+	primMem->cursor = p + 1;
 }
 
 void UI_Map_DrawMap_ExtraFunc(struct Icon *icon, POLY_FT4 *p, s16 posX, s16 empty, struct PrimMem *primMem, u_long *otMem, u32 transparency)

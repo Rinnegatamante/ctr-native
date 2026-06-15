@@ -183,7 +183,7 @@ LAB_OVR_230__800b3c78:
 		iVar7 = (8 - D230.highScore_transitionFrames[1]) * D230.highScore_horizontalMove[0] * 0x40;
 	}
 
-	u_long *ot = sdata->gGT->backBuffer->otMem.startPlusFour;
+	u_long *ot = sdata->gGT->backBuffer->otMem.uiOT;
 
 	if (((iVar7 != -0x200) && (iVar7 != 0x200)) && ((iVar4 != -0xd8 && (iVar4 != 0xd8))))
 	{

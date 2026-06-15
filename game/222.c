@@ -670,7 +670,7 @@ void AA_EndEvent_DisplayTime(s16 driverId, s16 timeOffsetFrames)
 	timeBoxRect.h += 6;
 
 	// Draw 2D Menu rectangle background
-	RECTMENU_DrawInnerRect(&timeBoxRect, 4, gGT->backBuffer->otMem.startPlusFour);
+	RECTMENU_DrawInnerRect(&timeBoxRect, 4, gGT->backBuffer->otMem.uiOT);
 	return;
 }
 

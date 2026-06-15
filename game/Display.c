@@ -106,14 +106,14 @@ void DISPLAY_Blur_Main(struct PushBuffer *pb, int strength)
 {
 	struct GameTracker *gGT = sdata->gGT;
 	struct DB *backBuffer = gGT->backBuffer;
-	u32 *prim = backBuffer->primMem.curr;
+	u32 *prim = backBuffer->primMem.cursor;
 	u32 *nextPrim;
 	s8 cameraID;
 	u_long *ot;
 
 	cameraID = *(s8 *)&pb->cameraID;
 
-	if (strength < 1 || (((*(u8 *)&gGT->db[1 - gGT->swapchainIndex].unk_primMemRelated >> (cameraID & 0x1f)) & 1) == 0))
+	if (strength < 1 || (((gGT->db[1 - gGT->swapchainIndex].blurCameraMask >> (cameraID & 0x1f)) & 1) == 0))
 	{
 		int x = pb->rect.x;
 		int y = pb->rect.y;
@@ -176,8 +176,8 @@ void DISPLAY_Blur_Main(struct PushBuffer *pb, int strength)
 		nextPrim[-10] = oldTag | 0x09000000;
 	}
 
-	backBuffer->primMem.curr = nextPrim;
-	*(u8 *)&backBuffer->unk_primMemRelated |= (u8)(1 << (cameraID & 0x1f));
+	backBuffer->primMem.cursor = nextPrim;
+	backBuffer->blurCameraMask |= (u8)(1 << (cameraID & 0x1f));
 }
 
 

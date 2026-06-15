@@ -2616,7 +2616,7 @@ static void DrawLevelOvr1P_AddRawPrimToOt(struct PrimMem *primMem, u32 *primWord
 	*otEntry = (u32)(uintptr_t)primWords & 0x00ffffff;
 	// NOTE(aalhendi): Retail keeps the overlay primitive count in `sp`, seeded
 	// from PrimMem+0x14 and stored back at the epilogue.
-	primMem->unk1++;
+	primMem->primitiveCount++;
 }
 
 static u32 DrawLevelOvr1P_GetProjectedColorCode(const struct DrawLevelOvr1PScratchVertex *projected, u32 code)
@@ -2648,7 +2648,7 @@ static int DrawLevelOvr1P_EmitPreparedProjectedQuadRawCodeAtOtEntry(struct PushB
 	(void)pb;
 	(void)block;
 
-	prim = primMem->curr;
+	prim = primMem->cursor;
 	nextPrim = (u8 *)prim + sizeof(POLY_GT4);
 
 	DrawLevelOvr1P_StoreProjectedDirectUvScratch(projected, indices, 4);
@@ -2674,7 +2674,7 @@ static int DrawLevelOvr1P_EmitPreparedProjectedQuadRawCodeAtOtEntry(struct PushB
 	prim[11] = DrawLevelOvr1P_PackProjectedSxy(&projected[indices[3]]);
 	prim[12] = uv2 >> 16;
 	DrawLevelOvr1P_AddRawPrimToOt(primMem, prim, 12, otEntry);
-	primMem->curr = nextPrim;
+	primMem->cursor = nextPrim;
 	return 1;
 }
 
@@ -2717,7 +2717,7 @@ static int DrawLevelOvr1P_EmitPreparedProjectedTriRawCodeAtOtEntry(struct PushBu
 	(void)pb;
 	(void)block;
 
-	prim = primMem->curr;
+	prim = primMem->cursor;
 	nextPrim = (u8 *)prim + sizeof(POLY_GT3);
 
 	DrawLevelOvr1P_StoreProjectedDirectUvScratch(projected, indices, 3);
@@ -2740,7 +2740,7 @@ static int DrawLevelOvr1P_EmitPreparedProjectedTriRawCodeAtOtEntry(struct PushBu
 	prim[8] = DrawLevelOvr1P_PackProjectedSxy(&projected[indices[2]]);
 	prim[9] = uv2;
 	DrawLevelOvr1P_AddRawPrimToOt(primMem, prim, 9, otEntry);
-	primMem->curr = nextPrim;
+	primMem->cursor = nextPrim;
 	return 1;
 }
 
@@ -3253,7 +3253,7 @@ static int Ovr226_800aad44_EmitClipRecordGT4(struct PushBuffer *pb, struct PrimM
 		return 1;
 
 	// NOTE(aalhendi): Retail relies on the 0x800aa848 per-record 0xd68 prim reserve.
-	prim = primMem->curr;
+	prim = primMem->cursor;
 	nextPrim = (u8 *)prim + sizeof(POLY_GT4);
 	uv0 = DrawLevelOvr1P_StoreClipRecordUvScratch(&emit[0], 0x1a0);
 	uv1 = DrawLevelOvr1P_StoreClipRecordUvScratch(&emit[1], 0x1a4);
@@ -3273,7 +3273,7 @@ static int Ovr226_800aad44_EmitClipRecordGT4(struct PushBuffer *pb, struct PrimM
 	prim[11] = DrawLevelOvr1P_PackProjectedSxy(&emit[3]);
 	prim[12] = DrawLevelOvr1P_GetClipRecordSignedUvWord(&emit[3]);
 	DrawLevelOvr1P_AddRawPrimToOt(primMem, prim, 12, otEntry);
-	primMem->curr = nextPrim;
+	primMem->cursor = nextPrim;
 	return 1;
 }
 
@@ -3300,7 +3300,7 @@ static int Ovr226_800aac00_EmitClipRecordGT3(struct PushBuffer *pb, struct PrimM
 		return 1;
 
 	// NOTE(aalhendi): Retail relies on the 0x800aa848 per-record 0xd68 prim reserve.
-	prim = primMem->curr;
+	prim = primMem->cursor;
 	nextPrim = (u8 *)prim + sizeof(POLY_GT3);
 	uv0 = DrawLevelOvr1P_StoreClipRecordUvScratch(&emit[0], 0x1a0);
 	uv1 = DrawLevelOvr1P_StoreClipRecordUvScratch(&emit[1], 0x1a4);
@@ -3317,7 +3317,7 @@ static int Ovr226_800aac00_EmitClipRecordGT3(struct PushBuffer *pb, struct PrimM
 	prim[8] = DrawLevelOvr1P_PackProjectedSxy(&emit[2]);
 	prim[9] = uv2;
 	DrawLevelOvr1P_AddRawPrimToOt(primMem, prim, 9, otEntry);
-	primMem->curr = nextPrim;
+	primMem->cursor = nextPrim;
 	return 1;
 }
 
@@ -3755,12 +3755,12 @@ static int Ovr226_800aa790_TerminalPreamble(struct PushBuffer *pb, const u8 *cur
 
 static int DrawLevelOvr1P_HasClipRecordConsumerPrimReserve(const struct PrimMem *primMem)
 {
-	return (u8 *)primMem->curr + DRAW_LEVEL_OVR1P_CLIP_RECORD_PRIM_RESERVE + sDrawLevelOvr1P_PrimReserveBias <= (u8 *)primMem->end;
+	return (u8 *)primMem->cursor + DRAW_LEVEL_OVR1P_CLIP_RECORD_PRIM_RESERVE + sDrawLevelOvr1P_PrimReserveBias <= (u8 *)primMem->end;
 }
 
 static int DrawLevelOvr1P_HasBucketPrimReserve(const struct PrimMem *primMem, u32 reserve)
 {
-	u8 *curr = primMem->curr;
+	u8 *curr = primMem->cursor;
 	u8 *end = primMem->end;
 
 	return curr <= end && (size_t)(reserve + sDrawLevelOvr1P_PrimReserveBias) <= (size_t)(end - curr);
@@ -5158,7 +5158,7 @@ static int Ovr226_800a4034_EmitGround4x1GT3Raw(struct PushBuffer *pb, struct Pri
 		triIndices[2] = indices[2];
 	}
 
-	prim = primMem->curr;
+	prim = primMem->cursor;
 	nextPrim = (u8 *)prim + sizeof(POLY_GT3);
 
 	DrawLevelOvr1P_StoreProjectedDirectUvScratch(projected, triIndices, 3);
@@ -5177,7 +5177,7 @@ static int Ovr226_800a4034_EmitGround4x1GT3Raw(struct PushBuffer *pb, struct Pri
 	prim[8] = DrawLevelOvr1P_PackProjectedSxy(&projected[triIndices[2]]);
 	prim[9] = uv2;
 	DrawLevelOvr1P_AddRawPrimToOt(primMem, prim, 9, otEntry);
-	primMem->curr = nextPrim;
+	primMem->cursor = nextPrim;
 	return 1;
 }
 
@@ -5199,7 +5199,7 @@ static int Ovr226_800a40b8_EmitGround4x1GT4Raw(struct PushBuffer *pb, struct Pri
 	if (otEntry == NULL)
 		return 1;
 
-	prim = primMem->curr;
+	prim = primMem->cursor;
 	nextPrim = (u8 *)prim + sizeof(POLY_GT4);
 
 	DrawLevelOvr1P_StoreProjectedDirectUvScratch(projected, indices, 4);
@@ -5221,7 +5221,7 @@ static int Ovr226_800a40b8_EmitGround4x1GT4Raw(struct PushBuffer *pb, struct Pri
 	prim[11] = DrawLevelOvr1P_PackProjectedSxy(&projected[indices[3]]);
 	prim[12] = uv2 >> 16;
 	DrawLevelOvr1P_AddRawPrimToOt(primMem, prim, 12, otEntry);
-	primMem->curr = nextPrim;
+	primMem->cursor = nextPrim;
 	return 1;
 }
 
@@ -9098,7 +9098,7 @@ static int Ovr226_800a27dc_EmitWaterListGT3Raw(struct PushBuffer *pb, struct Pri
 	if (inheritedOtEntry == NULL)
 		return 1;
 
-	prim = primMem->curr;
+	prim = primMem->cursor;
 	nextPrim = (u8 *)prim + sizeof(POLY_GT3);
 	DrawLevelOvr1P_StoreProjectedDirectUvScratch(projected, triIndices, 3);
 	uv0 = *CTR_SCRATCHPAD_PTR(u32, 0x1a0);
@@ -9115,7 +9115,7 @@ static int Ovr226_800a27dc_EmitWaterListGT3Raw(struct PushBuffer *pb, struct Pri
 	prim[8] = DrawLevelOvr1P_PackProjectedSxy(&projected[triIndices[2]]);
 	prim[9] = uv2;
 	DrawLevelOvr1P_AddRawPrimToOt(primMem, prim, 9, inheritedOtEntry);
-	primMem->curr = nextPrim;
+	primMem->cursor = nextPrim;
 	return 1;
 }
 
@@ -9135,7 +9135,7 @@ static int Ovr226_800a2850_EmitWaterListGT4Raw(struct PushBuffer *pb, struct Pri
 	if (inheritedOtEntry == NULL)
 		return 1;
 
-	prim = primMem->curr;
+	prim = primMem->cursor;
 	nextPrim = (u8 *)prim + sizeof(POLY_GT4);
 	DrawLevelOvr1P_StoreProjectedDirectUvScratch(projected, indices, 4);
 	uv0 = *CTR_SCRATCHPAD_PTR(u32, 0x1a0);
@@ -9155,7 +9155,7 @@ static int Ovr226_800a2850_EmitWaterListGT4Raw(struct PushBuffer *pb, struct Pri
 	prim[11] = DrawLevelOvr1P_PackProjectedSxy(&projected[indices[3]]);
 	prim[12] = uv2 >> 16;
 	DrawLevelOvr1P_AddRawPrimToOt(primMem, prim, 12, inheritedOtEntry);
-	primMem->curr = nextPrim;
+	primMem->cursor = nextPrim;
 	return 1;
 }
 

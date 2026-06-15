@@ -293,7 +293,7 @@ void TT_EndEvent_DisplayTime(int paramX, s16 paramY, u32 UI_DrawRaceClockFlags)
 	rectangle.h = 99;
 
 	// Draw 2D Menu rectangle background
-	RECTMENU_DrawInnerRect(&rectangle, 4, gGT->backBuffer->otMem.startPlusFour);
+	RECTMENU_DrawInnerRect(&rectangle, 4, gGT->backBuffer->otMem.uiOT);
 
 	return;
 }
@@ -413,7 +413,7 @@ void TT_EndEvent_DrawHighScore(s16 startX, int startY, s16 scoreMode)
 	box.h = 0xb4;
 
 	// Draw 2D Menu rectangle background
-	RECTMENU_DrawInnerRect(&box, 4, gGT->backBuffer->otMem.startPlusFour);
+	RECTMENU_DrawInnerRect(&box, 4, gGT->backBuffer->otMem.uiOT);
 }
 
 struct MenuRow rowsWithSave[6] = {

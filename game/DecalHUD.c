@@ -7,7 +7,7 @@ void DecalHUD_DrawPolyFT4(struct Icon *icon, s16 posX, s16 posY, struct PrimMem 
 	if (!icon)
 		return;
 
-	POLY_FT4 *p = (POLY_FT4 *)primMem->curr;
+	POLY_FT4 *p = (POLY_FT4 *)primMem->cursor;
 	addPolyFT4(ot, p);
 
 	u32 width = icon->texLayout.u1 - icon->texLayout.u0;
@@ -26,7 +26,7 @@ void DecalHUD_DrawPolyFT4(struct Icon *icon, s16 posX, s16 posY, struct PrimMem 
 		setTransparency(p, transparency);
 	}
 
-	primMem->curr = p + 1;
+	primMem->cursor = p + 1;
 }
 
 
@@ -38,7 +38,7 @@ void DecalHUD_DrawWeapon(struct Icon *icon, s16 posX, s16 posY, struct PrimMem *
 		return;
 #endif
 
-	POLY_FT4 *p = (POLY_FT4 *)primMem->curr;
+	POLY_FT4 *p = (POLY_FT4 *)primMem->cursor;
 	addPolyFT4(ot, p);
 
 	u32 width = icon->texLayout.u1 - icon->texLayout.u0;
@@ -86,7 +86,7 @@ void DecalHUD_DrawWeapon(struct Icon *icon, s16 posX, s16 posY, struct PrimMem *
 		setTransparency(p, transparency);
 	}
 
-	primMem->curr = p + 1;
+	primMem->cursor = p + 1;
 }
 
 
@@ -101,7 +101,7 @@ void DecalHUD_DrawPolyGT4(struct Icon *icon, s16 posX, s16 posY, struct PrimMem 
 
 	// setInt32RGB4 needs to go before addPolyGT4
 	// for more information check "include/gpu.h"
-	POLY_GT4 *p = (POLY_GT4 *)primMem->curr;
+	POLY_GT4 *p = (POLY_GT4 *)primMem->cursor;
 	setInt32RGB4(p, color0, color1, color2, color3);
 	addPolyGT4(ot, p);
 
@@ -117,7 +117,7 @@ void DecalHUD_DrawPolyGT4(struct Icon *icon, s16 posX, s16 posY, struct PrimMem 
 		setTransparency(p, transparency);
 	}
 
-	primMem->curr = p + 1;
+	primMem->cursor = p + 1;
 }
 
 
@@ -151,7 +151,7 @@ void DecalHUD_Arrow2D(struct Icon *icon, s16 posX, s16 posY, struct PrimMem *pri
 	y2 = icon->texLayout.v2;
 	bottomMargin = *(u32 *)&icon->texLayout.u2;
 
-	p = (POLY_GT4 *)primMem->curr;
+	p = (POLY_GT4 *)primMem->cursor;
 
 	if (transparency == 0)
 	{
@@ -231,6 +231,6 @@ LAB_800232d8:
 	*otMemPtr = CtrGpu_PrimToOTLink24(p);
 
 	// POLY_GT4 is 0x34 bytes large
-	primMem->curr = p + 1;
+	primMem->cursor = p + 1;
 	return;
 }

@@ -363,7 +363,7 @@ static u32 *Torch_EmitParticle(u32 *prim, u_long *ot)
 void Torch_Main(void *particleList_heatWarp, struct PushBuffer *pb, struct PrimMem *primMem, char numPlyr, int swapchainIndex)
 {
 	struct Particle *firstParticle = particleList_heatWarp;
-	u32 *prim = (u32 *)primMem->curr;
+	u32 *prim = (u32 *)primMem->cursor;
 
 	// NOTE(aalhendi): PSX-backfeed blocker: retail saves callee registers and pointer cursors in scratchpad 0x00-0x38.
 	// Native C keeps host-width pointers as locals, while preserving retail data temporaries from 0x44 up.
@@ -505,5 +505,5 @@ void Torch_Main(void *particleList_heatWarp, struct PushBuffer *pb, struct PrimM
 	}
 
 done:
-	primMem->curr = prim;
+	primMem->cursor = prim;
 }

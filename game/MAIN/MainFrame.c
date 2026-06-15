@@ -41,10 +41,10 @@ void MainFrame_ResetDB(struct GameTracker *gGT)
 	otSwapchainDB = (int)gGT->otSwapchainDB[gGT->swapchainIndex];
 
 	db = gGT->backBuffer;
-	*(u8 *)&db->unk_primMemRelated = 0;
-	db->primMem.curr = db->primMem.start;
-	db->primMem.unk1 = 0;
-	db->otMem.curr = db->otMem.start;
+	db->blurCameraMask = 0;
+	db->primMem.cursor = db->primMem.start;
+	db->primMem.primitiveCount = 0;
+	db->otMem.cursor = db->otMem.start;
 
 	CTR_EmptyFunc_MainFrame_ResetDB();
 	DecalGlobal_EmptyFunc_MainFrame_ResetDB();
@@ -64,7 +64,7 @@ void MainFrame_ResetDB(struct GameTracker *gGT)
 
 	puVar3 = (u_long *)((int)otSwapchainDB + 4);
 	gGT->pushBuffer_UI.ptrOT = puVar3;
-	db->otMem.startPlusFour = puVar3;
+	db->otMem.uiOT = puVar3;
 	return;
 }
 

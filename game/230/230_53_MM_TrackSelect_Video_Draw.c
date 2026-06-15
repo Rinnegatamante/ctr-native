@@ -6,7 +6,7 @@
 static void MM_TrackSelect_Video_DrawNativePreview(RECT *r, int srcX, int srcY)
 {
 	struct GameTracker *gGT = sdata->gGT;
-	u32 *prim = (u32 *)gGT->backBuffer->primMem.curr;
+	u32 *prim = (u32 *)gGT->backBuffer->primMem.cursor;
 	u_long *ot = gGT->pushBuffer_UI.ptrOT;
 	u32 oldTag = (u32)*ot;
 	u32 *nextPrim;
@@ -20,7 +20,7 @@ static void MM_TrackSelect_Video_DrawNativePreview(RECT *r, int srcX, int srcY)
 	*ot = (u_long)CtrGpu_PrimToOTLink24(prim);
 	nextPrim = DISPLAY_Blur_SubFunc(prim, tile);
 	nextPrim[-10] = oldTag | 0x09000000;
-	gGT->backBuffer->primMem.curr = nextPrim;
+	gGT->backBuffer->primMem.cursor = nextPrim;
 }
 #endif
 
@@ -191,5 +191,5 @@ void MM_TrackSelect_Video_Draw(RECT *r, struct MainMenu_LevelRow *selectMenu, in
 	D230.trackSel_videoStatePrev = D230.trackSel_videoStateCurr;
 
 	// Draw 2D Menu rectangle background
-	RECTMENU_DrawInnerRect(r, (s16)(param_5 | 1), gGT->backBuffer->otMem.startPlusFour);
+	RECTMENU_DrawInnerRect(r, (s16)(param_5 | 1), gGT->backBuffer->otMem.uiOT);
 }

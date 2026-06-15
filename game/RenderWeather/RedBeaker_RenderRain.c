@@ -166,7 +166,7 @@ static void RedBeaker_RenderPass(u32 **primCursor, u_long *ot, u32 color, u32 dr
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8006dc30-0x8006e26c
 void RedBeaker_RenderRain(struct PushBuffer *pb, struct PrimMem *primMem, struct JitPool *rain, char numPlyr, int gameMode1)
 {
-	u32 *prim = (u32 *)primMem->curr;
+	u32 *prim = (u32 *)primMem->cursor;
 	struct RainLocal *firstRain = (struct RainLocal *)rain->taken.first;
 	u32 *scratchCenterXY = CTR_SCRATCHPAD_PTR(u32, 0x30);
 	u32 *scratchColorTop = CTR_SCRATCHPAD_PTR(u32, 0x48);
@@ -176,7 +176,7 @@ void RedBeaker_RenderRain(struct PushBuffer *pb, struct PrimMem *primMem, struct
 	// Native C keeps pointer cursors as host-width locals; restore those exact scratchpad pointer stores before PSX backfeed.
 	if (firstRain == NULL)
 	{
-		primMem->curr = prim;
+		primMem->cursor = prim;
 		return;
 	}
 
@@ -276,5 +276,5 @@ void RedBeaker_RenderRain(struct PushBuffer *pb, struct PrimMem *primMem, struct
 		}
 	}
 
-	primMem->curr = prim;
+	primMem->cursor = prim;
 }

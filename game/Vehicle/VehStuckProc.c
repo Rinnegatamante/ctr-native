@@ -1301,7 +1301,7 @@ void VehStuckProc_Warp_AddDustPuff2(struct Driver *d, int *warp)
 	struct GameTracker *gGT = sdata->gGT;
 	struct PushBuffer *pb = &gGT->pushBuffer[d->driverID];
 	struct DB *backBuffer = gGT->backBuffer;
-	u32 *prim = backBuffer->primMem.curr;
+	u32 *prim = backBuffer->primMem.cursor;
 	SVECTOR *points = CTR_SCRATCHPAD_PTR(SVECTOR, 0x108);
 	SVECTOR *endpoint = &points[VEH_WARP_DUST_SEGMENTS];
 	s16 *jitterScale = CTR_SCRATCHPAD_PTR(s16, 0x1c0);
@@ -1374,7 +1374,7 @@ void VehStuckProc_Warp_AddDustPuff2(struct Driver *d, int *warp)
 		}
 	}
 
-	backBuffer->primMem.curr = prim;
+	backBuffer->primMem.cursor = prim;
 }
 
 

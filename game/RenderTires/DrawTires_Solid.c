@@ -628,7 +628,7 @@ static void DrawTiresSolid_LinkPrimitive(struct DrawTiresSolidScratch *scratch, 
 static int DrawTiresSolid_EmitProjectedWheel(struct DrawTiresSolidScratch *scratch, struct DrawTiresSolidProjectedWheel *selected, struct PrimMem *primMem,
                                              int *primCount)
 {
-	POLY_FT4 *p = (POLY_FT4 *)primMem->curr;
+	POLY_FT4 *p = (POLY_FT4 *)primMem->cursor;
 	int selectedOTSlot = selected->selectedOTSlot;
 	int sxy[4];
 
@@ -656,7 +656,7 @@ static int DrawTiresSolid_EmitProjectedWheel(struct DrawTiresSolidScratch *scrat
 
 	DrawTiresSolid_WritePrimitiveCorners(p, sxy);
 	DrawTiresSolid_LinkPrimitive(scratch, p, selectedOTSlot);
-	primMem->curr = (char *)primMem->curr + sizeof(POLY_FT4);
+	primMem->cursor = (char *)primMem->cursor + sizeof(POLY_FT4);
 	(*primCount)++;
 
 	return 1;
@@ -764,7 +764,7 @@ void DrawTires_Solid(struct Thread *thread, struct PrimMem *primMem, char numPly
 	if (primMem == 0)
 		return;
 
-	primCount = primMem->unk1;
+	primCount = primMem->primitiveCount;
 	DrawTiresSolid_InitScratch(&scratch, numPlyr);
 
 	for (struct Thread *currThread = thread; currThread != 0; currThread = currThread->siblingThread)
@@ -782,5 +782,5 @@ void DrawTires_Solid(struct Thread *thread, struct PrimMem *primMem, char numPly
 		}
 	}
 
-	primMem->unk1 = primCount;
+	primMem->primitiveCount = primCount;
 }

@@ -147,11 +147,6 @@ _Static_assert(sizeof(u_long) == 0x4);
 _Static_assert(offsetof(struct PushBuffer, pos[0]) == 0x0);
 _Static_assert(offsetof(struct PushBuffer, pos[1]) == 0x2);
 _Static_assert(offsetof(struct PushBuffer, pos[2]) == 0x4);
-_Static_assert(sizeof(struct OTMem) == 0x14);
-_Static_assert(offsetof(struct OTMem, start) == 0x4);
-_Static_assert(offsetof(struct OTMem, end) == 0x8);
-_Static_assert(offsetof(struct OTMem, curr) == 0xc);
-_Static_assert(offsetof(struct OTMem, startPlusFour) == 0x10);
 
 typedef struct
 {
@@ -1844,7 +1839,7 @@ void *RenderBucket_QueueLevInstances(struct CameraDC *cDC, u_long *otMem, void *
 	if (otState != 0)
 #endif
 	{
-		queueState.otCurr = otState->curr;
+		queueState.otCurr = otState->cursor;
 		queueState.otEndMinusOne = otState->end - 1;
 	}
 
@@ -1865,7 +1860,7 @@ void *RenderBucket_QueueLevInstances(struct CameraDC *cDC, u_long *otMem, void *
 	if (otState != 0)
 #endif
 	{
-		otState->curr = queueState.otCurr;
+		otState->cursor = queueState.otCurr;
 	}
 
 	return entry;
@@ -1888,7 +1883,7 @@ void *RenderBucket_QueueNonLevInstances(struct Item *item, u_long *otMem, void *
 	if (otState != 0)
 #endif
 	{
-		queueState.otCurr = otState->curr;
+		queueState.otCurr = otState->cursor;
 		queueState.otEndMinusOne = otState->end - 1;
 	}
 
@@ -1904,7 +1899,7 @@ void *RenderBucket_QueueNonLevInstances(struct Item *item, u_long *otMem, void *
 	if (otState != 0)
 #endif
 	{
-		otState->curr = queueState.otCurr;
+		otState->cursor = queueState.otCurr;
 	}
 
 	return entry;
@@ -2489,7 +2484,7 @@ static int RenderBucket_DrawInstPrim_NormalAtOTEntry(struct RenderBucketDrawCont
 {
 	u16 texIndex = command & 0x1ff;
 
-	if ((char *)ctx->primMem->curr + sizeof(POLY_GT3) >= (char *)ctx->primMem->endMin100)
+	if ((char *)ctx->primMem->cursor + sizeof(POLY_GT3) >= (char *)ctx->primMem->guardEnd)
 		return -1;
 
 	if (otEntry == 0)
@@ -2499,7 +2494,7 @@ static int RenderBucket_DrawInstPrim_NormalAtOTEntry(struct RenderBucketDrawCont
 
 	if (tex == 0)
 	{
-		POLY_G3 *p = ctx->primMem->curr;
+		POLY_G3 *p = ctx->primMem->cursor;
 
 		*(u32 *)&p->r0 = 0x30000000 | (u32)MFC2(20);
 		*(int *)&p->r1 = MFC2(21);
@@ -2516,7 +2511,7 @@ static int RenderBucket_DrawInstPrim_NormalAtOTEntry(struct RenderBucketDrawCont
 		}
 #endif
 		RenderBucket_LinkPrimRaw(otEntry, p, 0x06000000);
-		ctx->primMem->curr = (char *)p + 0x1c;
+		ctx->primMem->cursor = (char *)p + 0x1c;
 	}
 	else
 	{
@@ -2524,7 +2519,7 @@ static int RenderBucket_DrawInstPrim_NormalAtOTEntry(struct RenderBucketDrawCont
 		u32 texWord1;
 		u32 codeWord;
 
-		p = ctx->primMem->curr;
+		p = ctx->primMem->cursor;
 		texWord1 = *(u32 *)&tex->u1;
 		codeWord = ((texWord1 & 0x00600000) == 0x00600000) ? 0x34000000 : 0x36000000;
 
@@ -2547,7 +2542,7 @@ static int RenderBucket_DrawInstPrim_NormalAtOTEntry(struct RenderBucketDrawCont
 		}
 #endif
 		RenderBucket_LinkPrimRaw(otEntry, p, 0x09000000);
-		ctx->primMem->curr = (char *)p + 0x28;
+		ctx->primMem->cursor = (char *)p + 0x28;
 	}
 
 	return 0;
@@ -2574,7 +2569,7 @@ static int RenderBucket_DrawInstPrim_KeyRelicTokenAtRange(struct RenderBucketDra
 	u32 codeWord;
 	u32 tpageMask;
 
-	if ((char *)ctx->primMem->curr + sizeof(POLY_FT3) >= (char *)ctx->primMem->endMin100)
+	if ((char *)ctx->primMem->cursor + sizeof(POLY_FT3) >= (char *)ctx->primMem->guardEnd)
 		return -1;
 
 	// NOTE(aalhendi): Retail only routes textured key/relic/token models here.
@@ -2594,7 +2589,7 @@ static int RenderBucket_DrawInstPrim_KeyRelicTokenAtRange(struct RenderBucketDra
 	if (signedTest < 0)
 		otEntry++;
 
-	POLY_FT3 *p = ctx->primMem->curr;
+	POLY_FT3 *p = ctx->primMem->cursor;
 	gte_stsxy3(&p->x0, &p->x1, &p->x2);
 
 	u32 sourceColor = (u32)ctx->tempColor[1];
@@ -2648,7 +2643,7 @@ static int RenderBucket_DrawInstPrim_KeyRelicTokenAtRange(struct RenderBucketDra
 	*(u32 *)&p->u2 = *(u32 *)&tex->u2;
 
 	RenderBucket_LinkPrimRaw(otEntry, p, 0x07000000);
-	ctx->primMem->curr = (char *)p + 0x20;
+	ctx->primMem->cursor = (char *)p + 0x20;
 	return 0;
 }
 
@@ -2717,10 +2712,10 @@ static int RenderBucket_DrawInstPrim_DepthFadeAtRange(struct RenderBucketDrawCon
 	if ((color0 | color1 | color2) == 0)
 		return 0;
 
-	if ((char *)ctx->primMem->curr + sizeof(POLY_GT3) >= (char *)ctx->primMem->endMin100)
+	if ((char *)ctx->primMem->cursor + sizeof(POLY_GT3) >= (char *)ctx->primMem->guardEnd)
 		return -1;
 
-	p = ctx->primMem->curr;
+	p = ctx->primMem->cursor;
 	*(u32 *)&p->r0 = 0x36000000 | (color0 & 0x00ffffff);
 	*(u32 *)&p->r1 = color1;
 	*(u32 *)&p->r2 = color2;
@@ -2730,7 +2725,7 @@ static int RenderBucket_DrawInstPrim_DepthFadeAtRange(struct RenderBucketDrawCon
 	*(u32 *)&p->u2 = *(u32 *)&tex->u2;
 
 	RenderBucket_LinkPrimRaw(otEntry, p, 0x09000000);
-	ctx->primMem->curr = (char *)p + 0x28;
+	ctx->primMem->cursor = (char *)p + 0x28;
 	return 0;
 }
 
@@ -2770,7 +2765,7 @@ static int RenderBucket_DrawInstPrim_LitTextureAtRange(struct RenderBucketDrawCo
 	u32 tpageMask;
 	POLY_FT3 *p;
 
-	if ((char *)ctx->primMem->curr + sizeof(POLY_FT3) >= (char *)ctx->primMem->endMin100)
+	if ((char *)ctx->primMem->cursor + sizeof(POLY_FT3) >= (char *)ctx->primMem->guardEnd)
 		return -1;
 
 	if (tex == 0)
@@ -2849,7 +2844,7 @@ static int RenderBucket_DrawInstPrim_LitTextureAtRange(struct RenderBucketDrawCo
 		tpageMask = 0x00200000;
 	}
 
-	p = ctx->primMem->curr;
+	p = ctx->primMem->cursor;
 	*(u32 *)&p->r0 = codeWord | (b << 16) | (g << 8) | r;
 	gte_stsxy3(&p->x0, &p->x1, &p->x2);
 	*(u32 *)&p->u0 = *(u32 *)&tex->u0;
@@ -2857,7 +2852,7 @@ static int RenderBucket_DrawInstPrim_LitTextureAtRange(struct RenderBucketDrawCo
 	*(u32 *)&p->u2 = *(u32 *)&tex->u2;
 
 	RenderBucket_LinkPrimRaw(otEntry, p, 0x07000000);
-	ctx->primMem->curr = (char *)p + 0x20;
+	ctx->primMem->cursor = (char *)p + 0x20;
 	return 0;
 }
 
@@ -2887,12 +2882,12 @@ static int RenderBucket_DrawInstPrim_GhostAtRange(struct RenderBucketDrawContext
 	if (alpha == 0)
 		return RenderBucket_DrawInstPrim_NormalAtRange(ctx, command, tex, activeRange, depthMac0);
 
-	if ((char *)ctx->primMem->curr + 0x40 >= (char *)ctx->primMem->endMin100)
+	if ((char *)ctx->primMem->cursor + 0x40 >= (char *)ctx->primMem->guardEnd)
 		return -1;
 
 	gte_dpct();
 
-	p = (u32 *)ctx->primMem->curr;
+	p = (u32 *)ctx->primMem->cursor;
 	p[1] = 0xe1000a40;
 	p[2] = 0;
 	p[3] = *CTR_SCRATCHPAD_PTR(u32, 0x124);
@@ -2912,7 +2907,7 @@ static int RenderBucket_DrawInstPrim_GhostAtRange(struct RenderBucketDrawContext
 		p[14] = (u32)MFC2(14);
 
 		RenderBucket_LinkPrimRaw(otEntry, p, 0x0e000000);
-		ctx->primMem->curr = (char *)p + 0x3c;
+		ctx->primMem->cursor = (char *)p + 0x3c;
 	}
 	else
 	{
@@ -2929,7 +2924,7 @@ static int RenderBucket_DrawInstPrim_GhostAtRange(struct RenderBucketDrawContext
 		p[15] = *(u32 *)&tex->u2;
 
 		RenderBucket_LinkPrimRaw(otEntry, p, 0x0f000000);
-		ctx->primMem->curr = (char *)p + 0x40;
+		ctx->primMem->cursor = (char *)p + 0x40;
 	}
 
 	return 0;
@@ -3030,7 +3025,7 @@ static int RenderBucket_DrawSplitPrimitiveNormalAtOTEntry(struct RenderBucketDra
 {
 	u16 texIndex = command & 0x1ff;
 
-	if ((char *)ctx->primMem->curr + sizeof(POLY_GT3) >= (char *)ctx->primMem->endMin100)
+	if ((char *)ctx->primMem->cursor + sizeof(POLY_GT3) >= (char *)ctx->primMem->guardEnd)
 		return -1;
 
 	if (otEntry == 0)
@@ -3040,7 +3035,7 @@ static int RenderBucket_DrawSplitPrimitiveNormalAtOTEntry(struct RenderBucketDra
 
 	if (tex == 0)
 	{
-		POLY_G3 *p = ctx->primMem->curr;
+		POLY_G3 *p = ctx->primMem->cursor;
 
 		*(u32 *)&p->r0 = 0x30000000 | (u32)MFC2(20);
 		*(int *)&p->r1 = MFC2(21);
@@ -3052,11 +3047,11 @@ static int RenderBucket_DrawSplitPrimitiveNormalAtOTEntry(struct RenderBucketDra
 		p->x2 = (s16)v2->sxy;
 		p->y2 = (s16)(v2->sxy >> 16);
 		RenderBucket_LinkPrimRaw(otEntry, p, 0x06000000);
-		ctx->primMem->curr = (char *)p + 0x1c;
+		ctx->primMem->cursor = (char *)p + 0x1c;
 	}
 	else
 	{
-		POLY_GT3 *p = ctx->primMem->curr;
+		POLY_GT3 *p = ctx->primMem->cursor;
 		u32 texWord1 = *(u32 *)&tex->u1;
 		u32 codeWord = ((texWord1 & 0x00600000) == 0x00600000) ? 0x34000000 : 0x36000000;
 
@@ -3088,7 +3083,7 @@ static int RenderBucket_DrawSplitPrimitiveNormalAtOTEntry(struct RenderBucketDra
 		}
 #endif
 		RenderBucket_LinkPrimRaw(otEntry, p, 0x09000000);
-		ctx->primMem->curr = (char *)p + 0x28;
+		ctx->primMem->cursor = (char *)p + 0x28;
 	}
 
 	return 0;
@@ -3194,12 +3189,12 @@ static int RenderBucket_DrawSplitPrimitiveDepthFadeAtRange(struct RenderBucketDr
 	if ((color0 | color1 | color2) == 0)
 		return 0;
 
-	if ((char *)ctx->primMem->curr + sizeof(POLY_GT3) >= (char *)ctx->primMem->endMin100)
+	if ((char *)ctx->primMem->cursor + sizeof(POLY_GT3) >= (char *)ctx->primMem->guardEnd)
 		return -1;
 
 	// NOTE(aalhendi): Source-backs generated-split use of retail 0x8006b968:
 	// depth-fade still writes GT3, but generated vertices supply SXY/SZ and UV.
-	p = ctx->primMem->curr;
+	p = ctx->primMem->cursor;
 	*(u32 *)&p->r0 = 0x36000000 | (color0 & 0x00ffffff);
 	*(u32 *)&p->r1 = color1;
 	*(u32 *)&p->r2 = color2;
@@ -3218,7 +3213,7 @@ static int RenderBucket_DrawSplitPrimitiveDepthFadeAtRange(struct RenderBucketDr
 	p->u2 = (u8)v2->uv;
 	p->v2 = (u8)(v2->uv >> 8);
 	RenderBucket_LinkPrimRaw(otEntry, p, 0x09000000);
-	ctx->primMem->curr = (char *)p + 0x28;
+	ctx->primMem->cursor = (char *)p + 0x28;
 	return 0;
 }
 
@@ -3242,14 +3237,14 @@ static int RenderBucket_DrawSplitPrimitiveGhostAtRange(struct RenderBucketDrawCo
 	if (alpha == 0)
 		return RenderBucket_DrawSplitPrimitiveNormalAtOTEntry(ctx, command, tex, otEntry, v0, v1, v2);
 
-	if ((char *)ctx->primMem->curr + 0x40 >= (char *)ctx->primMem->endMin100)
+	if ((char *)ctx->primMem->cursor + 0x40 >= (char *)ctx->primMem->guardEnd)
 		return -1;
 
 	gte_dpct();
 
 	// NOTE(aalhendi): Source-backs generated-split use of retail 0x8006d670:
 	// same ghost primitive packet, but generated vertices supply SXY and UV.
-	p = (u32 *)ctx->primMem->curr;
+	p = (u32 *)ctx->primMem->cursor;
 	p[1] = 0xe1000a40;
 	p[2] = 0;
 	p[3] = *CTR_SCRATCHPAD_PTR(u32, 0x124);
@@ -3269,7 +3264,7 @@ static int RenderBucket_DrawSplitPrimitiveGhostAtRange(struct RenderBucketDrawCo
 		p[14] = v2->sxy;
 
 		RenderBucket_LinkPrimRaw(otEntry, p, 0x0e000000);
-		ctx->primMem->curr = (char *)p + 0x3c;
+		ctx->primMem->cursor = (char *)p + 0x3c;
 	}
 	else
 	{
@@ -3288,7 +3283,7 @@ static int RenderBucket_DrawSplitPrimitiveGhostAtRange(struct RenderBucketDrawCo
 		p[15] = texWord2;
 
 		RenderBucket_LinkPrimRaw(otEntry, p, 0x0f000000);
-		ctx->primMem->curr = (char *)p + 0x40;
+		ctx->primMem->cursor = (char *)p + 0x40;
 	}
 
 	return 0;
@@ -3307,7 +3302,7 @@ static int RenderBucket_DrawSplitPrimitiveKeyRelicTokenAtRange(struct RenderBuck
 	u32 tpageMask;
 	POLY_FT3 *p;
 
-	if ((char *)ctx->primMem->curr + sizeof(POLY_FT3) >= (char *)ctx->primMem->endMin100)
+	if ((char *)ctx->primMem->cursor + sizeof(POLY_FT3) >= (char *)ctx->primMem->guardEnd)
 		return -1;
 
 	if (tex == 0)
@@ -3337,12 +3332,12 @@ static int RenderBucket_DrawSplitPrimitiveKeyRelicTokenAtRange(struct RenderBuck
 
 	// NOTE(aalhendi): Source-backs generated-split use of retail 0x8006ae90:
 	// same flat textured writer, with generated SXY/UV and generated color.
-	p = ctx->primMem->curr;
+	p = ctx->primMem->cursor;
 	*(u32 *)&p->r0 = codeWord | RenderBucket_LightFlatTextureColor(v0->color, signedTest);
 	RenderBucket_WriteSplitFT3(p, v0, v1, v2, texWord0, texWord1 | tpageMask, texWord2);
 
 	RenderBucket_LinkPrimRaw(otEntry, p, 0x07000000);
-	ctx->primMem->curr = (char *)p + 0x20;
+	ctx->primMem->cursor = (char *)p + 0x20;
 	return 0;
 }
 
@@ -3359,7 +3354,7 @@ static int RenderBucket_DrawSplitPrimitiveLitTextureAtRange(struct RenderBucketD
 	u32 tpageMask;
 	POLY_FT3 *p;
 
-	if ((char *)ctx->primMem->curr + sizeof(POLY_FT3) >= (char *)ctx->primMem->endMin100)
+	if ((char *)ctx->primMem->cursor + sizeof(POLY_FT3) >= (char *)ctx->primMem->guardEnd)
 		return -1;
 
 	if (tex == 0)
@@ -3402,12 +3397,12 @@ static int RenderBucket_DrawSplitPrimitiveLitTextureAtRange(struct RenderBucketD
 
 	// NOTE(aalhendi): Source-backs generated-split use of retail 0x8006c778:
 	// same side-dependent flat textured writer with generated SXY/UV/color.
-	p = ctx->primMem->curr;
+	p = ctx->primMem->cursor;
 	*(u32 *)&p->r0 = codeWord | RenderBucket_LightFlatTextureColor(v0->color, signedTest);
 	RenderBucket_WriteSplitFT3(p, v0, v1, v2, texWord0, texWord1 | tpageMask, texWord2);
 
 	RenderBucket_LinkPrimRaw(otEntry, p, 0x07000000);
-	ctx->primMem->curr = (char *)p + 0x20;
+	ctx->primMem->cursor = (char *)p + 0x20;
 	return 0;
 }
 

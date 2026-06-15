@@ -138,7 +138,7 @@ static void DrawConfetti_LinkPrimitive(u32 *prim, u_long *ot)
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80069ffc-0x8006a4c4
 void DrawConfetti(struct PushBuffer *pb, struct PrimMem *primMem, void *confetti, int frameTimer, int gameMode1)
 {
-	u32 *prim = (u32 *)primMem->curr;
+	u32 *prim = (u32 *)primMem->cursor;
 	u8 *scratchColorTable = CTR_SCRATCHPAD_PTR(u8, 0x58);
 	u32 *scratchRemaining = CTR_SCRATCHPAD_PTR(u32, 0x30);
 	u32 *scratchColor = CTR_SCRATCHPAD_PTR(u32, 0x34);
@@ -347,5 +347,5 @@ void DrawConfetti(struct PushBuffer *pb, struct PrimMem *primMem, void *confetti
 		particleCount = *scratchRemaining;
 	}
 
-	primMem->curr = prim;
+	primMem->cursor = prim;
 }

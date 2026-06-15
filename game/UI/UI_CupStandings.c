@@ -433,7 +433,7 @@ void UI_CupStandings_InputAndDraw(void)
 	r.h = 0x32;
 
 	// Draw 2D Menu rectangle background
-	RECTMENU_DrawInnerRect(&r, 4, gGT->backBuffer->otMem.startPlusFour);
+	RECTMENU_DrawInnerRect(&r, 4, gGT->backBuffer->otMem.uiOT);
 
 	// Timer
 	if (sdata->framesSinceRaceEnded < 0x10f)

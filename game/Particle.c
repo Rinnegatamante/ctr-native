@@ -928,7 +928,7 @@ void Particle_RenderList(struct PushBuffer *pb, void *particleList)
 	u_long **scratchOT = CTR_SCRATCHPAD_PTR(u_long *, 0x20);
 	s32 *scratchCameraOffset = CTR_SCRATCHPAD_PTR(s32, 0x24);
 	s32 *scratchDepth = CTR_SCRATCHPAD_PTR(s32, 0x30);
-	u32 *prim = (u32 *)primMem->curr;
+	u32 *prim = (u32 *)primMem->cursor;
 	u32 *primPayload = prim + 8;
 	char cameraID;
 
@@ -952,7 +952,7 @@ void Particle_RenderList(struct PushBuffer *pb, void *particleList)
 	scratchCameraOffset[1] = (s32)Particle_RenderList_ReadWord(pb, 0x80) << 2;
 	scratchCameraOffset[2] = (s32)Particle_RenderList_ReadWord(pb, 0x84) << 2;
 
-	if (prim + (gGT->numParticles * 10) >= (u32 *)primMem->endMin100)
+	if (prim + (gGT->numParticles * 10) >= (u32 *)primMem->guardEnd)
 		return;
 
 	if (particle != NULL)
@@ -1082,7 +1082,7 @@ void Particle_RenderList(struct PushBuffer *pb, void *particleList)
 		} while (particle != NULL);
 	}
 
-	primMem->curr = prim;
+	primMem->cursor = prim;
 }
 
 

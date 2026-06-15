@@ -477,11 +477,11 @@ void MM_TrackSelect_MenuProc(struct RectMenu *menu)
 			q.w = r.w - 12;
 			q.h = r.h - 8;
 
-			CTR_Box_DrawClearBox(&q, &sdata->menuRowHighlight_Normal, TRANS_50_DECAL, gGT->backBuffer->otMem.startPlusFour);
+			CTR_Box_DrawClearBox(&q, &sdata->menuRowHighlight_Normal, TRANS_50_DECAL, gGT->backBuffer->otMem.uiOT);
 		}
 
 		// Draw 2D Menu rectangle background
-		RECTMENU_DrawInnerRect(&r, 0, gGT->backBuffer->otMem.startPlusFour);
+		RECTMENU_DrawInnerRect(&r, 0, gGT->backBuffer->otMem.uiOT);
 
 		do
 		{

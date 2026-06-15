@@ -37,7 +37,7 @@ force_inline void AH_MaskHint_DrawRepeatPrompt(void)
 	r.w = 0x214;
 	r.h = 8 + DecalFont_DrawMultiLine(sdata->lngStrings[lngIndex], 0x100, 0xb4, 400, 2, 0xffff8000);
 
-	RECTMENU_DrawInnerRect(&r, 4, gGT->backBuffer->otMem.startPlusFour);
+	RECTMENU_DrawInnerRect(&r, 4, gGT->backBuffer->otMem.uiOT);
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 overlay 232 0x800b4470-0x800b4c80.

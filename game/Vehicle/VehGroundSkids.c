@@ -15,13 +15,13 @@ void VehGroundSkids_Subset1(u32 *currXY, u32 *prevXY, int depth, u8 *scratch)
 {
 	struct GameTracker *gGT = sdata->gGT;
 	struct DB *backBuffer = gGT->backBuffer;
-	u32 *prim = backBuffer->primMem.curr;
+	u32 *prim = backBuffer->primMem.cursor;
 	u32 *nextPrim = prim + 0xd;
 
-	if ((u32 *)backBuffer->primMem.endMin100 < nextPrim)
+	if ((u32 *)backBuffer->primMem.guardEnd < nextPrim)
 		return;
 
-	backBuffer->primMem.curr = nextPrim;
+	backBuffer->primMem.cursor = nextPrim;
 
 	prim[1] = *(u32 *)(scratch + 0x1c);
 	prim[4] = *(u32 *)(scratch + 0x1c);

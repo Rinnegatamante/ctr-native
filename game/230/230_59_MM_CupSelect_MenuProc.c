@@ -159,7 +159,7 @@ void MM_CupSelect_MenuProc(struct RectMenu *menu)
 			cupBox.w = 174;
 			cupBox.h = 74;
 
-			CTR_Box_DrawClearBox(&cupBox, &sdata->menuRowHighlight_Normal, TRANS_50_DECAL, gGT->backBuffer->otMem.startPlusFour);
+			CTR_Box_DrawClearBox(&cupBox, &sdata->menuRowHighlight_Normal, TRANS_50_DECAL, gGT->backBuffer->otMem.uiOT);
 		}
 
 		// background box
@@ -168,6 +168,6 @@ void MM_CupSelect_MenuProc(struct RectMenu *menu)
 		cupBox.w = 180;
 		cupBox.h = 78;
 
-		RECTMENU_DrawInnerRect(&cupBox, 0, gGT->backBuffer->otMem.startPlusFour);
+		RECTMENU_DrawInnerRect(&cupBox, 0, gGT->backBuffer->otMem.uiOT);
 	}
 }

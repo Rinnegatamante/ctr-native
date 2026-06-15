@@ -246,11 +246,11 @@ void ElimBG_HandleState(struct GameTracker *gGT)
 			sVar1 = (s16)iVar10;
 			do
 			{
-				// backBuffer->primMem.curr
-				p = (POLY_FT4 *)gGT->backBuffer->primMem.curr;
+				// backBuffer->primMem.cursor
+				p = (POLY_FT4 *)gGT->backBuffer->primMem.cursor;
 
 				// increment primMem by size of primitive
-				gGT->backBuffer->primMem.curr = p + 1;
+				gGT->backBuffer->primMem.cursor = p + 1;
 
 				setPolyFT4(p);
 

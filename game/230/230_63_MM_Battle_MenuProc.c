@@ -679,7 +679,7 @@ LAB_800b25f0:
 		}
 	}
 
-	u_long *ot = gGT->backBuffer->otMem.startPlusFour;
+	u_long *ot = gGT->backBuffer->otMem.uiOT;
 
 	for (i = 0; i < 4; i++)
 	{

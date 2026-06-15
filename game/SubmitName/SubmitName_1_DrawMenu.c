@@ -202,11 +202,11 @@ s16 SubmitName_DrawMenu(u16 string)
 	r.h = 2;
 	Color color;
 	color.self = sdata->battleSetup_Color_UI_1;
-	RECTMENU_DrawOuterRect_Edge(&r, color, 0x20, gGT->backBuffer->otMem.startPlusFour);
+	RECTMENU_DrawOuterRect_Edge(&r, color, 0x20, gGT->backBuffer->otMem.uiOT);
 
 	r.y = 39;
 	r.h = 130;
-	RECTMENU_DrawInnerRect(&r, 0, gGT->backBuffer->otMem.startPlusFour);
+	RECTMENU_DrawInnerRect(&r, 0, gGT->backBuffer->otMem.uiOT);
 
 	int tap = sdata->buttonTapPerPlayer[0];
 

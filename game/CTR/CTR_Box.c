@@ -22,12 +22,12 @@ void CTR_Box_DrawWirePrims(Point p1, Point p2, Color color, void *ot)
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80021594-0x8002177c.
 void CTR_Box_DrawWireBox(RECT *r, const Color *color, void *ot, struct PrimMem *primMem)
 {
-	LineF3 *p = primMem->curr;
-	if (p > (LineF3 *)primMem->endMin100)
+	LineF3 *p = primMem->cursor;
+	if (p > (LineF3 *)primMem->guardEnd)
 	{
 		return;
 	}
-	primMem->curr = p + 1;
+	primMem->cursor = p + 1;
 
 	const PrimCode primCode = {.line = {.renderCode = RenderCode_Line, .polyline = 1}};
 	p->tag.size = (sizeof(*p) - sizeof(p->tag)) / sizeof(u32);
@@ -47,12 +47,12 @@ void CTR_Box_DrawWireBox(RECT *r, const Color *color, void *ot, struct PrimMem *
 	p->end = 0x55555555;
 
 	AddPrimitive(p, ot);
-	p = primMem->curr;
-	if (p > (LineF3 *)primMem->endMin100)
+	p = primMem->cursor;
+	if (p > (LineF3 *)primMem->guardEnd)
 	{
 		return;
 	}
-	primMem->curr = p + 1;
+	primMem->cursor = p + 1;
 
 	p->tag.size = (sizeof(*p) - sizeof(p->tag)) / sizeof(u32);
 	p->colorCode = *color;

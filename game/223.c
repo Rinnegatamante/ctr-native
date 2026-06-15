@@ -471,7 +471,7 @@ skipRelicAwarded:
 	box.h = 0x3b;
 
 	// Draw 2D Menu rectangle background
-	RECTMENU_DrawInnerRect(&box, 0, gGT->backBuffer->otMem.startPlusFour);
+	RECTMENU_DrawInnerRect(&box, 0, gGT->backBuffer->otMem.uiOT);
 
 
 	if ( // If you have not pressed X to continue
@@ -622,5 +622,5 @@ void RR_EndEvent_DrawHighScore(s16 startX, int startY, s16 scoreMode)
 	box.h = 0xb4;
 
 	// Draw 2D Menu rectangle background
-	RECTMENU_DrawInnerRect(&box, 4, gGT->backBuffer->otMem.startPlusFour);
+	RECTMENU_DrawInnerRect(&box, 4, gGT->backBuffer->otMem.uiOT);
 }

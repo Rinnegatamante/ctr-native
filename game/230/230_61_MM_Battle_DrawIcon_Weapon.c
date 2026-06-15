@@ -6,7 +6,7 @@ void MM_Battle_DrawIcon_Weapon(struct Icon *icon, u32 posX, int posY, struct Pri
 	if (!icon)
 		return;
 
-	POLY_FT4 *p = (POLY_FT4 *)primMem->curr;
+	POLY_FT4 *p = (POLY_FT4 *)primMem->cursor;
 
 	u32 uv0 = *(u32 *)&icon->texLayout.u0;
 	u32 uv1 = *(u32 *)&icon->texLayout.u1;
@@ -76,5 +76,5 @@ void MM_Battle_DrawIcon_Weapon(struct Icon *icon, u32 posX, int posY, struct Pri
 	*(int *)p = *(int *)ot | 0x9000000;
 	*(int *)ot = (int)CtrGpu_PrimToOTLink24(p);
 
-	primMem->curr = p + 1;
+	primMem->cursor = p + 1;
 }

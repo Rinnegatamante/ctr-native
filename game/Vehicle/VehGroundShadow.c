@@ -288,8 +288,8 @@ void VehGroundShadow_Main(void)
 		return;
 
 	primMem = &gGT->backBuffer->primMem;
-	prim = (u32 *)primMem->curr;
-	if (prim + 0x140 >= (u32 *)primMem->endMin100)
+	prim = (u32 *)primMem->cursor;
+	if (prim + 0x140 >= (u32 *)primMem->guardEnd)
 		return;
 
 	CTC2(0, 5);
@@ -425,5 +425,5 @@ void VehGroundShadow_Main(void)
 		}
 	}
 
-	primMem->curr = prim;
+	primMem->cursor = prim;
 }

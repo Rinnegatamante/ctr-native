@@ -495,7 +495,7 @@ SKIP_LOADING_TEXT:
 	gte_SetGeomOffset(0x100, 0x78);
 	gte_SetGeomScreen(0x100);
 
-	p = (POLY_G4 *)gGT->backBuffer->primMem.curr;
+	p = (POLY_G4 *)gGT->backBuffer->primMem.cursor;
 
 #if defined(CTR_NATIVE)
 	scratchpad = &scratchpadBuf[0];
@@ -746,6 +746,6 @@ SKIP_LOADING_TEXT:
 		lightR = lightL;
 	}
 
-	gGT->backBuffer->primMem.curr = p;
+	gGT->backBuffer->primMem.cursor = p;
 	sdata->RaceFlag_ElapsedTime += gGT->elapsedTimeMS * 100;
 }

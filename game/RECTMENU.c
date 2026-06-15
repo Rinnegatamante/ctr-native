@@ -60,11 +60,11 @@ u8 *RECTMENU_DrawTime(int milliseconds)
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80045134-0x80045254.
 void RECTMENU_DrawRwdBlueRect_Subset(s16 *pos, int *color, u_long *ot, struct PrimMem *primMem)
 {
-	POLY_G4 *p = (POLY_G4 *)primMem->curr;
+	POLY_G4 *p = (POLY_G4 *)primMem->cursor;
 
-	if ((u32)p <= (u32)primMem->endMin100)
+	if ((u32)p <= (u32)primMem->guardEnd)
 	{
-		primMem->curr = p + 1;
+		primMem->cursor = p + 1;
 
 		*(int *)&p->r0 = color[0] & 0xffffff;
 		*(int *)&p->r1 = color[1] & 0xffffff;
@@ -117,13 +117,13 @@ void RECTMENU_DrawRwdTriangle(s16 *position, char *color, u_long *otMem, struct 
 	POLY_G4 *p;
 	void *primmemCurr;
 
-	primmemCurr = primMem->curr;
+	primmemCurr = primMem->cursor;
 	p = 0;
 
-	if (primmemCurr <= primMem->endMin100)
+	if (primmemCurr <= primMem->guardEnd)
 	{
 		p = primmemCurr;
-		primMem->curr = p + 1;
+		primMem->cursor = p + 1;
 	}
 
 	if (p != 0)
@@ -230,7 +230,7 @@ void RECTMENU_DrawQuip(char *comment, s16 startX, int startY, u32 sizeX, s16 fon
 	r.y = startY;
 	r.w = sizeX;
 	r.h = sizeY;
-	RECTMENU_DrawInnerRect(&r, boxFlag, sdata->gGT->backBuffer->otMem.startPlusFour);
+	RECTMENU_DrawInnerRect(&r, boxFlag, sdata->gGT->backBuffer->otMem.uiOT);
 }
 
 
@@ -342,9 +342,9 @@ void RECTMENU_DrawFullRect(struct RectMenu *menu, RECT *inner)
 
 		Color color;
 		color.self = *rgb;
-		RECTMENU_DrawOuterRect_Edge(&outer, color, (menu->drawStyle | 0x20), gGT->backBuffer->otMem.startPlusFour);
+		RECTMENU_DrawOuterRect_Edge(&outer, color, (menu->drawStyle | 0x20), gGT->backBuffer->otMem.uiOT);
 	}
-	RECTMENU_DrawInnerRect(inner, menu->drawStyle, gGT->backBuffer->otMem.startPlusFour);
+	RECTMENU_DrawInnerRect(inner, menu->drawStyle, gGT->backBuffer->otMem.uiOT);
 }
 
 
@@ -671,7 +671,7 @@ LAB_80045e94:
 		}
 		background.w = menuWidth;
 
-		CTR_Box_DrawClearBox(&background, rgb, 1, gGT->backBuffer->otMem.startPlusFour);
+		CTR_Box_DrawClearBox(&background, rgb, 1, gGT->backBuffer->otMem.uiOT);
 	}
 	if ((menu->state & 0x10) != 0)
 	{

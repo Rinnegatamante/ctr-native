@@ -105,7 +105,7 @@ static u32 *DrawSky_Piece(struct Skybox *skybox, struct DrawSkyContext *ctx, int
 void DrawSky_Full(void *skybox, struct PushBuffer *pb, struct PrimMem *primMem)
 {
 	struct Skybox *sky = skybox;
-	u32 *prim = (u32 *)primMem->curr;
+	u32 *prim = (u32 *)primMem->cursor;
 
 	// NOTE(aalhendi): PSX-backfeed blocker: retail saves/restores ra and s0-s2 in scratchpad 0x00-0x0c.
 	// Native C relies on the host ABI because the only retail data temporaries live in 0x10 and 0x14 and are explicit below.
@@ -159,5 +159,5 @@ void DrawSky_Full(void *skybox, struct PushBuffer *pb, struct PrimMem *primMem)
 		prim = DrawSky_Piece(sky, &ctx, faceIndex, countIndex, prim);
 	}
 
-	primMem->curr = prim;
+	primMem->cursor = prim;
 }

@@ -3,12 +3,12 @@
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b0b98-0x800b0ce0.
 void AH_Map_LoadSave_Prim(s16 *vertPos, char *vertCol, void *ot, struct PrimMem *primMem)
 {
-	POLY_G4 *p = primMem->curr;
+	POLY_G4 *p = primMem->cursor;
 
 	if (primMem->end < (void *)p)
 		return;
 
-	primMem->curr = p + 1;
+	primMem->cursor = p + 1;
 
 	setPolyG4(p);
 

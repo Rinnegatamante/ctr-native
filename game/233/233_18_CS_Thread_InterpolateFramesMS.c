@@ -24,8 +24,8 @@ void CS_Thread_InterpolateFramesMS(struct Thread *t)
 	next[2] = (u16)(next[2] + (u16)inst->matrix.t[2]);
 
 	primMem = &gGT->backBuffer->primMem;
-	prim = (u32 *)primMem->curr;
-	end = (u32 *)primMem->endMin100;
+	prim = (u32 *)primMem->cursor;
+	end = (u32 *)primMem->guardEnd;
 
 	if ((uintptr_t)(prim + 6) >= (uintptr_t)end)
 		return;
@@ -73,5 +73,5 @@ void CS_Thread_InterpolateFramesMS(struct Thread *t)
 		prim += 6;
 	}
 
-	primMem->curr = prim;
+	primMem->cursor = prim;
 }

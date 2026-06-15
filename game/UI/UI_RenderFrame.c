@@ -714,12 +714,12 @@ void UI_RenderFrame_Racing()
 				DecalFont_DrawLine((char *)&string[0], (int)(s16)turboCountPos.x, (int)turboCountPos.y, FONT_BIG, (JUSTIFY_RIGHT | ORANGE));
 
 				backBuffer = gGT->backBuffer;
-				primMemCurr = backBuffer->primMem.curr;
+				primMemCurr = backBuffer->primMem.cursor;
 				TurboCounterBar = 0;
 
-				if ((int)primMemCurr <= (int)backBuffer->primMem.endMin100)
+				if ((int)primMemCurr <= (int)backBuffer->primMem.guardEnd)
 				{
-					backBuffer->primMem.curr = primMemCurr + 9;
+					backBuffer->primMem.cursor = primMemCurr + 9;
 					TurboCounterBar = (POLY_G4 *)primMemCurr;
 				}
 
@@ -1126,7 +1126,7 @@ void UI_RenderFrame_Wumpa3D_2P3P4P(struct GameTracker *gGT)
 		s16 posX = hud[3].x + wumpaPushBuffer->rect.x - (viewport->w >> 1);
 		s16 posY = hud[3].y + wumpaPushBuffer->rect.y - (viewport->h >> 1);
 
-		u32 *prim = (u32 *)gGT->backBuffer->primMem.curr;
+		u32 *prim = (u32 *)gGT->backBuffer->primMem.cursor;
 
 		*(u8 *)((u8 *)prim + 3) = 9;
 		*(u8 *)((u8 *)prim + 7) = 0x2c;
@@ -1163,7 +1163,7 @@ void UI_RenderFrame_Wumpa3D_2P3P4P(struct GameTracker *gGT)
 			*(u8 *)((u8 *)prim + 4) = shineColor;
 		}
 
-		gGT->backBuffer->primMem.curr = prim + 10;
+		gGT->backBuffer->primMem.cursor = prim + 10;
 		AddPrim(gGT->pushBuffer_UI.ptrOT, prim);
 	}
 }

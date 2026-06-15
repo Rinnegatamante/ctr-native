@@ -79,7 +79,7 @@ static int CAM_SkyboxGlow_CalcTilt(struct PushBuffer *pb)
 
 static void CAM_SkyboxGlow_EmitG3(struct PrimMem *primMem, u_long *ot, u32 color0, u32 xy0, u32 color1, u32 xy1, u32 color2, u32 xy2)
 {
-	u32 *prim = primMem->curr;
+	u32 *prim = primMem->cursor;
 
 	prim[1] = (color0 & 0xffffff) | 0x30000000;
 	prim[2] = xy0;
@@ -90,12 +90,12 @@ static void CAM_SkyboxGlow_EmitG3(struct PrimMem *primMem, u_long *ot, u32 color
 	prim[0] = *ot | 0x06000000;
 	*ot = CAM_SkyboxGlow_PrimAddr(prim);
 
-	primMem->curr = prim + 7;
+	primMem->cursor = prim + 7;
 }
 
 static void CAM_SkyboxGlow_EmitG4(struct PrimMem *primMem, u_long *ot, u32 color0, u32 xy0, u32 color1, u32 xy1, u32 color2, u32 xy2, u32 color3, u32 xy3)
 {
-	u32 *prim = primMem->curr;
+	u32 *prim = primMem->cursor;
 
 	prim[1] = (color0 & 0xffffff) | 0x38000000;
 	prim[2] = xy0;
@@ -108,12 +108,12 @@ static void CAM_SkyboxGlow_EmitG4(struct PrimMem *primMem, u_long *ot, u32 color
 	prim[0] = *ot | 0x08000000;
 	*ot = CAM_SkyboxGlow_PrimAddr(prim);
 
-	primMem->curr = prim + 9;
+	primMem->cursor = prim + 9;
 }
 
 static void CAM_SkyboxGlow_EmitF3(struct PrimMem *primMem, u_long *ot, u32 color, u32 xy0, u32 xy1, u32 xy2)
 {
-	u32 *prim = primMem->curr;
+	u32 *prim = primMem->cursor;
 
 	prim[1] = (color & 0xffffff) | 0x20000000;
 	prim[2] = xy0;
@@ -122,12 +122,12 @@ static void CAM_SkyboxGlow_EmitF3(struct PrimMem *primMem, u_long *ot, u32 color
 	prim[0] = *ot | 0x04000000;
 	*ot = CAM_SkyboxGlow_PrimAddr(prim);
 
-	primMem->curr = prim + 5;
+	primMem->cursor = prim + 5;
 }
 
 static void CAM_SkyboxGlow_EmitF4(struct PrimMem *primMem, u_long *ot, u32 color, u32 xy0, u32 xy1, u32 xy2, u32 xy3)
 {
-	u32 *prim = primMem->curr;
+	u32 *prim = primMem->cursor;
 
 	prim[1] = (color & 0xffffff) | 0x28000000;
 	prim[2] = xy0;
@@ -137,7 +137,7 @@ static void CAM_SkyboxGlow_EmitF4(struct PrimMem *primMem, u_long *ot, u32 color
 	prim[0] = *ot | 0x05000000;
 	*ot = CAM_SkyboxGlow_PrimAddr(prim);
 
-	primMem->curr = prim + 6;
+	primMem->cursor = prim + 6;
 }
 
 static int CAM_SkyboxGlow_HasClearGradient(int gradientIndex)
@@ -305,7 +305,7 @@ void CAM_ClearScreen(struct GameTracker *gGT)
 	u_long *endOT;
 
 	backDB = gGT->backBuffer;
-	tile = backDB->primMem.curr;
+	tile = backDB->primMem.cursor;
 	numPlyr = gGT->numPlyrCurrGame;
 	swap = gGT->swapchainIndex;
 	level1 = gGT->level1;
@@ -382,7 +382,7 @@ void CAM_ClearScreen(struct GameTracker *gGT)
 		}
 	}
 
-	backDB->primMem.curr = tile;
+	backDB->primMem.cursor = tile;
 
 	return;
 }

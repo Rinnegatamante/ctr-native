@@ -3,11 +3,11 @@
 void GetPrimitiveMem(void **ppPrim, size_t primSize)
 {
 	struct DB *backBuffer = sdata->gGT->backBuffer;
-	if (backBuffer->primMem.curr <= backBuffer->primMem.endMin100)
+	if (backBuffer->primMem.cursor <= backBuffer->primMem.guardEnd)
 	{
-		*ppPrim = backBuffer->primMem.curr;
+		*ppPrim = backBuffer->primMem.cursor;
 
-		backBuffer->primMem.curr = (void *)((size_t)backBuffer->primMem.curr + primSize);
+		backBuffer->primMem.cursor = (void *)((size_t)backBuffer->primMem.cursor + primSize);
 
 		((Tag *)*ppPrim)->size = (primSize - sizeof(Tag)) / sizeof(u32);
 	}

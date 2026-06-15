@@ -101,7 +101,7 @@ static void RenderWeather_LinkPrimitive(u32 *prim, u_long *ot, u32 tag)
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8006f9a8-0x8006fe08
 void RenderWeather(struct PushBuffer *pb, struct PrimMem *primMem, struct RainBuffer *rainBuffer, char numPlyr, int gameMode1)
 {
-	u32 *prim = (u32 *)primMem->curr;
+	u32 *prim = (u32 *)primMem->cursor;
 	u32 *rainWords = (u32 *)(void *)rainBuffer;
 	// NOTE(aalhendi): PSX-backfeed blocker: retail saves/restores callee
 	// registers in scratchpad 0x00-0x2c. Native C relies on the host ABI; restore
@@ -307,5 +307,5 @@ void RenderWeather(struct PushBuffer *pb, struct PrimMem *primMem, struct RainBu
 	RenderWeather_LinkPrimitive(prim, ot, 0x02000000);
 	prim += 3;
 
-	primMem->curr = prim;
+	primMem->cursor = prim;
 }
