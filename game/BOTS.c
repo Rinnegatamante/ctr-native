@@ -795,7 +795,7 @@ void BOTS_ThTick_Drive(struct Thread *botThread)
 		botDriver->botData.weaponCooldown = (s16)CTR_MipsSubLo((u16)botDriver->botData.weaponCooldown, 1);
 	}
 
-	if (botDriver->ChangeState_param2 == 0)
+	if (botDriver->pendingDamageType == 0)
 	{
 		if (((botDriver->actionsFlagSet & ACTION_RACE_FINISHED) == 0) && (botDriver->botData.weaponCooldown != 0))
 		{
@@ -804,7 +804,7 @@ void BOTS_ThTick_Drive(struct Thread *botThread)
 	}
 	else
 	{
-		BOTS_ChangeState(botDriver, botDriver->ChangeState_param2, (struct Driver *)botDriver->ChangeState_param3, botDriver->ChangeState_param4);
+		BOTS_ChangeState(botDriver, botDriver->pendingDamageType, botDriver->pendingDamageAttacker, botDriver->pendingDamageReason);
 	}
 
 	int elapsedMilliseconds = gGT->elapsedTimeMS; // local_34
@@ -2669,7 +2669,7 @@ FinishHazardTimerUpdate:
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80016b00-0x80016ec8
 u32 BOTS_ChangeState(struct Driver *driverVictim, int damageType, struct Driver *driverAttacker, int reason)
 {
-	driverVictim->ChangeState_param2 = 0;
+	driverVictim->pendingDamageType = 0;
 
 	if (driverVictim->kartState == KS_MASK_GRABBED)
 	{

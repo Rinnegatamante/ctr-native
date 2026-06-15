@@ -6,7 +6,7 @@ int VehPickState_NewState(struct Driver *victimDriver, int damageType, struct Dr
 	int voice;
 
 	int victimState = victimDriver->kartState;
-	victimDriver->ChangeState_param2 = 0;
+	victimDriver->pendingDamageType = 0;
 
 	int victimCharacter;
 	victimCharacter = data.characterIDs[victimDriver->driverID];

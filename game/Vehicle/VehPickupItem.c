@@ -1,5 +1,29 @@
 #include <common.h>
 
+static inline void VehPickupItem_CopyMatrix(MATRIX *dst, const MATRIX *src)
+{
+	dst->m[0][0] = src->m[0][0];
+	dst->m[0][1] = src->m[0][1];
+	dst->m[0][2] = src->m[0][2];
+	dst->m[1][0] = src->m[1][0];
+	dst->m[1][1] = src->m[1][1];
+	dst->m[1][2] = src->m[1][2];
+	dst->m[2][0] = src->m[2][0];
+	dst->m[2][1] = src->m[2][1];
+	dst->m[2][2] = src->m[2][2];
+	dst->t[0] = src->t[0];
+	dst->t[1] = src->t[1];
+	dst->t[2] = src->t[2];
+}
+
+static inline void VehPickupItem_ClearMineMotion(struct MineWeapon *mine)
+{
+	mine->velocity[0] = 0;
+	mine->velocity[1] = 0;
+	mine->velocity[2] = 0;
+	mine->stopFallAtY = 0;
+}
+
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80064be4-0x80064c38.
 int VehPickupItem_MaskBoolGoodGuy(struct Driver *d)
 {
@@ -397,15 +421,7 @@ void VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 		// branches of this function; keep unpatched until memory pressure or
 		// gameplay repro proves the semantic fallback.
 
-		// copy matrix
-		*(int *)&weaponInst->matrix.m[0][0] = *(int *)&dInst->matrix.m[0][0];
-		*(int *)&weaponInst->matrix.m[0][2] = *(int *)&dInst->matrix.m[0][2];
-		*(int *)&weaponInst->matrix.m[1][1] = *(int *)&dInst->matrix.m[1][1];
-		*(int *)&weaponInst->matrix.m[2][0] = *(int *)&dInst->matrix.m[2][0];
-		weaponInst->matrix.m[2][2] = dInst->matrix.m[2][2];
-		weaponInst->matrix.t[0] = dInst->matrix.t[0];
-		weaponInst->matrix.t[1] = dInst->matrix.t[1];
-		weaponInst->matrix.t[2] = dInst->matrix.t[2];
+		VehPickupItem_CopyMatrix(&weaponInst->matrix, &dInst->matrix);
 
 		VehPhysForce_RotAxisAngle(&weaponInst->matrix, d->AxisAngle1_normalVec.v, d->rotCurr.y);
 
@@ -524,15 +540,7 @@ void VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 
 		dInst = d->instSelf;
 
-		// copy matrix
-		*(int *)&weaponInst->matrix.m[0][0] = *(int *)&dInst->matrix.m[0][0];
-		*(int *)&weaponInst->matrix.m[0][2] = *(int *)&dInst->matrix.m[0][2];
-		*(int *)&weaponInst->matrix.m[1][1] = *(int *)&dInst->matrix.m[1][1];
-		*(int *)&weaponInst->matrix.m[2][0] = *(int *)&dInst->matrix.m[2][0];
-		weaponInst->matrix.m[2][2] = dInst->matrix.m[2][2];
-		weaponInst->matrix.t[0] = dInst->matrix.t[0];
-		weaponInst->matrix.t[1] = dInst->matrix.t[1];
-		weaponInst->matrix.t[2] = dInst->matrix.t[2];
+		VehPickupItem_CopyMatrix(&weaponInst->matrix, &dInst->matrix);
 
 		weaponInst->scale[0] = 0;
 		weaponInst->scale[1] = 0;
@@ -554,8 +562,7 @@ void VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 		mw->driverTarget = 0;
 		mw->instParent = dInst;
 		mw->crateInst = 0;
-		*(int *)&mw->velocity[0] = 0;
-		*(int *)&mw->velocity[2] = 0;
+		VehPickupItem_ClearMineMotion(mw);
 		mw->boolDestroyed = 0;
 		mw->frameCount_DontHurtParent = 10;
 		mw->tntSpinY = 0;
@@ -667,15 +674,7 @@ void VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 
 		dInst = d->instSelf;
 
-		// copy matrix
-		*(int *)&weaponInst->matrix.m[0][0] = *(int *)&dInst->matrix.m[0][0];
-		*(int *)&weaponInst->matrix.m[0][2] = *(int *)&dInst->matrix.m[0][2];
-		*(int *)&weaponInst->matrix.m[1][1] = *(int *)&dInst->matrix.m[1][1];
-		*(int *)&weaponInst->matrix.m[2][0] = *(int *)&dInst->matrix.m[2][0];
-		weaponInst->matrix.m[2][2] = dInst->matrix.m[2][2];
-		weaponInst->matrix.t[0] = dInst->matrix.t[0];
-		weaponInst->matrix.t[1] = dInst->matrix.t[1];
-		weaponInst->matrix.t[2] = dInst->matrix.t[2];
+		VehPickupItem_CopyMatrix(&weaponInst->matrix, &dInst->matrix);
 
 		// potion always faces camera
 		weaponInst->model->headers[0].flags |= 2;
@@ -717,8 +716,7 @@ void VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 			weaponInst->scale[1] = 0;
 			weaponInst->scale[2] = 0;
 
-			*(int *)&mw->velocity[0] = 0;
-			*(int *)&mw->velocity[2] = 0;
+			VehPickupItem_ClearMineMotion(mw);
 
 			mineHitModel = weaponInst->model->id;
 			mineShouldInitFollower = 1;
@@ -838,10 +836,14 @@ void VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 
 		weaponInst = INSTANCE_BirthWithThread(0x36, warpballName, MEDIUM, TRACKING, RB_Warpball_ThTick, sizeof(struct TrackerWeapon), 0);
 
-		*(int *)&weaponInst->matrix.m[0][0] = 0x1000;
-		*(int *)&weaponInst->matrix.m[0][2] = 0;
-		*(int *)&weaponInst->matrix.m[1][1] = 0x1000;
-		*(int *)&weaponInst->matrix.m[2][0] = 0;
+		weaponInst->matrix.m[0][0] = 0x1000;
+		weaponInst->matrix.m[0][1] = 0;
+		weaponInst->matrix.m[0][2] = 0;
+		weaponInst->matrix.m[1][0] = 0;
+		weaponInst->matrix.m[1][1] = 0x1000;
+		weaponInst->matrix.m[1][2] = 0;
+		weaponInst->matrix.m[2][0] = 0;
+		weaponInst->matrix.m[2][1] = 0;
 		weaponInst->matrix.m[2][2] = 0x1000;
 
 		weaponInst->matrix.t[0] = CTR_MipsSra(d->posCurr.x, 8);
@@ -969,9 +971,9 @@ void VehPickupItem_ShootOnCirclePress(struct Driver *d)
 {
 	u8 weapon;
 
-	if (d->ChangeState_param2 != 0)
+	if (d->pendingDamageType != 0)
 	{
-		VehPickState_NewState(d, d->ChangeState_param2, (struct Driver *)d->ChangeState_param3, d->ChangeState_param4);
+		VehPickState_NewState(d, d->pendingDamageType, d->pendingDamageAttacker, d->pendingDamageReason);
 	}
 
 	// If you want to fire a weapon

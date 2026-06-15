@@ -140,7 +140,7 @@ void VehPhysCrash_AI(struct Driver *bot, Vec3 *vel)
 
 static void VehPhysCrash_Attack_SetReason(struct Driver *driver, u8 reason)
 {
-	*(u8 *)&driver->ChangeState_param4 = reason;
+	driver->pendingDamageReasonByte = reason;
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8005d218-0x8005d404.
@@ -150,9 +150,9 @@ int VehPhysCrash_Attack(struct Driver *driver1, struct Driver *driver2, int canP
 	{
 		if ((driver2->actionsFlagSet & ACTION_MASK_WEAPON) != 0)
 		{
-			driver1->ChangeState_param2 = 2;
+			driver1->pendingDamageType = 2;
 			VehPhysCrash_Attack_SetReason(driver1, 6);
-			driver1->ChangeState_param3 = (int)driver2;
+			driver1->pendingDamageAttacker = driver2;
 
 			if ((canPlayFeedback != 0) && (driver1->kartState != KS_BLASTED) && (driver1->invincibleTimer == 0))
 			{
@@ -168,9 +168,9 @@ int VehPhysCrash_Attack(struct Driver *driver1, struct Driver *driver2, int canP
 			bubble->flags |= 8;
 			driver2->instBubbleHold = NULL;
 
-			driver1->ChangeState_param2 = 2;
+			driver1->pendingDamageType = 2;
 			VehPhysCrash_Attack_SetReason(driver1, 0);
-			driver1->ChangeState_param3 = (int)driver2;
+			driver1->pendingDamageAttacker = driver2;
 
 			if ((canPlayFeedback != 0) && (driver1->kartState != KS_BLASTED) && (driver1->invincibleTimer == 0))
 			{
@@ -190,9 +190,9 @@ int VehPhysCrash_Attack(struct Driver *driver1, struct Driver *driver2, int canP
 		{
 			driver2->forcedJumpType = FORCED_JUMP_HIGH;
 
-			driver1->ChangeState_param2 = 3;
+			driver1->pendingDamageType = 3;
 			VehPhysCrash_Attack_SetReason(driver1, 5);
-			driver1->ChangeState_param3 = (int)driver2;
+			driver1->pendingDamageAttacker = driver2;
 		}
 	}
 
