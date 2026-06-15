@@ -50,7 +50,7 @@ void VehTurbo_ThDestroy(struct Thread *t)
 	turboObj = t->object;
 
 	struct Driver *d = turboObj->driver;
-	d->actionsFlagSet &= 0xfffffdff;
+	d->actionsFlagSet &= ~ACTION_TURBO_ITEM;
 
 	INSTANCE_Death(t->inst);
 	INSTANCE_Death(turboObj->inst);
@@ -103,29 +103,29 @@ void VehTurbo_ThTick(struct Thread *turboThread)
 	}
 
 	// if instance is not split by water
-	if ((instanceDriver->flags & 0x2000) == 0)
+	if ((instanceDriver->flags & SPLIT_LINE) == 0)
 	{
 		// instance flags
-		instance->flags &= 0xffffdfff;
-		turbo->inst->flags &= 0xffffdfff;
+		instance->flags &= ~SPLIT_LINE;
+		turbo->inst->flags &= ~SPLIT_LINE;
 	}
 
 	// if instance is split by water
 	else
 	{
 		// turbos are now split by water, set vertical split height
-		instance->flags |= 0x2000;
+		instance->flags |= SPLIT_LINE;
 		instance->vertSplit = instanceDriver->vertSplit;
-		turbo->inst->flags |= 0x2000;
+		turbo->inst->flags |= SPLIT_LINE;
 		turbo->inst->vertSplit = instanceDriver->vertSplit;
 	}
 
 	// if driver instance is not reflective
-	if ((instanceDriver->flags & 0x4000) == 0)
+	if ((instanceDriver->flags & REFLECTIVE) == 0)
 	{
 		// remove reflection from turbo instances
-		instance->flags &= 0xffffbfff;
-		turbo->inst->flags &= 0xffffbfff;
+		instance->flags &= ~REFLECTIVE;
+		turbo->inst->flags &= ~REFLECTIVE;
 	}
 
 	// if driver instance is reflective
@@ -133,9 +133,9 @@ void VehTurbo_ThTick(struct Thread *turboThread)
 	{
 		// make turbo instances reflective
 		// copy reflection height axis to instance
-		instance->flags |= 0x4000;
+		instance->flags |= REFLECTIVE;
 		instance->vertSplit = instanceDriver->vertSplit;
-		turbo->inst->flags |= 0x4000;
+		turbo->inst->flags |= REFLECTIVE;
 		turbo->inst->vertSplit = instanceDriver->vertSplit;
 	}
 
@@ -190,8 +190,8 @@ void VehTurbo_ThTick(struct Thread *turboThread)
 	if (turbo->fireVisibilityCooldown == 0)
 	{
 		// make fire visible now that there's no cooldown
-		instance->flags = instance->flags & 0xffffff7f;
-		turbo->inst->flags = turbo->inst->flags & 0xffffff7f;
+		instance->flags &= ~HIDE_MODEL;
+		turbo->inst->flags &= ~HIDE_MODEL;
 	}
 
 	if (instance->alphaScale < 2500)
@@ -260,7 +260,7 @@ void VehTurbo_ThTick(struct Thread *turboThread)
 		fireAudioDistort = fireAudioDistort << 8;
 
 		// if echo is required
-		if ((driver->actionsFlagSet & 0x10000) != 0)
+		if ((driver->actionsFlagSet & ACTION_ENGINE_ECHO) != 0)
 		{
 			// add echo
 			fireAudioDistort |= 0x1000000;
@@ -333,7 +333,7 @@ void VehTurbo_ThTick(struct Thread *turboThread)
 			uVar8 = 0x8080;
 
 			// if echo is required
-			if ((driver->actionsFlagSet & 0x10000) != 0)
+			if ((driver->actionsFlagSet & ACTION_ENGINE_ECHO) != 0)
 			{
 				// add echo, volume, distortion, left/right
 				uVar8 = 0x1008080;
@@ -344,7 +344,7 @@ void VehTurbo_ThTick(struct Thread *turboThread)
 		}
 
 		// 0x800 = this thread needs to be deleted
-		turboThread->flags |= 0x800;
+		turboThread->flags |= THREAD_FLAG_DEAD;
 	}
 
 	// do not use infinite loop optimization,

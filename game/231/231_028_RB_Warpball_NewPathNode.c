@@ -14,7 +14,7 @@ struct CheckpointNode *RB_Warpball_NewPathNode(struct CheckpointNode *cn, struct
 	}
 
 	foundLeftPath = 0;
-	targetIndex = d->unknown_lap_related[0];
+	targetIndex = d->checkpoint.branchChoiceIndex;
 	pathIndex = cn->nextIndex_left;
 
 	if (targetIndex == pathIndex)

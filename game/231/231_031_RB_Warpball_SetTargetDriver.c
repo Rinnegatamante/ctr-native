@@ -12,7 +12,7 @@ void RB_Warpball_SetTargetDriver(struct TrackerWeapon *tw)
 	}
 
 	struct CheckpointNode *nodes = gGT->level1->ptr_restart_points;
-	struct CheckpointNode *targetNode = &nodes[target->unknown_lap_related[1]];
+	struct CheckpointNode *targetNode = &nodes[target->checkpoint.currentIndex];
 	struct CheckpointNode *prevNode = targetNode;
 	int targetDistance = target->distanceToFinish_curr;
 

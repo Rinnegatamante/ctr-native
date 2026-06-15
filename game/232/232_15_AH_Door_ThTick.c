@@ -121,7 +121,7 @@ void AH_Door_ThTick(struct Thread *t)
 	if (doorIsOpen)
 	{
 		// camera transition, watch door open
-		if ((cDC->flags & 0x200) != 0)
+		if ((cDC->flags & CAMERA_FLAG_TRANSITION_AWAY) != 0)
 		{
 			// quit, come back when camera transition ends
 			return;
@@ -196,12 +196,12 @@ void AH_Door_ThTick(struct Thread *t)
 	{
 		door->camTimer_unused = 0x3c;
 
-		if (((cDC->flags & 0x200) == 0) && ((door->camFlags & WdCam_FlyingIn) == 0))
+		if (((cDC->flags & CAMERA_FLAG_TRANSITION_AWAY) == 0) && ((door->camFlags & WdCam_FlyingIn) == 0))
 		{
-			driver->funcPtrs[0] = VehPhysProc_Driving_Init;
+			driver->funcPtrs[DRIVER_FUNC_INIT] = VehPhysProc_Driving_Init;
 			door->camFlags |= WdCam_FlyingIn;
 		}
-		else if (((cDC->flags & 0x800) != 0) && ((door->camFlags & WdCam_FullyOut) == 0))
+		else if (((cDC->flags & CAMERA_FLAG_TRANSITION_HOLD) != 0) && ((door->camFlags & WdCam_FullyOut) == 0))
 		{
 			door->camFlags |= WdCam_FullyOut;
 		}
@@ -222,7 +222,7 @@ void AH_Door_ThTick(struct Thread *t)
 
 		// If you are here, game must not be paused
 
-		driver->funcPtrs[0] = VehPhysProc_FreezeEndEvent_Init;
+		driver->funcPtrs[DRIVER_FUNC_INIT] = VehPhysProc_FreezeEndEvent_Init;
 
 		door->camFlags |= WdCam_CutscenePlaying;
 
@@ -510,9 +510,9 @@ void AH_Door_ThTick(struct Thread *t)
 		sdata->advProgress.storyFlags |= ADV_REWARD_DOOR_GLACIER_PARK_TO_CITADEL_CITY_MASK;
 	}
 
-	cDC->flags |= 0x400;
+	cDC->flags |= CAMERA_FLAG_TRANSITION_BACK;
 
-	driver->funcPtrs[0] = VehPhysProc_Driving_Init;
+	driver->funcPtrs[DRIVER_FUNC_INIT] = VehPhysProc_Driving_Init;
 
 	// cutscene over
 	door->camFlags = (door->camFlags & ~WdCam_CutscenePlaying) | WdCam_FlyingIn;

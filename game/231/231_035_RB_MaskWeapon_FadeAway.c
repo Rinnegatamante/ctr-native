@@ -15,7 +15,7 @@ void RB_MaskWeapon_FadeAway(struct Thread *t)
 	driverInst = t->parentThread->inst;
 	maskBeamInst = mask->maskBeamInst;
 
-	struct MaskHeadScratch *mhs = (struct MaskHeadScratch *)0x1f800108;
+	struct MaskHeadScratch *mhs = CTR_SCRATCHPAD_PTR(struct MaskHeadScratch, 0x108);
 
 	// Set up First pass (maskInst)
 
@@ -72,6 +72,6 @@ void RB_MaskWeapon_FadeAway(struct Thread *t)
 
 	// mask is now dead
 	INSTANCE_Death(maskBeamInst);
-	t->flags |= 0x800;
+	t->flags |= THREAD_FLAG_DEAD;
 	return;
 }

@@ -150,9 +150,9 @@ void LOAD_Hub_Main(struct BigHeader *bigfilePtr)
 
 	for (int i = 0; i < gGT->numPlyrCurrGame; i++)
 	{
-		int stepFlagSet = gGT->drivers[i]->stepFlagSet;
-		int nextLevelID = (stepFlagSet & 0x30) >> 4;
-		int needSwapNow = (stepFlagSet & 0xc0) >> 6;
+		CollStepFlags stepFlagSet = gGT->drivers[i]->stepFlagSet;
+		int nextLevelID = (stepFlagSet & COLL_STEP_TRIGGER_HUB_LEVEL_ID_MASK) >> COLL_STEP_TRIGGER_HUB_LEVEL_ID_SHIFT;
+		int needSwapNow = (stepFlagSet & COLL_STEP_TRIGGER_HUB_SWAP_NOW_MASK) >> COLL_STEP_TRIGGER_HUB_SWAP_NOW_SHIFT;
 
 		// if new level does not need to load
 		if (nextLevelID == 0)

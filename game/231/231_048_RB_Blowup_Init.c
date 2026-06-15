@@ -81,7 +81,7 @@ void RB_Blowup_Init(struct Instance *weaponInst)
 
 	// ======== End Of Instance ==========
 
-	struct ScratchpadStruct *sps = 0x1f800108;
+	struct ScratchpadStruct *sps = CTR_SCRATCHPAD_PTR(struct ScratchpadStruct, 0x108);
 
 	// put weapon position on scratchpad
 	sps->Input1.pos.x = weaponInst->matrix.t[0];

@@ -50,7 +50,7 @@ struct Driver *RB_CrateAny_GetDriver(struct Thread *t, struct ScratchpadStruct *
 		// if this is an AI, quit
 
 		// it's odd that it casts "1" as struct Driver*, but callers of this function *do* check the return value == 1, so it must be intentional.
-		if ((driver->actionsFlagSet & 0x100000) != 0)
+		if ((driver->actionsFlagSet & ACTION_BOT) != 0)
 			return (struct Driver *)1;
 
 		return driver;
@@ -85,7 +85,7 @@ void RB_CrateAny_ThTick_Explode(struct Thread *t)
 	}
 
 	// if explosion is over
-	t->flags |= 0x800;
+	t->flags |= THREAD_FLAG_DEAD;
 	INSTANCE_Death(crateExplodeInst);
 }
 
@@ -148,7 +148,7 @@ void RB_CrateAny_ThTick_Grow(struct Thread *t)
 	if ((modelID == STATIC_TIME_CRATE_01) || (modelID == STATIC_TIME_CRATE_02) || (modelID == STATIC_TIME_CRATE_03))
 	{
 		crateInst->thread = 0;
-		t->flags |= 0x800;
+		t->flags |= THREAD_FLAG_DEAD;
 	}
 
 	// if cooldown is not done (about a second long)
@@ -183,7 +183,7 @@ void RB_CrateAny_ThTick_Grow(struct Thread *t)
 		// kill thread
 		crateInst->thread = 0;
 		crateInst->animFrame++;
-		t->flags |= 0x800;
+		t->flags |= THREAD_FLAG_DEAD;
 	}
 }
 
@@ -252,7 +252,7 @@ int RB_CrateWeapon_ThCollide(struct Thread *crateThread, struct Thread *collidin
 			if (driver->numHeldItems != 0)
 				return 1;
 
-			if ((driver->actionsFlagSet & 0x8000) != 0)
+			if ((driver->actionsFlagSet & ACTION_WEAPON_FIRE_REQUEST) != 0)
 				return 1;
 
 			if (driver->thCloud != 0)
@@ -434,7 +434,7 @@ int RB_CrateTime_ThCollide(struct Thread *crateThread, struct Thread *driverTh, 
 
 			modelID = crateInst->model->id;
 
-			if ((driver->actionsFlagSet & 0x100000) != 0)
+			if ((driver->actionsFlagSet & ACTION_BOT) != 0)
 				return 1;
 
 			driver->numTimeCrates++;

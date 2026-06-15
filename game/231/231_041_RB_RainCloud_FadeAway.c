@@ -34,7 +34,7 @@ void RB_RainCloud_FadeAway(struct Thread *t)
 		JitPool_Remove(&sdata->gGT->JitPools.rain, (struct Item *)rainLocal);
 
 		// This thread is now dead
-		t->flags |= 0x800;
+		t->flags |= THREAD_FLAG_DEAD;
 	}
 	return;
 }

@@ -86,10 +86,10 @@ void RB_Hazard_ThCollide_Generic(struct Thread *thread)
 		inst->scale[1] = 0;
 		inst->scale[2] = 0;
 
-		inst->flags |= 0x80;
+		inst->flags |= HIDE_MODEL;
 	}
 
 	// kill thread
-	thread->flags |= 0x800;
+	thread->flags |= THREAD_FLAG_DEAD;
 	return;
 }

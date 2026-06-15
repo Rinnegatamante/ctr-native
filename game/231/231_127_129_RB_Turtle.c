@@ -142,18 +142,18 @@ int RB_Turtle_LInC(struct Instance *inst, struct Thread *driverTh, struct Scratc
 	if (speed > 0x1400)
 	{
 		// small jump
-		jumpType = 1;
+		jumpType = FORCED_JUMP_LOW;
 
 		if (
 		    // turtleObj->state != FULLY_DOWN
 		    ((struct Turtle *)inst->thread->object)->state != 0)
 		{
 			// big jump
-			jumpType = 2;
+			jumpType = FORCED_JUMP_HIGH;
 		}
 
 		// make the player jump
-		driver->forcedJump_trampoline = jumpType;
+		driver->forcedJumpType = jumpType;
 
 		return 2;
 	}
@@ -167,7 +167,7 @@ void RB_Turtle_LInB(struct Instance *inst)
 	struct Thread *t;
 	struct Turtle *turtleObj;
 
-	inst->flags |= 0x2000;
+	inst->flags |= SPLIT_LINE;
 
 	if (inst->thread != 0)
 		return;

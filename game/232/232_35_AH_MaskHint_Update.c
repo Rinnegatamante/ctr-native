@@ -45,6 +45,7 @@ void AH_MaskHint_Update()
 {
 	struct GameTracker *gGT = sdata->gGT;
 	struct Driver *d = gGT->drivers[0];
+	u32 angleAxisWork[CAM_FOLLOW_DRIVER_ANGLE_AXIS_WORK_SIZE / sizeof(u32)];
 	s16 pos[3];
 	s16 rot[3];
 
@@ -69,14 +70,14 @@ void AH_MaskHint_Update()
 		{
 			struct CameraDC *cdc = &gGT->cameraDC[0];
 
-			CTR_COPY_VEC3(cdc->driverOffset_CamEyePos, D232.eyePos);
+			CTR_COPY_VEC3(cdc->driverOffset_CamEyePos.v, D232.eyePos);
 
-			CTR_COPY_VEC3(cdc->driverOffset_CamLookAtPos, D232.lookAtPos);
+			CTR_COPY_VEC3(cdc->driverOffset_CamLookAtPos.v, D232.lookAtPos);
 
 			cdc->flags |= 8;
 
-			// Get pos and rot, then set them as desired
-			CAM_FollowDriver_AngleAxis(cdc, d, 0x1f800108, pos, rot);
+			// NOTE(aalhendi): Retail passes a stack work buffer here, not 0x1f800108.
+			CAM_FollowDriver_AngleAxis(cdc, d, (u8 *)(void *)angleAxisWork, pos, rot);
 			CAM_SetDesiredPosRot(cdc, pos, rot);
 		}
 
@@ -88,7 +89,7 @@ void AH_MaskHint_Update()
 
 	case 2:
 
-		if (((D232.maskWarppadBoolInterrupt & 1) == 0) && ((gGT->cameraDC[0].flags & 0x800) == 0) && (D232.maskSpawnFrame != 20))
+		if (((D232.maskWarppadBoolInterrupt & 1) == 0) && ((gGT->cameraDC[0].flags & CAMERA_FLAG_TRANSITION_HOLD) == 0) && (D232.maskSpawnFrame != 20))
 		{
 			return;
 		}
@@ -166,7 +167,7 @@ void AH_MaskHint_Update()
 			break;
 		}
 
-		if (((D232.maskWarppadBoolInterrupt & 1) != 0) || ((gGT->cameraDC[0].flags & 0x800) != 0))
+		if (((D232.maskWarppadBoolInterrupt & 1) != 0) || ((gGT->cameraDC[0].flags & CAMERA_FLAG_TRANSITION_HOLD) != 0))
 		{
 			AH_MaskHint_LerpVol(0x1000);
 
@@ -227,7 +228,7 @@ void AH_MaskHint_Update()
 		if ((D232.maskWarppadBoolInterrupt & 1) == 0)
 		{
 			// transition back to player
-			gGT->cameraDC[0].flags |= 0x400;
+			gGT->cameraDC[0].flags |= CAMERA_FLAG_TRANSITION_BACK;
 		}
 
 		sdata->AkuAkuHintState++;
@@ -235,9 +236,9 @@ void AH_MaskHint_Update()
 
 	case 6:
 
-		AH_MaskHint_LerpVol(0x1000 - gGT->cameraDC[0].unk8C);
+		AH_MaskHint_LerpVol(0x1000 - gGT->cameraDC[0].transitionBlend);
 
-		if (((gGT->cameraDC[0].flags & 0x200) == 0) || ((D232.maskWarppadBoolInterrupt & 1) != 0))
+		if (((gGT->cameraDC[0].flags & CAMERA_FLAG_TRANSITION_AWAY) == 0) || ((D232.maskWarppadBoolInterrupt & 1) != 0))
 		{
 			AH_MaskHint_SetAnim(0);
 			AH_MaskHint_LerpVol(0);
@@ -264,7 +265,7 @@ void AH_MaskHint_Update()
 			sdata->boolDraw3D_AdvMask = 0;
 
 			gGT->gameMode2 &= ~(VEH_FREEZE_DOOR);
-			d->funcPtrs[0] = VehPhysProc_Driving_Init;
+			d->funcPtrs[DRIVER_FUNC_INIT] = VehPhysProc_Driving_Init;
 		}
 
 		break;

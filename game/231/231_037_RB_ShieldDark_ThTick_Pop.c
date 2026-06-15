@@ -68,7 +68,7 @@ void RB_ShieldDark_ThTick_Pop(struct Thread *t)
 	INSTANCE_Death(sh->instHighlight);
 
 	// this thread is now dead
-	t->flags |= 0x800;
+	t->flags |= THREAD_FLAG_DEAD;
 
 	return;
 }

@@ -43,7 +43,7 @@ void UI_BattleDrawHeadArrows(struct Driver *player)
 
 		if (
 		    // skip yourself, skip invisible, skip finished players
-		    (i == playerID) || (currDriver->invisibleTimer != 0) || ((currDriver->actionsFlagSet & 0x2000000) != 0))
+		    (i == playerID) || (currDriver->invisibleTimer != 0) || ((currDriver->actionsFlagSet & ACTION_RACE_FINISHED) != 0))
 		{
 			continue;
 		}
@@ -216,7 +216,7 @@ void UI_TrackerSelf(struct Driver *d)
 	{
 		if ((
 		        // if 27th bit of Actions Flag set is on (means ?)
-		        ((d->actionsFlagSet & 0x4000000) != 0) &&
+		        ((d->actionsFlagSet & ACTION_TRACKER_TARGETED) != 0) &&
 
 		        // tracker chasing driver
 		        (trackerTh == d->thTrackingMe)) ||
@@ -226,7 +226,7 @@ void UI_TrackerSelf(struct Driver *d)
 			goto LAB_8004fe8c;
 
 		// turn on 27th bit of Actions Flag set (means ?)
-		d->actionsFlagSet |= 0x4000000;
+		d->actionsFlagSet |= ACTION_TRACKER_TARGETED;
 
 		// reset timer loop
 		sVar18 = 8;
@@ -304,7 +304,7 @@ LAB_8004fe8c:
 		{
 			struct CheckpointNode *firstNode = &gGT->level1->ptr_restart_points[0];
 
-			warpballDist = ((tw->ptrNodeCurr->distToFinish - firstNode[d->unknown_lap_related[1]].distToFinish
+			warpballDist = ((tw->ptrNodeCurr->distToFinish - firstNode[d->checkpoint.currentIndex].distToFinish
 
 			                 ) *
 			                8);

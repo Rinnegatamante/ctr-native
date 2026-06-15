@@ -31,7 +31,7 @@ int RB_CtrLetter_ThCollide(struct Thread *letterTh, struct Thread *driverTh, voi
 	letterInst->flags |= 0x80;
 
 	OtherFX_Play(100, 1);
-	letterTh->flags |= 0x800;
+	letterTh->flags |= THREAD_FLAG_DEAD;
 
 	return 1;
 }

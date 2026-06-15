@@ -7,13 +7,13 @@ void RB_Potion_ThTick_InAir(struct Thread *t)
 	struct Instance *inst;
 	struct MineWeapon *mw;
 
-	s16 posBottom[3];
-	s16 posTop[3];
+	SVec3 posBottom;
+	SVec3 posTop;
 
 	struct BSP *bspHitbox;
 	struct InstDef *instDef;
 
-#define SPS ((struct ScratchpadStruct *)0x1f800108)
+	struct ScratchpadStruct *sps = CTR_SCRATCHPAD_PTR(struct ScratchpadStruct, 0x108);
 
 	gGT = sdata->gGT;
 	inst = t->inst;
@@ -36,30 +36,30 @@ void RB_Potion_ThTick_InAir(struct Thread *t)
 	if (mw->cooldown < 0)
 		mw->cooldown = 0;
 
-	posBottom[0] = inst->matrix.t[0];
-	posBottom[1] = inst->matrix.t[1] - 0x40;
-	posBottom[2] = inst->matrix.t[2];
+	posBottom.x = inst->matrix.t[0];
+	posBottom.y = inst->matrix.t[1] - 0x40;
+	posBottom.z = inst->matrix.t[2];
 
-	posTop[0] = inst->matrix.t[0];
-	posTop[1] = inst->matrix.t[1] + 0x100;
-	posTop[2] = inst->matrix.t[2];
+	posTop.x = inst->matrix.t[0];
+	posTop.y = inst->matrix.t[1] + 0x100;
+	posTop.z = inst->matrix.t[2];
 
-	SPS->Union.QuadBlockColl.searchFlags = COLL_SEARCH_TEST_INSTANCES | COLL_SEARCH_FORCE_INSTANCE_HIT;
-	SPS->Union.QuadBlockColl.quadFlagsWanted = QUADBLOCK_FLAG_GROUND | QUADBLOCK_FLAG_TRIGGER;
-	SPS->Union.QuadBlockColl.quadFlagsIgnored = 0;
+	sps->Union.QuadBlockColl.searchFlags = COLL_SEARCH_TEST_INSTANCES | COLL_SEARCH_FORCE_INSTANCE_HIT;
+	sps->Union.QuadBlockColl.quadFlagsWanted = QUADBLOCK_FLAG_GROUND | QUADBLOCK_FLAG_TRIGGER;
+	sps->Union.QuadBlockColl.quadFlagsIgnored = 0;
 
 	if (gGT->numPlyrCurrGame < 3)
 	{
-		SPS->Union.QuadBlockColl.searchFlags = COLL_SEARCH_TEST_INSTANCES | COLL_SEARCH_HIGH_LOD | COLL_SEARCH_FORCE_INSTANCE_HIT;
+		sps->Union.QuadBlockColl.searchFlags = COLL_SEARCH_TEST_INSTANCES | COLL_SEARCH_HIGH_LOD | COLL_SEARCH_FORCE_INSTANCE_HIT;
 	}
 
-	SPS->ptr_mesh_info = gGT->level1->ptr_mesh_info;
+	sps->ptr_mesh_info = gGT->level1->ptr_mesh_info;
 
-	COLL_SearchBSP_CallbackQUADBLK(posBottom, posTop, SPS, 0);
+	COLL_SearchBSP_CallbackQUADBLK(&posBottom, &posTop, sps, 0);
 
-	RB_MakeInstanceReflective(SPS, inst);
+	RB_MakeInstanceReflective(sps, inst);
 
-	if ((SPS->collision.stepFlags & 4) != 0)
+	if ((sps->collision.stepFlags & COLL_STEP_TRIGGER_WEAPON_REACT) != 0)
 	{
 		RB_GenericMine_ThDestroy(t, inst, mw);
 	}
@@ -68,13 +68,13 @@ void RB_Potion_ThTick_InAir(struct Thread *t)
 	int iVar5;
 
 	// did not hit BSP hitbox
-	if (SPS->boolDidTouchHitbox == 0)
+	if (sps->boolDidTouchHitbox == 0)
 	{
-		if (SPS->boolDidTouchQuadblock != 0)
+		if (sps->boolDidTouchQuadblock != 0)
 		{
-			VehPhysForce_RotAxisAngle(&inst->matrix, SPS->hit.plane.normal.v, 0);
+			VehPhysForce_RotAxisAngle(&inst->matrix, sps->hit.plane.normal.v, 0);
 
-			iVar4 = SPS->Union.QuadBlockColl.hitPos.y;
+			iVar4 = sps->Union.QuadBlockColl.hitPos.y;
 			iVar5 = inst->matrix.t[1];
 
 			if (iVar4 + 0x30 < iVar5)
@@ -112,21 +112,21 @@ void RB_Potion_ThTick_InAir(struct Thread *t)
 		// check again with range [-0x900, 0x100]
 
 		// posBottom
-		posBottom[0] = inst->matrix.t[0];
-		posBottom[1] = inst->matrix.t[1] - 0x900;
-		posBottom[2] = inst->matrix.t[2];
+		posBottom.x = inst->matrix.t[0];
+		posBottom.y = inst->matrix.t[1] - 0x900;
+		posBottom.z = inst->matrix.t[2];
 
-		COLL_SearchBSP_CallbackQUADBLK(posBottom, posTop, SPS, 0);
+		COLL_SearchBSP_CallbackQUADBLK(&posBottom, &posTop, sps, 0);
 
 		// quadblock exists far below potion, dont destroy
-		if (SPS->boolDidTouchQuadblock != 0)
+		if (sps->boolDidTouchQuadblock != 0)
 			return;
 	}
 
 	// hit BSP hitbox, and instance is TEETH
 	else
 	{
-		bspHitbox = SPS->bspHitbox;
+		bspHitbox = sps->bspHitbox;
 
 		if ((
 		        // bsp->flags & hitbox

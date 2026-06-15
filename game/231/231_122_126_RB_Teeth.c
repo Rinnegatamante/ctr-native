@@ -14,7 +14,7 @@ void RB_Teeth_LInB(struct Instance *inst)
 		sdata->doorAccessFlags |= 1;
 
 		// Make invisible
-		inst->flags |= 0x80;
+		inst->flags |= HIDE_MODEL;
 	}
 	return;
 }
@@ -30,26 +30,9 @@ void RB_Teeth_BSP_Callback(struct ScratchpadStruct *sps, void *hitObject)
 
 	model = weaponThread->modelIndex;
 
-	// if not driver
-	if (model != 0x18)
-	{
-		if (model < 0x19)
-		{
-			// if not nitro
-			if (model != 6)
-			{
-				return;
-			}
-		}
-		else
-		{
-			// if not potion or tnt
-			if ((model != 0x1d) && (model != 0x27))
-			{
-				return;
-			}
-		}
-	}
+	b32 canOpenTeeth = (model == DYNAMIC_PLAYER) || (model == PU_EXPLOSIVE_CRATE) || (model == DYNAMIC_POISON) || (model == STATIC_CRATE_TNT);
+	if (!canOpenTeeth)
+		return;
 
 	teethTh = sps->Union.ThBuckColl.thread;
 
@@ -91,8 +74,7 @@ void RB_Teeth_ThTick(struct Thread *t)
 	gGT = sdata->gGT;
 	teeth = t->object;
 	inst = t->inst;
-
-#define SPS ((struct ScratchpadStruct *)0x1f800108)
+	struct ScratchpadStruct *sps = CTR_SCRATCHPAD_PTR(struct ScratchpadStruct, 0x108);
 
 	// if door is not moving
 	if (teeth->direction == 0)
@@ -174,24 +156,24 @@ void RB_Teeth_ThTick(struct Thread *t)
 	}
 
 	// Teeth instance position
-	SPS->Input1.pos.x = inst->matrix.t[0];
-	SPS->Input1.pos.y = inst->matrix.t[1];
-	SPS->Input1.pos.z = inst->matrix.t[2];
+	sps->Input1.pos.x = inst->matrix.t[0];
+	sps->Input1.pos.y = inst->matrix.t[1];
+	sps->Input1.pos.z = inst->matrix.t[2];
 
-	SPS->Input1.hitRadius = 0x300;
-	SPS->Input1.hitRadiusSquared = 0x90000;
+	sps->Input1.hitRadius = 0x300;
+	sps->Input1.hitRadiusSquared = 0x90000;
 
-	SPS->Input1.modelID = STATIC_TEETH;
+	sps->Input1.modelID = STATIC_TEETH;
 
-	SPS->Union.ThBuckColl.thread = t;
-	SPS->Union.ThBuckColl.funcCallback = RB_Teeth_BSP_Callback;
+	sps->Union.ThBuckColl.thread = t;
+	sps->Union.ThBuckColl.funcCallback = RB_Teeth_BSP_Callback;
 
 	// If door wants to close, but Player or Mine
 	// is in the way, then do not force the doors to close
 
-	PROC_CollideHitboxWithBucket(gGT->threadBuckets[PLAYER].thread, SPS, 0);
+	PROC_CollideHitboxWithBucket(gGT->threadBuckets[PLAYER].thread, sps, 0);
 
-	PROC_CollideHitboxWithBucket(gGT->threadBuckets[MINE].thread, SPS, 0);
+	PROC_CollideHitboxWithBucket(gGT->threadBuckets[MINE].thread, sps, 0);
 
 LAB_800ba084:
 
@@ -265,7 +247,7 @@ int RB_Teeth_LInC(struct Instance *teethInst, struct Thread *t, struct Scratchpa
 	if (sps->Input1.modelID == DYNAMIC_PLAYER)
 	{
 		// if driver is using mask weapon
-		if ((d->actionsFlagSet & 0x800000) != 0)
+		if ((d->actionsFlagSet & ACTION_MASK_WEAPON) != 0)
 		{
 			RB_Teeth_OpenDoor(teethInst);
 		}

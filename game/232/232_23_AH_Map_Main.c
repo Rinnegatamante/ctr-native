@@ -37,7 +37,7 @@ void AH_Map_Main(void)
 
 
 	// NOTE(aalhendi): Retail keeps this AI-only Adventure Hub speedometer fallback.
-	if ((gGT->numPlyrCurrGame == 0) && ((advDriver->actionsFlagSet & 0x100000) != 0))
+	if ((gGT->numPlyrCurrGame == 0) && ((advDriver->actionsFlagSet & ACTION_BOT) != 0))
 	{
 		sdata->HudAndDebugFlags = 8;
 	}

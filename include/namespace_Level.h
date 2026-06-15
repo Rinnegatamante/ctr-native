@@ -167,6 +167,7 @@ typedef enum QuadBlockFlags : u16
 	QUADBLOCK_FLAG_ENGINE_ECHO = 0x0080,
 	QUADBLOCK_FLAG_KILL_PLANE = 0x0200,
 	QUADBLOCK_FLAG_DOOR = 0x0400,
+	QUADBLOCK_FLAG_CAMERA_SEARCH = 0x0800,
 	QUADBLOCK_FLAG_GROUND = 0x1000,
 	QUADBLOCK_FLAG_COLLISION_SURFACE = 0x2000,
 	QUADBLOCK_FLAG_NO_CAMERA_RESPAWN_PROBE = 0x4000,
@@ -190,7 +191,7 @@ enum QuadBlockTriNormalDividendIndex
 struct QuadBlock
 {
 	// 0x0
-	s16 index[9];
+	u16 index[9];
 
 	// 0x12
 	QuadBlockFlags quadFlags;
@@ -259,6 +260,8 @@ struct QuadBlock
 };
 
 _Static_assert(sizeof(struct QuadBlock) == 0x5c);
+_Static_assert(offsetof(struct QuadBlock, index) == 0x0);
+_Static_assert(sizeof(((struct QuadBlock *)0)->index[0]) == 0x2);
 _Static_assert(sizeof(QuadBlockFlags) == 0x2);
 _Static_assert(QUADBLOCK_FLAG_REFLECT_SPLIT_LINE_1 == 0x0001);
 _Static_assert(QUADBLOCK_FLAG_LOW_GRAVITY == 0x0002);
@@ -268,6 +271,7 @@ _Static_assert(QUADBLOCK_FLAG_TRIGGER == 0x0040);
 _Static_assert(QUADBLOCK_FLAG_ENGINE_ECHO == 0x0080);
 _Static_assert(QUADBLOCK_FLAG_KILL_PLANE == 0x0200);
 _Static_assert(QUADBLOCK_FLAG_DOOR == 0x0400);
+_Static_assert(QUADBLOCK_FLAG_CAMERA_SEARCH == 0x0800);
 _Static_assert(QUADBLOCK_FLAG_GROUND == 0x1000);
 _Static_assert(QUADBLOCK_FLAG_COLLISION_SURFACE == 0x2000);
 _Static_assert(QUADBLOCK_FLAG_NO_CAMERA_RESPAWN_PROBE == 0x4000);

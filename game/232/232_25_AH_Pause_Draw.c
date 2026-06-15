@@ -356,7 +356,7 @@ void AH_Pause_Draw(int pageID, int posX)
 		if (index < 0)
 		{
 			// make invisible
-			inst->flags |= 0x80;
+			inst->flags |= HIDE_MODEL;
 		}
 		else
 		{

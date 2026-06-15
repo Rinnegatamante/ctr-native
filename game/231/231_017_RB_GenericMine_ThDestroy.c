@@ -40,12 +40,12 @@ void RB_GenericMine_ThDestroy(struct Thread *t, struct Instance *inst, struct Mi
 	inst->scale[2] = 0;
 
 	// make invisible
-	inst->flags |= 0x80;
+	inst->flags |= HIDE_MODEL;
 
 	RB_MinePool_Remove(mw);
 
 	// this thread is now dead
-	t->flags |= 0x800;
+	t->flags |= THREAD_FLAG_DEAD;
 
 	return;
 }

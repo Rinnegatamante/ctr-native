@@ -366,7 +366,7 @@ void AH_WarpPad_ThTick(struct Thread *t)
 	{
 		warppadObj->boolEnteredWarppad = 1;
 		warppadObj->framesWarping++;
-		gGT->drivers[0]->funcPtrs[0] = VehStuckProc_Warp_Init;
+		gGT->drivers[0]->funcPtrs[DRIVER_FUNC_INIT] = VehStuckProc_Warp_Init;
 		if (warppadObj->framesWarping < 61)
 			goto WarpPad_AnimateOpen;
 
@@ -386,7 +386,7 @@ void AH_WarpPad_ThTick(struct Thread *t)
 	{
 		warppadObj->boolEnteredWarppad = 1;
 		warppadObj->framesWarping++;
-		gGT->drivers[0]->funcPtrs[0] = VehStuckProc_Warp_Init;
+		gGT->drivers[0]->funcPtrs[DRIVER_FUNC_INIT] = VehStuckProc_Warp_Init;
 		if (warppadObj->framesWarping < 61)
 			goto WarpPad_AnimateOpen;
 
@@ -399,7 +399,7 @@ void AH_WarpPad_ThTick(struct Thread *t)
 	{
 		warppadObj->boolEnteredWarppad = 1;
 		warppadObj->framesWarping++;
-		gGT->drivers[0]->funcPtrs[0] = VehStuckProc_Warp_Init;
+		gGT->drivers[0]->funcPtrs[DRIVER_FUNC_INIT] = VehStuckProc_Warp_Init;
 		if (warppadObj->framesWarping < 61)
 			goto WarpPad_AnimateOpen;
 
@@ -486,7 +486,7 @@ void AH_WarpPad_ThTick(struct Thread *t)
 
 	warppadObj->boolEnteredWarppad = 1;
 	warppadObj->framesWarping++;
-	gGT->drivers[0]->funcPtrs[0] = VehStuckProc_Warp_Init;
+	gGT->drivers[0]->funcPtrs[DRIVER_FUNC_INIT] = VehStuckProc_Warp_Init;
 	if (warppadObj->framesWarping < 61)
 		goto WarpPad_AnimateOpen;
 
@@ -505,7 +505,7 @@ WarpPad_TrophyAnimateOnly:
 
 	warppadObj->boolEnteredWarppad = 1;
 
-	gGT->drivers[0]->funcPtrs[0] = VehStuckProc_Warp_Init;
+	gGT->drivers[0]->funcPtrs[DRIVER_FUNC_INIT] = VehStuckProc_Warp_Init;
 
 WarpPad_AnimateOpen:
 

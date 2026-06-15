@@ -31,7 +31,7 @@ void RB_Fruit_ThTick(struct Thread *fruitTh)
 
 	fruitInst = fruitTh->inst;
 	fruitInst->thread = NULL;
-	fruitTh->flags |= 0x800;
+	fruitTh->flags |= THREAD_FLAG_DEAD;
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b70a8-0x800b722c.
@@ -71,7 +71,7 @@ int RB_Fruit_ThCollide(struct Thread *fruitTh, struct Thread *driverTh, void *fu
 	fruitInst->thread = NULL;
 
 	PlaySound3D(0x43, fruitInst);
-	fruitTh->flags |= 0x800;
+	fruitTh->flags |= THREAD_FLAG_DEAD;
 
 	return 1;
 }

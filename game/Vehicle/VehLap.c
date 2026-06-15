@@ -9,7 +9,7 @@ void VehLap_UpdateProgress(struct Driver *driver)
 	if (driver == NULL)
 		return;
 
-	if ((driver->actionsFlagSet & 0x100000) == 0)
+	if ((driver->actionsFlagSet & ACTION_BOT) == 0)
 	{
 		struct QuadBlock *quad = driver->lastValid;
 
@@ -63,23 +63,23 @@ void VehLap_UpdateProgress(struct Driver *driver)
 
 	if (wrongWayTest < 0x5a801)
 	{
-		driver->actionsFlagSet &= ~0x100;
+		driver->actionsFlagSet &= ~ACTION_DRIVING_WRONG_WAY;
 	}
 	else
 	{
-		driver->actionsFlagSet |= 0x100;
+		driver->actionsFlagSet |= ACTION_DRIVING_WRONG_WAY;
 	}
 
-	if (((driver->actionsFlagSet & 0x8000000) != 0) && (driver->unknown_lap_related[1] != (u8)checkpointIndex))
+	if (((driver->actionsFlagSet & ACTION_CHECKPOINT_BRANCH_PENDING) != 0) && (driver->checkpoint.currentIndex != (u8)checkpointIndex))
 	{
-		driver->unknown_lap_related[0] = checkpointIndex;
-		driver->actionsFlagSet &= ~0x8000000;
+		driver->checkpoint.branchChoiceIndex = checkpointIndex;
+		driver->actionsFlagSet &= ~ACTION_CHECKPOINT_BRANCH_PENDING;
 	}
 
 	if (checkpointNode->nextIndex_left != 0xff)
 	{
-		driver->actionsFlagSet |= 0x8000000;
+		driver->actionsFlagSet |= ACTION_CHECKPOINT_BRANCH_PENDING;
 	}
 
-	driver->unknown_lap_related[1] = checkpointIndex;
+	driver->checkpoint.currentIndex = checkpointIndex;
 }

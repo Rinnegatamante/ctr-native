@@ -7,7 +7,7 @@ void CS_Camera_ThTick_Podium(struct Thread *th)
 	u16 *podium = th->object;
 
 	if (podium[0] == 0)
-		gGT->drivers[0]->funcPtrs[0] = VehStuckProc_RIP_Init;
+		gGT->drivers[0]->funcPtrs[DRIVER_FUNC_INIT] = VehStuckProc_RIP_Init;
 
 	if (gGT->cameraDC[0].cameraMode != 3)
 	{

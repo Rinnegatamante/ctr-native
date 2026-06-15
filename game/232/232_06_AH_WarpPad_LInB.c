@@ -63,7 +63,7 @@ void AH_WarpPad_LInB(struct Instance *inst)
 	// make invisible
 	// this is the red triangle
 	// instance from DCxDemo's LEV Viewer
-	inst->flags |= 0x80;
+	inst->flags |= HIDE_MODEL;
 
 	warppadObj = t->object;
 	warppadObj->levelID = 0; // this is dingo canyon

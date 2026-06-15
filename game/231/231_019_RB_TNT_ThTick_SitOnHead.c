@@ -50,10 +50,10 @@ void RB_TNT_ThTick_SitOnHead(struct Thread *t)
 		inst->scale[2] = 0;
 
 		// make invisible
-		inst->flags |= 0x80;
+		inst->flags |= HIDE_MODEL;
 
 		// this thread is now dead
-		t->flags |= 0x800;
+		t->flags |= THREAD_FLAG_DEAD;
 
 		mw->driverTarget->instTntRecv = 0;
 
@@ -74,10 +74,10 @@ void RB_TNT_ThTick_SitOnHead(struct Thread *t)
 	}
 
 	// if this driver is not an AI
-	if ((mw->driverTarget->actionsFlagSet & 0x100000) == 0)
+	if ((mw->driverTarget->actionsFlagSet & ACTION_BOT) == 0)
 	{
 		// if player did not start jumping this frame
-		if ((mw->driverTarget->actionsFlagSet & 0x400) == 0)
+		if ((mw->driverTarget->actionsFlagSet & ACTION_JUMP_STARTED) == 0)
 			goto LAB_800ad5f8;
 
 		if (mw->jumpsRemaining != 0)
@@ -156,7 +156,7 @@ LAB_800ad5f8:
 		RB_Blowup_Init(inst);
 
 		// this thread is now dead
-		t->flags |= 0x800;
+		t->flags |= THREAD_FLAG_DEAD;
 
 		mw->driverTarget->instTntRecv = NULL;
 	}

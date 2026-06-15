@@ -21,6 +21,7 @@ void AH_Garage_ThTick(struct Thread *t)
 	struct Instance *drv_inst;
 	struct GameTracker *gGT;
 	struct AdvProgress *adv;
+	struct ScratchpadStruct *sps = CTR_SCRATCHPAD_PTR(struct ScratchpadStruct, 0x108);
 
 	bossIsOpen = true;
 
@@ -64,7 +65,7 @@ void AH_Garage_ThTick(struct Thread *t)
 			// door is closing
 			garage->direction = -1;
 
-			inst->flags &= 0xffffff7f;
+			inst->flags &= ~HIDE_MODEL;
 		}
 	}
 	// if door is opening or closing
@@ -90,7 +91,7 @@ void AH_Garage_ThTick(struct Thread *t)
 			garage->cooldown = 0x780;
 
 			// Make invisible
-			inst->flags |= 0x80;
+			inst->flags |= HIDE_MODEL;
 		}
 		// If the door has gone past the bottom
 		else if (move < bottom)
@@ -212,20 +213,18 @@ LAB_800aede0:
 
 LAB_800aede8:
 
-#define SPS ((struct ScratchpadStruct *)0x1f800108)
+	sps->Input1.pos.x = inst->instDef->pos[0];
+	sps->Input1.pos.y = inst->instDef->pos[1];
+	sps->Input1.pos.z = inst->instDef->pos[2];
+	sps->Input1.hitRadius = 0x300;
+	sps->Input1.hitRadiusSquared = 0x90000;
+	sps->Input1.modelID = STATIC_PINGARAGE;
 
-	SPS->Input1.pos.x = inst->instDef->pos[0];
-	SPS->Input1.pos.y = inst->instDef->pos[1];
-	SPS->Input1.pos.z = inst->instDef->pos[2];
-	SPS->Input1.hitRadius = 0x300;
-	SPS->Input1.hitRadiusSquared = 0x90000;
-	SPS->Input1.modelID = STATIC_PINGARAGE;
-
-	SPS->Union.ThBuckColl.thread = t;
-	SPS->Union.ThBuckColl.funcCallback = AH_Garage_Open;
+	sps->Union.ThBuckColl.thread = t;
+	sps->Union.ThBuckColl.funcCallback = AH_Garage_Open;
 
 	// Open garage door when player gets within radius of door
-	PROC_CollideHitboxWithBucket(gGT->threadBuckets[PLAYER].thread, SPS, 0);
+	PROC_CollideHitboxWithBucket(gGT->threadBuckets[PLAYER].thread, sps, 0);
 
 	ratio = MATH_Sin((int)inst->instDef->rot[1]);
 

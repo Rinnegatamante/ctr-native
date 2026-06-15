@@ -1,5 +1,27 @@
 #include <ctr_math.h>
 
+struct Thread;
+struct Driver;
+typedef void (*DriverFunc)(struct Thread *thread, struct Driver *driver);
+
+enum DriverFuncSlot
+{
+	DRIVER_FUNC_INIT = 0,
+	DRIVER_FUNC_UPDATE,
+	DRIVER_FUNC_PHYS_LINEAR,
+	DRIVER_FUNC_AUDIO,
+	DRIVER_FUNC_PHYS_ANGULAR,
+	DRIVER_FUNC_APPLY_FORCES,
+	DRIVER_FUNC_COLL_MOVED,
+	DRIVER_FUNC_COLLIDE_DRIVERS,
+	DRIVER_FUNC_COLL_FIXED,
+	DRIVER_FUNC_JUMP_FRICTION,
+	DRIVER_FUNC_TRANSLATE_MATRIX,
+	DRIVER_FUNC_ANIMATE,
+	DRIVER_FUNC_PARTICLES,
+	DRIVER_FUNC_COUNT,
+};
+
 enum Characters
 {
 	CRASH_BANDICOOT = 0,
@@ -32,6 +54,15 @@ enum KartState
 	KS_ANTIVSHIFT = 9,
 	KS_WARP_PAD = 10,
 	KS_FREEZE = 11
+};
+
+struct DriverCheckpointState
+{
+	// 0x0 - checkpoint chosen after a split, used by warpball pathing
+	u8 branchChoiceIndex;
+
+	// 0x1
+	u8 currentIndex;
 };
 
 enum PhysType
@@ -321,13 +352,36 @@ typedef enum Actions : u32
 {
 	ACTION_TOUCH_GROUND = 0x1,
 	ACTION_STARTED_TOUCH_GROUND = 0x2,
+	ACTION_JUMP_BUTTON_HELD = 0x4,
+	ACTION_ACCEL_PREVENTION = 0x8,
+	ACTION_STEER_LEFT = 0x10,
+	ACTION_BRAKE_WITH_ACCEL = 0x20,
+	ACTION_HIGH_JUMP = 0x40,
+	ACTION_TURBO_INPUT_LATCH = 0x80,
+	ACTION_DRIVING_WRONG_WAY = 0x100,
+	ACTION_TURBO_ITEM = 0x200,
+	ACTION_JUMP_STARTED = 0x400,
+	ACTION_BACK_SKID = 0x800,
+	ACTION_FRONT_SKID = 0x1000,
 	ACTION_DRIVING_AGAINST_WALL = 0x2000,
 	ACTION_WARP = 0x4000,
+	ACTION_WEAPON_FIRE_REQUEST = 0x8000,
 	ACTION_ENGINE_ECHO = 0x10000,
+	ACTION_REVERSING_ENGINE = 0x20000,
+	ACTION_RACE_TIMER_FROZEN = 0x40000,
 	ACTION_AIRBORNE = 0x80000,
 	ACTION_BOT = 0x100000,
+	ACTION_NEW_BOOST = 0x200000,
+	ACTION_ACCEL_RELEASED_WITH_RESERVES = 0x400000,
+	ACTION_MASK_WEAPON = 0x800000,
 	ACTION_BEHIND_START_LINE = 0x1000000,
 	ACTION_RACE_FINISHED = 0x2000000,
+	ACTION_TRACKER_TARGETED = 0x4000000,
+	ACTION_CHECKPOINT_BRANCH_PENDING = 0x8000000,
+	ACTION_HUMAN_HUMAN_COLLISION = 0x10000000,
+	ACTION_REVERSE_STEER_LEFT = 0x20000000,
+	ACTION_REVERSE_STEER_RIGHT = 0x40000000,
+	ACTION_DROPPING_MINE = 0x80000000u,
 } Actions;
 
 typedef enum DriverCollisionFlags : s16
@@ -338,13 +392,25 @@ typedef enum DriverCollisionFlags : s16
 	DRIVER_COLL_FLAG_GROUNDED = 0x8,
 } DriverCollisionFlags;
 
+typedef enum ForcedJumpType : u8
+{
+	FORCED_JUMP_NONE = 0,
+	FORCED_JUMP_LOW = 1,
+	FORCED_JUMP_HIGH = 2,
+} ForcedJumpType;
+
 enum BotFlags
 {
 	BOT_FLAG_ESTIMATE_NAV = 0x1,
 	BOT_FLAG_DAMAGE_ACTIVE = 0x2,
+	BOT_FLAG_DAMAGE_SUPPRESS_EMITTER = 0x4,
+	BOT_FLAG_FREE_PHYSICS = 0x8,
+	BOT_FLAG_NAV_BOOST_ACTIVE = 0x10,
 	BOT_FLAG_MOON_GRAVITY = 0x20,
 	BOT_FLAG_BOSS_PATH_REQUESTED = 0x40,
 	BOT_FLAG_BOSS_PATH_ACTIVE = 0x80,
+	BOT_FLAG_DEMO_CAMERA_STARTED = 0x100,
+	BOT_FLAG_STARTLINE_INIT_DONE = 0x200,
 };
 
 struct MetaPhys
@@ -393,6 +459,45 @@ struct Turbo
 	s16 fireVisibilityCooldown;
 };
 
+struct BotPhysics
+{
+	// 0x0, Driver + 0x5bc
+	s16 rotXZ;
+
+	// 0x2, Driver + 0x5be
+	s16 driftTarget;
+
+	// 0x4, Driver + 0x5c0
+	s16 mulDrift;
+
+	// 0x6, Driver + 0x5c2
+	s16 simpTurnState;
+
+	// 0x8, Driver + 0x5c4
+	s16 turboMeter;
+
+	// 0xa, Driver + 0x5c6
+	s16 fireLevel;
+
+	// 0xc, Driver + 0x5c8
+	int squishCooldown; // retail uses both halfword and word operations on this slot
+
+	// 0x10, Driver + 0x5cc
+	int unk5cc;
+
+	// 0x14, Driver + 0x5d0
+	int speedY;
+
+	// 0x18, Driver + 0x5d4
+	int speedLinear;
+
+	// 0x1c, Driver + 0x5d8
+	int accelAxis[3];
+
+	// 0x28, Driver + 0x5e4
+	int velAxis[3];
+};
+
 struct BotData
 {
 	// these offset are from the perspective as they exist from within `struct Driver`
@@ -428,64 +533,8 @@ struct BotData
 	// 0x5ba
 	s16 aiDamageState;
 
-
-	/*
-	 * regarding unk5bc:
-	 *
-	 * 0x5bc - 0x5bd: likely a s16, a timer of some sort, similar to squishTimer.
-	 */
-
-	// 0x5bc
-	// incline rotXZ
-	// probably only for AIs
-
-	// unk5bc + 18 is botVelocity?
-	// char unk5bc[0x34];
-	union
-	{
-		char raw[0x34];
-		struct
-		{
-			// 0x5bc
-			s16 rotXZ;
-
-			// 0x5be
-			s16 ai_driftTarget;
-
-			// 0x5c0
-			s16 ai_mulDrift;
-
-			// 0x5c2
-			s16 ai_simpTurnState;
-
-			// 0x5c4
-			s16 ai_turboMeter;
-
-			// 0x5c6
-			s16 ai_fireLevel;
-
-			// 0x5c8
-			int ai_squishCooldown; // retail uses both halfword and word operations on this slot
-
-			// 0x5cc
-			int unk5cc;
-
-			// 0x5d0
-			int ai_speedY;
-
-			// 0x5d4
-			int ai_speedLinear;
-
-			// 0x5d8
-			int ai_accelAxis[3];
-
-			// 0x5e4
-			int ai_velAxis[3];
-		};
-	} unk5bc;
-
-	// 0x5d4
-	// AI speed
+	// 0x5bc, offset in `struct BotData` == 0x24
+	struct BotPhysics aiPhysics;
 
 	// 0x5f0
 	int ai_posBackup[3];
@@ -659,14 +708,14 @@ struct Driver
 	// 0x60 - OnAudio, engine sounds (always same)
 	// 0x64 - OnPhysAngular
 	// 0x68 - VehPhysForce_OnApplyForces
-	// 0x6C - COLL_FIXED_PlayerSearch
+	// 0x6C - COLL_MOVED_PlayerSearch
 	// 0x70 - VehPhysForce_CollideDrivers
-	// 0x74 - COLL_MOVED_PlayerSearch
-	// 0x78 - OnWeapon (jump related?)
+	// 0x74 - COLL_FIXED_PlayerSearch
+	// 0x78 - VehPhysGeneral_JumpAndFriction
 	// 0x7C - VehPhysForce_TranslateMatrix (pos, rot, scale)
 	// 0x80 - OnAnimate
 	// 0x84 - OnParticles
-	void *funcPtrs[0xD];
+	DriverFunc funcPtrs[DRIVER_FUNC_COUNT];
 
 	// 0x88
 	Vec3 velocity;
@@ -683,14 +732,30 @@ struct Driver
 	DriverCollisionFlags collisionFlags;
 
 	// 0xac
-	s16 spsHitPos[4];
+	union
+	{
+		s16 spsHitPosRaw[4];
+		struct
+		{
+			SVec3 spsHitPos;
+			s16 padding_0xb2;
+		};
+	};
 
 	// 0xb4
-	s16 spsNormalVec[4];
+	union
+	{
+		s16 spsNormalVecRaw[4];
+		struct
+		{
+			SVec3 spsNormalVec;
+			s16 padding_0xba;
+		};
+	};
 
 	// 0xBC
 	// 0xBD is waterFlag
-	u32 stepFlagSet;
+	CollStepFlags stepFlagSet;
 
 	// 0xC0
 	s16 ampTurnState;
@@ -716,33 +781,33 @@ struct Driver
 	// 0x00000002 - started touching quadblock this frame
 	// 0x00000004 - holding L1 or R1
 	// 0x00000008 - accel prevention (holding square)
-	// 0x00000010 - ? steering
-	// 0x00000020 - ? brakes+gas
+	// 0x00000010 - steering left
+	// 0x00000020 - gas and brake together
 	// 0x00000040 - ? COLL-related (ghost)
 	// 0x00000080 - ? VehPhysForce_TranslateMatrix-related, turbo-related
 	// 0x00000100 - driving wrong way
-	// 0x00000200 - using turbo weapon
+	// 0x00000200 - turbo item active
 	// 0x00000400 - started jump this frame
 	// 0x00000800 - back wheel skid
 	// 0x00001000 - front wheel skid
 	// 0x00002000 - driving against wall
 	// 0x00004000 - warping (or blasted, or LastSpin)
-	// 0x00008000 - want to fire weapon
+	// 0x00008000 - weapon fire request
 	// 0x00010000 - echo engine
 	// 0x00020000 - reversing engine
 	// 0x00040000 - race timer frozen
 	// 0x00080000 - airborne
 	// 0x00100000 - driver is an AI
 	// 0x00200000 - new boost this frame
-	// 0x00400000 - ?
+	// 0x00400000 - accel released while reserves keep speed
 	// 0x00800000 - using mask weapon
 	// 0x01000000 - behind start line
 	// 0x02000000 - race finished for this driver
 	// 0x04000000 - tracker chasing you
-	// 0x08000000 - ? checkpointIndex-related
+	// 0x08000000 - checkpoint branch choice pending
 	// 0x10000000 - human-human collision
-	// ?
-	// ?
+	// 0x20000000 - reverse steer left latch
+	// 0x40000000 - reverse steer right latch
 	// 0x80000000 - dropping mine
 
 
@@ -827,9 +892,7 @@ struct Driver
 	SVec3 AxisAngle1_normalVec;
 
 	// 0x366
-	// forced to jump while on turtles,
-	// should we say "forcedJump_turtles"?
-	u8 forcedJump_trampoline;
+	ForcedJumpType forcedJumpType;
 
 	// 0x367
 	// clock effect
@@ -951,8 +1014,8 @@ struct Driver
 	s16 mashXUnknown;
 
 	// 0x3C4
-	// in VehPhysProc_Driving_PhysLinear
-	s16 unknowndriverBaseSpeed;
+	// base speed after terrain speed multiplier
+	s16 terrainScaledBaseSpeed;
 
 	// 0x3C6 0x3C8
 	// in VehPhysProc_Driving_PhysLinear,
@@ -1033,7 +1096,7 @@ struct Driver
 	s16 jump_InitialVelY;
 
 	// 0x3FA
-	s16 jump_unknown;
+	s16 jump_HighJumpTimerMS;
 
 	// 0x3FC
 	s16 jump_LandingBoost;
@@ -1051,13 +1114,16 @@ struct Driver
 	s16 squishTimer;
 
 	// 0x406
-	s16 StartDriving_0x60;
+	// Initial driving grace period before repeated V-shifts can freeze the kart.
+	s16 vShiftStartGuardTimer;
 
 	// 0x408
-	s16 StartRollback_0x280;
+	// Rolling window for counting local-Z sign flips.
+	s16 vShiftWindowTimer;
 
 	// 0x40A
-	s16 unknownTraction;
+	// Counts local-Z sign flips during the rollback window; high values trigger FreezeVShift.
+	s16 vShiftCount;
 
 	// 0x40C
 	// when jumping and when hitting ground
@@ -1269,8 +1335,7 @@ struct Driver
 	u32 distanceDrivenBackwards;
 
 	// 0x494
-	// 494=char, 495=char
-	u8 unknown_lap_related[2];
+	struct DriverCheckpointState checkpoint;
 
 	// 0x496
 	u16 engineVol;
@@ -1705,34 +1770,126 @@ enum
 };
 
 _Static_assert(sizeof(struct MetaPhys) == 0x1C);
+_Static_assert(sizeof(DriverFunc) == sizeof(void *));
+_Static_assert(DRIVER_FUNC_INIT == 0);
+_Static_assert(DRIVER_FUNC_UPDATE == 1);
+_Static_assert(DRIVER_FUNC_PHYS_LINEAR == 2);
+_Static_assert(DRIVER_FUNC_AUDIO == 3);
+_Static_assert(DRIVER_FUNC_PHYS_ANGULAR == 4);
+_Static_assert(DRIVER_FUNC_APPLY_FORCES == 5);
+_Static_assert(DRIVER_FUNC_COLL_MOVED == 6);
+_Static_assert(DRIVER_FUNC_COLLIDE_DRIVERS == 7);
+_Static_assert(DRIVER_FUNC_COLL_FIXED == 8);
+_Static_assert(DRIVER_FUNC_JUMP_FRICTION == 9);
+_Static_assert(DRIVER_FUNC_TRANSLATE_MATRIX == 10);
+_Static_assert(DRIVER_FUNC_ANIMATE == 11);
+_Static_assert(DRIVER_FUNC_PARTICLES == 12);
+_Static_assert(DRIVER_FUNC_COUNT == 13);
+_Static_assert(sizeof(struct DriverCheckpointState) == 0x2);
+_Static_assert(offsetof(struct DriverCheckpointState, branchChoiceIndex) == 0x0);
+_Static_assert(offsetof(struct DriverCheckpointState, currentIndex) == 0x1);
 
+_Static_assert(sizeof(struct BotPhysics) == 0x34);
+_Static_assert(offsetof(struct BotPhysics, rotXZ) == 0x0);
+_Static_assert(offsetof(struct BotPhysics, driftTarget) == 0x2);
+_Static_assert(offsetof(struct BotPhysics, mulDrift) == 0x4);
+_Static_assert(offsetof(struct BotPhysics, simpTurnState) == 0x6);
+_Static_assert(offsetof(struct BotPhysics, turboMeter) == 0x8);
+_Static_assert(offsetof(struct BotPhysics, fireLevel) == 0xa);
+_Static_assert(offsetof(struct BotPhysics, squishCooldown) == 0xc);
+_Static_assert(offsetof(struct BotPhysics, unk5cc) == 0x10);
+_Static_assert(offsetof(struct BotPhysics, speedY) == 0x14);
+_Static_assert(offsetof(struct BotPhysics, speedLinear) == 0x18);
+_Static_assert(offsetof(struct BotPhysics, accelAxis) == 0x1c);
+_Static_assert(offsetof(struct BotPhysics, velAxis) == 0x28);
 _Static_assert(sizeof(struct BotData) == 0x94);
+_Static_assert(offsetof(struct BotData, aiPhysics) == 0x24);
+_Static_assert(BOT_FLAG_ESTIMATE_NAV == 0x1);
+_Static_assert(BOT_FLAG_DAMAGE_ACTIVE == 0x2);
+_Static_assert(BOT_FLAG_DAMAGE_SUPPRESS_EMITTER == 0x4);
+_Static_assert(BOT_FLAG_FREE_PHYSICS == 0x8);
+_Static_assert(BOT_FLAG_NAV_BOOST_ACTIVE == 0x10);
+_Static_assert(BOT_FLAG_MOON_GRAVITY == 0x20);
+_Static_assert(BOT_FLAG_BOSS_PATH_REQUESTED == 0x40);
+_Static_assert(BOT_FLAG_BOSS_PATH_ACTIVE == 0x80);
+_Static_assert(BOT_FLAG_DEMO_CAMERA_STARTED == 0x100);
+_Static_assert(BOT_FLAG_STARTLINE_INIT_DONE == 0x200);
 _Static_assert(sizeof(Actions) == 0x4);
 _Static_assert(ACTION_TOUCH_GROUND == 0x1);
 _Static_assert(ACTION_STARTED_TOUCH_GROUND == 0x2);
+_Static_assert(ACTION_JUMP_BUTTON_HELD == 0x4);
+_Static_assert(ACTION_ACCEL_PREVENTION == 0x8);
+_Static_assert(ACTION_STEER_LEFT == 0x10);
+_Static_assert(ACTION_BRAKE_WITH_ACCEL == 0x20);
+_Static_assert(ACTION_HIGH_JUMP == 0x40);
+_Static_assert(ACTION_TURBO_INPUT_LATCH == 0x80);
+_Static_assert(ACTION_DRIVING_WRONG_WAY == 0x100);
+_Static_assert(ACTION_TURBO_ITEM == 0x200);
+_Static_assert(ACTION_JUMP_STARTED == 0x400);
+_Static_assert(ACTION_BACK_SKID == 0x800);
+_Static_assert(ACTION_FRONT_SKID == 0x1000);
 _Static_assert(ACTION_DRIVING_AGAINST_WALL == 0x2000);
 _Static_assert(ACTION_WARP == 0x4000);
+_Static_assert(ACTION_WEAPON_FIRE_REQUEST == 0x8000);
 _Static_assert(ACTION_ENGINE_ECHO == 0x10000);
+_Static_assert(ACTION_REVERSING_ENGINE == 0x20000);
+_Static_assert(ACTION_RACE_TIMER_FROZEN == 0x40000);
 _Static_assert(ACTION_AIRBORNE == 0x80000);
 _Static_assert(ACTION_BOT == 0x100000);
+_Static_assert(ACTION_NEW_BOOST == 0x200000);
+_Static_assert(ACTION_ACCEL_RELEASED_WITH_RESERVES == 0x400000);
+_Static_assert(ACTION_MASK_WEAPON == 0x800000);
 _Static_assert(ACTION_BEHIND_START_LINE == 0x1000000);
 _Static_assert(ACTION_RACE_FINISHED == 0x2000000);
+_Static_assert(ACTION_TRACKER_TARGETED == 0x4000000);
+_Static_assert(ACTION_CHECKPOINT_BRANCH_PENDING == 0x8000000);
+_Static_assert(ACTION_HUMAN_HUMAN_COLLISION == 0x10000000);
+_Static_assert(ACTION_REVERSE_STEER_LEFT == 0x20000000);
+_Static_assert(ACTION_REVERSE_STEER_RIGHT == 0x40000000);
+_Static_assert(ACTION_DROPPING_MINE == 0x80000000u);
 _Static_assert(sizeof(DriverCollisionFlags) == 0x2);
 _Static_assert(DRIVER_COLL_FLAG_MASK_GRAB_REQUEST == 0x1);
 _Static_assert(DRIVER_COLL_FLAG_SURFACE_PUSHBACK == 0x2);
 _Static_assert(DRIVER_COLL_FLAG_TOUCHED_QUADBLOCK == 0x4);
 _Static_assert(DRIVER_COLL_FLAG_GROUNDED == 0x8);
+_Static_assert(sizeof(ForcedJumpType) == 0x1);
+_Static_assert(FORCED_JUMP_NONE == 0);
+_Static_assert(FORCED_JUMP_LOW == 1);
+_Static_assert(FORCED_JUMP_HIGH == 2);
 
 _Static_assert(offsetof(struct Driver, ghostTape) == DRIVER_NTSC_RETAIL_SIZE);
+_Static_assert(sizeof(((struct Driver *)0)->funcPtrs) == DRIVER_FUNC_COUNT * sizeof(DriverFunc));
+#if BUILD < EurRetail
+_Static_assert(offsetof(struct Driver, funcPtrs) == 0x54);
+#else
+_Static_assert(offsetof(struct Driver, funcPtrs) == 0x58);
+#endif
 _Static_assert(offsetof(struct Driver, collisionFlags) == 0xaa);
+_Static_assert(offsetof(struct Driver, spsHitPos) == 0xac);
+_Static_assert(offsetof(struct Driver, padding_0xb2) == 0xb2);
+_Static_assert(offsetof(struct Driver, spsNormalVec) == 0xb4);
+_Static_assert(offsetof(struct Driver, padding_0xba) == 0xba);
+_Static_assert(offsetof(struct Driver, stepFlagSet) == 0xbc);
+_Static_assert(sizeof(((struct Driver *)0)->stepFlagSet) == 0x4);
+_Static_assert(sizeof(((struct Driver *)0)->spsHitPosRaw) == 0x8);
+_Static_assert(sizeof(((struct Driver *)0)->spsNormalVecRaw) == 0x8);
 _Static_assert(offsetof(struct Driver, actionsFlagSet) == 0x2c8);
 _Static_assert(offsetof(struct Driver, actionsFlagSetPrevFrame) == 0x2cc);
+_Static_assert(offsetof(struct Driver, forcedJumpType) == 0x366);
 _Static_assert(offsetof(struct Driver, AxisAngle2_normalVec) == 0x368);
 _Static_assert(offsetof(struct Driver, AxisAngle3_normalVec) == 0x370);
 _Static_assert(offsetof(struct Driver, AxisAngle4_normalVec) == 0x378);
+_Static_assert(offsetof(struct Driver, terrainScaledBaseSpeed) == 0x3c4);
+_Static_assert(offsetof(struct Driver, jump_HighJumpTimerMS) == 0x3fa);
 _Static_assert(offsetof(struct Driver, posWallColl) == 0x384);
 _Static_assert(offsetof(struct Driver, wallRubSpeedLimit) == 0x38a);
 _Static_assert(offsetof(struct Driver, wallRubTimer) == 0x3fe);
+_Static_assert(offsetof(struct Driver, vShiftStartGuardTimer) == 0x406);
+_Static_assert(offsetof(struct Driver, vShiftWindowTimer) == 0x408);
+_Static_assert(offsetof(struct Driver, vShiftCount) == 0x40a);
+_Static_assert(offsetof(struct Driver, checkpoint) == 0x494);
+_Static_assert(offsetof(struct Driver, checkpoint.branchChoiceIndex) == 0x494);
+_Static_assert(offsetof(struct Driver, checkpoint.currentIndex) == 0x495);
 _Static_assert(offsetof(struct Driver, rotCurr.x) == 0x2ec);
 _Static_assert(offsetof(struct Driver, rotCurr.y) == 0x2ee);
 _Static_assert(offsetof(struct Driver, KartStates.MaskGrab.AngleAxis_NormalVec) == 0x584);

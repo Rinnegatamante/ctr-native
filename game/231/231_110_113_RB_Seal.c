@@ -43,7 +43,7 @@ void Seal_CheckColl(struct Instance *sealInst, struct Thread *sealTh, int damage
 			return;
 
 		// play seal sound, with echo if driver is on an echo quadblock
-		OtherFX_Play_Echo(sound, 1, hitDriver->actionsFlagSet & 0x00010000);
+		OtherFX_Play_Echo(sound, 1, hitDriver->actionsFlagSet & ACTION_ENGINE_ECHO);
 
 		// dont check other buckets
 		return;

@@ -21,8 +21,8 @@ void RB_MovingExplosive_ThTick(struct Thread *t)
 	u16 sound;
 	struct TrackerWeapon *tw;
 	struct Instance *inst;
-	s16 posA[3];
-	s16 posB[3];
+	SVec3 posA;
+	SVec3 posB;
 
 	inst = t->inst;
 	modelID = inst->model->id;
@@ -33,7 +33,7 @@ void RB_MovingExplosive_ThTick(struct Thread *t)
 	// NOTE(aalhendi): Retail starts/updates the bomb, missile, and shield loop SFX here.
 	if (modelID == DYNAMIC_ROCKET)
 	{
-		if ((t->flags & 0x800) == 0)
+		if ((t->flags & THREAD_FLAG_DEAD) == 0)
 		{
 			sound = 0x4b;
 			goto LAB_800adc00;
@@ -247,15 +247,15 @@ LAB_800adc08:;
 		ConvertRotToMatrix(&inst->matrix, (s16 *)&tw->dir);
 	}
 
-	posA[0] = inst->matrix.t[0];
-	posA[1] = inst->matrix.t[1] + -0x40;
-	posA[2] = inst->matrix.t[2];
+	posA.x = inst->matrix.t[0];
+	posA.y = inst->matrix.t[1] + -0x40;
+	posA.z = inst->matrix.t[2];
 
-	posB[0] = inst->matrix.t[0];
-	posB[1] = inst->matrix.t[1] + 0x100;
-	posB[2] = inst->matrix.t[2];
+	posB.x = inst->matrix.t[0];
+	posB.y = inst->matrix.t[1] + 0x100;
+	posB.z = inst->matrix.t[2];
 
-	struct ScratchpadStruct *sps = (struct ScratchpadStruct *)0x1f800108;
+	struct ScratchpadStruct *sps = CTR_SCRATCHPAD_PTR(struct ScratchpadStruct, 0x108);
 
 	sps->Union.QuadBlockColl.searchFlags = COLL_SEARCH_TEST_INSTANCES | COLL_SEARCH_FORCE_INSTANCE_HIT;
 	sps->Union.QuadBlockColl.quadFlagsWanted = QUADBLOCK_FLAG_GROUND | QUADBLOCK_FLAG_TRIGGER;
@@ -268,11 +268,11 @@ LAB_800adc08:;
 
 	sps->ptr_mesh_info = gGT->level1->ptr_mesh_info;
 
-	COLL_SearchBSP_CallbackQUADBLK(posA, posB, sps, 0);
+	COLL_SearchBSP_CallbackQUADBLK(&posA, &posB, sps, 0);
 
 	RB_MakeInstanceReflective(sps, inst);
 
-	if ((sps->collision.stepFlags & 4) != 0)
+	if ((sps->collision.stepFlags & COLL_STEP_TRIGGER_WEAPON_REACT) != 0)
 	{
 		// move backward one frame
 		tw->vel[0] = -tw->vel[0];
@@ -295,11 +295,11 @@ LAB_800adc08:;
 			// look again for another quadblock LOWER
 
 			inst->vertSplit = 0;
-			posA[0] = inst->matrix.t[0];
-			posA[1] = inst->matrix.t[1] - 0x900;
-			posA[2] = inst->matrix.t[2];
+			posA.x = inst->matrix.t[0];
+			posA.y = inst->matrix.t[1] - 0x900;
+			posA.z = inst->matrix.t[2];
 
-			COLL_SearchBSP_CallbackQUADBLK(posA, posB, sps, 0);
+			COLL_SearchBSP_CallbackQUADBLK(&posA, &posB, sps, 0);
 
 			// if still nothing, then explode
 			if (sps->boolDidTouchQuadblock == 0)

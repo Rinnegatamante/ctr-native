@@ -3,6 +3,17 @@
 // budget: 4624
 // curr: 4380
 
+enum
+{
+	VEH_PHYS_PROC_ACTION_CARRY_MASK = ACTION_TOUCH_GROUND | ACTION_JUMP_BUTTON_HELD | ACTION_STEER_LEFT | ACTION_HIGH_JUMP | ACTION_TURBO_INPUT_LATCH |
+	                                  ACTION_DRIVING_WRONG_WAY | ACTION_TURBO_ITEM | ACTION_WEAPON_FIRE_REQUEST | ACTION_ENGINE_ECHO | ACTION_REVERSING_ENGINE |
+	                                  ACTION_RACE_TIMER_FROZEN | ACTION_AIRBORNE | ACTION_BOT | ACTION_BEHIND_START_LINE | ACTION_RACE_FINISHED |
+	                                  ACTION_TRACKER_TARGETED | ACTION_CHECKPOINT_BRANCH_PENDING | ACTION_HUMAN_HUMAN_COLLISION | ACTION_REVERSE_STEER_LEFT |
+	                                  ACTION_REVERSE_STEER_RIGHT,
+};
+
+_Static_assert(VEH_PHYS_PROC_ACTION_CARRY_MASK == 0x7f1f83d5);
+
 static void VehPhysProc_Driving_DecrementTimer(s16 *timer, int elapsed)
 {
 	if (*timer > 0)
@@ -70,7 +81,7 @@ void VehPhysProc_Driving_PhysLinear(struct Thread *thread, struct Driver *driver
 	gameMode2 = gGT->gameMode2;
 
 	// If race timer is not supposed to stop for this racer
-	if ((driver->actionsFlagSet & 0x40000) == 0)
+	if ((driver->actionsFlagSet & ACTION_RACE_TIMER_FROZEN) == 0)
 	{
 		// set racer's timer to the time on the clock
 		driver->timeElapsedInRace = gGT->elapsedEventTime;
@@ -88,7 +99,7 @@ void VehPhysProc_Driving_PhysLinear(struct Thread *thread, struct Driver *driver
 	    (gGT->elapsedEventTime < 10 * MINUTE) &&
 
 	    // race timer is not frozen for this player
-	    ((driver->actionsFlagSet & 0x40000) == 0))
+	    ((driver->actionsFlagSet & ACTION_RACE_TIMER_FROZEN) == 0))
 	{
 		// increment timer by (speed * time)
 		driver->distanceDriven = CTR_MipsAddLo(driver->distanceDriven, CTR_MipsSra(CTR_MipsMulLo(driver->speedApprox, msPerFrame), 8));
@@ -100,11 +111,11 @@ void VehPhysProc_Driving_PhysLinear(struct Thread *thread, struct Driver *driver
 	VehPhysProc_Driving_DecrementTimerCounter(&driver->wallRubTimer, msPerFrame, &driver->timeSpentAgainstWall);
 	VehPhysProc_Driving_DecrementTimer(&driver->jump_ForcedMS, msPerFrame);
 	VehPhysProc_Driving_DecrementTimer(&driver->jump_CooldownMS, msPerFrame);
-	VehPhysProc_Driving_DecrementTimer(&driver->jump_unknown, msPerFrame);
+	VehPhysProc_Driving_DecrementTimer(&driver->jump_HighJumpTimerMS, msPerFrame);
 	VehPhysProc_Driving_DecrementTimerCounter(&driver->burnTimer, msPerFrame, &driver->timeSpentBurnt);
 	VehPhysProc_Driving_DecrementTimerCounter(&driver->squishTimer, msPerFrame, &driver->timeSpentSquished);
-	VehPhysProc_Driving_DecrementTimer(&driver->StartDriving_0x60, msPerFrame);
-	VehPhysProc_Driving_DecrementTimer(&driver->StartRollback_0x280, msPerFrame);
+	VehPhysProc_Driving_DecrementTimer(&driver->vShiftStartGuardTimer, msPerFrame);
+	VehPhysProc_Driving_DecrementTimer(&driver->vShiftWindowTimer, msPerFrame);
 
 	// If Super Engine Cheat is not enabled
 	if (!(gameMode2 & CHEAT_ENGINE))
@@ -145,7 +156,7 @@ void VehPhysProc_Driving_PhysLinear(struct Thread *thread, struct Driver *driver
 	// Last Place, and time is unfrozen
 	if ((((driver->driverRank == 7) && (gGT->numPlyrCurrGame == 1)) || ((driver->driverRank == 5) && (gGT->numPlyrCurrGame == 2)) ||
 	     ((driver->driverRank == 3) && ((u8)gGT->numPlyrCurrGame > 2))) &&
-	    ((driver->actionsFlagSet & 0x40000) == 0))
+	    ((driver->actionsFlagSet & ACTION_RACE_TIMER_FROZEN) == 0))
 	{
 		driver->timeSpentInLastPlace = CTR_MipsAddLo(driver->timeSpentInLastPlace, msPerFrame);
 	}
@@ -207,7 +218,7 @@ void VehPhysProc_Driving_PhysLinear(struct Thread *thread, struct Driver *driver
 		driverTimerNegativePrelim = driverTimer;
 
 		// if you are not touching the ground
-		if ((actionsFlagSetCopy & 1) == 0)
+		if ((actionsFlagSetCopy & ACTION_TOUCH_GROUND) == 0)
 		{
 			// if speed is low
 			if (approximateSpeed < 0x101)
@@ -363,7 +374,7 @@ void VehPhysProc_Driving_PhysLinear(struct Thread *thread, struct Driver *driver
 	driver->turnAnglePrev = driver->turnAngleCurr;
 
 	// Preserve the subset of action flags that feed driving physics.
-	uVar20 = actionsFlagSetCopy & 0x7f1f83d5;
+	uVar20 = actionsFlagSetCopy & VEH_PHYS_PROC_ACTION_CARRY_MASK;
 
 	// disable input if opening adv hub door with key
 	if ((gameMode2 & 0x4004) != 0)
@@ -374,7 +385,7 @@ void VehPhysProc_Driving_PhysLinear(struct Thread *thread, struct Driver *driver
 
 	driver->normalVecID = 0;
 
-	if ((actionsFlagSetCopy & 1) != 0)
+	if ((actionsFlagSetCopy & ACTION_TOUCH_GROUND) != 0)
 		driver->AxisAngle4_normalVec = driver->AxisAngle1_normalVec;
 	else
 		driver->AxisAngle4_normalVec = driver->AxisAngle2_normalVec;
@@ -391,7 +402,7 @@ void VehPhysProc_Driving_PhysLinear(struct Thread *thread, struct Driver *driver
 		if ((driverItemThread->modelIndex == STATIC_UKAUKA) || (driverItemThread->modelIndex == STATIC_AKUAKU))
 		{
 			// driver is using mask weapon
-			actionsFlagSetCopy = uVar20 | 0x800000;
+			actionsFlagSetCopy = uVar20 | ACTION_MASK_WEAPON;
 			break;
 		}
 
@@ -476,7 +487,7 @@ void VehPhysProc_Driving_PhysLinear(struct Thread *thread, struct Driver *driver
 		if ((heldItemID != 0xF) && (heldItemID != 0x10) && (driver->noItemTimer == 0) && (driverRankItemValue != 1) && (driver->clockReceive == 0))
 		{
 			// This driver wants to fire a weapon
-			actionsFlagSetCopy |= 0x8000;
+			actionsFlagSetCopy |= ACTION_WEAPON_FIRE_REQUEST;
 
 			// if numHeldItems == 0
 			// wait a full second before next weapon
@@ -521,20 +532,20 @@ CheckJumpButtons:
 	    // if you're not pressing L1 or R1
 	    (buttonsTapped == 0) ||
 	    // or you are sliding
-	    (driver->kartState == 2))
+	    (driver->kartState == KS_DRIFTING))
 	{
 		if (
 		    // If you are holding L1 or R1 and
 		    ((uVar20 & 0xc00) != 0) && (driverRankItemValue != 3))
 		{
-			if ((actionsFlagSetCopy & 4) == 0)
+			if ((actionsFlagSetCopy & ACTION_JUMP_BUTTON_HELD) == 0)
 			{
 				// 10 frame jump buffer
 				driver->jump_TenBuffer = 10;
 			}
 			goto LAB_8006222c;
 		}
-		actionsFlagSetCopy &= 0xfffffffb;
+		actionsFlagSetCopy &= ~ACTION_JUMP_BUTTON_HELD;
 		if (driver->jump_TenBuffer > 0)
 			driver->jump_TenBuffer = 0;
 	}
@@ -560,7 +571,7 @@ CheckJumpButtons:
 		{
 			driver->jump_TenBuffer = 10;
 		LAB_8006222c:
-			actionsFlagSetCopy |= 4;
+			actionsFlagSetCopy |= ACTION_JUMP_BUTTON_HELD;
 		}
 	}
 	if (
@@ -568,7 +579,7 @@ CheckJumpButtons:
 	    (square != 0) &&
 
 	    // if you're not on any turbo pad
-	    ((driver->stepFlagSet & 3) == 0))
+	    ((driver->stepFlagSet & COLL_STEP_TRIGGER_TURBO_PAD_MASK) == 0))
 	{
 		// Set Reserves to zero
 		driver->reserves = 0;
@@ -597,7 +608,7 @@ CheckJumpButtons:
 
 			if (unk0x80 > -1)
 			{
-				actionsFlagSetCopy |= 0x400000;
+				actionsFlagSetCopy |= ACTION_ACCEL_RELEASED_WITH_RESERVES;
 			}
 		}
 
@@ -605,11 +616,11 @@ CheckJumpButtons:
 		if ((square != 0) && (approximateSpeed > 0x300))
 		{
 			// back wheel skids
-			actionsFlagSetCopy |= 0x800;
+			actionsFlagSetCopy |= ACTION_BACK_SKID;
 		}
 
 		// if you're on any turbo pad
-		if ((driver->stepFlagSet & 3) != 0)
+		if ((driver->stepFlagSet & COLL_STEP_TRIGGER_TURBO_PAD_MASK) != 0)
 		{
 			// assume not holding square until boost is over
 			square = 0;
@@ -632,9 +643,9 @@ CheckJumpButtons:
 		stickLY = ptrgamepad->stickLY;
 	}
 
-	if (((s8)driver->simpTurnState < 0) || (actionsFlagSetCopy &= 0xdfffffff, (s8)driver->simpTurnState < 1))
+	if (((s8)driver->simpTurnState < 0) || (actionsFlagSetCopy &= ~ACTION_REVERSE_STEER_LEFT, (s8)driver->simpTurnState < 1))
 	{
-		actionsFlagSetCopy &= 0xbfffffff;
+		actionsFlagSetCopy &= ~ACTION_REVERSE_STEER_RIGHT;
 	}
 	approximateSpeed2 = driver->speedApprox;
 	if (approximateSpeed2 < 0)
@@ -643,7 +654,7 @@ CheckJumpButtons:
 	}
 	if (approximateSpeed2 < 0x300)
 	{
-		actionsFlagSetCopy &= 0x9fffffff;
+		actionsFlagSetCopy &= ~(ACTION_REVERSE_STEER_LEFT | ACTION_REVERSE_STEER_RIGHT);
 	}
 	approximateSpeed2 = 0;
 
@@ -666,7 +677,7 @@ CheckJumpButtons:
 		if (cross != 0)
 		{
 		LAB_8006253c:
-			actionsFlagSetCopy &= 0xfffdffff;
+			actionsFlagSetCopy &= ~ACTION_REVERSING_ENGINE;
 			goto LAB_80062548;
 		}
 
@@ -682,9 +693,9 @@ CheckJumpButtons:
 
 			                                  (unk0x80 > 99) ||
 
-			                                      ((unk0x80 > 0) && ((actionsFlagSetCopy & 0x20000) != 0)))))
+			                                      ((unk0x80 > 0) && ((actionsFlagSetCopy & ACTION_REVERSING_ENGINE) != 0)))))
 			{
-				actionsFlagSetCopy |= 0x20000;
+				actionsFlagSetCopy |= ACTION_REVERSING_ENGINE;
 
 				driverSpeedSmth2 = CTR_MipsNegLo(driver->const_BackwardSpeed);
 				goto LAB_80062548;
@@ -698,24 +709,24 @@ CheckJumpButtons:
 			// remove flag for reversing
 			goto LAB_8006253c;
 		}
-		if ((driver->speedApprox < 0x301) && ((actionsFlagSetCopy & 0x60000000) == 0))
+		if ((driver->speedApprox < 0x301) && ((actionsFlagSetCopy & (ACTION_REVERSE_STEER_LEFT | ACTION_REVERSE_STEER_RIGHT)) == 0))
 		{
 			driverSpeedOrSmth = CTR_MipsMulLo(driver->const_BackwardSpeed, driverSpeedOrSmth);
 			if (driverSpeedOrSmth < 0)
 				driverSpeedOrSmth = CTR_MipsAddLo(driverSpeedOrSmth, 0x7f);
 			approximateSpeed2 = CTR_MipsSra(driverSpeedOrSmth, 7);
-			buttonsTapped = 0x20000;
+			buttonsTapped = ACTION_REVERSING_ENGINE;
 		LAB_800625c4:
 			uVar20 = actionsFlagSetCopy | buttonsTapped;
 		}
 		else
 		{
-			uVar20 = actionsFlagSetCopy | 8;
+			uVar20 = actionsFlagSetCopy | ACTION_ACCEL_PREVENTION;
 			if (0 < (s8)driver->simpTurnState)
-				uVar20 = actionsFlagSetCopy | 0x40000008;
+				uVar20 = actionsFlagSetCopy | ACTION_REVERSE_STEER_RIGHT | ACTION_ACCEL_PREVENTION;
 			if ((s8)driver->simpTurnState < 0)
 			{
-				buttonsTapped = 0x20000000;
+				buttonsTapped = ACTION_REVERSE_STEER_LEFT;
 				actionsFlagSetCopy = uVar20;
 				goto LAB_800625c4;
 			}
@@ -726,7 +737,7 @@ CheckJumpButtons:
 	{
 		unk0x80 = VehPhysJoystick_ReturnToRest(stickLY, 0x80, 0);
 
-		if ((unk0x80 < 100) && ((unk0x80 < 1 || ((actionsFlagSetCopy & 0x20000) == 0))))
+		if ((unk0x80 < 100) && ((unk0x80 < 1 || ((actionsFlagSetCopy & ACTION_REVERSING_ENGINE) == 0))))
 		{
 			// if you are not holding cross, and you have no Reserves
 			if (cross == 0)
@@ -741,7 +752,7 @@ CheckJumpButtons:
 					driverSpeedSmth2 = CTR_MipsSra(driverSpeedOrSmth, 8);
 
 					// gas and brake together
-					actionsFlagSetCopy |= 0x20;
+					actionsFlagSetCopy |= ACTION_BRAKE_WITH_ACCEL;
 
 					goto LAB_80062548;
 				}
@@ -761,7 +772,7 @@ CheckJumpButtons:
 				// no gas, only brake
 
 				// using the brake
-				actionsFlagSetCopy |= 8;
+				actionsFlagSetCopy |= ACTION_ACCEL_PREVENTION;
 
 				driverSpeedSmth2 = approximateSpeed2;
 			}
@@ -769,7 +780,7 @@ CheckJumpButtons:
 			else
 			{
 				// gas and brake together
-				actionsFlagSetCopy |= 0x20;
+				actionsFlagSetCopy |= ACTION_BRAKE_WITH_ACCEL;
 
 				driverSpeedSmth2 = CTR_MipsSra(CTR_MipsAddLo(driverBaseSpeed, (u32)driverBaseSpeed >> 31), 1);
 			}
@@ -782,15 +793,15 @@ CheckJumpButtons:
 
 	LAB_8006248c:
 		// reversing engine, and brakes
-		actionsFlagSetCopy |= 0x20020;
+		actionsFlagSetCopy |= ACTION_REVERSING_ENGINE | ACTION_BRAKE_WITH_ACCEL;
 
 	LAB_80062548:
-		uVar20 = actionsFlagSetCopy & 0x9fffffff;
+		uVar20 = actionsFlagSetCopy & ~(ACTION_REVERSE_STEER_LEFT | ACTION_REVERSE_STEER_RIGHT);
 		approximateSpeed2 = driverSpeedSmth2;
 	}
 
 	// driving backwards
-	if ((uVar20 & 0x20000) != 0)
+	if ((uVar20 & ACTION_REVERSING_ENGINE) != 0)
 	{
 		driver->timeSpentReversing = CTR_MipsAddLo(driver->timeSpentReversing, gGT->elapsedTimeMS);
 	}
@@ -804,7 +815,7 @@ CheckJumpButtons:
 			if (0 < approximateSpeed2)
 			{
 				// not holding brake
-				if ((uVar20 & 0x400020) == 0)
+				if ((uVar20 & (ACTION_ACCEL_RELEASED_WITH_RESERVES | ACTION_BRAKE_WITH_ACCEL)) == 0)
 				{
 					driver->actionsFlagSet = uVar20;
 
@@ -823,7 +834,7 @@ CheckJumpButtons:
 	}
 
 	// if accel prevention (hold square)
-	actionsFlagSetCopy = uVar20 & 8;
+	actionsFlagSetCopy = uVar20 & ACTION_ACCEL_PREVENTION;
 	if (actionsFlagSetCopy != 0)
 	{
 		// high speed
@@ -866,9 +877,9 @@ CheckJumpButtons:
 	}
 
 	// brakes
-	if ((uVar20 & 0x800020) == 0)
+	if ((uVar20 & (ACTION_MASK_WEAPON | ACTION_BRAKE_WITH_ACCEL)) == 0)
 	{
-		driverSpeedOrSmth = driver->terrainMeta2->unk_0x8;
+		driverSpeedOrSmth = driver->terrainMeta2->speedMultiplier;
 
 		if (driverSpeedOrSmth != 0x100)
 		{
@@ -877,7 +888,7 @@ CheckJumpButtons:
 			driverBaseSpeedUshort = (u16)CTR_MipsSra(CTR_MipsMulLo(driverSpeedOrSmth, driverBaseSpeed), 8);
 		}
 	}
-	driver->unknowndriverBaseSpeed = (s16)driverBaseSpeedUshort;
+	driver->terrainScaledBaseSpeed = (s16)driverBaseSpeedUshort;
 	driver->baseSpeed = (s16)approximateSpeed2;
 
 
@@ -917,7 +928,7 @@ CheckJumpButtons:
 
 	// if not holding Square (& 0x8)
 	// or not using brakes (& 0x20)
-	if ((uVar20 & 0x28) == 0)
+	if ((uVar20 & (ACTION_ACCEL_PREVENTION | ACTION_BRAKE_WITH_ACCEL)) == 0)
 	{
 		// use const_TurnRate + turnConst<<1/5
 		goto UseTurnRate;
@@ -966,13 +977,13 @@ UseTurnRate:
 			}
 
 			// active steer left
-			uVar20 = uVar20 | 0x10;
+			uVar20 |= ACTION_STEER_LEFT;
 		}
 
 		else
 		{
 			// active steer right
-			uVar20 = uVar20 & 0xffffffef;
+			uVar20 &= ~ACTION_STEER_LEFT;
 		}
 		driver->numFramesSpentSteering = 0;
 	}
@@ -990,7 +1001,7 @@ SkipSetSteer:
 	if (driverSpeedOrSmth < 0)
 		driverSpeedOrSmth = CTR_MipsNegLo(driverSpeedOrSmth);
 
-	if (((driver->actionsFlagSetPrevFrame & 1) == 0) || (kartState == KS_DRIFTING))
+	if (((driver->actionsFlagSetPrevFrame & ACTION_TOUCH_GROUND) == 0) || (kartState == KS_DRIFTING))
 	{
 		driverSpeedOrSmth = CTR_MipsAddLo(driverSpeedOrSmth, 0xf00);
 	}
@@ -1002,7 +1013,7 @@ SkipSetSteer:
 	sVar13 = CTR_MipsSra(CTR_MipsSll(CTR_MipsAddLo(CTR_MipsMulLo(driverSpeedOrSmth, 0x89), CTR_MipsMulLo(driver->unkSpeedValue2, 0x177)), 3), 0xc);
 	driver->unkSpeedValue2 = sVar13;
 
-	if ((driver->actionsFlagSetPrevFrame & 8) == 0)
+	if ((driver->actionsFlagSetPrevFrame & ACTION_ACCEL_PREVENTION) == 0)
 	{
 		// prevent Basic Speed from being negative
 		if (approximateSpeed2 < 0)
@@ -1048,7 +1059,7 @@ void VehPhysProc_Driving_Audio(struct Thread *t, struct Driver *d)
 void VehPhysProc_Driving_Update(struct Thread *t, struct Driver *d)
 {
 	// if racer touched the ground in this frame
-	if ((d->actionsFlagSet & 2) != 0)
+	if ((d->actionsFlagSet & ACTION_STARTED_TOUCH_GROUND) != 0)
 	{
 		int simpTurnState = (s8)d->simpTurnState;
 
@@ -1065,7 +1076,7 @@ void VehPhysProc_Driving_Update(struct Thread *t, struct Driver *d)
 		     ((sdata->gGamepads->gamepad[d->driverID].buttonsHeldCurrFrame) & d->buttonUsedToStartDrift) != 0) &&
 
 		    // player is not in accel prevention or braking and
-		    ((d->actionsFlagSet & 8) == 0) && (CTR_MipsSra(d->const_Speed_ClassStat, 1) <= d->speedApprox))
+		    ((d->actionsFlagSet & ACTION_ACCEL_PREVENTION) == 0) && (CTR_MipsSra(d->const_Speed_ClassStat, 1) <= d->speedApprox))
 		{
 			VehPhysProc_PowerSlide_Init(t, d);
 
@@ -1075,13 +1086,13 @@ void VehPhysProc_Driving_Update(struct Thread *t, struct Driver *d)
 	}
 
 	// At this point, assume driver is not touching ground.
-	// Wait until the start-driving guard has elapsed.
-	if ((d->StartDriving_0x60 == 0) &&
+	// Wait until the V-shift startup guard has elapsed.
+	if ((d->vShiftStartGuardTimer == 0) &&
 
 	    // if V_Shift happened too many times,
 	    // meaning you jitter between two quadblocks
 	    // in a "V" shape
-	    (4 < d->unknownTraction))
+	    (4 < d->vShiftCount))
 	{
 		// Stop driving, until you press X, prevents jitters
 		VehPhysProc_FreezeVShift_Init(t, d);
@@ -1089,17 +1100,17 @@ void VehPhysProc_Driving_Update(struct Thread *t, struct Driver *d)
 
 	else
 	{
-		// if driver has been "rolling backwards" more than 0.64 seconds
-		if (d->StartRollback_0x280 == 0)
+		// If the V-shift window expires, restart the count.
+		if (d->vShiftWindowTimer == 0)
 		{
 			// wipe
-			d->unknownTraction = 0;
+			d->vShiftCount = 0;
 		}
 	}
 }
 
 
-extern void *PlayerDrivingFuncTable[13];
+extern DriverFunc PlayerDrivingFuncTable[DRIVER_FUNC_COUNT];
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80062b74-0x80062ca8.
 void VehPhysProc_Driving_Init(struct Thread *t, struct Driver *d)
@@ -1111,12 +1122,12 @@ void VehPhysProc_Driving_Init(struct Thread *t, struct Driver *d)
 		// Turbo meter = full
 		d->turbo_MeterRoomLeft = 0;
 
-		d->StartDriving_0x60 = 0x60;
-		d->StartRollback_0x280 = 0x280;
+		d->vShiftStartGuardTimer = 0x60;
+		d->vShiftWindowTimer = 0x280;
 
-		d->unknownTraction = 0;
+		d->vShiftCount = 0;
 
-		for (int i = 0; i < 13; i++)
+		for (int i = 0; i < DRIVER_FUNC_COUNT; i++)
 		{
 			d->funcPtrs[i] = PlayerDrivingFuncTable[i];
 		}
@@ -1132,7 +1143,7 @@ void VehPhysProc_Driving_Init(struct Thread *t, struct Driver *d)
 	}
 }
 
-void *PlayerDrivingFuncTable[13] = {
+DriverFunc PlayerDrivingFuncTable[DRIVER_FUNC_COUNT] = {
     NULL,
     VehPhysProc_Driving_Update,
     VehPhysProc_Driving_PhysLinear,
@@ -1163,15 +1174,15 @@ void VehPhysProc_FreezeEndEvent_PhysLinear(struct Thread *t, struct Driver *d)
 	d->fireSpeed = 0;
 
 	// edit flags
-	d->actionsFlagSet |= 8;
-	d->actionsFlagSet &= ~(4);
+	d->actionsFlagSet |= ACTION_ACCEL_PREVENTION;
+	d->actionsFlagSet &= ~ACTION_JUMP_BUTTON_HELD;
 
 	if (d->jump_TenBuffer > 0)
 		d->jump_TenBuffer = 0;
 }
 
 
-extern void *PlayerFreezeFuncTable[13];
+extern DriverFunc PlayerFreezeFuncTable[DRIVER_FUNC_COUNT];
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80062d04-0x80062db0.
 void VehPhysProc_FreezeEndEvent_Init(struct Thread *t, struct Driver *d)
@@ -1183,25 +1194,25 @@ void VehPhysProc_FreezeEndEvent_Init(struct Thread *t, struct Driver *d)
 	d->speed = 0;
 	d->speedApprox = 0;
 
-	for (int i = 0; i < 13; i++)
+	for (int i = 0; i < DRIVER_FUNC_COUNT; i++)
 	{
 		d->funcPtrs[i] = PlayerFreezeFuncTable[i];
 	}
 }
 
-void *PlayerFreezeFuncTable[13] = {NULL,
-                                   NULL,
-                                   VehPhysProc_FreezeEndEvent_PhysLinear,
-                                   VehPhysProc_Driving_Audio,
-                                   VehPhysGeneral_PhysAngular,
-                                   VehPhysForce_OnApplyForces,
-                                   COLL_MOVED_PlayerSearch,
-                                   VehPhysForce_CollideDrivers,
-                                   COLL_FIXED_PlayerSearch,
-                                   VehPhysGeneral_JumpAndFriction,
-                                   VehPhysForce_TranslateMatrix,
-                                   VehFrameProc_Driving,
-                                   VehEmitter_DriverMain};
+DriverFunc PlayerFreezeFuncTable[DRIVER_FUNC_COUNT] = {NULL,
+                                                       NULL,
+                                                       VehPhysProc_FreezeEndEvent_PhysLinear,
+                                                       VehPhysProc_Driving_Audio,
+                                                       VehPhysGeneral_PhysAngular,
+                                                       VehPhysForce_OnApplyForces,
+                                                       COLL_MOVED_PlayerSearch,
+                                                       VehPhysForce_CollideDrivers,
+                                                       COLL_FIXED_PlayerSearch,
+                                                       VehPhysGeneral_JumpAndFriction,
+                                                       VehPhysForce_TranslateMatrix,
+                                                       VehFrameProc_Driving,
+                                                       VehEmitter_DriverMain};
 
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80062db0-0x80062e04.
@@ -1212,7 +1223,7 @@ void VehPhysProc_FreezeVShift_Update(struct Thread *t, struct Driver *d)
 	// not pressing Square (4, 6),
 	if ((d->fireSpeed == 0) &&
 	    // not in player-on-player collision
-	    ((d->actionsFlagSet & 0x10000028) == 0))
+	    ((d->actionsFlagSet & (ACTION_HUMAN_HUMAN_COLLISION | ACTION_ACCEL_PREVENTION | ACTION_BRAKE_WITH_ACCEL)) == 0))
 	{
 		// stop kart
 		d->speed = 0;
@@ -1233,10 +1244,10 @@ void VehPhysProc_FreezeVShift_ReverseOneFrame(struct Thread *t, struct Driver *d
 	int actionFlagSet = d->actionsFlagSet;
 
 	// if player did not start jumping this frame
-	if ((actionFlagSet & 0x400) == 0)
+	if ((actionFlagSet & ACTION_JUMP_STARTED) == 0)
 	{
 		// if there are not two humans colliding
-		if ((actionFlagSet & 0x10000000) == 0)
+		if ((actionFlagSet & ACTION_HUMAN_HUMAN_COLLISION) == 0)
 		{
 			d->xSpeed = 0;
 			d->ySpeed = 0;
@@ -1258,7 +1269,7 @@ void VehPhysProc_FreezeVShift_ReverseOneFrame(struct Thread *t, struct Driver *d
 }
 
 
-extern void *PlayerAntiVShiftFuncTable[13];
+extern DriverFunc PlayerAntiVShiftFuncTable[DRIVER_FUNC_COUNT];
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80062e94-0x80062f4c.
 void VehPhysProc_FreezeVShift_Init(struct Thread *t, struct Driver *d)
@@ -1269,28 +1280,28 @@ void VehPhysProc_FreezeVShift_Init(struct Thread *t, struct Driver *d)
 	d->turbo_MeterRoomLeft = 0;
 
 	// turn off 29th flag of actions flag set (means players dont collide anymore)
-	d->actionsFlagSet &= ~(0x10000000);
+	d->actionsFlagSet &= ~ACTION_HUMAN_HUMAN_COLLISION;
 
-	for (int i = 0; i < 13; i++)
+	for (int i = 0; i < DRIVER_FUNC_COUNT; i++)
 	{
 		d->funcPtrs[i] = PlayerAntiVShiftFuncTable[i];
 	}
 }
 
 
-void *PlayerAntiVShiftFuncTable[13] = {NULL,
-                                       VehPhysProc_FreezeVShift_Update,
-                                       VehPhysProc_Driving_PhysLinear,
-                                       VehPhysProc_Driving_Audio,
-                                       VehPhysGeneral_PhysAngular,
-                                       VehPhysForce_OnApplyForces,
-                                       COLL_MOVED_PlayerSearch,
-                                       VehPhysForce_CollideDrivers,
-                                       COLL_FIXED_PlayerSearch,
-                                       VehPhysProc_FreezeVShift_ReverseOneFrame,
-                                       VehPhysForce_TranslateMatrix,
-                                       VehFrameProc_Driving,
-                                       VehEmitter_DriverMain};
+DriverFunc PlayerAntiVShiftFuncTable[DRIVER_FUNC_COUNT] = {NULL,
+                                                           VehPhysProc_FreezeVShift_Update,
+                                                           VehPhysProc_Driving_PhysLinear,
+                                                           VehPhysProc_Driving_Audio,
+                                                           VehPhysGeneral_PhysAngular,
+                                                           VehPhysForce_OnApplyForces,
+                                                           COLL_MOVED_PlayerSearch,
+                                                           VehPhysForce_CollideDrivers,
+                                                           COLL_FIXED_PlayerSearch,
+                                                           VehPhysProc_FreezeVShift_ReverseOneFrame,
+                                                           VehPhysForce_TranslateMatrix,
+                                                           VehFrameProc_Driving,
+                                                           VehEmitter_DriverMain};
 
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80062f4c-0x80063634.
@@ -1762,7 +1773,7 @@ void VehPhysProc_PowerSlide_Update(struct Thread *t, struct Driver *d)
 			// If bar is full
 			if (meterLeft == 0)
 			{
-				OtherFX_Play_Echo(0xf, 1, d->actionsFlagSet & 0x10000);
+				OtherFX_Play_Echo(0xf, 1, d->actionsFlagSet & ACTION_ENGINE_ECHO);
 
 
 				// Add to your number of boost attempts, this makes it
@@ -1817,7 +1828,7 @@ void VehPhysProc_PowerSlide_Update(struct Thread *t, struct Driver *d)
 				if (d->KartStates.Drifting.numBoostsSuccess < 3)
 				{
 					// give a chance to boost again
-					d->actionsFlagSet |= 0x80;
+					d->actionsFlagSet |= ACTION_TURBO_INPUT_LATCH;
 				}
 
 				// drift boost meter = constant
@@ -1851,7 +1862,7 @@ void VehPhysProc_PowerSlide_Update(struct Thread *t, struct Driver *d)
 	                                noInputTime = 0x780,
 
 	                                // if you're not on any turbo pad
-	                                (d->stepFlagSet & 3) == 0))))
+	                                (d->stepFlagSet & COLL_STEP_TRIGGER_TURBO_PAD_MASK) == 0))))
 	{
 		// Make the character spin out from too much drifting
 
@@ -1870,7 +1881,7 @@ void VehPhysProc_PowerSlide_Update(struct Thread *t, struct Driver *d)
 		    // speed is less than half the driver's speed classStat
 		    (((d->speed < CTR_MipsSra(d->const_Speed_ClassStat, 1) ||
 
-		       ((d->actionsFlagSet & 0x2028) != 0)) ||
+		       ((d->actionsFlagSet & (ACTION_DRIVING_AGAINST_WALL | ACTION_ACCEL_PREVENTION | ACTION_BRAKE_WITH_ACCEL)) != 0)) ||
 
 		      // If the gamepad input is...
 		      ((pad->buttonsHeldCurrFrame &
@@ -1890,7 +1901,7 @@ void VehPhysProc_PowerSlide_Update(struct Thread *t, struct Driver *d)
 void VehPhysProc_PowerSlide_PhysLinear(struct Thread *thread, struct Driver *driver)
 {
 	VehPhysProc_Driving_PhysLinear(thread, driver);
-	driver->actionsFlagSet |= 0x1800;
+	driver->actionsFlagSet |= ACTION_BACK_SKID | ACTION_FRONT_SKID;
 	driver->timeSpentDrifting = CTR_MipsAddLo(driver->timeSpentDrifting, sdata->gGT->elapsedTimeMS);
 }
 
@@ -1898,12 +1909,12 @@ void VehPhysProc_PowerSlide_PhysLinear(struct Thread *thread, struct Driver *dri
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80063920-0x80063934.
 void VehPhysProc_PowerSlide_InitSetUpdate(struct Thread *t, struct Driver *d)
 {
-	d->funcPtrs[0] = 0;
-	d->funcPtrs[1] = VehPhysProc_PowerSlide_Update;
+	d->funcPtrs[DRIVER_FUNC_INIT] = 0;
+	d->funcPtrs[DRIVER_FUNC_UPDATE] = VehPhysProc_PowerSlide_Update;
 }
 
 
-extern void *PlayerDriftingFuncTable[13];
+extern DriverFunc PlayerDriftingFuncTable[DRIVER_FUNC_COUNT];
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80063934-0x80063a44.
 void VehPhysProc_PowerSlide_Init(struct Thread *t, struct Driver *d)
@@ -1936,13 +1947,13 @@ void VehPhysProc_PowerSlide_Init(struct Thread *t, struct Driver *d)
 	d->KartStates.Drifting.numBoostsAttempted = 0;
 	d->KartStates.Drifting.numBoostsSuccess = 0;
 
-	for (int i = 0; i < 13; i++)
+	for (int i = 0; i < DRIVER_FUNC_COUNT; i++)
 	{
 		d->funcPtrs[i] = PlayerDriftingFuncTable[i];
 	}
 }
 
-void *PlayerDriftingFuncTable[13] = {
+DriverFunc PlayerDriftingFuncTable[DRIVER_FUNC_COUNT] = {
     VehPhysProc_PowerSlide_InitSetUpdate,
     NULL,
     VehPhysProc_PowerSlide_PhysLinear,
@@ -2017,11 +2028,11 @@ void VehPhysProc_SlamWall_Animate(struct Thread *t, struct Driver *d)
 		d->matrixIndex = 0;
 	}
 
-	d->funcPtrs[0] = VehPhysProc_Driving_Init;
+	d->funcPtrs[DRIVER_FUNC_INIT] = VehPhysProc_Driving_Init;
 }
 
 
-void *PlayerCrashingFuncTable[13] = {
+DriverFunc PlayerCrashingFuncTable[DRIVER_FUNC_COUNT] = {
     0,
     VehPhysProc_SlamWall_Update,
     VehPhysProc_SlamWall_PhysLinear,
@@ -2081,7 +2092,7 @@ void VehPhysProc_SlamWall_Init(struct Thread *t, struct Driver *d)
 	d->velocity.y = 0;
 	d->velocity.z = 0;
 
-	for (i = 0; i < 13; i++)
+	for (i = 0; i < DRIVER_FUNC_COUNT; i++)
 	{
 		d->funcPtrs[i] = PlayerCrashingFuncTable[i];
 	}
@@ -2126,7 +2137,7 @@ void VehPhysProc_SpinFirst_PhysLinear(struct Thread *t, struct Driver *d)
 	d->baseSpeed = 0;
 	d->fireSpeed = 0;
 
-	d->actionsFlagSet |= 0x5808;
+	d->actionsFlagSet |= ACTION_WARP | ACTION_FRONT_SKID | ACTION_BACK_SKID | ACTION_ACCEL_PREVENTION;
 
 	d->timeSpentSpinningOut = CTR_MipsAddLo(d->timeSpentSpinningOut, elapsedTimeMS);
 }
@@ -2159,24 +2170,24 @@ void VehPhysProc_SpinFirst_PhysAngular(struct Thread *t, struct Driver *d)
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80063eac-0x80063ec0.
 void VehPhysProc_SpinFirst_InitSetUpdate(struct Thread *t, struct Driver *d)
 {
-	d->funcPtrs[0] = 0;
-	d->funcPtrs[1] = VehPhysProc_SpinFirst_Update;
+	d->funcPtrs[DRIVER_FUNC_INIT] = 0;
+	d->funcPtrs[DRIVER_FUNC_UPDATE] = VehPhysProc_SpinFirst_Update;
 }
 
 
-void *PlayerSpinningFuncTable[0xD] = {VehPhysProc_SpinFirst_InitSetUpdate,
-                                      0,
-                                      VehPhysProc_SpinFirst_PhysLinear,
-                                      VehPhysProc_Driving_Audio,
-                                      VehPhysProc_SpinFirst_PhysAngular,
-                                      VehPhysForce_OnApplyForces,
-                                      COLL_MOVED_PlayerSearch,
-                                      VehPhysForce_CollideDrivers,
-                                      COLL_FIXED_PlayerSearch,
-                                      VehPhysGeneral_JumpAndFriction,
-                                      VehPhysForce_TranslateMatrix,
-                                      VehFrameProc_Spinning,
-                                      VehEmitter_DriverMain};
+DriverFunc PlayerSpinningFuncTable[DRIVER_FUNC_COUNT] = {VehPhysProc_SpinFirst_InitSetUpdate,
+                                                         0,
+                                                         VehPhysProc_SpinFirst_PhysLinear,
+                                                         VehPhysProc_Driving_Audio,
+                                                         VehPhysProc_SpinFirst_PhysAngular,
+                                                         VehPhysForce_OnApplyForces,
+                                                         COLL_MOVED_PlayerSearch,
+                                                         VehPhysForce_CollideDrivers,
+                                                         COLL_FIXED_PlayerSearch,
+                                                         VehPhysGeneral_JumpAndFriction,
+                                                         VehPhysForce_TranslateMatrix,
+                                                         VehFrameProc_Spinning,
+                                                         VehEmitter_DriverMain};
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80063ec0-0x8006402c.
 void VehPhysProc_SpinFirst_Init(struct Thread *t, struct Driver *d)
@@ -2217,7 +2228,7 @@ void VehPhysProc_SpinFirst_Init(struct Thread *t, struct Driver *d)
 		feedback = 0x29;
 	}
 
-	for (i = 0; i < 0xD; i++)
+	for (i = 0; i < DRIVER_FUNC_COUNT; i++)
 	{
 		d->funcPtrs[i] = PlayerSpinningFuncTable[i];
 	}
@@ -2252,7 +2263,7 @@ void VehPhysProc_SpinLast_PhysLinear(struct Thread *t, struct Driver *d)
 	d->baseSpeed = 0;
 	d->fireSpeed = 0;
 
-	d->actionsFlagSet |= 0x4008;
+	d->actionsFlagSet |= ACTION_WARP | ACTION_ACCEL_PREVENTION;
 }
 
 
@@ -2318,26 +2329,26 @@ void VehPhysProc_SpinLast_PhysAngular(struct Thread *t, struct Driver *d)
 }
 
 
-void *PlayerLastSpinFuncTable[0xD] = {0,
-                                      VehPhysProc_SpinLast_Update,
-                                      VehPhysProc_SpinLast_PhysLinear,
-                                      VehPhysProc_Driving_Audio,
-                                      VehPhysProc_SpinLast_PhysAngular,
-                                      VehPhysForce_OnApplyForces,
-                                      COLL_MOVED_PlayerSearch,
-                                      VehPhysForce_CollideDrivers,
-                                      COLL_FIXED_PlayerSearch,
-                                      VehPhysGeneral_JumpAndFriction,
-                                      VehPhysForce_TranslateMatrix,
-                                      VehFrameProc_LastSpin,
-                                      VehEmitter_DriverMain};
+DriverFunc PlayerLastSpinFuncTable[DRIVER_FUNC_COUNT] = {0,
+                                                         VehPhysProc_SpinLast_Update,
+                                                         VehPhysProc_SpinLast_PhysLinear,
+                                                         VehPhysProc_Driving_Audio,
+                                                         VehPhysProc_SpinLast_PhysAngular,
+                                                         VehPhysForce_OnApplyForces,
+                                                         COLL_MOVED_PlayerSearch,
+                                                         VehPhysForce_CollideDrivers,
+                                                         COLL_FIXED_PlayerSearch,
+                                                         VehPhysGeneral_JumpAndFriction,
+                                                         VehPhysForce_TranslateMatrix,
+                                                         VehFrameProc_LastSpin,
+                                                         VehEmitter_DriverMain};
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80064254-0x800642ec.
 void VehPhysProc_SpinLast_Init(struct Thread *t, struct Driver *d)
 {
 	int i;
 
-	for (i = 0; i < 0xD; i++)
+	for (i = 0; i < DRIVER_FUNC_COUNT; i++)
 	{
 		d->funcPtrs[i] = PlayerLastSpinFuncTable[i];
 	}
@@ -2419,26 +2430,26 @@ void VehPhysProc_SpinStop_Animate(struct Thread *t, struct Driver *d)
 			return;
 	}
 
-	d->funcPtrs[0] = VehPhysProc_Driving_Init;
+	d->funcPtrs[DRIVER_FUNC_INIT] = VehPhysProc_Driving_Init;
 }
 
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800644d0-0x80064568.
 void VehPhysProc_SpinStop_Init(struct Thread *t, struct Driver *d)
 {
-	d->funcPtrs[0] = NULL;
-	d->funcPtrs[1] = VehPhysProc_SpinStop_Update;
-	d->funcPtrs[2] = VehPhysProc_SpinStop_PhysLinear;
-	d->funcPtrs[3] = VehPhysProc_Driving_Audio;
-	d->funcPtrs[4] = VehPhysProc_SpinStop_PhysAngular;
-	d->funcPtrs[5] = VehPhysForce_OnApplyForces;
+	d->funcPtrs[DRIVER_FUNC_INIT] = NULL;
+	d->funcPtrs[DRIVER_FUNC_UPDATE] = VehPhysProc_SpinStop_Update;
+	d->funcPtrs[DRIVER_FUNC_PHYS_LINEAR] = VehPhysProc_SpinStop_PhysLinear;
+	d->funcPtrs[DRIVER_FUNC_AUDIO] = VehPhysProc_Driving_Audio;
+	d->funcPtrs[DRIVER_FUNC_PHYS_ANGULAR] = VehPhysProc_SpinStop_PhysAngular;
+	d->funcPtrs[DRIVER_FUNC_APPLY_FORCES] = VehPhysForce_OnApplyForces;
 
-	d->funcPtrs[6] = COLL_MOVED_PlayerSearch;
-	d->funcPtrs[7] = VehPhysForce_CollideDrivers;
+	d->funcPtrs[DRIVER_FUNC_COLL_MOVED] = COLL_MOVED_PlayerSearch;
+	d->funcPtrs[DRIVER_FUNC_COLLIDE_DRIVERS] = VehPhysForce_CollideDrivers;
 
-	d->funcPtrs[8] = COLL_FIXED_PlayerSearch;
-	d->funcPtrs[9] = VehPhysGeneral_JumpAndFriction;
-	d->funcPtrs[10] = VehPhysForce_TranslateMatrix;
-	d->funcPtrs[11] = VehPhysProc_SpinStop_Animate;
-	d->funcPtrs[12] = VehEmitter_DriverMain;
+	d->funcPtrs[DRIVER_FUNC_COLL_FIXED] = COLL_FIXED_PlayerSearch;
+	d->funcPtrs[DRIVER_FUNC_JUMP_FRICTION] = VehPhysGeneral_JumpAndFriction;
+	d->funcPtrs[DRIVER_FUNC_TRANSLATE_MATRIX] = VehPhysForce_TranslateMatrix;
+	d->funcPtrs[DRIVER_FUNC_ANIMATE] = VehPhysProc_SpinStop_Animate;
+	d->funcPtrs[DRIVER_FUNC_PARTICLES] = VehEmitter_DriverMain;
 }

@@ -1595,7 +1595,7 @@ BlendNormal:
 		{
 			d->distanceFromGround = 4;
 
-			if ((d->kartState != 3) && ((s8)d->Screen_OffsetY > 0))
+			if ((d->kartState != KS_SPINNING) && ((s8)d->Screen_OffsetY > 0))
 			{
 				OtherFX_Play(0x10, 1);
 			}

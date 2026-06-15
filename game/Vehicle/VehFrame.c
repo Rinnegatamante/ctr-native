@@ -159,7 +159,7 @@ void VehFrameProc_Driving(struct Thread *t, struct Driver *d)
 				int turnMax = 0x40;
 				int turnState = d->ampTurnState;
 
-				if ((d->actionsFlagSet & 8) == 0)
+				if ((d->actionsFlagSet & ACTION_ACCEL_PREVENTION) == 0)
 				{
 					turnMax = (u8)d->const_TurnRate;
 					turnMin = -turnMax;

@@ -15,6 +15,23 @@ typedef enum ScrubFlags : u32
 	SCRUB_FLAG_KEEP_RESERVES = 0x8,
 } ScrubFlags;
 
+typedef enum TerrainFlags : u32
+{
+	TERRAIN_FLAG_RAISE_GROUND_OFFSET = 0x1,
+	TERRAIN_FLAG_ACCEL_WHILE_REVERSE_SLIDING = 0x4,
+	TERRAIN_FLAG_FORCE_SKIDMARKS = 0x8,
+	TERRAIN_FLAG_SKIP_TURN_ASSIST = 0x10,
+	TERRAIN_FLAG_ONESHOT_GROUND_SOUND = 0x20,
+	TERRAIN_FLAG_LANDING_SPARKS = 0x40,
+	TERRAIN_FLAG_MUD_PHYSICS = 0x80,
+	TERRAIN_FLAG_SIDESLIP_FRICTION = 0x100,
+} TerrainFlags;
+
+typedef enum TerrainBotFlags : u16
+{
+	TERRAIN_BOT_FLAG_DECEL_TO_TARGET_SPEED = 0x80,
+} TerrainBotFlags;
+
 struct Scrub
 {
 	// see FUN_80020c58
@@ -41,11 +58,11 @@ struct Terrain
 	char *name;
 
 	// 4
-	// & 0x20 - play sound
-	u32 flags;
+	TerrainFlags flags;
 
 	// 0x8
-	int unk_0x8;
+	// 0x100 is neutral
+	int speedMultiplier;
 
 	// 0xC
 	// if 0, driver will slow down until completely stuck
@@ -55,7 +72,9 @@ struct Terrain
 	// 0% ice, 100% road
 	int counterSteerRatio;
 
-	int unk14;
+	// 0x14
+	// Scales body lean from turn force; 0x100 is neutral.
+	int turnLeanScale;
 
 	// 0x18
 	struct ParticleEmitter *em_OddFrame;
@@ -64,28 +83,45 @@ struct Terrain
 	struct ParticleEmitter *em_EvenFrame;
 
 	// 0x20
-	int unk_0x20[2];
+	// Scales local-X/Z ground friction; 0x100 is neutral.
+	int groundFrictionScale;
+
+	// 0x24
+	// Scales turn-angle integration; 0x100 is neutral.
+	int turnAngleScale;
 
 	// 0x28
-	// if zero, like life, can't change steering at all,
-	// thank goodness I took college physics
-	int friction;
+	// Scales rotationSpinRate response; 0x100 is neutral.
+	int turnResponseScale;
 
 	// 0x2c - 0x2f - vibration?
 	char vibrationData[4];
 
-	// 0x30 ?
-	s16 unk_0x30;
+	// 0x30
+	s16 skidSound;
 
 	// 0x32 sound?
 	s16 sound;
 
-	// 0x34 ?
-	u16 unk_0x34[4];
+	// 0x34
+	union
+	{
+		u16 unk_0x34[4];
+		struct
+		{
+			u16 unk_0x34_0;
+			TerrainBotFlags botSpeedFlags;
+			s16 botTargetSpeedScale;
+			s16 botAccelerationScale;
+		};
+	};
 
 	// 0x3C
-	// (old korky comments ???)
-	int accel_impact;
+	// BOTS-only speed decay scale; 0x100 is neutral.
+	s16 botFrictionScale;
+
+	// 0x3E
+	s16 padding_0x3e;
 };
 
 struct MetaDataLEV
@@ -3606,7 +3642,7 @@ struct sData
 	int nav_NumPointsOnPath;
 
 	// 8008d698
-	int unk_counter_upTo450;
+	int aiCollisionDelayFrameCount;
 
 	// 8008d69c
 	char kartSpawnOrderArray[0x8];
@@ -5063,8 +5099,36 @@ struct sData *sdata = &sdata_static;
 // 801ff800 - 80200000
 
 _Static_assert(sizeof(struct Terrain) == 0x40);
+_Static_assert(offsetof(struct Terrain, speedMultiplier) == 0x8);
+_Static_assert(offsetof(struct Terrain, slowUntilSpeed) == 0xc);
+_Static_assert(offsetof(struct Terrain, counterSteerRatio) == 0x10);
+_Static_assert(offsetof(struct Terrain, turnLeanScale) == 0x14);
+_Static_assert(offsetof(struct Terrain, groundFrictionScale) == 0x20);
+_Static_assert(offsetof(struct Terrain, turnAngleScale) == 0x24);
+_Static_assert(offsetof(struct Terrain, turnResponseScale) == 0x28);
+_Static_assert(offsetof(struct Terrain, skidSound) == 0x30);
+_Static_assert(offsetof(struct Terrain, botSpeedFlags) == 0x36);
+_Static_assert(offsetof(struct Terrain, botTargetSpeedScale) == 0x38);
+_Static_assert(offsetof(struct Terrain, botAccelerationScale) == 0x3a);
+_Static_assert(offsetof(struct Terrain, botFrictionScale) == 0x3c);
+_Static_assert(offsetof(struct Terrain, padding_0x3e) == 0x3e);
+_Static_assert(sizeof(((struct Terrain *)0)->botSpeedFlags) == 0x2);
+_Static_assert(sizeof(((struct Terrain *)0)->botTargetSpeedScale) == 0x2);
+_Static_assert(sizeof(((struct Terrain *)0)->botAccelerationScale) == 0x2);
+_Static_assert(sizeof(((struct Terrain *)0)->botFrictionScale) == 0x2);
 _Static_assert(sizeof(struct Scrub) == 0x10);
 _Static_assert(sizeof(ScrubFlags) == 0x4);
+_Static_assert(sizeof(TerrainFlags) == 0x4);
+_Static_assert(sizeof(TerrainBotFlags) == 0x2);
+_Static_assert(TERRAIN_FLAG_RAISE_GROUND_OFFSET == 0x1);
+_Static_assert(TERRAIN_FLAG_ACCEL_WHILE_REVERSE_SLIDING == 0x4);
+_Static_assert(TERRAIN_FLAG_FORCE_SKIDMARKS == 0x8);
+_Static_assert(TERRAIN_FLAG_SKIP_TURN_ASSIST == 0x10);
+_Static_assert(TERRAIN_FLAG_ONESHOT_GROUND_SOUND == 0x20);
+_Static_assert(TERRAIN_FLAG_LANDING_SPARKS == 0x40);
+_Static_assert(TERRAIN_FLAG_MUD_PHYSICS == 0x80);
+_Static_assert(TERRAIN_FLAG_SIDESLIP_FRICTION == 0x100);
+_Static_assert(TERRAIN_BOT_FLAG_DECEL_TO_TARGET_SPEED == 0x80);
 _Static_assert(SCRUB_FLAG_APPLY_IMPACT == 0x1);
 _Static_assert(SCRUB_FLAG_SLAM_ON_HARD_IMPACT == 0x2);
 _Static_assert(SCRUB_FLAG_SKIP_WALL_RUB_TIMER == 0x4);

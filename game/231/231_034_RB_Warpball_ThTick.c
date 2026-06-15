@@ -36,8 +36,8 @@ void RB_Warpball_ThTick(struct Thread *t)
 	struct Driver *target;
 	struct ScratchpadStruct *sps;
 	struct Instance *hitInst;
-	s16 posTop[3];
-	s16 posBottom[3];
+	SVec3 posTop;
+	SVec3 posBottom;
 	int elapsedTime;
 	int distX;
 	int distY;
@@ -234,12 +234,12 @@ void RB_Warpball_ThTick(struct Thread *t)
 
 	PlaySound3D_Flags((u32 *)&tw->audioPtr, 0x4e, inst);
 
-	posTop[0] = (s16)inst->matrix.t[0];
-	posTop[1] = (s16)(inst->matrix.t[1] - 0x80);
-	posTop[2] = (s16)inst->matrix.t[2];
-	posBottom[0] = (s16)inst->matrix.t[0];
-	posBottom[1] = (s16)(inst->matrix.t[1] + 0x80);
-	posBottom[2] = (s16)inst->matrix.t[2];
+	posTop.x = (s16)inst->matrix.t[0];
+	posTop.y = (s16)(inst->matrix.t[1] - 0x80);
+	posTop.z = (s16)inst->matrix.t[2];
+	posBottom.x = (s16)inst->matrix.t[0];
+	posBottom.y = (s16)(inst->matrix.t[1] + 0x80);
+	posBottom.z = (s16)inst->matrix.t[2];
 
 	sps = CTR_SCRATCHPAD_PTR(struct ScratchpadStruct, 0x108);
 	sps->Union.QuadBlockColl.quadFlagsWanted = QUADBLOCK_FLAG_GROUND | QUADBLOCK_FLAG_TRIGGER;
@@ -252,10 +252,10 @@ void RB_Warpball_ThTick(struct Thread *t)
 	}
 
 	sps->ptr_mesh_info = gGT->level1->ptr_mesh_info;
-	COLL_SearchBSP_CallbackQUADBLK(posTop, posBottom, sps, 0);
+	COLL_SearchBSP_CallbackQUADBLK(&posTop, &posBottom, sps, 0);
 	RB_MakeInstanceReflective(sps, inst);
 
-	if ((sps->collision.stepFlags & 4) != 0)
+	if ((sps->collision.stepFlags & COLL_STEP_TRIGGER_WEAPON_REACT) != 0)
 	{
 		RB_Warpball_TurnAround(t);
 	}
@@ -284,10 +284,10 @@ void RB_Warpball_ThTick(struct Thread *t)
 	}
 	else
 	{
-		posTop[0] = (s16)inst->matrix.t[0];
-		posTop[1] = (s16)(inst->matrix.t[1] - 0x900);
-		posTop[2] = (s16)inst->matrix.t[2];
-		COLL_SearchBSP_CallbackQUADBLK(posTop, posBottom, sps, 0);
+		posTop.x = (s16)inst->matrix.t[0];
+		posTop.y = (s16)(inst->matrix.t[1] - 0x900);
+		posTop.z = (s16)inst->matrix.t[2];
+		COLL_SearchBSP_CallbackQUADBLK(&posTop, &posBottom, sps, 0);
 
 		if (sps->boolDidTouchQuadblock != 0)
 		{
@@ -368,7 +368,7 @@ void RB_Warpball_ThTick(struct Thread *t)
 
 				if (hadTargetPathFlag != 0)
 				{
-					RB_Warpball_SeekDriver(tw, hitDriver->unknown_lap_related[1], hitDriver);
+					RB_Warpball_SeekDriver(tw, hitDriver->checkpoint.currentIndex, hitDriver);
 				}
 
 				if (((tw->flags & 4) == 0) && (hadTargetPathFlag != 0))

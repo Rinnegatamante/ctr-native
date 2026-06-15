@@ -32,7 +32,7 @@ void CS_DestroyPodium_StartDriving(void)
 	inst->flags &= ~(HIDE_MODEL);
 
 	d->kartState = KS_ENGINE_REVVING;
-	d->funcPtrs[0] = VehPhysProc_Driving_Init;
+	d->funcPtrs[DRIVER_FUNC_INIT] = VehPhysProc_Driving_Init;
 
 	// if cutscene changed audio, restore backup
 	if (D233.CutsceneManipulatesAudio != 0)

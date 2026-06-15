@@ -30,7 +30,7 @@ void RB_Blowup_ThTick(struct Thread *t)
 	RB_Blowup_UpdateSlot(&blowup[0]);
 
 	if ((blowup[1] == 0) && (blowup[0] == 0))
-		t->flags |= 0x800;
+		t->flags |= THREAD_FLAG_DEAD;
 
 	ThTick_FastRET(t);
 }

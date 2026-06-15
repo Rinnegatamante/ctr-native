@@ -175,7 +175,7 @@ void AH_HintMenu_MenuProc(struct RectMenu *menu)
 
 						// talking mask instance
 						inst = sdata->instMaskHints3D;
-						inst->flags |= 0x400;
+						inst->flags |= SCREENSPACE_INSTANCE;
 
 						struct InstDrawPerPlayer *idpp = INST_GETIDPP(inst);
 

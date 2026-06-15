@@ -31,5 +31,5 @@ void RB_Burst_ThTick(struct Thread *t)
 	RB_Burst_UpdateSlot(&burst[0]);
 
 	if ((burst[1] == 0) && (burst[2] == 0))
-		t->flags |= 0x800;
+		t->flags |= THREAD_FLAG_DEAD;
 }

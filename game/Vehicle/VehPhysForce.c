@@ -26,10 +26,6 @@ void VehPhysForce_ConvertSpeedToVec(struct Driver *driver)
 enum
 {
 	VEH_PHYS_FORCE_ACTION_PREVENT_ACCEL = 0x8,
-	VEH_PHYS_FORCE_ACTION_AIRBORNE = 0x80000,
-	VEH_PHYS_FORCE_ACTION_800000 = 0x800000,
-	VEH_PHYS_FORCE_ACTION_BACK_SKID = 0x800,
-	VEH_PHYS_FORCE_ACTION_FRONT_SKID = 0x1000,
 	VEH_PHYS_FORCE_QUAD_LOW_GRAVITY = 0x2,
 };
 
@@ -157,9 +153,9 @@ void VehPhysForce_OnGravity(struct Driver *driver, Vec3 *velocity)
 		localX = minPerpendicularSpeed;
 	}
 
-	u32 terrainFlags = driver->terrainMeta1->flags;
+	TerrainFlags terrainFlags = driver->terrainMeta1->flags;
 	int terminalVelocity = driver->const_TerminalVelocity;
-	if ((localY < 0) && ((terrainFlags & 0x80) != 0) && (originalLocalY < -0x100))
+	if ((localY < 0) && ((terrainFlags & TERRAIN_FLAG_MUD_PHYSICS) != 0) && (originalLocalY < -0x100))
 	{
 		terminalVelocity = 0x100;
 		originalLocalY = -0x100;
@@ -193,7 +189,7 @@ void VehPhysForce_OnGravity(struct Driver *driver, Vec3 *velocity)
 		localZ = 0;
 	}
 	else if (((driver->actionsFlagSetPrevFrame & ACTION_TOUCH_GROUND) != 0) || (driver->kartState == KS_BLASTED) ||
-	         ((driver->unknowndriverBaseSpeed < driver->speedApprox) && (driver->terrainMeta2->unk_0x8 < 0x100)))
+	         ((driver->terrainScaledBaseSpeed < driver->speedApprox) && (driver->terrainMeta2->speedMultiplier < 0x100)))
 	{
 		int perpendicularFriction;
 		int forwardFriction;
@@ -231,7 +227,7 @@ void VehPhysForce_OnGravity(struct Driver *driver, Vec3 *velocity)
 							int absBaseSpeed = VehPhysForce_OnGravity_Abs(baseSpeed);
 							if (absSpeedApprox < CTR_MipsSra(absBaseSpeed, 1))
 							{
-								actionsFlagSet |= VEH_PHYS_FORCE_ACTION_BACK_SKID;
+								actionsFlagSet |= ACTION_BACK_SKID;
 							}
 						}
 					}
@@ -243,7 +239,7 @@ void VehPhysForce_OnGravity(struct Driver *driver, Vec3 *velocity)
 
 					if (absSpeedApprox > 0x300)
 					{
-						actionsFlagSet |= VEH_PHYS_FORCE_ACTION_BACK_SKID;
+						actionsFlagSet |= ACTION_BACK_SKID;
 					}
 				}
 			}
@@ -253,7 +249,7 @@ void VehPhysForce_OnGravity(struct Driver *driver, Vec3 *velocity)
 			int absSpeedApprox = VehPhysForce_OnGravity_Abs(speedApprox);
 			if (absSpeedApprox > 0x300)
 			{
-				actionsFlagSet |= VEH_PHYS_FORCE_ACTION_BACK_SKID;
+				actionsFlagSet |= ACTION_BACK_SKID;
 			}
 
 			perpendicularFriction = driver->const_BrakeFriction;
@@ -281,7 +277,7 @@ void VehPhysForce_OnGravity(struct Driver *driver, Vec3 *velocity)
 		perpendicularFriction = CTR_MipsSra(CTR_MipsMulLo(perpendicularFriction, elapsedTimeMS), 5);
 		forwardFriction = CTR_MipsSra(CTR_MipsMulLo(forwardFriction, elapsedTimeMS), 5);
 
-		int terrainFrictionScale = driver->terrainMeta1->unk_0x20[0];
+		int terrainFrictionScale = driver->terrainMeta1->groundFrictionScale;
 		if (terrainFrictionScale != 0x100)
 		{
 			perpendicularFriction = CTR_MipsSra(CTR_MipsMulLo(terrainFrictionScale, perpendicularFriction), 8);
@@ -310,7 +306,7 @@ void VehPhysForce_OnGravity(struct Driver *driver, Vec3 *velocity)
 
 			if (absLocalX > 0)
 			{
-				actionsFlagSet |= VEH_PHYS_FORCE_ACTION_BACK_SKID | VEH_PHYS_FORCE_ACTION_FRONT_SKID;
+				actionsFlagSet |= ACTION_BACK_SKID | ACTION_FRONT_SKID;
 				GAMEPAD_ShockForce1(driver, 4, 0x7f);
 				GAMEPAD_ShockFreq(driver, 4, 0);
 			}
@@ -338,7 +334,7 @@ void VehPhysForce_OnGravity(struct Driver *driver, Vec3 *velocity)
 			}
 		}
 
-		if (((actionsFlagSet & VEH_PHYS_FORCE_ACTION_800000) == 0) && ((terrainFlags & 0x80) != 0))
+		if (((actionsFlagSet & ACTION_MASK_WEAPON) == 0) && ((terrainFlags & TERRAIN_FLAG_MUD_PHYSICS) != 0))
 		{
 			int absSideSpeed = VehPhysForce_OnGravity_Abs(CTR_MipsSra(localX, 3));
 			if (perpendicularFriction < absSideSpeed)
@@ -370,7 +366,7 @@ void VehPhysForce_OnGravity(struct Driver *driver, Vec3 *velocity)
 	APPLY_TERRAIN_FRICTION:
 	{
 		int xFriction = perpendicularFriction;
-		if ((terrainFlags & 0x100) != 0)
+		if ((terrainFlags & TERRAIN_FLAG_SIDESLIP_FRICTION) != 0)
 		{
 			xFriction = CTR_MipsSra(CTR_MipsMulLo(perpendicularFriction, 3), 2);
 			if (xFriction < forwardFriction)
@@ -387,7 +383,7 @@ void VehPhysForce_OnGravity(struct Driver *driver, Vec3 *velocity)
 	*velocity = VehPhysForce_OnGravity_RotateVector(&driver->matrixMovingDir, (s16)localX, (s16)localY, (s16)localZ);
 	driver->actionsFlagSet = actionsFlagSet;
 
-	if ((actionsFlagSet & VEH_PHYS_FORCE_ACTION_AIRBORNE) == 0)
+	if ((actionsFlagSet & ACTION_AIRBORNE) == 0)
 	{
 		if ((driver->boolFirstFrameSinceRevEngine != 0) && (localZ != 0))
 		{
@@ -445,11 +441,11 @@ CHECK_ROLLBACK_FROM_FORWARD:
 	}
 
 START_ROLLBACK:
-	if (driver->StartRollback_0x280 != 0)
+	if (driver->vShiftWindowTimer != 0)
 	{
-		driver->unknownTraction = (s16)CTR_MipsAddLo((u16)driver->unknownTraction, 1);
+		driver->vShiftCount = (s16)CTR_MipsAddLo((u16)driver->vShiftCount, 1);
 	}
-	driver->StartRollback_0x280 = 0x280;
+	driver->vShiftWindowTimer = 0x280;
 }
 
 static Vec3 VehPhysForce_OnApplyForces_RotateVector(const MATRIX *m, s16 vx, s16 vy, s16 vz)
@@ -511,7 +507,7 @@ void VehPhysForce_OnApplyForces(struct Thread *thread, struct Driver *driver)
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8005ebac-0x8005ee34.
 void VehPhysForce_CollideDrivers(struct Thread *thread, struct Driver *driver)
 {
-	u32 stepFlagSet = driver->stepFlagSet;
+	CollStepFlags stepFlagSet = driver->stepFlagSet;
 
 	driver->velocity.x = CTR_MipsSubLo(driver->velocity.x, driver->accel.x);
 	driver->velocity.y = CTR_MipsSubLo(driver->velocity.y, driver->accel.y);
@@ -522,11 +518,11 @@ void VehPhysForce_CollideDrivers(struct Thread *thread, struct Driver *driver)
 		driver->collisionFlags |= DRIVER_COLL_FLAG_MASK_GRAB_REQUEST;
 	}
 
-	if ((stepFlagSet & 2) != 0)
+	if ((stepFlagSet & COLL_STEP_TRIGGER_SUPER_TURBO_PAD) != 0)
 	{
 		VehFire_Increment(driver, 0x78, TURBO_PAD | FREEZE_RESERVES_ON_TURBO_PAD, 0x800);
 	}
-	else if ((stepFlagSet & 1) != 0)
+	else if ((stepFlagSet & COLL_STEP_TRIGGER_TURBO_PAD) != 0)
 	{
 		if ((sdata->gGT->gameMode2 & CHEAT_TURBOPAD) == 0)
 		{
@@ -548,7 +544,7 @@ void VehPhysForce_CollideDrivers(struct Thread *thread, struct Driver *driver)
 		thread->inst->flags &= ~SPLIT_LINE;
 	}
 
-	if ((thread->flags & 0x1000) == 0)
+	if ((thread->flags & THREAD_FLAG_DISABLE_COLLISION) == 0)
 	{
 		struct DriverCollisionSearch search;
 
@@ -574,14 +570,14 @@ void VehPhysForce_CollideDrivers(struct Thread *thread, struct Driver *driver)
 
 	if ((driver->collisionFlags & DRIVER_COLL_FLAG_SURFACE_PUSHBACK) != 0)
 	{
-		int diffX = CTR_MipsSubLo(CTR_MipsSra(driver->posCurr.x, 8), driver->spsHitPos[0]);
-		int diffZ = CTR_MipsSubLo(CTR_MipsSra(driver->posCurr.z, 8), driver->spsHitPos[2]);
-		int floorDiffY = CTR_MipsAddLo(CTR_MipsSubLo(CTR_MipsSra(driver->quadBlockHeight, 8), driver->spsHitPos[1]), 4);
+		int diffX = CTR_MipsSubLo(CTR_MipsSra(driver->posCurr.x, 8), driver->spsHitPos.x);
+		int diffZ = CTR_MipsSubLo(CTR_MipsSra(driver->posCurr.z, 8), driver->spsHitPos.z);
+		int floorDiffY = CTR_MipsAddLo(CTR_MipsSubLo(CTR_MipsSra(driver->quadBlockHeight, 8), driver->spsHitPos.y), 4);
 
-		if (CTR_MipsAddLo(CTR_MipsAddLo(CTR_MipsMulLo(driver->spsNormalVec[0], diffX), CTR_MipsMulLo(driver->spsNormalVec[1], floorDiffY)),
-		                  CTR_MipsMulLo(driver->spsNormalVec[2], diffZ)) < 0)
+		if (CTR_MipsAddLo(CTR_MipsAddLo(CTR_MipsMulLo(driver->spsNormalVec.x, diffX), CTR_MipsMulLo(driver->spsNormalVec.y, floorDiffY)),
+		                  CTR_MipsMulLo(driver->spsNormalVec.z, diffZ)) < 0)
 		{
-			int diffY = CTR_MipsSubLo(CTR_MipsSra(driver->posCurr.y, 8), driver->spsHitPos[1]);
+			int diffY = CTR_MipsSubLo(CTR_MipsSra(driver->posCurr.y, 8), driver->spsHitPos.y);
 
 			driver->velocity.x = CTR_MipsAddLo(driver->velocity.x, CTR_MipsSll(diffX, 6));
 			driver->velocity.y = CTR_MipsAddLo(driver->velocity.y, CTR_MipsSll(diffY, 6));
@@ -678,7 +674,7 @@ static void VehPhysForce_TranslateMatrix_UpdateSquashStretch(struct Instance *in
 	int jumpHeightCurr = d->jumpHeightCurr;
 	int targetSquish = -800;
 
-	if ((d->actionsFlagSet & 0x400) == 0)
+	if ((d->actionsFlagSet & ACTION_JUMP_STARTED) == 0)
 	{
 		int smoothed = CTR_MipsSra(CTR_MipsAddLo(CTR_MipsMulLo(d->jumpSquishStretch2, 9), CTR_MipsMulLo(jumpHeightCurr, 7)), 4);
 		int delta = CTR_MipsSll(CTR_MipsSubLo(d->jumpSquishStretch2, smoothed), 2);
@@ -688,7 +684,7 @@ static void VehPhysForce_TranslateMatrix_UpdateSquashStretch(struct Instance *in
 			delta = 0;
 		}
 
-		if (((d->actionsFlagSet | d->actionsFlagSetPrevFrame) & 2) == 0)
+		if (((d->actionsFlagSet | d->actionsFlagSetPrevFrame) & ACTION_STARTED_TOUCH_GROUND) == 0)
 		{
 			if (delta < -800)
 			{
@@ -746,7 +742,7 @@ static void VehPhysForce_TranslateMatrix_UpdateSquashStretch(struct Instance *in
 	{
 		if (d->instSelf->thread->modelIndex == 0x18)
 		{
-			OtherFX_Play_Echo(0x5b, 1, (d->actionsFlagSet >> 16) & 1);
+			OtherFX_Play_Echo(0x5b, 1, (d->actionsFlagSet & ACTION_ENGINE_ECHO) != 0);
 		}
 
 		inst->scale[1] = (s16)CTR_MipsAddLo((u16)d->jumpSquishStretch, 0xccc);
@@ -765,7 +761,7 @@ static void VehPhysForce_TranslateMatrix_UpdateSquashStretch(struct Instance *in
 
 static void VehPhysForce_TranslateMatrix_UpdateMatrixAnimation(struct Driver *d)
 {
-	if ((d->reserves == 0) || (d->fireSpeed < d->const_Speed_ClassStat) || ((d->actionsFlagSet & 0x80) != 0))
+	if ((d->reserves == 0) || (d->fireSpeed < d->const_Speed_ClassStat) || ((d->actionsFlagSet & ACTION_TURBO_INPUT_LATCH) != 0))
 	{
 		if (d->matrixArray == 2)
 		{

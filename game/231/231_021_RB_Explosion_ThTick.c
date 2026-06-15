@@ -15,7 +15,7 @@ void RB_Explosion_ThTick(struct Thread *t)
 	else
 	{
 		// dead thread
-		t->flags |= 0x800;
+		t->flags |= THREAD_FLAG_DEAD;
 	}
 
 	ThTick_FastRET(t);

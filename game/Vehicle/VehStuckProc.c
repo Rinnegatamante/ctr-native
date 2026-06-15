@@ -24,7 +24,7 @@ static void VehStuckProc_MaskGrab_SearchBsp(struct Driver *d, struct ScratchpadS
 
 	sps->boolDidTouchQuadblock = 0;
 	sps->numTrianglesTested = 0;
-	sps->hitFraction = 0x1000;
+	sps->hitFraction = COLL_FRACTION_ONE;
 	sps->collision.stepFlags = 0;
 
 	sps->bbox.min.x = topX;
@@ -88,7 +88,7 @@ void VehStuckProc_MaskGrab_FindDestPos(struct Driver *d, struct QuadBlock *quad)
 
 				VehStuckProc_MaskGrab_SearchBsp(d, sps);
 				respawn = nextRespawn;
-			} while ((sps->boolDidTouchQuadblock == 0) || ((sps->collision.stepFlags & 0x4000) != 0));
+			} while ((sps->boolDidTouchQuadblock == 0) || ((sps->collision.stepFlags & COLL_STEP_FLAG_KILL_PLANE) != 0));
 
 			struct Thread *playerThread = gGT->threadBuckets[PLAYER].thread;
 			while (playerThread != NULL)
@@ -198,8 +198,8 @@ void VehStuckProc_MaskGrab_PhysLinear(struct Thread *t, struct Driver *d)
 	// reset turning state
 	d->simpTurnState = 0;
 
-	d->actionsFlagSet &= ~(0x20024);
-	d->actionsFlagSet |= 8;
+	d->actionsFlagSet &= ~(ACTION_REVERSING_ENGINE | ACTION_BRAKE_WITH_ACCEL | ACTION_JUMP_BUTTON_HELD);
+	d->actionsFlagSet |= ACTION_ACCEL_PREVENTION;
 }
 
 
@@ -391,7 +391,7 @@ void VehStuckProc_MaskGrab_Animate(struct Thread *t, struct Driver *d)
 }
 
 
-extern void *PlayerMaskGrabFuncTable[13];
+extern DriverFunc PlayerMaskGrabFuncTable[DRIVER_FUNC_COUNT];
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800671b0-0x8006749c.
 void VehStuckProc_MaskGrab_Init(struct Thread *t, struct Driver *d)
@@ -419,7 +419,7 @@ void VehStuckProc_MaskGrab_Init(struct Thread *t, struct Driver *d)
 
 	d->NoInputTimer = 1440;
 
-	d->actionsFlagSet &= 0xfff7ffbf;
+	d->actionsFlagSet &= ~(ACTION_AIRBORNE | ACTION_HIGH_JUMP);
 
 	if ((LOAD_IsOpen_RacingOrBattle() != 0) && ((gGT->gameMode1 & ADVENTURE_ARENA) == 0))
 	{
@@ -463,7 +463,7 @@ void VehStuckProc_MaskGrab_Init(struct Thread *t, struct Driver *d)
 	d->posPrev.y = d->posCurr.y;
 	d->posPrev.z = d->posCurr.z;
 
-	for (int i = 0; i < 13; i++)
+	for (int i = 0; i < DRIVER_FUNC_COUNT; i++)
 	{
 		d->funcPtrs[i] = PlayerMaskGrabFuncTable[i];
 	}
@@ -480,19 +480,19 @@ void VehStuckProc_MaskGrab_Init(struct Thread *t, struct Driver *d)
 }
 
 
-void *PlayerMaskGrabFuncTable[13] = {NULL,
-                                     VehStuckProc_MaskGrab_Update,
-                                     VehStuckProc_MaskGrab_PhysLinear,
-                                     VehPhysProc_Driving_Audio,
-                                     VehPhysGeneral_PhysAngular,
-                                     VehPhysForce_OnApplyForces,
-                                     COLL_MOVED_PlayerSearch,
-                                     VehPhysForce_CollideDrivers,
-                                     COLL_FIXED_PlayerSearch,
-                                     VehPhysGeneral_JumpAndFriction,
-                                     VehPhysForce_TranslateMatrix,
-                                     VehStuckProc_MaskGrab_Animate,
-                                     VehEmitter_DriverMain};
+DriverFunc PlayerMaskGrabFuncTable[DRIVER_FUNC_COUNT] = {NULL,
+                                                         VehStuckProc_MaskGrab_Update,
+                                                         VehStuckProc_MaskGrab_PhysLinear,
+                                                         VehPhysProc_Driving_Audio,
+                                                         VehPhysGeneral_PhysAngular,
+                                                         VehPhysForce_OnApplyForces,
+                                                         COLL_MOVED_PlayerSearch,
+                                                         VehPhysForce_CollideDrivers,
+                                                         COLL_FIXED_PlayerSearch,
+                                                         VehPhysGeneral_JumpAndFriction,
+                                                         VehPhysForce_TranslateMatrix,
+                                                         VehStuckProc_MaskGrab_Animate,
+                                                         VehEmitter_DriverMain};
 
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8006749c-0x80067554.
@@ -509,7 +509,7 @@ void VehStuckProc_PlantEaten_Update(struct Thread *t, struct Driver *d)
 		VehBirth_TeleportSelf(d, 0, 0x80);
 
 		// enable collision, make visible
-		t->flags &= ~(0x1000);
+		t->flags &= ~THREAD_FLAG_DISABLE_COLLISION;
 		t->inst->flags &= ~(HIDE_MODEL);
 
 		// this lets you rev engine while falling
@@ -533,9 +533,9 @@ void VehStuckProc_PlantEaten_PhysLinear(struct Thread *t, struct Driver *d)
 	d->jump_TenBuffer = 0;
 
 	// acceleration prevention,
-	// drop bits for jump button, 0x20?, reversing engine
-	d->actionsFlagSet &= ~(0x20024);
-	d->actionsFlagSet |= 8;
+	// drop jump-button, gas+brake, and reversing engine bits.
+	d->actionsFlagSet &= ~(ACTION_REVERSING_ENGINE | ACTION_BRAKE_WITH_ACCEL | ACTION_JUMP_BUTTON_HELD);
+	d->actionsFlagSet |= ACTION_ACCEL_PREVENTION;
 
 	d->timeSpentEaten = CTR_MipsAddLo(d->timeSpentEaten, sdata->gGT->elapsedTimeMS);
 }
@@ -606,7 +606,7 @@ void VehStuckProc_PlantEaten_Animate(struct Thread *t, struct Driver *d)
 }
 
 
-extern void *PlayerEatenFuncTable[13];
+extern DriverFunc PlayerEatenFuncTable[DRIVER_FUNC_COUNT];
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800677d0-0x80067930.
 // when eaten by plant on papu pyramid
@@ -627,8 +627,8 @@ void VehStuckProc_PlantEaten_Init(struct Thread *t, struct Driver *d)
 	d->turbo_outsideTimer = 0;
 	d->reserves = 0;
 
-	// drop bits for airborne and kart-on-ground
-	d->actionsFlagSet &= ~(0x80000 | 0x40);
+	// drop bits for airborne and high-jump state
+	d->actionsFlagSet &= ~(ACTION_AIRBORNE | ACTION_HIGH_JUMP);
 
 	// "cloud" is the raincloud after hitting red potion
 
@@ -647,7 +647,7 @@ void VehStuckProc_PlantEaten_Init(struct Thread *t, struct Driver *d)
 	}
 
 	// allow this thread to ignore all collisions
-	t->flags |= 0x1000;
+	t->flags |= THREAD_FLAG_DISABLE_COLLISION;
 
 	// make invisible
 	inst->flags |= HIDE_MODEL;
@@ -659,11 +659,11 @@ void VehStuckProc_PlantEaten_Init(struct Thread *t, struct Driver *d)
 	OtherFX_Stop1((int)d->driverAudioPtrs[0]);
 	d->driverAudioPtrs[0] = NULL;
 
-	for (i = 0; i < 13; i++)
+	for (i = 0; i < DRIVER_FUNC_COUNT; i++)
 		d->funcPtrs[i] = PlayerEatenFuncTable[i];
 }
 
-void *PlayerEatenFuncTable[13] = {
+DriverFunc PlayerEatenFuncTable[DRIVER_FUNC_COUNT] = {
     NULL,
     VehStuckProc_PlantEaten_Update,
     VehStuckProc_PlantEaten_PhysLinear,
@@ -685,8 +685,8 @@ void VehStuckProc_RIP_Init(struct Thread *t, struct Driver *d)
 {
 	VehStuckProc_PlantEaten_Init(t, d);
 	d->invisibleTimer = 0;
-	d->funcPtrs[1] = NULL;
-	d->funcPtrs[11] = NULL;
+	d->funcPtrs[DRIVER_FUNC_UPDATE] = NULL;
+	d->funcPtrs[DRIVER_FUNC_ANIMATE] = NULL;
 }
 
 
@@ -787,7 +787,7 @@ void VehStuckProc_RevEngine_PhysLinear(struct Thread *t, struct Driver *d)
 
 	struct CameraDC *cDC = &gGT->cameraDC[d->driverID];
 	cDC->flags |= 0x10;
-	cDC->unk98 = 0x40;
+	cDC->maskGrabHeightOffset = 0x40;
 }
 
 
@@ -860,7 +860,7 @@ void VehStuckProc_RevEngine_Animate(struct Thread *t, struct Driver *d)
 				d->KartStates.RevEngine.unk[0] = 0;
 				d->KartStates.RevEngine.unk[1] |= 3;
 
-				OtherFX_Play_Echo(0xf, 1, d->actionsFlagSet & 0x10000);
+				OtherFX_Play_Echo(0xf, 1, d->actionsFlagSet & ACTION_ENGINE_ECHO);
 			}
 		}
 		goto LAB_80067dec;
@@ -1042,7 +1042,7 @@ LAB_80067dec:
 }
 
 
-extern void *PlayerRevEngineFuncTable[13];
+extern DriverFunc PlayerRevEngineFuncTable[DRIVER_FUNC_COUNT];
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80067f4c-0x8006809c.
 void VehStuckProc_RevEngine_Init(struct Thread *t, struct Driver *d)
@@ -1065,14 +1065,13 @@ void VehStuckProc_RevEngine_Init(struct Thread *t, struct Driver *d)
 		d->KartStates.RevEngine.boolMaskGrab = true;
 		d->KartStates.RevEngine.maskObj = VehPickupItem_MaskUseWeapon(d, 0);
 
-		// Driver flag
-		d->actionsFlagSet &= ~(1);
+		d->actionsFlagSet &= ~ACTION_TOUCH_GROUND;
 
 		// CameraDC flag
 		sdata->gGT->cameraDC[d->driverID].flags |= 8;
 	}
 
-	for (char i = 0; i < 13; i++)
+	for (char i = 0; i < DRIVER_FUNC_COUNT; i++)
 	{
 		d->funcPtrs[i] = PlayerRevEngineFuncTable[i];
 	}
@@ -1088,7 +1087,7 @@ void VehStuckProc_RevEngine_Init(struct Thread *t, struct Driver *d)
 	d->KartStates.RevEngine.boostMeter = CTR_MipsAddLo(d->const_AccelSpeed_ClassStat, d->const_AccelSpeed_ClassStat / 3);
 }
 
-void *PlayerRevEngineFuncTable[13] = {
+DriverFunc PlayerRevEngineFuncTable[DRIVER_FUNC_COUNT] = {
     NULL, VehStuckProc_RevEngine_Update, VehStuckProc_RevEngine_PhysLinear, VehPhysProc_Driving_Audio, NULL, NULL, NULL, NULL, NULL,
     NULL, VehPhysForce_TranslateMatrix,  VehStuckProc_RevEngine_Animate,    VehEmitter_DriverMain,
 };
@@ -1119,7 +1118,7 @@ void VehStuckProc_Tumble_PhysLinear(struct Thread *thread, struct Driver *driver
 	driver->jump_ForcedMS = 0x60;
 	driver->baseSpeed = 0;
 	driver->fireSpeed = 0;
-	driver->actionsFlagSet |= 0x5808;
+	driver->actionsFlagSet |= ACTION_WARP | ACTION_FRONT_SKID | ACTION_BACK_SKID | ACTION_ACCEL_PREVENTION;
 	driver->jump_InitialVelY = (s16)CTR_MipsAddLo(CTR_MipsSll((u16)driver->NoInputTimer, 1), 6000);
 }
 
@@ -1175,19 +1174,19 @@ void VehStuckProc_Tumble_Animate(struct Thread *thread, struct Driver *driver)
 }
 
 
-void *PlayerBlastedFuncTable[0xD] = {(void *)0x0,
-                                     VehStuckProc_Tumble_Update,
-                                     VehStuckProc_Tumble_PhysLinear,
-                                     VehPhysProc_Driving_Audio,
-                                     VehStuckProc_Tumble_PhysAngular,
-                                     VehPhysForce_OnApplyForces,
-                                     COLL_MOVED_PlayerSearch,
-                                     VehPhysForce_CollideDrivers,
-                                     COLL_FIXED_PlayerSearch,
-                                     VehPhysGeneral_JumpAndFriction,
-                                     VehPhysForce_TranslateMatrix,
-                                     VehStuckProc_Tumble_Animate,
-                                     VehEmitter_DriverMain};
+DriverFunc PlayerBlastedFuncTable[DRIVER_FUNC_COUNT] = {NULL,
+                                                        VehStuckProc_Tumble_Update,
+                                                        VehStuckProc_Tumble_PhysLinear,
+                                                        VehPhysProc_Driving_Audio,
+                                                        VehStuckProc_Tumble_PhysAngular,
+                                                        VehPhysForce_OnApplyForces,
+                                                        COLL_MOVED_PlayerSearch,
+                                                        VehPhysForce_CollideDrivers,
+                                                        COLL_FIXED_PlayerSearch,
+                                                        VehPhysGeneral_JumpAndFriction,
+                                                        VehPhysForce_TranslateMatrix,
+                                                        VehStuckProc_Tumble_Animate,
+                                                        VehEmitter_DriverMain};
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800682a4-0x800683f4.
 void VehStuckProc_Tumble_Init(struct Thread *thread, struct Driver *driver)
@@ -1225,7 +1224,7 @@ void VehStuckProc_Tumble_Init(struct Thread *thread, struct Driver *driver)
 		bVar3 = 0x29;
 	}
 
-	for (i = 0; i < 0xD; i++)
+	for (i = 0; i < DRIVER_FUNC_COUNT; i++)
 	{
 		driver->funcPtrs[i] = PlayerBlastedFuncTable[i];
 	}
@@ -1529,7 +1528,7 @@ void VehStuckProc_Warp_PhysAngular(struct Thread *th, struct Driver *d)
 	d->rotCurr.y = (s16)CTR_MipsAddLo(CTR_MipsAddLo((u16)d->unk3D4[0], (u16)d->angle), (u16)sVar2);
 
 	// driver is warping
-	d->actionsFlagSet |= 0x4000;
+	d->actionsFlagSet |= ACTION_WARP;
 
 	d->KartStates.Warp.timer = timer;
 }
@@ -1570,7 +1569,7 @@ void VehStuckProc_Warp_Init(struct Thread *th, struct Driver *d)
 	struct Instance *inst = d->instSelf;
 
 	// instance flags, now reflective
-	inst->flags |= 0x4000;
+	inst->flags |= REFLECTIVE;
 
 	// vertical line for split or reflection
 	inst->vertSplit = (s16)CTR_MipsSra(d->quadBlockHeight, 8);
@@ -1581,20 +1580,20 @@ void VehStuckProc_Warp_Init(struct Thread *th, struct Driver *d)
 	d->speed = 0;
 	d->speedApprox = 0;
 
-	d->funcPtrs[0] = NULL;
-	d->funcPtrs[1] = NULL;
-	d->funcPtrs[2] = NULL;
-	d->funcPtrs[3] = VehPhysProc_Driving_Audio;
-	d->funcPtrs[4] = VehStuckProc_Warp_PhysAngular;
-	d->funcPtrs[5] = NULL;
-	d->funcPtrs[6] = NULL;
-	d->funcPtrs[7] = NULL;
-	d->funcPtrs[8] = NULL;
-	d->funcPtrs[9] = NULL;
-	d->funcPtrs[10] = VehPhysForce_TranslateMatrix;
-	d->funcPtrs[11] = VehFrameProc_Driving;
-	d->funcPtrs[12] = VehEmitter_DriverMain;
+	d->funcPtrs[DRIVER_FUNC_INIT] = NULL;
+	d->funcPtrs[DRIVER_FUNC_UPDATE] = NULL;
+	d->funcPtrs[DRIVER_FUNC_PHYS_LINEAR] = NULL;
+	d->funcPtrs[DRIVER_FUNC_AUDIO] = VehPhysProc_Driving_Audio;
+	d->funcPtrs[DRIVER_FUNC_PHYS_ANGULAR] = VehStuckProc_Warp_PhysAngular;
+	d->funcPtrs[DRIVER_FUNC_APPLY_FORCES] = NULL;
+	d->funcPtrs[DRIVER_FUNC_COLL_MOVED] = NULL;
+	d->funcPtrs[DRIVER_FUNC_COLLIDE_DRIVERS] = NULL;
+	d->funcPtrs[DRIVER_FUNC_COLL_FIXED] = NULL;
+	d->funcPtrs[DRIVER_FUNC_JUMP_FRICTION] = NULL;
+	d->funcPtrs[DRIVER_FUNC_TRANSLATE_MATRIX] = VehPhysForce_TranslateMatrix;
+	d->funcPtrs[DRIVER_FUNC_ANIMATE] = VehFrameProc_Driving;
+	d->funcPtrs[DRIVER_FUNC_PARTICLES] = VehEmitter_DriverMain;
 
 	// driver is warping
-	d->actionsFlagSet |= 0x4000;
+	d->actionsFlagSet |= ACTION_WARP;
 }

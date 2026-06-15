@@ -26,7 +26,7 @@ void AH_MaskHint_Start(s16 hintId, u16 bool_interruptWarppad)
 	}
 
 	d = sdata->gGT->drivers[0];
-	d->funcPtrs[0] = VehPhysProc_FreezeEndEvent_Init;
+	d->funcPtrs[DRIVER_FUNC_INIT] = VehPhysProc_FreezeEndEvent_Init;
 
 	// If Aku / Uka model pointer is nullptr
 	if (sdata->modelMaskHints3D == NULL)

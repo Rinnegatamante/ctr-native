@@ -42,7 +42,7 @@ void RB_Baron_LInB(struct Instance *inst)
 	baronObj->otherInst = 0;
 
 	if (inst->model->id == DYNAMIC_VONLABASS)
-		inst->flags |= 0x80;
+		inst->flags |= HIDE_MODEL;
 
 	baronObj->soundID_flags = 0;
 }

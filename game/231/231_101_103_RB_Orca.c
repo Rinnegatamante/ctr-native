@@ -253,5 +253,5 @@ void RB_Orca_LInB(struct Instance *inst)
 	orcaObj->cooldown = metaArray[orcaObj->orcaID];
 
 	if (orcaObj->cooldown != 0)
-		inst->flags |= 0x80;
+		inst->flags |= HIDE_MODEL;
 }

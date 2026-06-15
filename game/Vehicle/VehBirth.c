@@ -69,11 +69,11 @@ static struct VehBirthPosRot *VehBirth_SpawnType2PosRot(struct Level *level)
 	return (struct VehBirthPosRot *)level->ptrSpawnType2_PosRot[1].posCoords;
 }
 
-static void VehBirth_SetBottomFromPos(s16 *posBottom, const s16 *pos)
+static void VehBirth_SetBottomFromPos(SVec3 *posBottom, const s16 *pos)
 {
-	posBottom[0] = pos[0];
-	posBottom[1] = pos[1] + 0x80;
-	posBottom[2] = pos[2];
+	posBottom->x = pos[0];
+	posBottom->y = pos[1] + 0x80;
+	posBottom->z = pos[2];
 }
 
 static u8 VehBirth_GetStartlineIndex(struct Driver *d)
@@ -81,11 +81,11 @@ static u8 VehBirth_GetStartlineIndex(struct Driver *d)
 	return sdata->kartSpawnOrderArray[d->driverID];
 }
 
-static void VehBirth_SetStartlinePosition(struct Driver *d, struct Level *level, s16 *posBottom)
+static void VehBirth_SetStartlinePosition(struct Driver *d, struct Level *level, SVec3 *posBottom)
 {
 	u8 spawnIndex = VehBirth_GetStartlineIndex(d);
 
-	d->actionsFlagSet |= 0x1000000;
+	d->actionsFlagSet |= ACTION_BEHIND_START_LINE;
 #ifdef CTR_NATIVE
 	if (level->ptr_restart_points == NULL)
 	{
@@ -116,9 +116,9 @@ static int VehBirth_ScaleTrig(int trig, int scale)
 // NOTE(aalhendi): PSX path ASM-verified NTSC-U 926 0x80057c8c-0x80058898.
 void VehBirth_TeleportSelf(struct Driver *d, u8 spawnFlag, int spawnPosY)
 {
-	s16 posTop[3];
-	s16 posBottom[3];
-	s16 warppadPos[3];
+	SVec3 posTop;
+	SVec3 posBottom;
+	SVec3 warppadPos;
 
 	struct GameTracker *gGT = sdata->gGT;
 	struct Level *level1 = gGT->level1;
@@ -148,9 +148,9 @@ void VehBirth_TeleportSelf(struct Driver *d, u8 spawnFlag, int spawnPosY)
 
 	if ((spawnFlag & 1) == 0)
 	{
-		posBottom[0] = d->posCurr.x >> 8;
-		posBottom[1] = (d->posCurr.y >> 8) + 0x80;
-		posBottom[2] = d->posCurr.z >> 8;
+		posBottom.x = d->posCurr.x >> 8;
+		posBottom.y = (d->posCurr.y >> 8) + 0x80;
+		posBottom.z = d->posCurr.z >> 8;
 	}
 	else
 	{
@@ -167,85 +167,66 @@ void VehBirth_TeleportSelf(struct Driver *d, u8 spawnFlag, int spawnPosY)
 			int rotY = doorInst->rot[1];
 
 			gGT->gameMode2 |= VEH_FREEZE_DOOR;
-			posBottom[0] = doorInst->pos[0] + VehBirth_ScaleTrig(MATH_Cos(rotY), 800) + VehBirth_ScaleTrig(MATH_Cos(rotY + 0x400), 0x200);
-			posBottom[1] = doorInst->pos[1] + 0x17a;
-			posBottom[2] = doorInst->pos[2] + VehBirth_ScaleTrig(MATH_Sin(rotY), 800) + VehBirth_ScaleTrig(MATH_Sin(rotY + 0x400), 0x200);
+			posBottom.x = doorInst->pos[0] + VehBirth_ScaleTrig(MATH_Cos(rotY), 800) + VehBirth_ScaleTrig(MATH_Cos(rotY + 0x400), 0x200);
+			posBottom.y = doorInst->pos[1] + 0x17a;
+			posBottom.z = doorInst->pos[2] + VehBirth_ScaleTrig(MATH_Sin(rotY), 800) + VehBirth_ScaleTrig(MATH_Sin(rotY + 0x400), 0x200);
 		}
 		else if (spawnOutsideBoss != 0)
 		{
 			advSpawn = VehBirth_SpawnType2PosRot(level1);
-			VehBirth_SetBottomFromPos(posBottom, advSpawn[1].pos);
+			VehBirth_SetBottomFromPos(&posBottom, advSpawn[1].pos);
 		}
 		else if ((gGT->gameMode1 & ADVENTURE_ARENA) == 0)
 		{
-			VehBirth_SetStartlinePosition(d, level1, posBottom);
+			VehBirth_SetStartlinePosition(d, level1, &posBottom);
 		}
 		else if (gGT->podiumRewardID == NOFUNC)
 		{
 			if ((gGT->prevLEV == MAIN_MENU_LEVEL) || (gGT->prevLEV == ADVENTURE_GARAGE) || (gGT->prevLEV == -1) || (gGT->prevLEV == SCRAPBOOK) ||
 			    ((u32)(gGT->prevLEV - CREDITS_CRASH) < 0x14))
 			{
-				VehBirth_SetStartlinePosition(d, level1, posBottom);
+				VehBirth_SetStartlinePosition(d, level1, &posBottom);
 			}
 			else
 			{
-				warppadRot = AH_WarpPad_GetSpawnPosRot(warppadPos);
-				VehBirth_SetBottomFromPos(posBottom, warppadPos);
+				warppadRot = AH_WarpPad_GetSpawnPosRot(warppadPos.v);
+				VehBirth_SetBottomFromPos(&posBottom, warppadPos.v);
 			}
 		}
 		else
 		{
 			advSpawn = VehBirth_SpawnType2PosRot(level1);
-			VehBirth_SetBottomFromPos(posBottom, advSpawn[0].pos);
+			VehBirth_SetBottomFromPos(&posBottom, advSpawn[0].pos);
 		}
 	}
 
-	posTop[0] = posBottom[0];
-	posTop[1] = posBottom[1] - 0x100;
-	posTop[2] = posBottom[2];
+	posTop.x = posBottom.x;
+	posTop.y = posBottom.y - 0x100;
+	posTop.z = posBottom.z;
 
+	COLL_SearchBSP_CallbackQUADBLK(&posTop, &posBottom, sps, 0);
+
+	if (sps->boolDidTouchQuadblock == 0)
 	{
-		// search for ground and wall flags,
-		// exclude no flags (take 'any' ground/wall)
-		// collision triangles, 2 (low-LOD), 8 (hi-LOD)
-		COLL_SearchBSP_CallbackQUADBLK(posTop, posBottom, sps, 0);
-
-		// if collision was not found
-		if (sps->boolDidTouchQuadblock == 0)
-		{
-			d->AxisAngle3_normalVec = (SVec3){.x = 0, .y = FP_ONE, .z = 0};
-		}
-		// if it was found
-		else
-		{
-			d->AxisAngle3_normalVec = sps->hit.plane.normal;
-			d->lastValid = sps->hit.ptrQuadblock;
-		}
-
-		// set all normal vectors to spawn
-		d->AxisAngle1_normalVec = d->AxisAngle3_normalVec;
-		d->AxisAngle2_normalVec = d->AxisAngle3_normalVec;
-
-		// for (int i = 0; i < 1; i++) // maybe this is done two times, because it was a do-while?
-		{
-			// set normal vector to spawn
-			d->AxisAngle4_normalVec = d->AxisAngle2_normalVec;
-			// iVar9 = iVar9 + 8;
-		}
-
-		// player structure X, Y, Z
-		d->posCurr.x = (int)(sps->Union.QuadBlockColl.hitPos.x) << 8;
-		d->posCurr.y = (int)(sps->Union.QuadBlockColl.hitPos.y + spawnPosY) * 0x100;
-		d->posCurr.z = (int)(sps->Union.QuadBlockColl.hitPos.z) << 8;
-
-		// duplicate of coordinate variables
-		d->posPrev.x = d->posCurr.x;
-		d->posPrev.y = d->posCurr.y;
-		d->posPrev.z = d->posCurr.z;
-
-		// save quadblock height
-		d->quadBlockHeight = (int)sps->Union.QuadBlockColl.hitPos.y << 8;
+		d->AxisAngle3_normalVec = (SVec3){.x = 0, .y = FP_ONE, .z = 0};
 	}
+	else
+	{
+		d->AxisAngle3_normalVec = sps->hit.plane.normal;
+		d->lastValid = sps->hit.ptrQuadblock;
+	}
+
+	d->AxisAngle1_normalVec = d->AxisAngle3_normalVec;
+	d->AxisAngle2_normalVec = d->AxisAngle3_normalVec;
+	d->AxisAngle4_normalVec = d->AxisAngle2_normalVec;
+
+	d->posCurr.x = (int)(sps->Union.QuadBlockColl.hitPos.x) << 8;
+	d->posCurr.y = (int)(sps->Union.QuadBlockColl.hitPos.y + spawnPosY) * 0x100;
+	d->posCurr.z = (int)(sps->Union.QuadBlockColl.hitPos.z) << 8;
+	d->posPrev.x = d->posCurr.x;
+	d->posPrev.y = d->posCurr.y;
+	d->posPrev.z = d->posCurr.z;
+	d->quadBlockHeight = (int)sps->Union.QuadBlockColl.hitPos.y << 8;
 
 	if ((spawnFlag & 1) != 0)
 	{
@@ -341,8 +322,7 @@ void VehBirth_TeleportSelf(struct Driver *d, u8 spawnFlag, int spawnPosY)
 	dInst->scale[1] = 0xCCC;
 	dInst->scale[2] = 0xCCC;
 
-	// turn off 7th and 20th bits of Actions Flag set (means ? (7) and racer is not in the air (20))
-	d->actionsFlagSet &= ~(0x80040);
+	d->actionsFlagSet &= ~(ACTION_AIRBORNE | ACTION_HIGH_JUMP);
 
 	if ((spawnFlag & 2) == 0)
 		return;
@@ -357,7 +337,7 @@ void VehBirth_TeleportSelf(struct Driver *d, u8 spawnFlag, int spawnPosY)
 		dInst->thread->funcThTick = ((gGT->gameMode1 & (GAME_CUTSCENE | MAIN_MENU)) == 0) ? NULL : VehBirth_NullThread;
 
 		// set OnInit function
-		d->funcPtrs[0] = ((gGT->gameMode1 & ADVENTURE_ARENA) == 0) ? VehStuckProc_RevEngine_Init : VehPhysProc_Driving_Init;
+		d->funcPtrs[DRIVER_FUNC_INIT] = ((gGT->gameMode1 & ADVENTURE_ARENA) == 0) ? VehStuckProc_RevEngine_Init : VehPhysProc_Driving_Init;
 	}
 
 	d->lapIndex = 0;
@@ -365,9 +345,7 @@ void VehBirth_TeleportSelf(struct Driver *d, u8 spawnFlag, int spawnPosY)
 	d->lapTime = 0;
 	d->distanceToFinish_curr = 0;
 
-	// turn off 21th and 26th flags of Actions Flag set
-	//(means racer is not an AI and racer hasn't finished the race)
-	d->actionsFlagSet &= ~(0x2100000);
+	d->actionsFlagSet &= ~(ACTION_RACE_FINISHED | ACTION_BEHIND_START_LINE);
 
 	if ((gGT->gameMode2 & CHEAT_WUMPA) != 0)
 		d->numWumpas = 99;
@@ -669,7 +647,7 @@ void VehBirth_NonGhost(struct Thread *t, int index)
 	{
 		// dont update, make invisible
 		t->funcThTick = VehBirth_NullThread;
-		inst->flags |= 0x80;
+		inst->flags |= HIDE_MODEL;
 	}
 }
 
@@ -683,7 +661,7 @@ struct Driver *VehBirth_Player(int index)
 
 	VehBirth_NonGhost(t, index);
 
-	d->funcPtrs[0] = VehPhysProc_Driving_Init;
+	d->funcPtrs[DRIVER_FUNC_INIT] = VehPhysProc_Driving_Init;
 
 	d->BattleHUD.teamID = sdata->gGT->battleSetup.teamOfEachPlayer[index];
 

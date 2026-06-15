@@ -21,7 +21,7 @@ void RB_MovingExplosive_Explode(struct Thread *t, struct Instance *inst, struct 
 		if (d != NULL)
 		{
 			// remove 2D square-target being drawn on the player's screen
-			d->actionsFlagSet &= 0xfbffffff;
+			d->actionsFlagSet &= ~ACTION_TRACKER_TARGETED;
 		}
 		// missile explode
 		soundId = 0x4c;
@@ -36,6 +36,6 @@ void RB_MovingExplosive_Explode(struct Thread *t, struct Instance *inst, struct 
 	RB_Burst_Init(inst);
 
 	// This thread is now dead
-	t->flags |= 0x800;
+	t->flags |= THREAD_FLAG_DEAD;
 	return;
 }

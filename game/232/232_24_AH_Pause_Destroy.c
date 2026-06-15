@@ -20,5 +20,5 @@ void AH_Pause_Destroy(void)
 
 	// kill thread
 	D232.ptrPauseObject = 0;
-	ptrPauseObject->t->flags |= 0x800;
+	ptrPauseObject->t->flags |= THREAD_FLAG_DEAD;
 }

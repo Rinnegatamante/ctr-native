@@ -112,7 +112,7 @@ SkipLerp:
 		sdata->talkMask_boolDead = 0;
 
 		// dead thread
-		t->flags |= 0x800;
+		t->flags |= THREAD_FLAG_DEAD;
 	}
 }
 

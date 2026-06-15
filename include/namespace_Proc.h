@@ -43,6 +43,12 @@ enum THREAD_BUCKET
 	NUM_BUCKETS // 0x12
 };
 
+typedef enum ThreadFlags : u32
+{
+	THREAD_FLAG_DEAD = 0x0800,
+	THREAD_FLAG_DISABLE_COLLISION = 0x1000,
+} ThreadFlags;
+
 struct Thread
 {
 	// 0x0
@@ -162,6 +168,8 @@ struct DriverCollisionSearch
 
 _Static_assert(offsetof(struct DriverCollisionSearch, bucket) == 0);
 _Static_assert(offsetof(struct DriverCollisionSearch, hitDir) == sizeof(struct BucketSearchParams));
+_Static_assert(THREAD_FLAG_DEAD == 0x0800);
+_Static_assert(THREAD_FLAG_DISABLE_COLLISION == 0x1000);
 
 // These are used to recursively
 // search threads with unidirectional

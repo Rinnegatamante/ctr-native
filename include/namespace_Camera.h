@@ -30,6 +30,49 @@ struct FlyInData
 	s16 frameCount2;
 };
 
+enum
+{
+	CAM_FOLLOW_DRIVER_ANGLE_AXIS_WORK_SIZE = 0x258,
+};
+
+struct CameraFireSpeedZoom
+{
+	// 0x0
+	s32 distanceOffset;
+
+	// 0x4
+	s32 timer;
+};
+
+struct CameraHeightSmoothing
+{
+	// 0x0
+	s16 startOffset;
+
+	// 0x2
+	s16 framesRemaining;
+
+	// 0x4
+	s16 currentOffset;
+};
+
+typedef enum CameraFlags : u32
+{
+	CAMERA_FLAG_RESET_RAIN_POS = 0x1,
+	CAMERA_FLAG_BATTLE_END_OF_RACE = 0x4,
+	CAMERA_FLAG_DIRECTION_CHANGED = 0x8,
+	CAMERA_FLAG_MASK_GRAB = 0x10,
+	CAMERA_FLAG_ARCADE_END_OF_RACE_REQUESTED = 0x20,
+	CAMERA_FLAG_FIRE_SPEED_ZOOM = 0x80,
+	CAMERA_FLAG_TRACK_PATH_ALT_BRANCH = 0x100,
+	CAMERA_FLAG_TRANSITION_AWAY = 0x200,
+	CAMERA_FLAG_TRANSITION_BACK = 0x400,
+	CAMERA_FLAG_TRANSITION_HOLD = 0x800,
+	CAMERA_FLAG_ARCADE_END_OF_RACE_ACTIVE = 0x1000,
+	CAMERA_FLAG_FROZEN = 0x8000,
+	CAMERA_FLAG_REVERSE = 0x10000,
+} CameraFlags;
+
 struct CameraDC
 {
 	// 0x0
@@ -57,7 +100,7 @@ struct CameraDC
 	// 0x18
 	s16 unk18;
 	// 0x1a
-	s16 unk1A;
+	s16 damagePitchOffset;
 
 	// 0x1c - ptrQuadBlock
 	// similar to driver +a0,
@@ -86,7 +129,10 @@ struct CameraDC
 	int *visSCVertSrc;
 
 	// 0x34
-	char unk30fill[0xC];
+	char padding34[8];
+
+	// 0x3c
+	b32 quadBlockSearchHit;
 
 	// 96b20+14c0
 
@@ -100,67 +146,48 @@ struct CameraDC
 	struct PushBuffer *pushBuffer;
 
 	// 0x4C
-	// vel[3]
-	int unkTriplet1[3];
+	Vec3 pushBufferPosCorrection;
 
 	// 0x58
-	// pos[3]
-	int unkTriplet2[3];
+	Vec3 cameraPos;
 
 	// 0x64
-	// rot[3]
-	int unkTriplet3[3];
+	Vec3 lookAtPos;
 
-	// 0x70 - flags
-	// & 1 - search "+ 0x1508) | 1;", resets RainBuffer cameraPos
-	// & 4 - battle end-of-race
-	// & 8 - just changed direction (forward or backward) this frame
-	// & 0x10 - mask grab
-	// & 0x20 - arcade end-of-race (requested)
-	// & 0x100 - changes TrackPath from point->0x4 to point->0x9
-	// & 0x200 - (aku hints + save/load) transitioning away from player
-	// & 0x400 - (aku hints + save/load) snap to player, or transition to player if 0x600
-	// & 0x800 - (aku hints + save/load) stationary away from player
-	// & 0x1000 - arcade end-of-race (active)
-	// & 0x8000 - frozen camera (disables thread, for character select)
-	// & 0x10000 - reverse camera
-	u32 flags;
+	// 0x70
+	CameraFlags flags;
 
 	// 0x74 (cam->0x9a is 8 or 0xe)
-	s16 driverOffset_CamEyePos[3];
-	s16 unk7A;
+	SVec3 driverOffset_CamEyePos;
+	s16 angleAxisLerpRatio;
 
 	// 0x7c (cam->0x9a is 8 or 0xe)
-	s16 driverOffset_CamLookAtPos[3];
+	SVec3 driverOffset_CamLookAtPos;
 	s16 unk82;
 
-	// 0x84
-	u32 driver5B0_prevFrame;
+	// 0x84 - previous Driver.botData.botFlags
+	u32 botFlagsPrevFrame;
 
-	// 0x88 - used in CAM_FollowDriver_TrackPath
-	void *unk88;
+	// 0x88
+	struct CheckpointNode *trackPathNode;
 
-	// 0x8C - Interpolate from fly-in
-	// camera to driver, 0x0000 is fly-in,
-	// 0x1000 is driver, and between is interpolation
-	s16 unk8C;
+	// 0x8C - Q12 blend: 0x0000 is transition camera, 0x1000 is driver camera
+	s16 transitionBlend;
 
-	// 0x8E - timer for fly-in camera
-	// animation at beginning of 1P Arcade,
-	// search "+ 0x1526" for more details
-	s16 unk8E;
+	// 0x8E - current frame/ramp for camera transitions
+	s16 transitionFrame;
 
-	// 0x90 - used in Spin360
-	s16 unk90;
+	// 0x90
+	s16 spin360Angle;
 
-	// zoom variable
-	s16 unk92;
+	// 0x92 - near/far camera toggle state
+	s16 zoomToggleState;
 
 	// 0x94
-	int unk94;
+	s32 trackPathProgress;
 
 	// 0x98
-	s16 unk98;
+	s16 maskGrabHeightOffset;
 
 	// 0x9a - semi-unused camera mode swap
 	s16 cameraMode; // Curr
@@ -168,13 +195,11 @@ struct CameraDC
 	// 0x9C
 	s16 cameraModePrev; // previous frame
 
-	// 0x9e - frame counter for transition
-	s16 frameCounterTransition;
+	// 0x9e - transition duration in frames
+	s16 transitionFrameCount;
 
 	// 0xa0
 	void *currEOR;
-
-	// difference between 8e and 9e?
 
 	// 0xa4
 	// union shared between camera modes
@@ -185,26 +210,23 @@ struct CameraDC
 		s16 rot[3];
 	} transitionTo;
 
-	// 0xb0 - next byte
-	// union between multiple camera modes
-	// TrackPath uses 0xb0 for movement speed
-	char unk_b0[8];
+	// 0xb0 - union between multiple end-of-race camera modes
+	union
+	{
+		s16 trackPathSpeed;
 
-	// X axis (0xb8)
-	char unk_b8[8];
+		struct
+		{
+			SVec3 endPos;
+			s16 speed;
+		} pointPath;
+	} eorModeData;
 
-	// 0xb8 - ms countdown timer
-	// 0xbc - ms countdown timer
+	// 0xb8
+	struct CameraFireSpeedZoom fireSpeedZoom;
 
-	// Y axis (0xc0)
-	int unk_c0;
-
-	// 0xc0 - distance per frame
-
-	// 0xc2 - frameCountdown
-
-	// 0xc4
-	s16 framesZoomingOut;
+	// 0xc0
+	struct CameraHeightSmoothing heightSmoothing;
 
 // Sep3
 #if BUILD < UsaRetail
@@ -244,6 +266,54 @@ struct CameraDC
 };
 
 _Static_assert(sizeof(struct ZoomData) == 0x12);
+_Static_assert(sizeof(CameraFlags) == 0x4);
+_Static_assert(CAMERA_FLAG_RESET_RAIN_POS == 0x1);
+_Static_assert(CAMERA_FLAG_BATTLE_END_OF_RACE == 0x4);
+_Static_assert(CAMERA_FLAG_DIRECTION_CHANGED == 0x8);
+_Static_assert(CAMERA_FLAG_MASK_GRAB == 0x10);
+_Static_assert(CAMERA_FLAG_ARCADE_END_OF_RACE_REQUESTED == 0x20);
+_Static_assert(CAMERA_FLAG_FIRE_SPEED_ZOOM == 0x80);
+_Static_assert(CAMERA_FLAG_TRACK_PATH_ALT_BRANCH == 0x100);
+_Static_assert(CAMERA_FLAG_TRANSITION_AWAY == 0x200);
+_Static_assert(CAMERA_FLAG_TRANSITION_BACK == 0x400);
+_Static_assert(CAMERA_FLAG_TRANSITION_HOLD == 0x800);
+_Static_assert(CAMERA_FLAG_ARCADE_END_OF_RACE_ACTIVE == 0x1000);
+_Static_assert(CAMERA_FLAG_FROZEN == 0x8000);
+_Static_assert(CAMERA_FLAG_REVERSE == 0x10000);
+_Static_assert(sizeof(struct CameraFireSpeedZoom) == 0x8);
+_Static_assert(offsetof(struct CameraFireSpeedZoom, distanceOffset) == 0x0);
+_Static_assert(offsetof(struct CameraFireSpeedZoom, timer) == 0x4);
+_Static_assert(sizeof(struct CameraHeightSmoothing) == 0x6);
+_Static_assert(offsetof(struct CameraHeightSmoothing, startOffset) == 0x0);
+_Static_assert(offsetof(struct CameraHeightSmoothing, framesRemaining) == 0x2);
+_Static_assert(offsetof(struct CameraHeightSmoothing, currentOffset) == 0x4);
+_Static_assert(offsetof(struct CameraDC, damagePitchOffset) == 0x1a);
+_Static_assert(offsetof(struct CameraDC, quadBlockSearchHit) == 0x3c);
+_Static_assert(offsetof(struct CameraDC, pushBufferPosCorrection) == 0x4c);
+_Static_assert(offsetof(struct CameraDC, cameraPos) == 0x58);
+_Static_assert(offsetof(struct CameraDC, lookAtPos) == 0x64);
+_Static_assert(offsetof(struct CameraDC, flags) == 0x70);
+_Static_assert(sizeof(((struct CameraDC *)0)->flags) == 0x4);
+_Static_assert(offsetof(struct CameraDC, driverOffset_CamEyePos) == 0x74);
+_Static_assert(offsetof(struct CameraDC, angleAxisLerpRatio) == 0x7a);
+_Static_assert(offsetof(struct CameraDC, driverOffset_CamLookAtPos) == 0x7c);
+_Static_assert(offsetof(struct CameraDC, unk82) == 0x82);
+_Static_assert(offsetof(struct CameraDC, botFlagsPrevFrame) == 0x84);
+_Static_assert(offsetof(struct CameraDC, trackPathNode) == 0x88);
+_Static_assert(offsetof(struct CameraDC, transitionBlend) == 0x8c);
+_Static_assert(offsetof(struct CameraDC, transitionFrame) == 0x8e);
+_Static_assert(offsetof(struct CameraDC, spin360Angle) == 0x90);
+_Static_assert(offsetof(struct CameraDC, zoomToggleState) == 0x92);
+_Static_assert(offsetof(struct CameraDC, trackPathProgress) == 0x94);
+_Static_assert(offsetof(struct CameraDC, maskGrabHeightOffset) == 0x98);
+_Static_assert(offsetof(struct CameraDC, transitionFrameCount) == 0x9e);
+_Static_assert(offsetof(struct CameraDC, eorModeData) == 0xb0);
+_Static_assert(offsetof(struct CameraDC, eorModeData.trackPathSpeed) == 0xb0);
+_Static_assert(offsetof(struct CameraDC, eorModeData.pointPath.endPos) == 0xb0);
+_Static_assert(offsetof(struct CameraDC, eorModeData.pointPath.speed) == 0xb6);
+_Static_assert(sizeof(((struct CameraDC *)0)->eorModeData) == 0x8);
+_Static_assert(offsetof(struct CameraDC, fireSpeedZoom) == 0xb8);
+_Static_assert(offsetof(struct CameraDC, heightSmoothing) == 0xc0);
 #if BUILD >= UsaRetail
 _Static_assert(sizeof(struct CameraDC) == 0xDC);
 #else

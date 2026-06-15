@@ -21,7 +21,7 @@ void RB_Hazard_ThCollide_Missile(struct Thread *thread)
 		if (driver != 0)
 		{
 			// remove 2D square-target being drawn on the player's screen
-			driver->actionsFlagSet &= 0xfbffffff;
+			driver->actionsFlagSet &= ~ACTION_TRACKER_TARGETED;
 		}
 
 		// play audio of explosion
@@ -31,7 +31,7 @@ void RB_Hazard_ThCollide_Missile(struct Thread *thread)
 		OtherFX_RecycleMute(&tw->audioPtr);
 
 		// kill thread
-		thread->flags |= 0x800;
+		thread->flags |= THREAD_FLAG_DEAD;
 	}
 
 	return;

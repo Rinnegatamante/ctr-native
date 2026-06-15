@@ -49,7 +49,7 @@ Skip:
 	extraFlags = 0x80;
 
 	// if echo is required
-	if ((driver->actionsFlagSet & 0x10000) != 0)
+	if ((driver->actionsFlagSet & ACTION_ENGINE_ECHO) != 0)
 	{
 		// add echo
 		extraFlags |= 0x1000000;
@@ -90,7 +90,7 @@ void VehFire_Increment(struct Driver *driver, int reserves, u32 type, int fireLe
 	    ((type & 4) != 0) &&
 
 	    // racer is in accel prevention (holding square)
-	    ((driver->actionsFlagSet & 8) != 0))
+	    ((driver->actionsFlagSet & ACTION_ACCEL_PREVENTION) != 0))
 	{
 		// do nothing
 		return;
@@ -119,7 +119,7 @@ void VehFire_Increment(struct Driver *driver, int reserves, u32 type, int fireLe
 		return;
 
 	// Clear the turbo input latch and mark an outside turbo.
-	driver->actionsFlagSet = driver->actionsFlagSet & 0xffffff7f | 0x200000;
+	driver->actionsFlagSet = (driver->actionsFlagSet & ~ACTION_TURBO_INPUT_LATCH) | ACTION_NEW_BOOST;
 
 	// turbo thread bucket
 	turboThread = gGT->threadBuckets[TURBO].thread;
@@ -176,7 +176,7 @@ void VehFire_Increment(struct Driver *driver, int reserves, u32 type, int fireLe
 		{
 			// get thread, ignore all collisions
 			turboThread = turboInst1->thread;
-			turboThread->flags |= 0x1000;
+			turboThread->flags |= THREAD_FLAG_DISABLE_COLLISION;
 
 			// get object, set essentials
 			turboObj = turboThread->object;
@@ -244,14 +244,14 @@ void VehFire_Increment(struct Driver *driver, int reserves, u32 type, int fireLe
 		turboInst2 = turboObj->inst;
 
 		// remove "dead thread" flag
-		turboThread->flags &= 0xfffff7ff;
+		turboThread->flags &= ~THREAD_FLAG_DEAD;
 
 		// turbo pad
 		if ((type & 4) != 0)
 		{
 			// only increase counter on the first frame of turbo pad
 
-			if ((driver->actionsFlagSetPrevFrame & 0x200000) == 0)
+			if ((driver->actionsFlagSetPrevFrame & ACTION_NEW_BOOST) == 0)
 			{
 				driver->numTurbos = (s16)CTR_MipsAddLo((u16)driver->numTurbos, 1);
 
@@ -289,7 +289,7 @@ void VehFire_Increment(struct Driver *driver, int reserves, u32 type, int fireLe
 			if (
 			    // if racer is not getting an Outside turbo (turbo pad or powerup),
 			    // this prevents audio-spam from multiple boosts
-			    ((driver->actionsFlagSet & 0x200000) == 0) || ((driver->actionsFlagSetPrevFrame & 0x200000) == 0))
+			    ((driver->actionsFlagSet & ACTION_NEW_BOOST) == 0) || ((driver->actionsFlagSetPrevFrame & ACTION_NEW_BOOST) == 0))
 
 			{
 				turboObj->fireAudioDistort = 0;
@@ -318,7 +318,7 @@ void VehFire_Increment(struct Driver *driver, int reserves, u32 type, int fireLe
 	        // Current speed cap is greater than 0x1000
 	        // AND
 	        // You are not on a super turbo pad
-	        (int)driver->const_SacredFireSpeed < (int)driver->fireSpeedCap && ((driver->stepFlagSet & 2) == 0)))
+	        (int)driver->const_SacredFireSpeed < (int)driver->fireSpeedCap && ((driver->stepFlagSet & COLL_STEP_TRIGGER_SUPER_TURBO_PAD) == 0)))
 
 	{
 		driver->fireSpeedCap = (s16)newFireSpeedCap;
@@ -333,11 +333,10 @@ void VehFire_Increment(struct Driver *driver, int reserves, u32 type, int fireLe
 		}
 	}
 
-	// boost powerup
-	if (type & 8)
+	// turbo item boost
+	if ((type & TURBO_ITEM) != 0)
 	{
-		// turn on 14th bit of Actions Flag set (means racer is driving against a wall)
-		driver->actionsFlagSet |= 0x200;
+		driver->actionsFlagSet |= ACTION_TURBO_ITEM;
 	}
 
 	// turbo pad, boost powerup

@@ -59,13 +59,13 @@ void VehPhysGeneral_PhysAngular(struct Thread *thread, struct Driver *driver)
 	if (forwardDir < 0)
 	{
 		rotCurrW_interp = CTR_MipsNegLo(CTR_MipsSll(simpTurnState, 8));
-		actionsFlagSet = actionsFlagSet ^ 0x10;
+		actionsFlagSet ^= ACTION_STEER_LEFT;
 	}
 	if (speedApprox < 0)
 	{
 		speedApprox = CTR_MipsNegLo(speedApprox);
 	}
-	if (((actionsFlagSet & 1) != 0) && ((driver->stepFlagSet & 3) == 0))
+	if (((actionsFlagSet & ACTION_TOUCH_GROUND) != 0) && ((driver->stepFlagSet & COLL_STEP_TRIGGER_TURBO_PAD_MASK) == 0))
 	{
 		rotCurrW_interp = VehCalc_MapToRange(speedApprox, 0x10, 0x300, 0, rotCurrW_interp);
 	}
@@ -73,7 +73,8 @@ void VehPhysGeneral_PhysAngular(struct Thread *thread, struct Driver *driver)
 	rotCurrW_original = (int)driver->rotationSpinRate;
 	if (rotCurrW_interp == 0)
 	{
-		int rate = CTR_MipsSra(CTR_MipsMulLo(CTR_MipsAddLo(driver->const_TurnInputDelay, CTR_MipsMulLo((s8)driver->turnConst, 0x32)), terrain->friction), 8);
+		int rate =
+		    CTR_MipsSra(CTR_MipsMulLo(CTR_MipsAddLo(driver->const_TurnInputDelay, CTR_MipsMulLo((s8)driver->turnConst, 0x32)), terrain->turnResponseScale), 8);
 
 		rotCurrW_interp = VehCalc_InterpBySpeed(rotCurrW_original, rate, 0);
 
@@ -89,7 +90,8 @@ void VehPhysGeneral_PhysAngular(struct Thread *thread, struct Driver *driver)
 		}
 		if (rotCurrW_original < rotCurrW_interp)
 		{
-			int rate = CTR_MipsSra(CTR_MipsMulLo(CTR_MipsAddLo(driver->const_TurnInputDelay, CTR_MipsMulLo((s8)driver->turnConst, 100)), terrain->friction), 8);
+			int rate = CTR_MipsSra(
+			    CTR_MipsMulLo(CTR_MipsAddLo(driver->const_TurnInputDelay, CTR_MipsMulLo((s8)driver->turnConst, 100)), terrain->turnResponseScale), 8);
 			rotCurrW_original = CTR_MipsAddLo(rotCurrW_original, rate);
 
 			char_interpLessThanOG = rotCurrW_interp < rotCurrW_original;
@@ -101,7 +103,8 @@ void VehPhysGeneral_PhysAngular(struct Thread *thread, struct Driver *driver)
 		}
 		else if (rotCurrW_interp < rotCurrW_original)
 		{
-			int rate = CTR_MipsSra(CTR_MipsMulLo(CTR_MipsAddLo(driver->const_TurnInputDelay, CTR_MipsMulLo((s8)driver->turnConst, 50)), terrain->friction), 8);
+			int rate = CTR_MipsSra(
+			    CTR_MipsMulLo(CTR_MipsAddLo(driver->const_TurnInputDelay, CTR_MipsMulLo((s8)driver->turnConst, 50)), terrain->turnResponseScale), 8);
 			rotCurrW_original = CTR_MipsSubLo(rotCurrW_original, rate);
 
 			char_interpLessThanOG = rotCurrW_original < rotCurrW_interp;
@@ -140,13 +143,13 @@ void VehPhysGeneral_PhysAngular(struct Thread *thread, struct Driver *driver)
 	turnResistMinBitshift = CTR_MipsSra(turnResistMin, 8);
 
 	// gas and brake together
-	if ((actionsFlagSet & 0x20) != 0)
+	if ((actionsFlagSet & ACTION_BRAKE_WITH_ACCEL) != 0)
 	{
 		turnResistMaxBitshift = CTR_MipsSra(turnResistMax, 9);
 		if (0x300 < speedApprox)
 		{
 			// driver is leaving skids
-			driver->actionsFlagSet = driver->actionsFlagSet | 0x800;
+			driver->actionsFlagSet |= ACTION_BACK_SKID;
 		}
 		turnResistMinBitshift = CTR_MipsSra(turnResistMin, 9);
 		if (driver->baseSpeed == 0)
@@ -208,14 +211,14 @@ void VehPhysGeneral_PhysAngular(struct Thread *thread, struct Driver *driver)
 
 	classSpeed_halved = (int)(s16)driver->unk_LerpToForwards;
 
-	if (terrain->unk_0x20[1] != 0x100)
+	if (terrain->turnAngleScale != 0x100)
 	{
-		classSpeed_halved = CTR_MipsSra(CTR_MipsMulLo(terrain->unk_0x20[1], classSpeed_halved), 8);
+		classSpeed_halved = CTR_MipsSra(CTR_MipsMulLo(terrain->turnAngleScale, classSpeed_halved), 8);
 	}
 	driftAngleCurr_Final = CTR_MipsAddLo(driftAngleCurr_og, CTR_MipsSra(CTR_MipsMulLo(classSpeed_halved, elapsedTimeMS), 5));
 	driver->turnAngleCurr = (s16)driftAngleCurr_Final;
 	turnResistMinBitshift = rotCurrW_original;
-	if ((0x2ff < speedApprox) && ((actionsFlagSet & 1) != 0))
+	if ((0x2ff < speedApprox) && ((actionsFlagSet & ACTION_TOUCH_GROUND) != 0))
 	{
 		turnResistMaxBitshift = VehCalc_SteerAccel(driver->numFramesSpentSteering, (int)driver->const_SteerAccel_Stage2_FirstFrame,
 		                                           (int)driver->const_SteerAccel_Stage2_FrameLength, (int)driver->const_SteerAccel_Stage4_FirstFrame,
@@ -238,7 +241,7 @@ void VehPhysGeneral_PhysAngular(struct Thread *thread, struct Driver *driver)
 		}
 
 		// steering left or right
-		if ((actionsFlagSet & 0x10) != 0)
+		if ((actionsFlagSet & ACTION_STEER_LEFT) != 0)
 		{
 			turnResistMaxBitshift = CTR_MipsNegLo(turnResistMaxBitshift);
 		}
@@ -266,7 +269,7 @@ void VehPhysGeneral_PhysAngular(struct Thread *thread, struct Driver *driver)
 	turnResistMax = (int)driver->unk3D4[0];
 	turnResistMaxBitshift = (int)driver->unk3D4[2];
 	rotCurrW_original = (int)driver->unk3D4[1];
-	if (((terrain->flags & 0x10U) == 0) && ((actionsFlagSet & 1) != 0))
+	if (((terrain->flags & TERRAIN_FLAG_SKIP_TURN_ASSIST) == 0) && ((actionsFlagSet & ACTION_TOUCH_GROUND) != 0))
 	{
 		turnResistMin = driftAngleCurr_Final;
 		if (driftAngleCurr_Final < 0)
@@ -353,11 +356,11 @@ LAB_80060284:
 
 	(driver->rotCurr).y = (s16)CTR_MipsAddLo(CTR_MipsAddLo(angle, (s16)driftAngleCurr_Final), forwardDir);
 
-	if (((actionsFlagSet & 8) == 0) && (driver->mashXUnknown < 7))
+	if (((actionsFlagSet & ACTION_ACCEL_PREVENTION) == 0) && (driver->mashXUnknown < 7))
 	{
-		if (terrain->unk14 != 0x100)
+		if (terrain->turnLeanScale != 0x100)
 		{
-			turnResistMinBitshift = CTR_MipsSra(CTR_MipsMulLo(turnResistMinBitshift, terrain->unk14), 8);
+			turnResistMinBitshift = CTR_MipsSra(CTR_MipsMulLo(turnResistMinBitshift, terrain->turnLeanScale), 8);
 		}
 	}
 	else
@@ -514,7 +517,7 @@ void VehPhysGeneral_JumpAndFriction(struct Thread *t, struct Driver *d)
 	// for every jump/friction impulse in this function.
 	gte_SetRotMatrix(&d->matrixMovingDir);
 
-	if ((d->kartState != KS_DRIFTING) && ((d->actionsFlagSet & 0x800000) == 0) && (d->reserves == 0))
+	if ((d->kartState != KS_DRIFTING) && ((d->actionsFlagSet & ACTION_MASK_WEAPON) == 0) && (d->reserves == 0))
 	{
 		int ampTurn = VehPhysGeneral_Jump_Abs(CTR_MipsSra((s16)d->ampTurnState, 8));
 
@@ -560,13 +563,13 @@ void VehPhysGeneral_JumpAndFriction(struct Thread *t, struct Driver *d)
 
 	int acceleration = 0;
 
-	if (((d->stepFlagSet & 3) != 0) && (d->baseSpeed > 0))
+	if (((d->stepFlagSet & COLL_STEP_TRIGGER_TURBO_PAD_MASK) != 0) && (d->baseSpeed > 0))
 	{
 		acceleration = 8000;
 	}
 	else if (d->baseSpeed != 0)
 	{
-		if (((d->terrainMeta1->flags & 4) == 0) || (d->baseSpeed < 1) || (d->speedApprox >= 0))
+		if (((d->terrainMeta1->flags & TERRAIN_FLAG_ACCEL_WHILE_REVERSE_SLIDING) == 0) || (d->baseSpeed < 1) || (d->speedApprox >= 0))
 		{
 			int speedApprox = d->speedApprox;
 			int absSpeedApprox = VehPhysGeneral_Jump_Abs(speedApprox);
@@ -579,7 +582,7 @@ void VehPhysGeneral_JumpAndFriction(struct Thread *t, struct Driver *d)
 
 		acceleration = CTR_MipsAddLo(d->const_Accel_ClassStat, CTR_MipsSll((s8)d->accelConst, 5) / 5);
 
-		if ((d->stepFlagSet & 3) == 0)
+		if ((d->stepFlagSet & COLL_STEP_TRIGGER_TURBO_PAD_MASK) == 0)
 		{
 			if ((d->reserves != 0) && (d->baseSpeed > 0))
 			{
@@ -587,7 +590,7 @@ void VehPhysGeneral_JumpAndFriction(struct Thread *t, struct Driver *d)
 			}
 
 			int slowUntilSpeed = d->terrainMeta1->slowUntilSpeed;
-			if ((slowUntilSpeed != 0x100) && ((d->actionsFlagSet & 0x800000) == 0))
+			if ((slowUntilSpeed != 0x100) && ((d->actionsFlagSet & ACTION_MASK_WEAPON) == 0))
 			{
 				acceleration = CTR_MipsSra(CTR_MipsMulLo(slowUntilSpeed, acceleration), 8);
 			}
@@ -648,9 +651,9 @@ PROCESS_ACCEL:
 		goto CHECK_FOR_ANY_JUMP;
 	}
 
-	if (d->jump_unknown != 0)
+	if (d->jump_HighJumpTimerMS != 0)
 	{
-		d->jump_unknown = 0x180;
+		d->jump_HighJumpTimerMS = 0x180;
 	}
 
 	if (d->kartState == KS_BLASTED)
@@ -663,9 +666,9 @@ PROCESS_ACCEL:
 	goto PROCESS_JUMP;
 
 CHECK_FOR_ANY_JUMP:
-	if (((d->actionsFlagSet & 0x8000) != 0) && (d->heldItemID == 5))
+	if (((d->actionsFlagSet & ACTION_WEAPON_FIRE_REQUEST) != 0) && (d->heldItemID == 5))
 	{
-		d->actionsFlagSet &= ~0x8000u;
+		d->actionsFlagSet &= ~ACTION_WEAPON_FIRE_REQUEST;
 
 		if ((d->jump_CoyoteTimerMS != 0) && (d->jump_CooldownMS == 0))
 		{
@@ -674,16 +677,16 @@ CHECK_FOR_ANY_JUMP:
 			int jumpForce = CTR_MipsAddLo(CTR_MipsSll(d->const_JumpForce, 3), d->const_JumpForce);
 			d->jump_InitialVelY = (s16)VehPhysGeneral_Jump_Div4TowardZero(jumpForce);
 
-			OtherFX_Play_Echo(9, 1, (d->actionsFlagSet >> 16) & 1);
+			OtherFX_Play_Echo(9, 1, (d->actionsFlagSet & ACTION_ENGINE_ECHO) != 0);
 
-			d->jump_unknown = 0x180;
+			d->jump_HighJumpTimerMS = 0x180;
 			goto PROCESS_JUMP;
 		}
 
 		d->noItemTimer = 0;
 	}
 
-	if (d->forcedJump_trampoline == 0)
+	if (d->forcedJumpType == FORCED_JUMP_NONE)
 	{
 		if ((d->jump_CoyoteTimerMS == 0) || (d->jump_TenBuffer == 0) || (d->jump_CooldownMS != 0))
 		{
@@ -713,7 +716,7 @@ CHECK_FOR_ANY_JUMP:
 		d->numberOfJumps = (s16)CTR_MipsAddLo((u16)d->numberOfJumps, 1);
 		d->jump_InitialVelY = d->const_JumpForce;
 
-		OtherFX_Play_Echo(8, 1, (d->actionsFlagSet >> 16) & 1);
+		OtherFX_Play_Echo(8, 1, (d->actionsFlagSet & ACTION_ENGINE_ECHO) != 0);
 	}
 	else
 	{
@@ -725,9 +728,9 @@ CHECK_FOR_ANY_JUMP:
 		d->jump_ForcedMS = 0xa0;
 
 		int jumpForce = CTR_MipsAddLo(CTR_MipsSll(d->const_JumpForce, 1), d->const_JumpForce);
-		if (d->forcedJump_trampoline == 2)
+		if (d->forcedJumpType == FORCED_JUMP_HIGH)
 		{
-			d->jump_unknown = 0x180;
+			d->jump_HighJumpTimerMS = 0x180;
 			d->jump_InitialVelY = (s16)jumpForce;
 		}
 		else
@@ -735,13 +738,13 @@ CHECK_FOR_ANY_JUMP:
 			d->jump_InitialVelY = (s16)VehPhysGeneral_Jump_Div2TowardZero(jumpForce);
 		}
 
-		d->forcedJump_trampoline = 0;
+		d->forcedJumpType = FORCED_JUMP_NONE;
 	}
 
 PROCESS_JUMP:
 	d->jump_CooldownMS = 0x180;
 	d->jump_TenBuffer = 0;
-	d->actionsFlagSet |= 0x480;
+	d->actionsFlagSet |= ACTION_JUMP_STARTED | ACTION_TURBO_INPUT_LATCH;
 
 	int bestJumpVelY = 0;
 	int jumpVelY = VehPhysGeneral_JumpGetVelY(d->AxisAngle4_normalVec.v, &movement);
@@ -1112,7 +1115,7 @@ int VehPhysGeneral_GetBaseSpeed(struct Driver *driver)
 	speedAdditional =
 	    CTR_MipsSra(CTR_MipsAddLo(CTR_MipsDiv(CTR_MipsMulLo(netWumpaFruitCount, netSpeedStat), 10), CTR_MipsMulLo(turboMultiplier, netSpeedStat)), 0xc);
 
-	if ((driver->actionsFlagSet & 0x800000) != 0)
+	if ((driver->actionsFlagSet & ACTION_MASK_WEAPON) != 0)
 	{
 		speedAdditional = CTR_MipsAddLo(speedAdditional, driver->const_MaskSpeed);
 	}

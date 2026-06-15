@@ -153,14 +153,14 @@ void AH_SaveObj_ThTick(struct Thread *t)
 					{
 						if (
 						    // if you aren't already returning to player
-						    ((uVar6 & 0x400) == 0) &&
+						    ((uVar6 & CAMERA_FLAG_TRANSITION_BACK) == 0) &&
 
 						    // if there's no Menu active
 						    (sdata->ptrActiveMenu == NULL))
 						{
 							// toggle flag to return, this either snaps back
 							// or transitions back depending on & 0x200 (like 0x600 or 0xe00)
-							gGT->cameraDC->flags = uVar6 | 0x400;
+							gGT->cameraDC->flags = uVar6 | CAMERA_FLAG_TRANSITION_BACK;
 						}
 					}
 				}

@@ -132,10 +132,10 @@ void VehPhysCrash_AI(struct Driver *bot, Vec3 *vel)
 	int botSpeed =
 	    CTR_MipsSra(CTR_MipsAddLo(CTR_MipsAddLo(CTR_MipsMulLo(forward[0], vel->x), CTR_MipsMulLo(forward[1], vel->y)), CTR_MipsMulLo(forward[2], vel->z)), 8);
 
-	bot->botData.unk5bc.ai_speedLinear = botSpeed;
-	bot->botData.unk5bc.ai_accelAxis[0] = CTR_MipsSubLo(vel->x, CTR_MipsSra(CTR_MipsMulLo(forward[0], botSpeed), 8));
-	bot->botData.botFlags |= 8;
-	bot->botData.unk5bc.ai_accelAxis[2] = CTR_MipsSubLo(vel->z, CTR_MipsSra(CTR_MipsMulLo(forward[2], botSpeed), 8));
+	bot->botData.aiPhysics.speedLinear = botSpeed;
+	bot->botData.aiPhysics.accelAxis[0] = CTR_MipsSubLo(vel->x, CTR_MipsSra(CTR_MipsMulLo(forward[0], botSpeed), 8));
+	bot->botData.botFlags |= BOT_FLAG_FREE_PHYSICS;
+	bot->botData.aiPhysics.accelAxis[2] = CTR_MipsSubLo(vel->z, CTR_MipsSra(CTR_MipsMulLo(forward[2], botSpeed), 8));
 }
 
 static void VehPhysCrash_Attack_SetReason(struct Driver *driver, u8 reason)
@@ -146,9 +146,9 @@ static void VehPhysCrash_Attack_SetReason(struct Driver *driver, u8 reason)
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8005d218-0x8005d404.
 int VehPhysCrash_Attack(struct Driver *driver1, struct Driver *driver2, int canPlayFeedback, int boolPlayBubblePop)
 {
-	if ((driver1->actionsFlagSet & 0x800000) == 0)
+	if ((driver1->actionsFlagSet & ACTION_MASK_WEAPON) == 0)
 	{
-		if ((driver2->actionsFlagSet & 0x800000) != 0)
+		if ((driver2->actionsFlagSet & ACTION_MASK_WEAPON) != 0)
 		{
 			driver1->ChangeState_param2 = 2;
 			VehPhysCrash_Attack_SetReason(driver1, 6);
@@ -156,7 +156,7 @@ int VehPhysCrash_Attack(struct Driver *driver1, struct Driver *driver2, int canP
 
 			if ((canPlayFeedback != 0) && (driver1->kartState != KS_BLASTED) && (driver1->invincibleTimer == 0))
 			{
-				OtherFX_DriverCrashing((driver1->actionsFlagSet >> 0x10) & 1, 0xff);
+				OtherFX_DriverCrashing((driver1->actionsFlagSet & ACTION_ENGINE_ECHO) != 0, 0xff);
 				Voiceline_RequestPlay(1, data.characterIDs[driver1->driverID], 0x10);
 			}
 		}
@@ -174,7 +174,7 @@ int VehPhysCrash_Attack(struct Driver *driver1, struct Driver *driver2, int canP
 
 			if ((canPlayFeedback != 0) && (driver1->kartState != KS_BLASTED) && (driver1->invincibleTimer == 0))
 			{
-				OtherFX_DriverCrashing((driver1->actionsFlagSet >> 0x10) & 1, 0xff);
+				OtherFX_DriverCrashing((driver1->actionsFlagSet & ACTION_ENGINE_ECHO) != 0, 0xff);
 
 				if (boolPlayBubblePop != 0)
 				{
@@ -185,9 +185,9 @@ int VehPhysCrash_Attack(struct Driver *driver1, struct Driver *driver2, int canP
 			}
 		}
 
-		if ((sdata->unk_8008d9f4[0] > 0xa00) && (driver2->reserves != 0) && ((driver2->actionsFlagSet & 0x200) != 0) && (driver1->reserves == 0))
+		if ((sdata->unk_8008d9f4[0] > 0xa00) && (driver2->reserves != 0) && ((driver2->actionsFlagSet & ACTION_TURBO_ITEM) != 0) && (driver1->reserves == 0))
 		{
-			driver2->forcedJump_trampoline = 2;
+			driver2->forcedJumpType = FORCED_JUMP_HIGH;
 
 			driver1->ChangeState_param2 = 3;
 			VehPhysCrash_Attack_SetReason(driver1, 5);
@@ -254,7 +254,7 @@ static void VehPhysCrash_PlayHumanFeedback(struct Thread *selfThread, struct Thr
 		if ((canPlayFeedback != 0) && (selfDriver->kartState != KS_BLASTED) && (selfDriver->invincibleTimer == 0) && (otherDriver->kartState != KS_BLASTED) &&
 		    (otherDriver->invincibleTimer == 0))
 		{
-			OtherFX_DriverCrashing((selfDriver->actionsFlagSet >> 0x10) & 1, volume);
+			OtherFX_DriverCrashing((selfDriver->actionsFlagSet & ACTION_ENGINE_ECHO) != 0, volume);
 
 			// NOTE(aalhendi): Retail uses DAT_8008d838. This field currently
 			// names the same USA address as the last audioDefaults slot.
@@ -275,8 +275,8 @@ static void VehPhysCrash_PlayHumanFeedback(struct Thread *selfThread, struct Thr
 	GAMEPAD_ShockForce1(selfDriver, 8, 0x7f);
 	GAMEPAD_JogCon1(selfDriver, (selfDriver->simpTurnState > 0) ? 0x29 : 0x19, 0x60);
 
-	selfDriver->actionsFlagSet |= 0x10000000;
-	otherDriver->actionsFlagSet |= 0x10000000;
+	selfDriver->actionsFlagSet |= ACTION_HUMAN_HUMAN_COLLISION;
+	otherDriver->actionsFlagSet |= ACTION_HUMAN_HUMAN_COLLISION;
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8005d404-0x8005e104
@@ -328,9 +328,9 @@ void VehPhysCrash_AnyTwoCars(struct Thread *thread, struct DriverCollisionSearch
 		}
 		else
 		{
-			otherVel.x = CTR_MipsAddLo(otherDriver->xSpeed, otherDriver->botData.unk5bc.ai_accelAxis[0]);
-			otherVel.y = CTR_MipsAddLo(otherDriver->ySpeed, otherDriver->botData.unk5bc.ai_accelAxis[1]);
-			otherVel.z = CTR_MipsAddLo(otherDriver->zSpeed, otherDriver->botData.unk5bc.ai_accelAxis[2]);
+			otherVel.x = CTR_MipsAddLo(otherDriver->xSpeed, otherDriver->botData.aiPhysics.accelAxis[0]);
+			otherVel.y = CTR_MipsAddLo(otherDriver->ySpeed, otherDriver->botData.aiPhysics.accelAxis[1]);
+			otherVel.z = CTR_MipsAddLo(otherDriver->zSpeed, otherDriver->botData.aiPhysics.accelAxis[2]);
 
 			VehPhysCrash_WeightedVelocity(&weightedVel, selfVel, selfDriver, &otherVel, otherDriver);
 			VehPhysCrash_BouncePair(hitDir, &weightedVel, &otherVel, selfVel);
@@ -349,9 +349,9 @@ void VehPhysCrash_AnyTwoCars(struct Thread *thread, struct DriverCollisionSearch
 		Vec3 otherVel;
 		Vec3 weightedVel;
 
-		otherVel.x = CTR_MipsAddLo(otherDriver->xSpeed, otherDriver->botData.unk5bc.ai_accelAxis[0]);
-		otherVel.y = CTR_MipsAddLo(otherDriver->ySpeed, otherDriver->botData.unk5bc.ai_accelAxis[1]);
-		otherVel.z = CTR_MipsAddLo(otherDriver->zSpeed, otherDriver->botData.unk5bc.ai_accelAxis[2]);
+		otherVel.x = CTR_MipsAddLo(otherDriver->xSpeed, otherDriver->botData.aiPhysics.accelAxis[0]);
+		otherVel.y = CTR_MipsAddLo(otherDriver->ySpeed, otherDriver->botData.aiPhysics.accelAxis[1]);
+		otherVel.z = CTR_MipsAddLo(otherDriver->zSpeed, otherDriver->botData.aiPhysics.accelAxis[2]);
 
 		VehPhysCrash_WeightedVelocity(&weightedVel, selfVel, selfDriver, &otherVel, otherDriver);
 		VehPhysCrash_BouncePair(hitDir, &weightedVel, &otherVel, selfVel);

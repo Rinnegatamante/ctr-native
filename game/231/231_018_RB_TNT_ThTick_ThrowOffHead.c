@@ -38,10 +38,10 @@ void RB_TNT_ThTick_ThrowOffHead(struct Thread *t)
 		inst->scale[2] = 0;
 
 		// make invisible
-		inst->flags |= 0x80;
+		inst->flags |= HIDE_MODEL;
 
 		// this thread is now dead
-		t->flags |= 0x800;
+		t->flags |= THREAD_FLAG_DEAD;
 
 #if defined(CTR_NATIVE)
 		// NOTE(aalhendi) Retail writes through driverTarget blindly; boss-thrown TNT has no

@@ -167,10 +167,10 @@ void UI_RaceStart_IntroText1P(void)
 LAB_80055930:
 
 	// if fly-in animation is one second away from finishing
-	if (gGT->cameraDC->unk8E < 0x1f)
+	if (gGT->cameraDC->transitionFrame < 0x1f)
 	{
 		// use this to transition title bars to off-screen
-		transition = 0x1e - gGT->cameraDC->unk8E;
+		transition = 0x1e - gGT->cameraDC->transitionFrame;
 	}
 
 	// RaceFlag_IsFullyOnScreen

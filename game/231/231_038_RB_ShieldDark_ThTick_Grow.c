@@ -216,7 +216,7 @@ void RB_ShieldDark_ThTick_Grow(struct Thread *th)
 	if (((shieldFlags & 1) != 0) || ((shieldFlags & 8) != 0) ||
 
 	    // if race ended for this driver
-	    ((player->actionsFlagSet & 0x2000000) != 0) ||
+	    ((player->actionsFlagSet & ACTION_RACE_FINISHED) != 0) ||
 
 	    // if driver is being mask grabbed
 	    (player->kartState == KS_MASK_GRABBED))
@@ -263,7 +263,7 @@ void RB_ShieldDark_ThTick_Grow(struct Thread *th)
 	bombTh->funcThDestroy = PROC_DestroyInstance;
 
 	// if driver is not an AI (human)
-	if ((player->actionsFlagSet & 0x100000) == 0)
+	if ((player->actionsFlagSet & ACTION_BOT) == 0)
 	{
 		// make driver talk
 		Voiceline_RequestPlay(13, data.characterIDs[player->driverID], 0x10);
@@ -316,5 +316,5 @@ LAB_800b0d6c:
 	INSTANCE_Death(highlightInst);
 
 	// This thread is now dead
-	th->flags |= 0x800;
+	th->flags |= THREAD_FLAG_DEAD;
 }

@@ -78,7 +78,7 @@ void RB_MaskWeapon_ThTick(struct Thread *maskTh)
 	maskInst->unk50 = driverInst->unk50;
 	maskInst->unk51 = driverInst->unk51;
 
-	struct MaskHeadScratch *mhs = (struct MaskHeadScratch *)0x1f800108;
+	struct MaskHeadScratch *mhs = CTR_SCRATCHPAD_PTR(struct MaskHeadScratch, 0x108);
 
 	// Set up the First pass (MaskInst)
 

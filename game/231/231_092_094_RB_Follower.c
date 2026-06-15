@@ -21,7 +21,7 @@ void RB_Follower_ProcessBucket(struct Thread *t)
 	for (/**/; t != 0; t = t->siblingThread)
 	{
 		// skip dead threads
-		if ((t->flags & 0x800) != 0)
+		if ((t->flags & THREAD_FLAG_DEAD) != 0)
 			continue;
 
 		fObj = t->object;
@@ -81,7 +81,7 @@ void RB_Follower_ThTick(struct Thread *t)
 	}
 
 	// kill thread
-	t->flags |= 0x800;
+	t->flags |= THREAD_FLAG_DEAD;
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b6f00-0x800b706c.
@@ -97,7 +97,7 @@ void RB_Follower_Init(struct Driver *d, struct Thread *mineTh)
 		return;
 
 	// disable for AI
-	if ((d->actionsFlagSet & 0x100000) != 0)
+	if ((d->actionsFlagSet & ACTION_BOT) != 0)
 		return;
 
 	// disable for airborne camera

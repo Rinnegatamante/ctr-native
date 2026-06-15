@@ -22,13 +22,13 @@ void RB_Burst_CollThBucket(struct ScratchpadStruct *sps, void *hitObject)
 	struct Driver *victim = t->object;
 	model = t->modelIndex;
 
-	// if this is a player of any kind, or robotcar of any kind
-	if ((model == 0x18) || (model == 0x3f))
+	b32 hitDriver = (model == DYNAMIC_PLAYER) || (model == DYNAMIC_ROBOT_CAR);
+	if (hitDriver)
 	{
 		model = weaponTh->modelIndex;
 
-		// nitro, green beaker, red beaker, TNT
-		if ((model == 6) || (((model == 0x46 || (model == 0x47)) || (model == 0x27))))
+		b32 weaponIsMineHazard = (model == PU_EXPLOSIVE_CRATE) || (model == STATIC_BEAKER_RED) || (model == STATIC_BEAKER_GREEN) || (model == STATIC_CRATE_TNT);
+		if (weaponIsMineHazard)
 		{
 			attacker = ((struct MineWeapon *)weaponObj)->instParent->thread->object;
 
@@ -41,7 +41,7 @@ void RB_Burst_CollThBucket(struct ScratchpadStruct *sps, void *hitObject)
 			reason = 1;
 
 			// missile
-			if (model == 0x29)
+			if (model == DYNAMIC_ROCKET)
 			{
 				// missile
 				reason = 3;
@@ -57,7 +57,7 @@ void RB_Burst_CollThBucket(struct ScratchpadStruct *sps, void *hitObject)
 		}
 
 		// if this driver is not an AI
-		if ((victim->actionsFlagSet & 0x100000) == 0)
+		if ((victim->actionsFlagSet & ACTION_BOT) == 0)
 		{
 			struct PushBuffer *pb = &gGT->pushBuffer[victim->driverID];
 

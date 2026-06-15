@@ -16,7 +16,7 @@ int VehPickState_NewState(struct Driver *victimDriver, int damageType, struct Dr
 
 	if (
 	    // If player is using mask weapon
-	    ((victimDriver->actionsFlagSet & 0x800000) != 0) ||
+	    ((victimDriver->actionsFlagSet & ACTION_MASK_WEAPON) != 0) ||
 
 	    (victimDriver->invincibleTimer != 0))
 	{
@@ -52,7 +52,7 @@ int VehPickState_NewState(struct Driver *victimDriver, int damageType, struct Dr
 		if (victimState != 3)
 		{
 		SPINOUT:
-			victimDriver->funcPtrs[0] = VehPhysProc_SpinFirst_Init;
+			victimDriver->funcPtrs[DRIVER_FUNC_INIT] = VehPhysProc_SpinFirst_Init;
 		}
 	}
 
@@ -64,10 +64,10 @@ int VehPickState_NewState(struct Driver *victimDriver, int damageType, struct Dr
 			return 0;
 
 		// quit if already blasted
-		if (victimDriver->funcPtrs[0] == VehStuckProc_Tumble_Init)
+		if (victimDriver->funcPtrs[DRIVER_FUNC_INIT] == VehStuckProc_Tumble_Init)
 			return 0;
 
-		victimDriver->funcPtrs[0] = VehStuckProc_Tumble_Init;
+		victimDriver->funcPtrs[DRIVER_FUNC_INIT] = VehStuckProc_Tumble_Init;
 
 		// 2.4s
 		victimDriver->NoInputTimer = 0x960;
@@ -83,7 +83,7 @@ int VehPickState_NewState(struct Driver *victimDriver, int damageType, struct Dr
 		if (victimState != KS_SPINNING)
 		{
 			// squish sound
-			OtherFX_Play_Echo(0x5a, 1, victimDriver->actionsFlagSet & 0x10000);
+			OtherFX_Play_Echo(0x5a, 1, victimDriver->actionsFlagSet & ACTION_ENGINE_ECHO);
 
 			voice = 4;
 		}
@@ -120,7 +120,7 @@ int VehPickState_NewState(struct Driver *victimDriver, int damageType, struct Dr
 		// 3.36s
 		victimDriver->NoInputTimer = 0xd20;
 
-		victimDriver->funcPtrs[0] = VehStuckProc_PlantEaten_Init;
+		victimDriver->funcPtrs[DRIVER_FUNC_INIT] = VehStuckProc_PlantEaten_Init;
 
 		voice = 1;
 	}
@@ -254,7 +254,7 @@ int VehPickState_NewState(struct Driver *victimDriver, int damageType, struct Dr
 	}
 
 	// enable collision (remove flag that prevents collision)
-	victimDriver->instSelf->thread->flags &= ~(0x1000);
+	victimDriver->instSelf->thread->flags &= ~THREAD_FLAG_DISABLE_COLLISION;
 
 	// make driver visible, if invisible
 	victimDriver->instSelf->flags &= ~(0x80);

@@ -50,7 +50,7 @@ struct MaskHeadWeapon *VehPickupItem_MaskUseWeapon(struct Driver *driver, int bo
 
 		if (
 		    // If this is human and not AI
-		    ((driver->actionsFlagSet & 0x100000) == 0) &&
+		    ((driver->actionsFlagSet & ACTION_BOT) == 0) &&
 
 		    (boolPlaySound != 0))
 		{
@@ -61,11 +61,11 @@ struct MaskHeadWeapon *VehPickupItem_MaskUseWeapon(struct Driver *driver, int bo
 			// 0x53: aku model
 
 			soundID = currThread->modelIndex + 0x1A;
-			OtherFX_Play_Echo(soundID, 1, driver->actionsFlagSet & 0x10000);
+			OtherFX_Play_Echo(soundID, 1, driver->actionsFlagSet & ACTION_ENGINE_ECHO);
 		}
 
 		// un-kill thread
-		currThread->flags &= ~(0x800);
+		currThread->flags &= ~THREAD_FLAG_DEAD;
 
 		// return object attached to thread
 		return (struct MaskHeadWeapon *)currThread->object;
@@ -83,11 +83,11 @@ struct MaskHeadWeapon *VehPickupItem_MaskUseWeapon(struct Driver *driver, int bo
 
 	if (
 	    // If this is human and not AI
-	    ((driver->actionsFlagSet & 0x100000) == 0) &&
+	    ((driver->actionsFlagSet & ACTION_BOT) == 0) &&
 
-	    (OtherFX_Play_Echo(soundID, 1, driver->actionsFlagSet & 0x10000),
+	    (OtherFX_Play_Echo(soundID, 1, driver->actionsFlagSet & ACTION_ENGINE_ECHO),
 
-	     1 < (u32)(driver->kartState - 4)))
+	     (driver->kartState != KS_ENGINE_REVVING) && (driver->kartState != KS_MASK_GRABBED)))
 	{
 		if (boolGoodGuy == 0)
 		{
@@ -124,7 +124,7 @@ struct MaskHeadWeapon *VehPickupItem_MaskUseWeapon(struct Driver *driver, int bo
 
 	t->funcThDestroy = PROC_DestroyInstance;
 
-	t->flags |= 0x1000;                   // disable collision
+	t->flags |= THREAD_FLAG_DISABLE_COLLISION;
 	instance->flags |= 0x80;              // make mask head invisible
 	maskObj->maskBeamInst->flags |= 0x80; // make mask beam invisible
 	maskObj->duration = (driver->numWumpas > 9) ? 0x2d00 : 0x1e00;
@@ -457,7 +457,7 @@ void VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 		}
 
 		// if human and not AI
-		if ((d->actionsFlagSet & 0x100000) == 0)
+		if ((d->actionsFlagSet & ACTION_BOT) == 0)
 		{
 			Voiceline_RequestPlay(talk, data.characterIDs[d->driverID], 0x10);
 		}
@@ -547,7 +547,7 @@ void VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 		PlaySound3D(0x52, weaponInst);
 
 		// if human and not AI
-		if ((d->actionsFlagSet & 0x100000) == 0)
+		if ((d->actionsFlagSet & ACTION_BOT) == 0)
 		{
 			Voiceline_RequestPlay(0xf, data.characterIDs[d->driverID], 0x10);
 		}
@@ -570,18 +570,18 @@ void VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 
 	RunMineCOLL:
 
-		s16 pos1[3];
-		s16 pos2[3];
+		SVec3 probeTop;
+		SVec3 probeBottom;
 
-		pos1[0] = weaponInst->matrix.t[0];
-		pos1[1] = weaponInst->matrix.t[1] - 400;
-		pos1[2] = weaponInst->matrix.t[2];
+		probeTop.x = weaponInst->matrix.t[0];
+		probeTop.y = weaponInst->matrix.t[1] - 400;
+		probeTop.z = weaponInst->matrix.t[2];
 
-		pos2[0] = weaponInst->matrix.t[0];
-		pos2[1] = weaponInst->matrix.t[1] + 64;
-		pos2[2] = weaponInst->matrix.t[2];
+		probeBottom.x = weaponInst->matrix.t[0];
+		probeBottom.y = weaponInst->matrix.t[1] + 64;
+		probeBottom.z = weaponInst->matrix.t[2];
 
-		struct ScratchpadStruct *sps = (struct ScratchpadStruct *)0x1f800108;
+		struct ScratchpadStruct *sps = CTR_SCRATCHPAD_PTR(struct ScratchpadStruct, 0x108);
 
 		sps->Union.QuadBlockColl.quadFlagsWanted = QUADBLOCK_FLAG_GROUND;
 		sps->Union.QuadBlockColl.quadFlagsIgnored = 0;
@@ -592,7 +592,7 @@ void VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 
 		sps->ptr_mesh_info = gGT->level1->ptr_mesh_info;
 
-		COLL_SearchBSP_CallbackQUADBLK(pos1, pos2, sps, 0x40);
+		COLL_SearchBSP_CallbackQUADBLK(&probeTop, &probeBottom, sps, 0x40);
 
 		if (sps->boolDidTouchHitbox != 0)
 		{
@@ -602,10 +602,8 @@ void VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 
 			struct InstDef *instDef = sps->bspHitbox->data.hitbox.instDef;
 
-			int modelTouched = instDef->modelID;
-
-			// fruit crate or weapon crate
-			if ((modelTouched == 7) || (modelTouched == 8))
+			s16 modelTouched = instDef->modelID;
+			if ((modelTouched == PU_FRUIT_CRATE) || (modelTouched == PU_RANDOM_CRATE))
 			{
 				mw->crateInst = instDef->ptrInstance;
 			}
@@ -616,19 +614,18 @@ void VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 			}
 
 			sps->Union.QuadBlockColl.searchFlags = 0;
-			COLL_SearchBSP_CallbackQUADBLK(pos1, pos2, sps, 0);
+			COLL_SearchBSP_CallbackQUADBLK(&probeTop, &probeBottom, sps, 0);
 		}
 
 		RB_MakeInstanceReflective(sps, weaponInst);
 
-		s16 *rotPtr = (s16 *)0x1f800178;
+		SVec3 fallbackNormal;
+		s16 *rotationNormal;
 
 		if (sps->boolDidTouchQuadblock == 0)
 		{
-			rotPtr[0] = 0;
-			rotPtr[1] = 0x1000;
-			rotPtr[2] = 0;
-			rotPtr[3] = 0;
+			fallbackNormal = (SVec3){.x = 0, .y = COLL_FRACTION_ONE, .z = 0};
+			rotationNormal = fallbackNormal.v;
 
 			mw->stopFallAtY = weaponInst->matrix.t[1];
 		}
@@ -636,14 +633,15 @@ void VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 		else
 		{
 			mw->stopFallAtY = sps->Union.QuadBlockColl.hitPos.y;
+			rotationNormal = sps->hit.plane.normal.v;
 		}
 
-		VehPhysForce_RotAxisAngle(&weaponInst->matrix, rotPtr, d->angle);
+		VehPhysForce_RotAxisAngle(&weaponInst->matrix, rotationNormal, d->angle);
 
 		d->instTntSend = weaponInst;
 
 		// dropped a mine
-		d->actionsFlagSet |= 0x80000000;
+		d->actionsFlagSet |= ACTION_DROPPING_MINE;
 
 		if (mineShouldInitFollower != 0)
 		{
@@ -691,7 +689,7 @@ void VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 		PlaySound3D(0x52, weaponInst);
 
 		// if human and not AI
-		if ((d->actionsFlagSet & 0x100000) == 0)
+		if ((d->actionsFlagSet & ACTION_BOT) == 0)
 		{
 			Voiceline_RequestPlay(0xf, data.characterIDs[d->driverID], 0x10);
 		}
@@ -717,14 +715,10 @@ void VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 
 		if (ret == 0)
 		{
-			// similar to TNT, but
-			// if VehPickupItem_PotionThrow == 0?
 			weaponInst->scale[0] = 0;
 			weaponInst->scale[1] = 0;
 			weaponInst->scale[2] = 0;
 
-			// similar to TNT, but
-			// If VehPickupItem_PotionThrow == 0?
 			*(int *)&mw->velocity[0] = 0;
 			*(int *)&mw->velocity[2] = 0;
 
@@ -800,7 +794,7 @@ void VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 
 		OtherFX_Play(0x44, 1);
 
-		if ((d->actionsFlagSet & 0x100000) == 0)
+		if ((d->actionsFlagSet & ACTION_BOT) == 0)
 		{
 			Voiceline_RequestPlay(0xe, data.characterIDs[d->driverID], 0x10);
 		}
@@ -862,7 +856,7 @@ void VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 		PlaySound3D(0x4d, weaponInst);
 
 		// if human and not AI (AIs can not use Warpball)
-		if ((d->actionsFlagSet & 0x100000) == 0)
+		if ((d->actionsFlagSet & ACTION_BOT) == 0)
 		{
 			Voiceline_RequestPlay(0xc, data.characterIDs[d->driverID], 0x10);
 		}
@@ -889,7 +883,7 @@ void VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 			tw->flags |= 1;
 
 		// sets nodeCurrIndex
-		RB_Warpball_SeekDriver(tw, d->unknown_lap_related[1], d);
+		RB_Warpball_SeekDriver(tw, d->checkpoint.currentIndex, d);
 
 		struct CheckpointNode *cn = gGT->level1->ptr_restart_points;
 		tw->nodeNextIndex = tw->nodeCurrIndex;
@@ -983,11 +977,11 @@ void VehPickupItem_ShootOnCirclePress(struct Driver *d)
 	}
 
 	// If you want to fire a weapon
-	if ((d->actionsFlagSet & 0x8000) == 0)
+	if ((d->actionsFlagSet & ACTION_WEAPON_FIRE_REQUEST) == 0)
 		return;
 
 	// Remove the request to fire a weapon, since we will fire it now
-	d->actionsFlagSet &= ~(0x8000);
+	d->actionsFlagSet &= ~ACTION_WEAPON_FIRE_REQUEST;
 
 	weapon = d->heldItemID;
 

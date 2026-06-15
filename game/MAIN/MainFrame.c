@@ -72,15 +72,13 @@ void MainFrame_ResetDB(struct GameTracker *gGT)
 #include <platform/native_replay_scheduler.h>
 #endif
 
-typedef void (*VehicleFuncPtr)(struct Thread *thread, struct Driver *driver);
-
 void MainFrame_GameLogic(struct GameTracker *gGT, struct GamepadSystem *gGamepads)
 {
 	char bVar1;
 	s16 sVar2;
 	u32 uVar3;
 	int iVar4;
-	VehicleFuncPtr pcVar5;
+	DriverFunc pcVar5;
 	u32 uVar5;
 	u32 uVar6;
 	int *piVar7;
@@ -266,9 +264,9 @@ void MainFrame_GameLogic(struct GameTracker *gGT, struct GamepadSystem *gGamepad
 					}
 
 					// run all driver funcPtrs,
-					// all drivers must run the same stage (1-13)
+					// all drivers must run the same DRIVER_FUNC_* stage
 					// at the same time, that's why the stages exist
-					for (iVar11 = 0; iVar11 < 13; iVar11++)
+					for (iVar11 = 0; iVar11 < DRIVER_FUNC_COUNT; iVar11++)
 					{
 						for (psVar12 = gGT->threadBuckets[iVar4].thread; psVar12 != 0; psVar12 = psVar12->siblingThread)
 						{
@@ -745,7 +743,7 @@ void MainFrame_RequestMaskHint(s16 hintId, char interruptWarpPad)
 	{
 		sdata->AkuAkuHintState = 1;
 
-		gGT->drivers[0]->funcPtrs[0] = VehPhysProc_FreezeEndEvent_Init;
+		gGT->drivers[0]->funcPtrs[DRIVER_FUNC_INIT] = VehPhysProc_FreezeEndEvent_Init;
 
 		sdata->AkuHint_RequestedHint = hintId;
 		sdata->AkuHint_boolInterruptWarppad = interruptWarpPad;

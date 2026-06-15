@@ -69,7 +69,7 @@ void RB_Player_KillPlayer(struct Driver *attacker, struct Driver *victim)
 		int deadPlayers = 0;
 		s16 teamsAlive = 0;
 
-		victim->funcPtrs[0] = VehStuckProc_RIP_Init;
+		victim->funcPtrs[DRIVER_FUNC_INIT] = VehStuckProc_RIP_Init;
 		victim->BattleHUD.numLives = 0;
 		victim->actionsFlagSet |= ACTION_RACE_FINISHED;
 

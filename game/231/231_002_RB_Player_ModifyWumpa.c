@@ -14,7 +14,7 @@ void RB_Player_ModifyWumpa(struct Driver *driver, int wumpaDelta)
 	    (wumpaDelta < 0) &&
 
 	    // using mask weapon
-	    ((driver->actionsFlagSet & 0x800000) != 0))
+	    ((driver->actionsFlagSet & ACTION_MASK_WEAPON) != 0))
 	{
 		// quit, dont lose wumpa
 		return;
@@ -25,7 +25,7 @@ void RB_Player_ModifyWumpa(struct Driver *driver, int wumpaDelta)
 	    (wumpaDelta > 0) &&
 
 	    // driver is not an AI
-	    ((driver->actionsFlagSet & 0x100000) == 0))
+	    ((driver->actionsFlagSet & ACTION_BOT) == 0))
 	{
 		// for end-of-race comments
 		driver->numTimesWumpa += wumpaDelta;

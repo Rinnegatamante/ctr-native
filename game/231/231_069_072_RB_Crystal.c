@@ -55,7 +55,7 @@ int RB_Crystal_ThCollide(struct Thread *crystalTh, struct Thread *driverTh, void
 
 	// play sound
 	PlaySound3D(0x43, crystalInst);
-	crystalTh->flags |= 0x800;
+	crystalTh->flags |= THREAD_FLAG_DEAD;
 
 	return 1;
 }

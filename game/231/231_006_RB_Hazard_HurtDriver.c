@@ -7,7 +7,7 @@ int RB_Hazard_HurtDriver(struct Driver *driverVictim, int damageType, struct Dri
 	struct GameTracker *gGT = sdata->gGT;
 	int result = 0;
 
-	if ((driverVictim->actionsFlagSet & 0x100000) == 0)
+	if ((driverVictim->actionsFlagSet & ACTION_BOT) == 0)
 	{
 		result = VehPickState_NewState(driverVictim, damageType, driverAttacker, reason);
 	}

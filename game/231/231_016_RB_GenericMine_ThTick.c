@@ -150,7 +150,7 @@ void RB_GenericMine_ThTick(struct Thread *t)
 		}
 
 		// if this driver is not an AI
-		if ((d->actionsFlagSet & 0x100000) == 0)
+		if ((d->actionsFlagSet & ACTION_BOT) == 0)
 		{
 			// current fade value (bright white)
 			gGT->pushBuffer[d->driverID].fadeFromBlack_currentValue = 0x1fff;
@@ -204,7 +204,7 @@ void RB_GenericMine_ThTick(struct Thread *t)
 			d->instTntRecv->flags |= 0x80;
 
 			// this thread is now dead
-			d->instTntRecv->thread->flags |= 0x800;
+			d->instTntRecv->thread->flags |= THREAD_FLAG_DEAD;
 
 			// erase instTntRecv
 			d->instTntRecv = 0;
@@ -333,10 +333,10 @@ void RB_GenericMine_ThTick(struct Thread *t)
 				inst->scale[2] = 0;
 
 				// make invisible
-				inst->flags |= 0x80;
+				inst->flags |= HIDE_MODEL;
 
 				// this thread is now dead
-				t->flags |= 0x800;
+				t->flags |= THREAD_FLAG_DEAD;
 			}
 		}
 	}
@@ -353,7 +353,7 @@ LAB_800ad17c:
 
 	// if thread is dead, quit function
 	// this is if GenericMine_ThDestroy already ran
-	if ((t->flags & 0x800) != 0)
+	if ((t->flags & THREAD_FLAG_DEAD) != 0)
 	{
 		return;
 	}
@@ -386,7 +386,7 @@ LAB_800ad17c:
 	}
 
 	// this thread is now dead
-	t->flags |= 0x800;
+	t->flags |= THREAD_FLAG_DEAD;
 
 	return;
 }

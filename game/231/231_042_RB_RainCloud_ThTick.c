@@ -60,7 +60,7 @@ void RB_RainCloud_ThTick(struct Thread *t)
 	}
 
 	// if driver is not using mask weapon
-	if ((d->actionsFlagSet & 0x800000) == 0)
+	if ((d->actionsFlagSet & ACTION_MASK_WEAPON) == 0)
 	{
 		// if RainCloud alive
 		if (rcloud->timeMS != 0)
