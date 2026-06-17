@@ -130,27 +130,35 @@ void VehPhysForce_OnGravity(struct Driver *driver, Vec3 *velocity)
 	int localZ = CTR_MipsAddLo(originalLocalZ, localGravity.z);
 
 	int maxForwardSpeed = CTR_MipsAddLo(driver->fireSpeed, driver->const_SlopeForwardSpeedBonus);
-	if ((localZ > maxForwardSpeed) && (originalLocalZ < maxForwardSpeed))
+	if (localZ > maxForwardSpeed)
 	{
-		localZ = maxForwardSpeed;
+		localZ = originalLocalZ;
+		if (originalLocalZ < maxForwardSpeed)
+			localZ = maxForwardSpeed;
 	}
 
 	int minForwardSpeed = CTR_MipsSubLo(driver->fireSpeed, CTR_MipsSra(driver->const_SlopeForwardSpeedBonus, 1));
-	if ((localZ < minForwardSpeed) && (originalLocalZ > minForwardSpeed))
+	if (localZ < minForwardSpeed)
 	{
-		localZ = minForwardSpeed;
+		localZ = originalLocalZ;
+		if (originalLocalZ > minForwardSpeed)
+			localZ = minForwardSpeed;
 	}
 
 	int maxPerpendicularSpeed = driver->const_SideSpeedClamp;
-	if ((localX > maxPerpendicularSpeed) && (originalLocalX < maxPerpendicularSpeed))
+	if (localX > maxPerpendicularSpeed)
 	{
-		localX = maxPerpendicularSpeed;
+		localX = originalLocalX;
+		if (originalLocalX < maxPerpendicularSpeed)
+			localX = maxPerpendicularSpeed;
 	}
 
 	int minPerpendicularSpeed = CTR_MipsNegLo(maxPerpendicularSpeed);
-	if ((localX < minPerpendicularSpeed) && (originalLocalX > minPerpendicularSpeed))
+	if (localX < minPerpendicularSpeed)
 	{
-		localX = minPerpendicularSpeed;
+		localX = originalLocalX;
+		if (originalLocalX > minPerpendicularSpeed)
+			localX = minPerpendicularSpeed;
 	}
 
 	TerrainFlags terrainFlags = driver->terrainMeta1->flags;
