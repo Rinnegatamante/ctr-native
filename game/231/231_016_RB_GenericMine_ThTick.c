@@ -74,7 +74,7 @@ void RB_GenericMine_ThTick(struct Thread *t)
 
 	// increment posY by velY * time
 	// do NOT use parenthesis
-	inst->matrix.t[1] += (mw->velocity[1] * gGT->elapsedTimeMS) >> 5;
+	inst->matrix.t[1] += (mw->velocity.y * gGT->elapsedTimeMS) >> 5;
 
 	if (inst->matrix.t[1] < mw->stopFallAtY)
 	{
@@ -82,11 +82,11 @@ void RB_GenericMine_ThTick(struct Thread *t)
 	}
 
 	// decrease velocity by time, this is artificial gravity (negative acceleration)
-	mw->velocity[1] -= ((gGT->elapsedTimeMS << 2) >> 5);
+	mw->velocity.y -= ((gGT->elapsedTimeMS << 2) >> 5);
 
 	// terminal velocity
-	if (mw->velocity[1] < -0x60)
-		mw->velocity[1] = -0x60;
+	if (mw->velocity.y < -0x60)
+		mw->velocity.y = -0x60;
 
 	// If scale is not big enough
 	if (inst->scale.x < 0x1000)
@@ -264,12 +264,12 @@ void RB_GenericMine_ThTick(struct Thread *t)
 
 				inst->bitCompressed_NormalVector_AndDriverIndex = 0;
 				inst->flags |= 0x200;
-				mw->velocity[1] = 0x30;
-				mw->velocity[0] = 0;
-				mw->velocity[2] = 0;
-				mw->deltaPos[0] = 0;
-				mw->deltaPos[1] = 0;
-				mw->deltaPos[2] = 0;
+				mw->velocity.y = 0x30;
+				mw->velocity.x = 0;
+				mw->velocity.z = 0;
+				mw->deltaPos.x = 0;
+				mw->deltaPos.y = 0;
+				mw->deltaPos.z = 0;
 				mw->stopFallAtY = 0x3fff;
 
 				ThTick_SetAndExec(t, RB_TNT_ThTick_ThrowOnHead);
@@ -317,12 +317,12 @@ void RB_GenericMine_ThTick(struct Thread *t)
 
 				instCrate->bitCompressed_NormalVector_AndDriverIndex = 0;
 				instCrate->flags |= 0x200;
-				tnt->velocity[0] = 0;
-				tnt->velocity[1] = 0x30;
-				tnt->velocity[2] = 0;
-				tnt->deltaPos[0] = 0;
-				tnt->deltaPos[1] = 0;
-				tnt->deltaPos[2] = 0;
+				tnt->velocity.x = 0;
+				tnt->velocity.y = 0x30;
+				tnt->velocity.z = 0;
+				tnt->deltaPos.x = 0;
+				tnt->deltaPos.y = 0;
+				tnt->deltaPos.z = 0;
 				instCrate->thread->funcThTick = RB_TNT_ThTick_ThrowOnHead;
 
 				RB_MinePool_Remove(mw);

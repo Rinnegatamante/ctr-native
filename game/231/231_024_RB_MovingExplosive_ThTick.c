@@ -143,14 +143,14 @@ LAB_800adc08:;
 		{
 			tw->rotY = RB_Hazard_InterpolateValue(tw->rotY, (int)sVar3, 4);
 
-			tw->vel[0] = (MATH_Sin(tw->rotY) * 3) >> 7;
-			tw->vel[2] = (MATH_Cos(tw->rotY) * 3) >> 7;
+			tw->vel.x = (MATH_Sin(tw->rotY) * 3) >> 7;
+			tw->vel.z = (MATH_Cos(tw->rotY) * 3) >> 7;
 
 			// if bomb is rolled backwards
 			if ((tw->flags & 0x20) != 0)
 			{
-				tw->vel[2] = -tw->vel[2];
-				tw->vel[0] = -tw->vel[0];
+				tw->vel.z = -tw->vel.z;
+				tw->vel.x = -tw->vel.x;
 			}
 		}
 
@@ -162,8 +162,8 @@ LAB_800adc08:;
 			{
 				tw->rotY = RB_Hazard_InterpolateValue(tw->rotY, (int)sVar3, 0x40);
 
-				tw->vel[0] = (MATH_Sin(tw->rotY) * 5) >> 8;
-				tw->vel[2] = (MATH_Cos(tw->rotY) * 5) >> 8;
+				tw->vel.x = (MATH_Sin(tw->rotY) * 5) >> 8;
+				tw->vel.z = (MATH_Cos(tw->rotY) * 5) >> 8;
 			}
 
 			// if 10 wumpa were used
@@ -171,16 +171,16 @@ LAB_800adc08:;
 			{
 				tw->rotY = RB_Hazard_InterpolateValue(tw->rotY, (int)sVar3, 0x80);
 
-				tw->vel[0] = (MATH_Sin(tw->rotY) * 3) >> 7;
-				tw->vel[2] = (MATH_Cos(tw->rotY) * 3) >> 7;
+				tw->vel.x = (MATH_Sin(tw->rotY) * 3) >> 7;
+				tw->vel.z = (MATH_Cos(tw->rotY) * 3) >> 7;
 			}
 
-			tw->dir[0] = 0;
-			tw->dir[2] = 0;
-			tw->dir[1] = tw->rotY;
+			tw->dir.x = 0;
+			tw->dir.z = 0;
+			tw->dir.y = tw->rotY;
 
 			// convert 3 rotation shorts into rotation matrix
-			ConvertRotToMatrix(&inst->matrix, &tw->dir[0]);
+			ConvertRotToMatrix(&inst->matrix, &tw->dir.x);
 		}
 	}
 
@@ -224,9 +224,9 @@ LAB_800adc08:;
 #endif
 
 	int elapsedTime = gGT->elapsedTimeMS;
-	inst->matrix.t[0] += (((int)tw->vel[0] * elapsedTime) >> 5);
-	inst->matrix.t[1] += (((int)tw->vel[1] * elapsedTime) >> 5);
-	inst->matrix.t[2] += (((int)tw->vel[2] * elapsedTime) >> 5);
+	inst->matrix.t[0] += (((int)tw->vel.x * elapsedTime) >> 5);
+	inst->matrix.t[1] += (((int)tw->vel.y * elapsedTime) >> 5);
+	inst->matrix.t[2] += (((int)tw->vel.z * elapsedTime) >> 5);
 
 	// If this is bomb
 	if (modelID == DYNAMIC_BOMB)
@@ -234,13 +234,13 @@ LAB_800adc08:;
 		// if bomb is forwards
 		if ((tw->flags & 0x20) == 0)
 		{
-			tw->dir[0] += 0x200;
+			tw->dir.x += 0x200;
 		}
 
 		// if bomb is backwards
 		else
 		{
-			tw->dir[0] -= 0x200;
+			tw->dir.x -= 0x200;
 		}
 
 		// convert 3 rotation shorts into rotation matrix
@@ -275,13 +275,13 @@ LAB_800adc08:;
 	if ((sps->collision.stepFlags & COLL_STEP_TRIGGER_WEAPON_REACT) != 0)
 	{
 		// move backward one frame
-		tw->vel[0] = -tw->vel[0];
-		tw->vel[1] = -tw->vel[1];
-		tw->vel[2] = -tw->vel[2];
+		tw->vel.x = -tw->vel.x;
+		tw->vel.y = -tw->vel.y;
+		tw->vel.z = -tw->vel.z;
 
-		inst->matrix.t[0] += ((int)tw->vel[0] * elapsedTime) >> 5;
-		inst->matrix.t[1] += ((int)tw->vel[1] * elapsedTime) >> 5;
-		inst->matrix.t[2] += ((int)tw->vel[2] * elapsedTime) >> 5;
+		inst->matrix.t[0] += ((int)tw->vel.x * elapsedTime) >> 5;
+		inst->matrix.t[1] += ((int)tw->vel.y * elapsedTime) >> 5;
+		inst->matrix.t[2] += ((int)tw->vel.z * elapsedTime) >> 5;
 
 		RB_MovingExplosive_Explode(t, inst, tw);
 		return;
@@ -316,18 +316,18 @@ LAB_800adc08:;
 				iVar8 = elapsedTime << 3;
 			}
 
-			tw->vel[1] -= (iVar8 >> 5);
+			tw->vel.y -= (iVar8 >> 5);
 
-			if (tw->vel[1] < -0x60)
+			if (tw->vel.y < -0x60)
 			{
-				tw->vel[1] = -0x60;
+				tw->vel.y = -0x60;
 			}
 		}
 
 		// if hit quadblock
 		else
 		{
-			tw->vel[1] = 0;
+			tw->vel.y = 0;
 
 			// missile model
 			if (modelID == DYNAMIC_ROCKET)

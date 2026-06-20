@@ -4,9 +4,9 @@ static const s16 s_warpballParticleHeight = 0xff;
 
 static void RB_Warpball_AdvanceStraight(struct TrackerWeapon *tw, struct Instance *inst, int elapsedTime)
 {
-	inst->matrix.t[0] += ((int)tw->vel[0] * elapsedTime) >> 5;
-	inst->matrix.t[1] += ((int)tw->vel[1] * elapsedTime) >> 5;
-	inst->matrix.t[2] += ((int)tw->vel[2] * elapsedTime) >> 5;
+	inst->matrix.t[0] += ((int)tw->vel.x * elapsedTime) >> 5;
+	inst->matrix.t[1] += ((int)tw->vel.y * elapsedTime) >> 5;
+	inst->matrix.t[2] += ((int)tw->vel.z * elapsedTime) >> 5;
 }
 
 static int RB_Warpball_NodeDeltaLength(struct CheckpointNode *curr, struct CheckpointNode *next, int *dx, int *dy, int *dz)
@@ -136,38 +136,38 @@ void RB_Warpball_ThTick(struct Thread *t)
 				rotSpeed = 0x40;
 			}
 
-			tw->dir[0] = 0;
-			tw->dir[1] = RB_Hazard_InterpolateValue(tw->dir[1], ratan2(distX, distZ), rotSpeed);
-			tw->dir[2] = 0;
-			tw->vel[0] = (MATH_Sin(tw->dir[1]) * 7) >> 8;
-			tw->vel[2] = (MATH_Cos(tw->dir[1]) * 7) >> 8;
+			tw->dir.x = 0;
+			tw->dir.y = RB_Hazard_InterpolateValue(tw->dir.y, ratan2(distX, distZ), rotSpeed);
+			tw->dir.z = 0;
+			tw->vel.x = (MATH_Sin(tw->dir.y) * 7) >> 8;
+			tw->vel.z = (MATH_Cos(tw->dir.y) * 7) >> 8;
 
 			if (distY > 0)
 			{
-				tw->vel[1] += (elapsedTime << 2) >> 5;
+				tw->vel.y += (elapsedTime << 2) >> 5;
 
-				if (distY < tw->vel[1])
+				if (distY < tw->vel.y)
 				{
-					tw->vel[1] = distY;
+					tw->vel.y = distY;
 				}
 
-				if (tw->vel[1] > 0x60)
+				if (tw->vel.y > 0x60)
 				{
-					tw->vel[1] = 0x60;
+					tw->vel.y = 0x60;
 				}
 			}
 			else if (distY < 0)
 			{
-				tw->vel[1] -= (elapsedTime << 2) >> 5;
+				tw->vel.y -= (elapsedTime << 2) >> 5;
 
-				if (tw->vel[1] < distY)
+				if (tw->vel.y < distY)
 				{
-					tw->vel[1] = distY;
+					tw->vel.y = distY;
 				}
 
-				if (tw->vel[1] < -0x60)
+				if (tw->vel.y < -0x60)
 				{
-					tw->vel[1] = -0x60;
+					tw->vel.y = -0x60;
 				}
 			}
 
@@ -221,10 +221,10 @@ void RB_Warpball_ThTick(struct Thread *t)
 			inst->matrix.t[1] = curr->pos[1] + ((distY * fraction) >> 12);
 			inst->matrix.t[2] = curr->pos[2] + ((distZ * fraction) >> 12);
 
-			tw->dir[1] = ratan2(distX, distZ);
-			tw->vel[0] = (MATH_Sin(tw->dir[1]) * 7) >> 8;
-			tw->vel[2] = (MATH_Cos(tw->dir[1]) * 7) >> 8;
-			tw->vel[1] = 0;
+			tw->dir.y = ratan2(distX, distZ);
+			tw->vel.x = (MATH_Sin(tw->dir.y) * 7) >> 8;
+			tw->vel.z = (MATH_Cos(tw->dir.y) * 7) >> 8;
+			tw->vel.y = 0;
 		}
 	}
 	else
@@ -274,7 +274,7 @@ void RB_Warpball_ThTick(struct Thread *t)
 	{
 		tw->flags |= 0x100;
 		RB_Warpball_SetQuadblockIndex(tw, sps);
-		tw->vel[1] = 0;
+		tw->vel.y = 0;
 
 		if (((tw->flags & 0xc) != 0) && (inst->matrix.t[1] < sps->hit.hitPos.y))
 		{

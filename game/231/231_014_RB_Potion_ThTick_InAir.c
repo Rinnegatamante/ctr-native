@@ -20,16 +20,16 @@ void RB_Potion_ThTick_InAir(struct Thread *t)
 	mw = t->object;
 
 	// adjust position, by velocity, do NOT use parenthesis
-	inst->matrix.t[0] += mw->velocity[0] * gGT->elapsedTimeMS >> 5;
-	inst->matrix.t[1] += mw->velocity[1] * gGT->elapsedTimeMS >> 5;
-	inst->matrix.t[2] += mw->velocity[2] * gGT->elapsedTimeMS >> 5;
+	inst->matrix.t[0] += mw->velocity.x * gGT->elapsedTimeMS >> 5;
+	inst->matrix.t[1] += mw->velocity.y * gGT->elapsedTimeMS >> 5;
+	inst->matrix.t[2] += mw->velocity.z * gGT->elapsedTimeMS >> 5;
 
 	// gravity, decrease velocity over time
-	mw->velocity[1] -= ((gGT->elapsedTimeMS << 2) >> 5);
+	mw->velocity.y -= ((gGT->elapsedTimeMS << 2) >> 5);
 
 	// terminal velocity
-	if (mw->velocity[1] < -0x60)
-		mw->velocity[1] = -0x60;
+	if (mw->velocity.y < -0x60)
+		mw->velocity.y = -0x60;
 
 	mw->cooldown -= gGT->elapsedTimeMS;
 
@@ -88,9 +88,9 @@ void RB_Potion_ThTick_InAir(struct Thread *t)
 
 				mw->stopFallAtY = iVar4;
 				mw->cooldown = 0xf00; // 3.84s
-				mw->velocity[0] = 0;
-				mw->velocity[1] = 0;
-				mw->velocity[2] = 0;
+				mw->velocity.x = 0;
+				mw->velocity.y = 0;
+				mw->velocity.z = 0;
 				mw->extraFlags &= 0xfffd; // remove "thrown" flag
 
 				ThTick_SetAndExec(t, RB_GenericMine_ThTick);
@@ -102,8 +102,8 @@ void RB_Potion_ThTick_InAir(struct Thread *t)
 				inst->matrix.t[1] = iVar4;
 
 			// if distance to move back to quadblock < velocity
-			if (mw->velocity[1] < (inst->matrix.t[1] - iVar5) + 0x28)
-				mw->velocity[1] = (inst->matrix.t[1] - iVar5) + 0x28;
+			if (mw->velocity.y < (inst->matrix.t[1] - iVar5) + 0x28)
+				mw->velocity.y = (inst->matrix.t[1] - iVar5) + 0x28;
 
 			return;
 		}

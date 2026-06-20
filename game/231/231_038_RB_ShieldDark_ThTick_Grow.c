@@ -32,12 +32,12 @@ void RB_ShieldDark_ThTick_Grow(struct Thread *th)
 	// if highlight cooldown is gone
 	if (shield->highlightTimer == 0)
 	{
-		shield->highlightRot[1] += 0x100;
+		shield->highlightRot.y += 0x100;
 
 		// highlight is now visible
 		highlightInst->flags &= ~(0x80);
 
-		rotY = shield->highlightRot[1];
+		rotY = shield->highlightRot.y;
 
 		int iVar8 = rotY;
 		if (rotY < 0)
@@ -49,7 +49,7 @@ void RB_ShieldDark_ThTick_Grow(struct Thread *th)
 			// cooldown is 30 frames (one second)
 			shield->highlightTimer = 30;
 
-			shield->highlightRot[1] = 0xc00;
+			shield->highlightRot.y = 0xc00;
 
 			// make highlight invisible
 			highlightInst->flags |= 0x80;
@@ -130,7 +130,7 @@ void RB_ShieldDark_ThTick_Grow(struct Thread *th)
 	colorInst->matrix.m[2][2] = 0x1000;
 
 	// convert 3 rotation shorts into rotation matrix
-	ConvertRotToMatrix(&highlightInst->matrix, &shield->highlightRot[0]);
+	ConvertRotToMatrix(&highlightInst->matrix, &shield->highlightRot.x);
 
 	s16 scaleXZ;
 	s16 scaleY;
@@ -299,9 +299,9 @@ void RB_ShieldDark_ThTick_Grow(struct Thread *th)
 
 	// do NOT patch for 60fps,
 	// velocity uses elapsedTime
-	tw->vel[1] = 0;
-	tw->vel[0] = (driverInst->matrix.m[0][2] * 3) >> 7;
-	tw->vel[2] = (driverInst->matrix.m[2][2] * 3) >> 7;
+	tw->vel.y = 0;
+	tw->vel.x = (driverInst->matrix.m[0][2] * 3) >> 7;
+	tw->vel.z = (driverInst->matrix.m[2][2] * 3) >> 7;
 
 	tw->rotY = player->angle;
 	tw->frameCount_DontHurtParent = 10;

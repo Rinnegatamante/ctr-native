@@ -18,9 +18,9 @@ static inline void VehPickupItem_CopyMatrix(MATRIX *dst, const MATRIX *src)
 
 static inline void VehPickupItem_ClearMineMotion(struct MineWeapon *mine)
 {
-	mine->velocity[0] = 0;
-	mine->velocity[1] = 0;
-	mine->velocity[2] = 0;
+	mine->velocity.x = 0;
+	mine->velocity.y = 0;
+	mine->velocity.z = 0;
 	mine->stopFallAtY = 0;
 }
 
@@ -152,9 +152,9 @@ struct MaskHeadWeapon *VehPickupItem_MaskUseWeapon(struct Driver *driver, int bo
 	instance->flags |= 0x80;              // make mask head invisible
 	maskObj->maskBeamInst->flags |= 0x80; // make mask beam invisible
 	maskObj->duration = (driver->numWumpas > 9) ? 0x2d00 : 0x1e00;
-	maskObj->rot[0] = 0x40;  // rotX
-	maskObj->rot[1] = 0;     // rotY
-	maskObj->rot[2] = 0;     // rotZ
+	maskObj->rot.x = 0x40;
+	maskObj->rot.y = 0;
+	maskObj->rot.z = 0;
 	maskObj->scale = 0x1000; // scale
 
 	return maskObj;
@@ -296,9 +296,9 @@ u32 VehPickupItem_PotionThrow(struct MineWeapon *mine, struct Instance *inst, u3
 		throwVelocity = 0x78;
 	}
 
-	mine->velocity[0] = (inst->matrix.m[0][2] * throwVelocity) >> 12;
-	mine->velocity[1] = 0x30;
-	mine->velocity[2] = (inst->matrix.m[2][2] * throwVelocity) >> 12;
+	mine->velocity.x = (inst->matrix.m[0][2] * throwVelocity) >> 12;
+	mine->velocity.y = 0x30;
+	mine->velocity.z = (inst->matrix.m[2][2] * throwVelocity) >> 12;
 	mine->crateInst = NULL;
 	mine->extraFlags |= 2;
 
@@ -451,9 +451,9 @@ void VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 			CTR_MatrixToRot((SVECTOR *)&rot[0], &weaponInst->matrix, 0x11);
 
 			// not a typo, required like this
-			tw->dir[0] = rot[1];
-			tw->dir[1] = rot[0];
-			tw->dir[2] = rot[2];
+			tw->dir.x = rot[1];
+			tw->dir.y = rot[0];
+			tw->dir.z = rot[2];
 
 			PlaySound3D(0x47, weaponInst);
 		}
@@ -480,9 +480,9 @@ void VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 
 		// do NOT patch for 60fps,
 		// velocity uses elapsedTime
-		tw->vel[1] = 0;
-		tw->vel[0] = (weaponInst->matrix.m[0][2] * 3) >> 7;
-		tw->vel[2] = (weaponInst->matrix.m[2][2] * 3) >> 7;
+		tw->vel.y = 0;
+		tw->vel.x = (weaponInst->matrix.m[0][2] * 3) >> 7;
+		tw->vel.z = (weaponInst->matrix.m[2][2] * 3) >> 7;
 
 		if (d->numWumpas >= 10)
 		{
@@ -503,8 +503,8 @@ void VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 			{
 				tw->flags |= 0x20;
 
-				tw->vel[0] = -(((tw->vel[0] >> 1) * 3) / 5);
-				tw->vel[2] = -(((tw->vel[2] >> 1) * 3) / 5);
+				tw->vel.x = -(((tw->vel.x >> 1) * 3) / 5);
+				tw->vel.z = -(((tw->vel.z >> 1) * 3) / 5);
 			}
 		}
 
@@ -515,8 +515,8 @@ void VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 			{
 				// do NOT patch for 60fps,
 				// velocity uses elapsedTime
-				tw->vel[0] = (weaponInst->matrix.m[0][2] * 5) >> 8;
-				tw->vel[2] = (weaponInst->matrix.m[2][2] * 5) >> 8;
+				tw->vel.x = (weaponInst->matrix.m[0][2] * 5) >> 8;
+				tw->vel.z = (weaponInst->matrix.m[2][2] * 5) >> 8;
 			}
 		}
 
@@ -760,9 +760,9 @@ void VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 		shieldObj->flags = 0;
 		shieldObj->instColor = instColor;
 		shieldObj->instHighlight = instHighlight;
-		shieldObj->highlightRot[0] = 0;
-		shieldObj->highlightRot[1] = 0xc00;
-		shieldObj->highlightRot[2] = 0;
+		shieldObj->highlightRot.x = 0;
+		shieldObj->highlightRot.y = 0xc00;
+		shieldObj->highlightRot.z = 0;
 		shieldObj->highlightTimer = 0;
 
 		if (d->numWumpas < 10)
@@ -915,14 +915,14 @@ void VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 
 		tw->ptrNodeNext = RB_Warpball_NewPathNode(tw->ptrNodeCurr, victim);
 
-		tw->vel[1] = 0;
+		tw->vel.y = 0;
 		tw->rotY = d->angle;
 		tw->frameCount_DontHurtParent = 10;
 
 		// do NOT patch for 60fps,
 		// velocity uses elapsedTime
-		tw->vel[0] = (dInst->matrix.m[0][2] * 7) >> 8;
-		tw->vel[2] = (dInst->matrix.m[2][2] * 7) >> 8;
+		tw->vel.x = (dInst->matrix.m[0][2] * 7) >> 8;
+		tw->vel.z = (dInst->matrix.m[2][2] * 7) >> 8;
 
 		struct Particle *p = Particle_Init(0, gGT->iconGroup[0], &data.emSet_Warpball[0]);
 

@@ -46,9 +46,9 @@ void RB_GenericMine_LInB(struct Instance *inst)
 	mw->instParent = parentInst;
 	mw->driverTarget = NULL;
 	mw->crateInst = NULL;
-	mw->velocity[0] = 0;
-	mw->velocity[1] = 0;
-	mw->velocity[2] = 0;
+	mw->velocity.x = 0;
+	mw->velocity.y = 0;
+	mw->velocity.z = 0;
 	mw->boolDestroyed = 0;
 	mw->frameCount_DontHurtParent = 0;
 	mw->extraFlags = 0;

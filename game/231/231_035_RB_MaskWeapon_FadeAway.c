@@ -20,11 +20,11 @@ void RB_MaskWeapon_FadeAway(struct Thread *t)
 	// Set up First pass (maskInst)
 
 	int durationAdjusted = ((int)(mask->duration >> 5) * -4 + 0x40);
-	mhs->posOffset[0] = ((durationAdjusted * MATH_Sin(mask->rot[1])) >> 0xc);
-	mhs->posOffset[2] = ((durationAdjusted * MATH_Cos(mask->rot[1])) >> 0xc);
+	mhs->posOffset[0] = ((durationAdjusted * MATH_Sin(mask->rot.y)) >> 0xc);
+	mhs->posOffset[2] = ((durationAdjusted * MATH_Cos(mask->rot.y)) >> 0xc);
 	mhs->posOffset[1] = 0x40;
 
-	mask->rot[1] += -0x100;
+	mask->rot.y += -0x100;
 
 	struct Instance *instCurr;
 	instCurr = inst;
@@ -47,7 +47,7 @@ void RB_MaskWeapon_FadeAway(struct Thread *t)
 	}
 
 	mhs->rot[0] = 0;
-	mhs->rot[1] = mask->rot[1];
+	mhs->rot[1] = mask->rot.y;
 	mhs->rot[2] = 0;
 	ConvertRotToMatrix(&mhs->m, &mhs->rot[0]);
 

@@ -167,7 +167,7 @@ void VehStuckProc_MaskGrab_Update(struct Thread *t, struct Driver *d)
 	if (mask != NULL)
 	{
 		// mask rotZ
-		mask->rot[2] &= ~(1);
+		mask->rot.z &= ~(1);
 
 		// scale = 100%
 		mask->scale = 0x1000;
@@ -346,7 +346,7 @@ void VehStuckProc_MaskGrab_Animate(struct Thread *t, struct Driver *d)
 	if (d->KartStates.MaskGrab.boolLiftingPlayer == false)
 	{
 		// decrease mask posY by elapsed time
-		mask->pos[1] = (s16)CTR_MipsSubLo((u16)mask->pos[1], (u16)gGT->elapsedTimeMS);
+		mask->pos.y = (s16)CTR_MipsSubLo((u16)mask->pos.y, (u16)gGT->elapsedTimeMS);
 	}
 
 	// if lifting player (if driver isn't falling infinitely)
@@ -360,16 +360,16 @@ void VehStuckProc_MaskGrab_Animate(struct Thread *t, struct Driver *d)
 	}
 
 	// maskPosX = driverPosX
-	mask->pos[0] = (s16)CTR_MipsSra(d->posCurr.x, 8);
+	mask->pos.x = (s16)CTR_MipsSra(d->posCurr.x, 8);
 
 	// set mask posZ
-	mask->pos[2] = (s16)CTR_MipsSra(d->posCurr.z, 8);
+	mask->pos.z = (s16)CTR_MipsSra(d->posCurr.z, 8);
 
 	// if mask posY < driver posY
-	if (mask->pos[1] < (s16)CTR_MipsSra(d->posCurr.y, 8))
+	if (mask->pos.y < (s16)CTR_MipsSra(d->posCurr.y, 8))
 	{
 		// mask posY = driver posY
-		mask->pos[1] = (s16)CTR_MipsSra(d->posCurr.y, 8);
+		mask->pos.y = (s16)CTR_MipsSra(d->posCurr.y, 8);
 
 		d->KartStates.MaskGrab.boolLiftingPlayer = true;
 	}
@@ -471,11 +471,11 @@ void VehStuckProc_MaskGrab_Init(struct Thread *t, struct Driver *d)
 	if (mask == NULL)
 		return;
 
-	mask->rot[2] |= 1;
+	mask->rot.z |= 1;
 
-	mask->pos[0] = (s16)CTR_MipsSra(d->posCurr.x, 8);
-	mask->pos[1] = (s16)CTR_MipsAddLo(CTR_MipsSra(d->posCurr.y, 8), 0x140);
-	mask->pos[2] = (s16)CTR_MipsSra(d->posCurr.z, 8);
+	mask->pos.x = (s16)CTR_MipsSra(d->posCurr.x, 8);
+	mask->pos.y = (s16)CTR_MipsAddLo(CTR_MipsSra(d->posCurr.y, 8), 0x140);
+	mask->pos.z = (s16)CTR_MipsSra(d->posCurr.z, 8);
 }
 
 

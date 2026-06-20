@@ -178,7 +178,7 @@ void RB_Seal_ThTick_Move(struct Thread *t)
 	// move seal
 	for (i = 0; i < 3; i++)
 	{
-		sealInst->matrix.t[i] = (int)sealObj->spawnPos[i] - (sealObj->distFromSpawn * (int)sealObj->vel[i]) / 0x2d;
+		sealInst->matrix.t[i] = (int)sealObj->spawnPos[i] - (sealObj->distFromSpawn * (int)sealObj->vel.v[i]) / 0x2d;
 	}
 
 	// moving towards spawn (0)
@@ -279,7 +279,7 @@ void RB_Seal_LInB(struct Instance *inst)
 	// distance between points
 	for (int i = 0; i < 3; i++)
 	{
-		sealObj->vel[i] = sealObj->spawnPos[i] - sealObj->endPos[i];
+		sealObj->vel.v[i] = sealObj->spawnPos[i] - sealObj->endPos[i];
 	}
 
 	// rotCurr

@@ -14,8 +14,8 @@ void RB_CtrLetter_ThTick(struct Thread *t)
 	letterObj = t->object;
 
 	// rotate each frame
-	letterObj->rot[1] += 0x40;
-	ConvertRotToMatrix(&letterInst->matrix, &letterObj->rot[0]);
+	letterObj->rot.y += 0x40;
+	ConvertRotToMatrix(&letterInst->matrix, &letterObj->rot.x);
 
-	Vector_SpecLightSpin3D(letterInst, &letterObj->rot[0], &letterLightDir);
+	Vector_SpecLightSpin3D(letterInst, &letterObj->rot.x, &letterLightDir);
 }

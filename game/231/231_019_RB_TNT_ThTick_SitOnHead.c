@@ -30,7 +30,7 @@ void RB_TNT_ThTick_SitOnHead(struct Thread *t)
 	// To: TNT instance
 	// From: obj->driverWhoHitMe->instance
 	// Delta: TNT -> 0x1c (position relative to driver)
-	LHMatrix_Parent(inst, mw->driverTarget->instSelf, (SVECTOR *)&mw->deltaPos[0]);
+	LHMatrix_Parent(inst, mw->driverTarget->instSelf, (SVECTOR *)&mw->deltaPos.x);
 
 	// Get Kart State
 	state = mw->driverTarget->kartState;
@@ -101,12 +101,12 @@ void RB_TNT_ThTick_SitOnHead(struct Thread *t)
 
 	mw->driverTarget->instTntRecv = 0;
 
-	mw->velocity[0] = 0;
-	mw->velocity[1] = 0x30;
-	mw->velocity[2] = 0;
-	mw->deltaPos[0] = 0;
-	mw->deltaPos[1] = 0;
-	mw->deltaPos[2] = 0;
+	mw->velocity.x = 0;
+	mw->velocity.y = 0x30;
+	mw->velocity.z = 0;
+	mw->deltaPos.x = 0;
+	mw->deltaPos.y = 0;
+	mw->deltaPos.z = 0;
 
 	// assign RB_TNT_ThTick_ThrowOffHead
 	ThTick_SetAndExec(t, RB_TNT_ThTick_ThrowOffHead);

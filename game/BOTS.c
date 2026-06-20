@@ -563,9 +563,9 @@ void BOTS_ThTick_RevEngine(struct Thread *botThread)
 
 		if (mask != NULL)
 		{
-			mask->pos[0] = (s16)CTR_MipsSra(botDriver->posCurr.x, 8);
-			mask->pos[1] = (s16)CTR_MipsSra(botDriver->posCurr.y, 8);
-			mask->pos[2] = (s16)CTR_MipsSra(botDriver->posCurr.z, 8);
+			mask->pos.x = (s16)CTR_MipsSra(botDriver->posCurr.x, 8);
+			mask->pos.y = (s16)CTR_MipsSra(botDriver->posCurr.y, 8);
+			mask->pos.z = (s16)CTR_MipsSra(botDriver->posCurr.z, 8);
 		}
 
 		VehPhysForce_TranslateMatrix(botThread, botDriver);
@@ -578,7 +578,7 @@ void BOTS_ThTick_RevEngine(struct Thread *botThread)
 		{
 			mask->scale = 0x1000;
 			mask->duration = 0;
-			mask->rot[2] &= 0xfffe;
+			mask->rot.z &= 0xfffe;
 		}
 
 		botDriver->botData.maskObj = NULL;
@@ -668,7 +668,7 @@ void BOTS_MaskGrab(struct Thread *botThread)
 	if (mask != 0)
 	{
 		mask->duration = BOTS_MASK_DURATION;
-		mask->rot[2] |= 1;
+		mask->rot.z |= 1;
 	}
 
 	// execute, then assign per-frame to BOTS_ThTick_RevEngine

@@ -26,17 +26,17 @@ void RB_TNT_ThTick_ThrowOnHead(struct Thread *t)
 
 	// alter height of TNT as it flies onto a driver's head,
 	// do NOT use parenthesis
-	mw->deltaPos[1] += (mw->velocity[1] * gGT->elapsedTimeMS) >> 5;
+	mw->deltaPos.y += (mw->velocity.y * gGT->elapsedTimeMS) >> 5;
 
 	// if TNT is moving downward
-	if (mw->velocity[1] < 0)
+	if (mw->velocity.y < 0)
 	{
 		array = (s16 *)s_tntThrowHeadY;
 
 		distHead = array[data.characterIDs[mw->driverTarget->driverID]];
 
 		// if TNT landed on head
-		if ((mw->deltaPos[1] < distHead) && (mw->deltaPos[1] = distHead, inst->scale.x == 0x800))
+		if ((mw->deltaPos.y < distHead) && (mw->deltaPos.y = distHead, inst->scale.x == 0x800))
 		{
 			// Set TNT timer to 0, it blows up at 0x5a
 			mw->numFramesOnHead = 0;
@@ -57,7 +57,7 @@ void RB_TNT_ThTick_ThrowOnHead(struct Thread *t)
 	}
 
 	// CopyMatrix
-	LHMatrix_Parent(inst, mw->driverTarget->instSelf, (SVECTOR *)&mw->deltaPos[0]);
+	LHMatrix_Parent(inst, mw->driverTarget->instSelf, (SVECTOR *)&mw->deltaPos.x);
 
 	// rotation
 	rot.x = 0;
@@ -70,11 +70,11 @@ void RB_TNT_ThTick_ThrowOnHead(struct Thread *t)
 	MatrixRotate(&inst->matrix, &inst->matrix, (MATRIX *)auStack48);
 
 	// reduce time remaining until TNT lands on head
-	mw->velocity[1] -= ((gGT->elapsedTimeMS << 2) >> 5);
+	mw->velocity.y -= ((gGT->elapsedTimeMS << 2) >> 5);
 
 	// set a minimum value (-0x60)
-	if (mw->velocity[1] < -0x60)
-		mw->velocity[1] = -0x60;
+	if (mw->velocity.y < -0x60)
+		mw->velocity.y = -0x60;
 
 	// rotation
 	mw->tntSpinY += 0x100;

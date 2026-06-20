@@ -42,15 +42,15 @@ void RB_Minecart_NewPoint(struct Instance *minecartInst, struct Minecart *mineca
 		minecartObj->posStart[i] = start;
 		minecartObj->posEnd[i] = end;
 		minecartInst->matrix.t[i] = start;
-		minecartObj->dir[i] = start - end;
+		minecartObj->dir.v[i] = start - end;
 	}
 
 #if defined(CTR_NATIVE)
 	minecartObj->rotDesired[0] =
-	    ratan2(minecartObj->dir[1], SquareRoot0_stub(minecartObj->dir[0] * minecartObj->dir[0] + minecartObj->dir[2] * minecartObj->dir[2]));
+	    ratan2(minecartObj->dir.y, SquareRoot0_stub(minecartObj->dir.x * minecartObj->dir.x + minecartObj->dir.z * minecartObj->dir.z));
 #endif
 
-	minecartObj->rotDesired[1] = ratan2(minecartObj->dir[0], minecartObj->dir[2]) - 0x800;
+	minecartObj->rotDesired[1] = ratan2(minecartObj->dir.x, minecartObj->dir.z) - 0x800;
 }
 
 void RB_Minecart_ThTick(struct Thread *t)
@@ -129,7 +129,7 @@ void RB_Minecart_ThTick(struct Thread *t)
 	for (i = 0; i < 3; i++)
 	{
 		minecartInst->matrix.t[i] =
-		    minecartObj->posStart[i] - ((minecartObj->betweenPoints_currFrame * minecartObj->dir[i]) / minecartObj->betweenPoints_numFrames);
+		    minecartObj->posStart[i] - ((minecartObj->betweenPoints_currFrame * minecartObj->dir.v[i]) / minecartObj->betweenPoints_numFrames);
 	}
 
 	minecartObj->rotCurr[1] = RB_Hazard_InterpolateValue(minecartObj->rotCurr[1], minecartObj->rotDesired[1], minecartObj->rotSpeed);

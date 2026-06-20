@@ -4,8 +4,8 @@ SVec3 crystalLightDir = {0x94F, 0x94F, 0x94F};
 
 static void RB_Crystal_RotateStep(struct Instance *crystalInst, struct Crystal *crystalObj)
 {
-	crystalObj->rot[1] += 0x40;
-	ConvertRotToMatrix(&crystalInst->matrix, &crystalObj->rot[0]);
+	crystalObj->rot.y += 0x40;
+	ConvertRotToMatrix(&crystalInst->matrix, &crystalObj->rot.x);
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b4c5c-0x800b4dd8.
@@ -74,14 +74,14 @@ void RB_Crystal_ThTick(struct Thread *t)
 	RB_Crystal_RotateStep(crystalInst, crystalObj);
 
 	// sine curve for vertical bounce
-	sine = MATH_Sin(crystalObj->rot[1]);
+	sine = MATH_Sin(crystalObj->rot.y);
 
 	// set posY
 	crystalInst->matrix.t[1] = crystalInst->instDef->pos.y + // original posY
-	                           ((sine << 4) >> 0xc) +         // sine (bounce up/down)
-	                           0x30;                          // airborne bump
+	                           ((sine << 4) >> 0xc) +        // sine (bounce up/down)
+	                           0x30;                         // airborne bump
 
-	Vector_SpecLightSpin3D(crystalInst, &crystalObj->rot[0], &crystalLightDir);
+	Vector_SpecLightSpin3D(crystalInst, &crystalObj->rot.x, &crystalLightDir);
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b4e7c-0x800b4f48.
@@ -146,8 +146,8 @@ void RB_Crystal_LInB(struct Instance *inst)
 		t->funcThCollide = (void (*)(struct Thread *))RB_Crystal_ThCollide;
 
 		// rotX, rotY, rotZ
-		*(int *)&crystalObj->rot[0] = 0;
-		crystalObj->rot[2] = 0;
+		*(int *)&crystalObj->rot.x = 0;
+		crystalObj->rot.z = 0;
 
 		inst->colorRGBA = 0xd22fff0;
 

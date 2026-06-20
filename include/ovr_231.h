@@ -29,7 +29,7 @@ struct MaskHeadScratch
 struct MaskHeadWeapon
 {
 	// 0x0
-	s16 rot[3];
+	SVec3 rot;
 
 	// 0x6
 	s16 duration;
@@ -38,7 +38,7 @@ struct MaskHeadWeapon
 	struct Instance *maskBeamInst;
 
 	// 0xC
-	s16 pos[3];
+	SVec3 pos;
 
 	// 0x12
 	s16 scale;
@@ -63,7 +63,7 @@ struct TrackerWeapon
 	struct Particle *ptrParticle;
 
 	// 0x10
-	s16 vel[3];
+	SVec3 vel;
 
 	// 0x16
 	// & 1 - used 10 wumpa fruit
@@ -71,7 +71,7 @@ struct TrackerWeapon
 	u16 flags;
 
 	// 0x18
-	s16 dir[3];
+	SVec3 dir;
 
 	// 0x1e
 	s16 rotY;
@@ -199,7 +199,7 @@ struct Shield
 	struct Instance *instHighlight;
 
 	// 0x10
-	s16 highlightRot[3];
+	SVec3 highlightRot;
 	s16 highlightTimer;
 
 	// 0x18
@@ -230,7 +230,7 @@ struct MineWeapon
 	struct Instance *crateInst; // if colliding with one
 
 	// 0xc
-	s16 velocity[3];
+	SVec3 velocity;
 
 	// 0x12
 	// used by tnt, and potion_inAir
@@ -250,7 +250,7 @@ struct MineWeapon
 
 	// 0x1C
 	// relative to driver
-	s16 deltaPos[3]; // Maybe SVECTOR but without padding?
+	SVec3 deltaPos;
 
 	// 0x22
 	// how many more jumps until
@@ -328,7 +328,7 @@ _Static_assert(sizeof(struct Crate) == 0x8);
 
 struct Crystal
 {
-	s16 rot[3];
+	SVec3 rot;
 	s16 padding;
 
 	// 0x8 bytes large
@@ -336,7 +336,7 @@ struct Crystal
 
 struct CtrLetter
 {
-	s16 rot[3];
+	SVec3 rot;
 	s16 padding;
 	// 0x8 bytes large
 };
@@ -471,7 +471,7 @@ struct Minecart
 	s16 posEnd[3];
 
 	// 0xe
-	s16 dir[3];
+	SVec3 dir;
 
 	// 0x14
 	int posIndex;
@@ -581,7 +581,7 @@ struct Seal
 	s16 numFramesSpinning;
 
 	// 0x28
-	s16 vel[3];
+	SVec3 vel;
 	s16 padding2e;
 
 	// 0x30 bytes large

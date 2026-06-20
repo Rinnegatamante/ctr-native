@@ -14,7 +14,7 @@ void RB_TNT_ThTick_ThrowOffHead(struct Thread *t)
 	mw = t->object;
 
 	// do NOT use parenthesis
-	inst->matrix.t[1] += (mw->velocity[1] * gGT->elapsedTimeMS) >> 5;
+	inst->matrix.t[1] += (mw->velocity.y * gGT->elapsedTimeMS) >> 5;
 
 #if defined(CTR_NATIVE)
 	// NOTE(aalhendi): Retail reads through driverTarget blindly here. Boss-thrown TNT can have
@@ -52,7 +52,7 @@ void RB_TNT_ThTick_ThrowOffHead(struct Thread *t)
 	}
 
 	// decrease velocity (artificial gravity)
-	mw->velocity[1] -= ((gGT->elapsedTimeMS << 2) >> 5);
-	if (mw->velocity[1] < -0x60)
-		mw->velocity[1] = -0x60;
+	mw->velocity.y -= ((gGT->elapsedTimeMS << 2) >> 5);
+	if (mw->velocity.y < -0x60)
+		mw->velocity.y = -0x60;
 }
