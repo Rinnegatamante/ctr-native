@@ -49,5 +49,5 @@ void LOAD_LevelFile(int levelID)
 	}
 
 	// start loading
-	sdata->Loading.stage = 0;
+	sdata->Loading.stage = LOAD_TEN_STAGES_0;
 }

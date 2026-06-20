@@ -288,7 +288,7 @@ void RaceFlag_DrawLoadingString(void)
 	iVar6 = 0;
 
 	// if game is not loading
-	if (sdata->Loading.stage == -1)
+	if (sdata->Loading.stage == LOAD_IDLE)
 	{
 		if (-1000 < (int)sdata->RaceFlag_Transition)
 		{

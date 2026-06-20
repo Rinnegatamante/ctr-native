@@ -143,7 +143,7 @@ void LOAD_Hub_Main(struct BigHeader *bigfilePtr)
 	struct GameTracker *gGT;
 
 	// quit if already loading
-	if (sdata->Loading.stage != -1)
+	if (sdata->Loading.stage != LOAD_IDLE)
 		return;
 
 	gGT = sdata->gGT;

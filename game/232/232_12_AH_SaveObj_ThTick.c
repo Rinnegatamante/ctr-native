@@ -123,7 +123,7 @@ void AH_SaveObj_ThTick(struct Thread *t)
 				// load while levelID is temporarily MAIN_MENU_LEVEL. Native can
 				// keep this save object ticking during that transition, so do not
 				// restore the hub HUD/map until loading is idle again.
-				if (sdata->Loading.stage == -1)
+				if (sdata->Loading.stage == LOAD_IDLE)
 #endif
 					gGT->hudFlags = save->hudFlagBackup;
 			}

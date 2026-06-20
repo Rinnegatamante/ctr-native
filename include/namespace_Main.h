@@ -40,6 +40,16 @@ enum GameMode1
 // TODO(aalhendi): i'd *like* to do something better. idk yet
 #define IS_BOSS_RACE(gm) ((gm) < 0)
 
+typedef enum LoadStage : s32
+{
+	LOAD_VLC = -6,         // loading VLC table (menu/scrapbook)
+	LOAD_RESTART = -5,     // restart race from pause
+	LOAD_REQUESTED = -4,   // checkered flag started, waiting to engage
+	LOAD_FINISHED = -2,    // TenStages done, transitioning to next phase
+	LOAD_IDLE = -1,        // not loading
+	LOAD_TEN_STAGES_0 = 0, // begin TenStages pipeline
+} LoadStage;
+
 typedef enum MainMenuState : s16
 {
 	MAIN_MENU_TITLE = 0,

@@ -362,7 +362,7 @@ void UI_RaceEnd_MenuProc(struct RectMenu *menu)
 		if (RaceFlag_IsFullyOffScreen() == 1)
 			RaceFlag_BeginTransition(1);
 
-		sdata->Loading.stage = -5;
+		sdata->Loading.stage = LOAD_RESTART;
 
 		// clear backup,
 		// keep music,

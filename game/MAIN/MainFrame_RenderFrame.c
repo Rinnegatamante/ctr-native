@@ -42,7 +42,7 @@ void MainFrame_RenderFrame(struct GameTracker *gGT, struct GamepadSystem *gGamep
 	}
 
 	if (sdata->ptrActiveMenu != 0)
-		if (sdata->Loading.stage == -1)
+		if (sdata->Loading.stage == LOAD_IDLE)
 			RECTMENU_ProcessState();
 
 	RainLogic(gGT);
@@ -121,7 +121,7 @@ void MainFrame_RenderFrame(struct GameTracker *gGT, struct GamepadSystem *gGamep
 		if (((gGT->renderFlags & 0x100) != 0) && (gGT->numPlyrCurrGame > 1))
 			DecalMP_03(gGT);
 
-		int dotLightsLoadReady = sdata->Loading.stage != -4;
+		int dotLightsLoadReady = sdata->Loading.stage != LOAD_REQUESTED;
 
 		if (
 		    // if not cutscene
@@ -140,7 +140,7 @@ void MainFrame_RenderFrame(struct GameTracker *gGT, struct GamepadSystem *gGamep
 		}
 
 		// if game is not loading
-		if (sdata->Loading.stage == -1)
+		if (sdata->Loading.stage == LOAD_IDLE)
 		{
 			// If game is not paused
 			if ((gGT->gameMode1 & PAUSE_ALL) == 0)

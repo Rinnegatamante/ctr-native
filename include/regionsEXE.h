@@ -2973,7 +2973,7 @@ struct sData
 		// stage = 0 - 9
 		// FUN_80033610
 		// Think back to rebuild-intros
-		int stage;
+		LoadStage stage;
 
 		// 8008d0fc
 		u32 Lev_ID_To_Load;

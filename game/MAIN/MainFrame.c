@@ -505,7 +505,7 @@ void MainFrame_InitVideoSTR(u32 boolPlayVideoStr, RECT *r, s16 posX, s16 posY)
 int MainFrame_HaveAllPads(s16 numPlyrNextGame)
 {
 	// if game is not loading
-	if (sdata->Loading.stage == -1)
+	if (sdata->Loading.stage == LOAD_IDLE)
 	{
 		struct GamepadBuffer *gb = &sdata->gGamepads->gamepad[0];
 

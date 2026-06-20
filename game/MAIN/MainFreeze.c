@@ -936,7 +936,7 @@ void MainFreeze_MenuPtrDefault(struct RectMenu *menu)
 		}
 
 		// restart race
-		sdata->Loading.stage = -5;
+		sdata->Loading.stage = LOAD_RESTART;
 
 		// if you are not showing a ghost during a race
 		if (sdata->boolReplayHumanGhost == 0)

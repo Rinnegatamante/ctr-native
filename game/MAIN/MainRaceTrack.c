@@ -26,7 +26,7 @@ void MainRaceTrack_RequestLoad(s16 levelID)
 	}
 	RaceFlag_ResetTextAnim();
 
-	sdata->Loading.stage = -4;
+	sdata->Loading.stage = LOAD_REQUESTED;
 	sdata->Loading.Lev_ID_To_Load = levelID;
 	return;
 }

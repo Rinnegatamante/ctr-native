@@ -173,7 +173,7 @@ u32 main(void)
 		case 3:
 
 			// if loading, or gameplay interrupted
-			if (sdata->Loading.stage != -1)
+			if (sdata->Loading.stage != LOAD_IDLE)
 			{
 				if ((RaceFlag_IsFullyOnScreen() == 1) || (gGT->levelID == NAUGHTY_DOG_CRATE) || (sdata->pause_state != 0))
 				{
@@ -187,7 +187,7 @@ u32 main(void)
 				gGT->elapsedTimeMS = 32;
 
 				// if loading VLC
-				if (iVar8 == -6)
+				if (iVar8 == LOAD_VLC)
 				{
 					// if VLC is not loaded, quit
 					// we know when it's done from a load callback
@@ -199,7 +199,7 @@ u32 main(void)
 				}
 
 				// if restarting race
-				if (iVar8 == -5)
+				if (iVar8 == LOAD_RESTART)
 				{
 					if (RaceFlag_IsFullyOnScreen() == 1)
 					{
@@ -208,7 +208,7 @@ u32 main(void)
 						sdata->mainGameState = 2;
 
 						// no loading, and no interruption
-						sdata->Loading.stage = -1;
+						sdata->Loading.stage = LOAD_IDLE;
 
 						// Turn off the "Loading..." flag
 						gGT->gameMode1 &= ~LOADING;
@@ -261,14 +261,14 @@ u32 main(void)
 					sdata->Loading.stage = LOAD_TenStages(gGT, iVar8, sdata->ptrBigfile1);
 
 					// If just finished loading stage 9
-					if (sdata->Loading.stage == -2)
+					if (sdata->Loading.stage == LOAD_FINISHED)
 					{
 						if ((gGT->levelID == MAIN_MENU_LEVEL) || (gGT->levelID == SCRAPBOOK))
 						{
 							MainLoadVLC();
 
-							// start loading VLC (scroll up to iVar8 == -6)
-							sdata->Loading.stage = -6;
+							// start loading VLC (scroll up to iVar8 == LOAD_VLC)
+							sdata->Loading.stage = LOAD_VLC;
 							break;
 						}
 
@@ -276,7 +276,7 @@ u32 main(void)
 						// loading is finished,
 						// initialize world and pools,
 						// remove LOADING... flag from gGT
-						sdata->Loading.stage = -1;
+						sdata->Loading.stage = LOAD_IDLE;
 						sdata->mainGameState = 1;
 						gGT->gameMode1 &= ~LOADING;
 						break;
@@ -340,7 +340,7 @@ u32 main(void)
 			        // Turn off HUD
 			        gGT->hudFlags &= 0xfe,
 			        // if game is not loading
-			        sdata->Loading.stage == -1))
+			        sdata->Loading.stage == LOAD_IDLE))
 			{
 				// All this code is for the 30-second timer within Demo Mode
 				// To see 30-second timer in Main Menu, go to FUN_00001604 in 230.c
@@ -663,7 +663,7 @@ void StateZero()
 	sdata->mainGameState = 3;
 
 	// start loading
-	sdata->Loading.stage = 0;
+	sdata->Loading.stage = LOAD_TEN_STAGES_0;
 
 	clockEffect = &gGT->clockEffectEnabled;
 	gGT->gameMode1 |= LOADING;
