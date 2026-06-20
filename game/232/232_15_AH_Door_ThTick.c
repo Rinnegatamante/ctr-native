@@ -60,13 +60,13 @@ void AH_Door_ThTick(struct Thread *t)
 	doorIsOpen = AH_Door_IsOpenByRewards(lev, doorID);
 
 	// Cosine(angle)
-	ratio = MATH_Cos((int)doorInst->instDef->rot[1]);
+	ratio = MATH_Cos((int)doorInst->instDef->rot.y);
 
 	// X distance of player and door
 	distX = doorInst->matrix.t[0] + (ratio * 0x300 >> 0xc) - driver->instSelf->matrix.t[0];
 
 	// Sine(angle)
-	ratio = MATH_Sin((int)doorInst->instDef->rot[1]);
+	ratio = MATH_Sin((int)doorInst->instDef->rot.y);
 
 	// Z distance of player and door
 	distZ = doorInst->matrix.t[2] + (ratio * 0x300 >> 0xc) - driver->instSelf->matrix.t[2];
@@ -322,7 +322,7 @@ void AH_Door_ThTick(struct Thread *t)
 								keyInst->matrix.t[2] = driver->instSelf->matrix.t[2] + ((iVar17 >> 5) * ratio >> 0xc);
 							}
 
-							s16 *kr = &door->keyRot[0];
+							s16 *kr = &door->keyRot.x;
 
 							Vector_SpecLightSpin3D(keyInst, kr, &keyLightDir);
 
@@ -333,9 +333,9 @@ void AH_Door_ThTick(struct Thread *t)
 					}
 				}
 
-				door->keyRot[0] = 0;
-				door->keyRot[1] += 0x40;
-				door->keyRot[2] = 0;
+				door->keyRot.x = 0;
+				door->keyRot.y += 0x40;
+				door->keyRot.z = 0;
 
 				door->keyOrbit += 0x10;
 
@@ -381,26 +381,26 @@ void AH_Door_ThTick(struct Thread *t)
 
 		// == After 4 seconds ==
 
-		ratio = MATH_Cos((int)doorInst->instDef->rot[1]);
+		ratio = MATH_Cos((int)doorInst->instDef->rot.y);
 
-		i = MATH_Cos((int)doorInst->instDef->rot[1] + 0x400);
+		i = MATH_Cos((int)doorInst->instDef->rot.y + 0x400);
 
 		// desired posX for transition
 		desiredPos.x = doorInst->matrix.t[0] + (s16)(ratio * 0x312 >> 0xc) + (s16)(i * 0x600 >> 0xc);
 		// desired posY for transition
 		desiredPos.y = doorInst->matrix.t[1] + 0x17a;
 
-		ratio = MATH_Sin((int)doorInst->instDef->rot[1]);
+		ratio = MATH_Sin((int)doorInst->instDef->rot.y);
 
-		i = MATH_Sin((int)doorInst->instDef->rot[1] + 0x400);
+		i = MATH_Sin((int)doorInst->instDef->rot.y + 0x400);
 
 		// desired posZ for transition
 		desiredPos.z = doorInst->matrix.t[2] + (s16)(ratio * 0x312 >> 0xc) + (s16)(i * 0x600 >> 0xc);
 
 		// desired rotation for transition
-		desiredRot.x = doorInst->instDef->rot[0] + 0x800;
-		desiredRot.y = doorInst->instDef->rot[1];
-		desiredRot.z = doorInst->instDef->rot[2];
+		desiredRot.x = doorInst->instDef->rot.x + 0x800;
+		desiredRot.y = doorInst->instDef->rot.y;
+		desiredRot.z = doorInst->instDef->rot.z;
 
 		// set desired position and rotation for CamerDC transition
 		CAM_SetDesiredPosRot(&gGT->cameraDC[0], &desiredPos, &desiredRot);
@@ -415,20 +415,20 @@ void AH_Door_ThTick(struct Thread *t)
 
 	// == door is opening ==
 
-	if (door->doorRot[1] < 0x400)
+	if (door->doorRot.y < 0x400)
 	{
-		door->doorRot[1] += 0x10;
+		door->doorRot.y += 0x10;
 
 		// right-hand door rot[x,y,z]
-		desiredRot.x = door->doorRot[0];
-		desiredRot.y = doorInst->instDef->rot[1] - door->doorRot[1];
-		desiredRot.z = door->doorRot[2];
+		desiredRot.x = door->doorRot.x;
+		desiredRot.y = doorInst->instDef->rot.y - door->doorRot.y;
+		desiredRot.z = door->doorRot.z;
 
 		// converted to TEST in rebuildPS1
 		ConvertRotToMatrix(&door->otherDoor->matrix, desiredRot.v);
 
 		// left-hand door rot[x,y,z]
-		desiredRot.y = doorInst->instDef->rot[1] + door->doorRot[1];
+		desiredRot.y = doorInst->instDef->rot.y + door->doorRot.y;
 
 		// converted to TEST in rebuildPS1
 		ConvertRotToMatrix(&doorInst->matrix, desiredRot.v);

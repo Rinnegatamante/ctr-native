@@ -164,12 +164,12 @@ void VehBirth_TeleportSelf(struct Driver *d, u8 spawnFlag, int spawnPosY)
 
 		if (doorInst != NULL)
 		{
-			int rotY = doorInst->rot[1];
+			int rotY = doorInst->rot.y;
 
 			gGT->gameMode2 |= VEH_FREEZE_DOOR;
-			posBottom.x = doorInst->pos[0] + VehBirth_ScaleTrig(MATH_Cos(rotY), 800) + VehBirth_ScaleTrig(MATH_Cos(rotY + 0x400), 0x200);
-			posBottom.y = doorInst->pos[1] + 0x17a;
-			posBottom.z = doorInst->pos[2] + VehBirth_ScaleTrig(MATH_Sin(rotY), 800) + VehBirth_ScaleTrig(MATH_Sin(rotY + 0x400), 0x200);
+			posBottom.x = doorInst->pos.x + VehBirth_ScaleTrig(MATH_Cos(rotY), 800) + VehBirth_ScaleTrig(MATH_Cos(rotY + 0x400), 0x200);
+			posBottom.y = doorInst->pos.y + 0x17a;
+			posBottom.z = doorInst->pos.z + VehBirth_ScaleTrig(MATH_Sin(rotY), 800) + VehBirth_ScaleTrig(MATH_Sin(rotY + 0x400), 0x200);
 		}
 		else if (spawnOutsideBoss != 0)
 		{
@@ -232,7 +232,7 @@ void VehBirth_TeleportSelf(struct Driver *d, u8 spawnFlag, int spawnPosY)
 	{
 		if (doorInst != NULL)
 		{
-			d->rotCurr.y = (doorInst->rot[1] + 0x800) & 0xfff;
+			d->rotCurr.y = (doorInst->rot.y + 0x800) & 0xfff;
 			gGT->gameMode2 &= ~(SPAWN_AT_BOSS | 2);
 		}
 		else if (spawnOutsideBoss != 0)

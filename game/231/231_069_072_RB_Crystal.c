@@ -77,7 +77,7 @@ void RB_Crystal_ThTick(struct Thread *t)
 	sine = MATH_Sin(crystalObj->rot[1]);
 
 	// set posY
-	crystalInst->matrix.t[1] = crystalInst->instDef->pos[1] + // original posY
+	crystalInst->matrix.t[1] = crystalInst->instDef->pos.y + // original posY
 	                           ((sine << 4) >> 0xc) +         // sine (bounce up/down)
 	                           0x30;                          // airborne bump
 

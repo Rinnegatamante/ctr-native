@@ -265,10 +265,10 @@ void INSTANCE_LevInitAll(struct InstDef *levInstDef, int numInst)
 		inst->bitCompressed_NormalVector_AndDriverIndex = 0;
 
 		// converted to TEST in rebuildPS1
-		ConvertRotToMatrix(&inst->matrix, &levInstDef->rot[0]);
+		ConvertRotToMatrix(&inst->matrix, levInstDef->rot.v);
 
 		// instance posX and posY
-		CTR_COPY_VEC3(inst->matrix.t, levInstDef->pos);
+		CTR_COPY_VEC3(inst->matrix.t, levInstDef->pos.v);
 
 		inst->thread = NULL;
 		struct InstDrawPerPlayer *idpp = INST_GETIDPP(inst);

@@ -284,9 +284,9 @@ void RB_Seal_LInB(struct Instance *inst)
 
 	// rotCurr
 	instDef = inst->instDef;
-	sealObj->rotCurr[0] = instDef->rot[0];
-	sealObj->rotCurr[1] = instDef->rot[1];
-	sealObj->rotCurr[2] = instDef->rot[2];
+	sealObj->rotCurr[0] = instDef->rot.x;
+	sealObj->rotCurr[1] = instDef->rot.y;
+	sealObj->rotCurr[2] = instDef->rot.z;
 
 	for (int i = 0; i < 3; i++)
 	{

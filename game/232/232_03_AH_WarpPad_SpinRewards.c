@@ -8,7 +8,7 @@ void AH_WarpPad_SpinRewards(struct Instance *prizeInst, struct WarpPad *warppadO
 	u32 trig;
 	u32 thirds;
 
-	ConvertRotToMatrix(&prizeInst->matrix, &warppadObj->spinRot_Prize[0]);
+	ConvertRotToMatrix(&prizeInst->matrix, &warppadObj->spinRot_Prize.x);
 
 	modelID = prizeInst->model->id;
 
@@ -28,7 +28,7 @@ void AH_WarpPad_SpinRewards(struct Instance *prizeInst, struct WarpPad *warppadO
 					goto SpinReward;
 			}
 		}
-		Vector_SpecLightSpin3D(prizeInst, &warppadObj->spinRot_Prize[0], lightDir);
+		Vector_SpecLightSpin3D(prizeInst, &warppadObj->spinRot_Prize.x, lightDir);
 	}
 
 SpinReward:
@@ -41,7 +41,7 @@ SpinReward:
 
 	// do not use original "thirds",
 	// set new value without "+="
-	thirds = 0x555 * index + warppadObj->spinRot_Rewards[1];
+	thirds = 0x555 * index + warppadObj->spinRot_Rewards.y;
 
 	trig = MATH_Sin(thirds);
 	prizeInst->matrix.t[0] = x + (trig * 0xA0 >> 0xc);

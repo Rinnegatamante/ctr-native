@@ -41,7 +41,8 @@ struct WoodDoor
 	struct Instance *keyInst[4];
 
 	// 0x14 (5)
-	s16 doorRot[4];
+	SVec3 doorRot;
+	s16 _pad_doorRot;
 
 	// 0x1c (7)
 	s16 camFlags;
@@ -55,7 +56,8 @@ struct WoodDoor
 	s16 frameCount_doorOpenAnim;
 
 	// 0x28 (10)
-	s16 keyRot[4];
+	SVec3 keyRot;
+	s16 _pad_keyRot;
 
 	// 0x30 (12)
 	s16 keyOrbit;
@@ -95,16 +97,20 @@ struct WarpPad
 	struct Instance *inst[WPIS_NUM_INSTANCES];
 
 	// 0x28
-	s16 spinRot_Prize[4];
+	SVec3 spinRot_Prize;
+	s16 _pad_spinRot_Prize;
 
 	// 0x30
-	s16 spinRot_Wisp[2][4];
+	SVec3 spinRot_Wisp[2];
+	s16 _pad_spinRot_Wisp[2];
 
 	// 0x40
-	s16 spinRot_Beam[4];
+	SVec3 spinRot_Beam;
+	s16 _pad_spinRot_Beam;
 
 	// 0x48
-	s16 spinRot_Rewards[4];
+	SVec3 spinRot_Rewards;
+	s16 _pad_spinRot_Rewards;
 
 	// 0x50
 	SVec3 lightDirGem;

@@ -63,13 +63,13 @@ void AH_Garage_LInB(struct Instance *inst)
 		garageTop->matrix.t[1] = inst->matrix.t[1];
 		garageTop->matrix.t[2] = inst->matrix.t[2];
 
-		ratio = MATH_Sin((int)inst->instDef->rot[1]);
+		ratio = MATH_Sin((int)inst->instDef->rot.y);
 
 		// continue setting GarageTop position
 		garageTop->matrix.t[0] = inst->matrix.t[0] + (ratio * 0x4c >> 0xc);
 		garageTop->matrix.t[1] = inst->matrix.t[1] + 0x300;
 
-		ratio = MATH_Cos((int)inst->instDef->rot[1]);
+		ratio = MATH_Cos((int)inst->instDef->rot.y);
 
 		// continue setting GarageTop position
 		garageTop->matrix.t[2] = inst->matrix.t[2] + (ratio * 0x4c >> 0xc);
@@ -123,12 +123,12 @@ void AH_Garage_LInB(struct Instance *inst)
 		t->modelIndex = 0;
 	}
 
-	garage->rot[0] = inst->instDef->rot[0];
-	garage->rot[1] = inst->instDef->rot[1];
-	garage->rot[2] = inst->instDef->rot[2];
+	garage->rot[0] = inst->instDef->rot.x;
+	garage->rot[1] = inst->instDef->rot.y;
+	garage->rot[2] = inst->instDef->rot.z;
 
 	inst->depthBiasNormal = 1;
 	inst->depthBiasSecondary = inst->depthBiasNormal;
 	inst->unk53 = 0;
-	inst->vertSplit = inst->instDef->pos[1] + 0x300;
+	inst->vertSplit = inst->instDef->pos.y + 0x300;
 }

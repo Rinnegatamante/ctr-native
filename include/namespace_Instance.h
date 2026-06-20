@@ -408,10 +408,10 @@ struct InstDef
 	struct Instance *ptrInstance;
 
 	// 0x30
-	s16 pos[3];
+	SVec3 pos;
 
 	// 0x36
-	s16 rot[3];
+	SVec3 rot;
 
 	// 0x3c
 	int modelID;

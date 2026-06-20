@@ -157,7 +157,7 @@ void RB_Fireball_ThTick(struct Thread *t)
 	fireInst->flags |= 0x80;
 
 	oldVelY = 0;
-	resetPosY = fireInst->instDef->pos[1] - 0x440;
+	resetPosY = fireInst->instDef->pos.y - 0x440;
 
 	// if fireball isn't below the lava,
 	// handle all particle spawning

@@ -388,7 +388,7 @@ void RB_FlameJet_ThTick(struct Thread *t)
 EndFjThTick:
 
 	fjObj->cycleTimer++;
-	Vector_SpecLightNoSpin3D(fjInst, &fjInst->instDef->rot[0], &fjLightDir);
+	Vector_SpecLightNoSpin3D(fjInst, &fjInst->instDef->rot.x, &fjLightDir);
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b6938-0x800b6d58.

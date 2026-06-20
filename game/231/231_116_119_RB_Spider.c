@@ -48,10 +48,10 @@ void RB_Spider_DrawWebs(struct Thread *t, struct PushBuffer *pb)
 	{
 		struct Instance *inst = t->inst;
 		struct InstDef *instDef = inst->instDef;
-		u16 x = (u16)instDef->pos[0];
-		s32 z = instDef->pos[2];
+		u16 x = (u16)instDef->pos.x;
+		s32 z = instDef->pos.z;
 
-		line->topXY = (u32)x | ((u32)(u16)(instDef->pos[1] + 0x540) << 16);
+		line->topXY = (u32)x | ((u32)(u16)(instDef->pos.y + 0x540) << 16);
 		line->bottomXY = (u32)x | ((u32)(u16)(inst->matrix.t[1] + 0x60) << 16);
 		line->z = z;
 		line++;
@@ -232,7 +232,7 @@ void RB_Spider_ThTick(struct Thread *t)
 			}
 
 		updatePosScale:
-			spiderInst->matrix.t[1] = (int)spiderInst->instDef->pos[1] + spiderArr[spiderInst->animFrame];
+			spiderInst->matrix.t[1] = (int)spiderInst->instDef->pos.y + spiderArr[spiderInst->animFrame];
 
 			if (spiderInst->animFrame < 0xb)
 			{

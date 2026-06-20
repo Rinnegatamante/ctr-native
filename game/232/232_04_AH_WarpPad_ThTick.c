@@ -238,10 +238,10 @@ void AH_WarpPad_ThTick(struct Thread *t)
 			instArr[WPIS_CLOSED_1S]->matrix.t[2] = warppadMatrix->t[2] + (angleSin * -0xa0 >> 0xC);
 		}
 
-		warppadObj->spinRot_Prize[0] = 0;
-		warppadObj->spinRot_Prize[2] = 0;
+		warppadObj->spinRot_Prize.x = 0;
+		warppadObj->spinRot_Prize.z = 0;
 
-		warppadObj->spinRot_Prize[1] += 0x40;
+		warppadObj->spinRot_Prize.y += 0x40;
 
 		// reuse variable,
 		// end of function anyway
@@ -249,7 +249,7 @@ void AH_WarpPad_ThTick(struct Thread *t)
 #define InstArr0 warppadInst
 
 		// converted to TEST in rebuildPS1
-		ConvertRotToMatrix(&InstArr0->matrix, &warppadObj->spinRot_Prize[0]);
+		ConvertRotToMatrix(&InstArr0->matrix, &warppadObj->spinRot_Prize.x);
 
 		modelID = InstArr0->model->id;
 
@@ -263,14 +263,14 @@ void AH_WarpPad_ThTick(struct Thread *t)
 		// Relic
 		if (modelID == STATIC_RELIC)
 		{
-			Vector_SpecLightSpin3D(InstArr0, &warppadObj->spinRot_Prize[0], &warppadObj->lightDirRelic);
+			Vector_SpecLightSpin3D(InstArr0, &warppadObj->spinRot_Prize.x, &warppadObj->lightDirRelic);
 			return;
 		}
 
 		// Token
 		if (modelID == STATIC_TOKEN)
 		{
-			Vector_SpecLightSpin3D(InstArr0, &warppadObj->spinRot_Prize[0], &warppadObj->lightDirToken);
+			Vector_SpecLightSpin3D(InstArr0, &warppadObj->spinRot_Prize.x, &warppadObj->lightDirToken);
 			return;
 		}
 
@@ -283,7 +283,7 @@ void AH_WarpPad_ThTick(struct Thread *t)
 		}
 
 		// for Key or Gem
-		Vector_SpecLightSpin3D(InstArr0, &warppadObj->spinRot_Prize[0], &warppadObj->lightDirGem);
+		Vector_SpecLightSpin3D(InstArr0, &warppadObj->spinRot_Prize.x, &warppadObj->lightDirGem);
 		return;
 	}
 
@@ -511,16 +511,16 @@ WarpPad_AnimateOpen:
 
 	if ((instArr[WPIS_OPEN_BEAM] != 0) && ((gGT->timer & 1) != 0))
 	{
-		warppadObj->spinRot_Beam[0] = 0;
-		warppadObj->spinRot_Beam[2] = 0;
+		warppadObj->spinRot_Beam.x = 0;
+		warppadObj->spinRot_Beam.z = 0;
 
 		// what on earth was this RNG?
 		// how'd they come up with something so random, that looks so good?
 		i = MixRNG_Scramble();
-		warppadObj->spinRot_Beam[1] += ((s16)(i >> 3) + (s16)((i >> 3) / 6) * -6 + 1) * 0x200;
+		warppadObj->spinRot_Beam.y += ((s16)(i >> 3) + (s16)((i >> 3) / 6) * -6 + 1) * 0x200;
 
 		// converted to TEST in rebuildPS1
-		ConvertRotToMatrix(&instArr[WPIS_OPEN_BEAM]->matrix, &warppadObj->spinRot_Beam[0]);
+		ConvertRotToMatrix(&instArr[WPIS_OPEN_BEAM]->matrix, &warppadObj->spinRot_Beam.x);
 	}
 
 	wispRiseRate = 0x20;
@@ -535,13 +535,13 @@ WarpPad_AnimateOpen:
 	{
 		if (instArr[WPIS_OPEN_RING1 + i] != 0)
 		{
-			warppadObj->spinRot_Wisp[i][0] = 0;
-			warppadObj->spinRot_Wisp[i][2] = 0;
+			warppadObj->spinRot_Wisp[i].x = 0;
+			warppadObj->spinRot_Wisp[i].z = 0;
 
-			warppadObj->spinRot_Wisp[i][1] += 0x100;
+			warppadObj->spinRot_Wisp[i].y += 0x100;
 
 			// converted to TEST in rebuildPS1
-			ConvertRotToMatrix(&instArr[WPIS_OPEN_RING1 + i]->matrix, &warppadObj->spinRot_Wisp[i][0]);
+			ConvertRotToMatrix(&instArr[WPIS_OPEN_RING1 + i]->matrix, &warppadObj->spinRot_Wisp[i].x);
 
 			// if height hasn't reached max height
 			if (instArr[WPIS_OPEN_RING1 + i]->matrix.t[1] < (warppadInst->matrix.t[1] + wispMaxHeight))
@@ -579,14 +579,14 @@ WarpPad_AnimateOpen:
 				if (rng1 < 0)
 					rng2 = rng1 + 0xfff;
 
-				warppadObj->spinRot_Wisp[i][1] = (s16)rng1 + (s16)(rng2 >> 0xc) * -0x1000;
+				warppadObj->spinRot_Wisp[i].y = (s16)rng1 + (s16)(rng2 >> 0xc) * -0x1000;
 			}
 		}
 
 		wispRiseRate += 0x10;
 	}
 
-	warppadObj->spinRot_Prize[1] += 0x80;
+	warppadObj->spinRot_Prize.y += 0x80;
 
 	rewardScale = 0x100;
 
@@ -603,7 +603,7 @@ WarpPad_AnimateOpen:
 
 	for (i = 0; i < 3; i++)
 	{
-		warppadObj->spinRot_Prize[2] = 0x155;
+		warppadObj->spinRot_Prize.z = 0x155;
 
 		if (instArr[WPIS_OPEN_PRIZE1 + i] != 0)
 		{
@@ -646,7 +646,7 @@ WarpPad_AnimateOpen:
 		}
 
 		warppadObj->thirds[i] += 0x20;
-		warppadObj->spinRot_Rewards[1] += 0x4;
+		warppadObj->spinRot_Rewards.y += 0x4;
 	}
 
 	if (instArr[WPIS_CLOSED_1S] != 0)

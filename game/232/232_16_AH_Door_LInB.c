@@ -59,9 +59,9 @@ void AH_Door_LInB(struct Instance *inst)
 	woodDoor->frameCount_doorOpenAnim = 0;
 	woodDoor->keyShrinkFrame = 0;
 
-	woodDoor->doorRot[0] = 0;
-	woodDoor->doorRot[1] = 0;
-	woodDoor->doorRot[2] = 0;
+	woodDoor->doorRot.x = 0;
+	woodDoor->doorRot.y = 0;
+	woodDoor->doorRot.z = 0;
 	woodDoor->doorID = 0;
 
 	for (i = 5; inst->name[i] != '\0'; i++)
@@ -119,13 +119,13 @@ void AH_Door_LInB(struct Instance *inst)
 	// set scaleX to -0x1000
 	otherDoorInst->scale.x = -0x1000;
 
-	ratio = MATH_Cos((int)inst->instDef->rot[1]);
+	ratio = MATH_Cos((int)inst->instDef->rot.y);
 
 	otherDoorInst->matrix.t[0] += (ratio * 0x600 >> 0xc);
 
 	otherDoorInst->matrix.t[1] = inst->matrix.t[1];
 
-	ratio = MATH_Sin((int)(int)inst->instDef->rot[1]);
+	ratio = MATH_Sin((int)(int)inst->instDef->rot.y);
 
 	otherDoorInst->matrix.t[2] += (ratio * 0x600 >> 0xc);
 
@@ -155,15 +155,15 @@ void AH_Door_LInB(struct Instance *inst)
 	    (levelID == GLACIER_PARK) && ((sdata->advProgress.storyFlags & ADV_REWARD_DOOR_GLACIER_PARK_TO_CITADEL_CITY_MASK) != 0))
 	{
 		// rotation = 90 degrees
-		woodDoor->doorRot[1] = 0x400;
+		woodDoor->doorRot.y = 0x400;
 
-		leftRot.x = woodDoor->doorRot[0];
-		leftRot.y = inst->instDef->rot[1] + woodDoor->doorRot[1];
-		leftRot.z = woodDoor->doorRot[2];
+		leftRot.x = woodDoor->doorRot.x;
+		leftRot.y = inst->instDef->rot.y + woodDoor->doorRot.y;
+		leftRot.z = woodDoor->doorRot.z;
 
-		rightRot.x = woodDoor->doorRot[0];
-		rightRot.y = inst->instDef->rot[1] - woodDoor->doorRot[1];
-		rightRot.z = woodDoor->doorRot[2];
+		rightRot.x = woodDoor->doorRot.x;
+		rightRot.y = inst->instDef->rot.y - woodDoor->doorRot.y;
+		rightRot.z = woodDoor->doorRot.z;
 
 		// make matrices for both doors rotated open
 

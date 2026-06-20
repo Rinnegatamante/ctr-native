@@ -212,19 +212,19 @@ void AH_WarpPad_LInB(struct Instance *inst)
 		for (i = 0; i < 3; i++)
 			warppadObj->thirds[i] = 0x555 * i;
 
-		warppadObj->spinRot_Prize[0] = 0;
-		warppadObj->spinRot_Prize[1] = 0;
-		warppadObj->spinRot_Prize[2] = 0;
+		warppadObj->spinRot_Prize.x = 0;
+		warppadObj->spinRot_Prize.y = 0;
+		warppadObj->spinRot_Prize.z = 0;
 
-		warppadObj->spinRot_Beam[0] = 0;
-		warppadObj->spinRot_Beam[1] = 0;
-		warppadObj->spinRot_Beam[2] = 0;
+		warppadObj->spinRot_Beam.x = 0;
+		warppadObj->spinRot_Beam.y = 0;
+		warppadObj->spinRot_Beam.z = 0;
 
 		for (i = 0; i < 2; i++)
 		{
-			warppadObj->spinRot_Wisp[i][0] = 0;
-			warppadObj->spinRot_Wisp[i][1] = 0;
-			warppadObj->spinRot_Wisp[i][2] = 0;
+			warppadObj->spinRot_Wisp[i].x = 0;
+			warppadObj->spinRot_Wisp[i].y = 0;
+			warppadObj->spinRot_Wisp[i].z = 0;
 		}
 
 		if (levelID < AH_WP_SLIDE_COLISEUM)

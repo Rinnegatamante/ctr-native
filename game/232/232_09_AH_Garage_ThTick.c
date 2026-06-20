@@ -75,8 +75,8 @@ void AH_Garage_ThTick(struct Thread *t)
 		move = inst->matrix.t[1] + garage->direction * 0x20;
 		inst->matrix.t[1] = move;
 
-		top = inst->instDef->pos[1] + 0x300;
-		bottom = inst->instDef->pos[1];
+		top = inst->instDef->pos.y + 0x300;
+		bottom = inst->instDef->pos.y;
 
 		// If the door has gone past the top (height=0x300)
 		if (move > top)
@@ -155,9 +155,9 @@ LAB_800aebd0:
 	bossIsOpen = false;
 
 LAB_800aec34:
-	dist[0] = drv_inst->matrix.t[0] - inst->instDef->pos[0];
-	dist[1] = drv_inst->matrix.t[1] - inst->instDef->pos[1];
-	dist[2] = drv_inst->matrix.t[2] - inst->instDef->pos[2];
+	dist[0] = drv_inst->matrix.t[0] - inst->instDef->pos.x;
+	dist[1] = drv_inst->matrix.t[1] - inst->instDef->pos.y;
+	dist[2] = drv_inst->matrix.t[2] - inst->instDef->pos.z;
 
 	// if in a state where you're seeing the boss key open an adv door,
 	// or some other kind of cutscene where you can't move
@@ -213,9 +213,9 @@ LAB_800aede0:
 
 LAB_800aede8:
 
-	sps->Input1.pos.x = inst->instDef->pos[0];
-	sps->Input1.pos.y = inst->instDef->pos[1];
-	sps->Input1.pos.z = inst->instDef->pos[2];
+	sps->Input1.pos.x = inst->instDef->pos.x;
+	sps->Input1.pos.y = inst->instDef->pos.y;
+	sps->Input1.pos.z = inst->instDef->pos.z;
 	sps->Input1.hitRadius = 0x300;
 	sps->Input1.hitRadiusSquared = 0x90000;
 	sps->Input1.modelID = STATIC_PINGARAGE;
@@ -226,14 +226,14 @@ LAB_800aede8:
 	// Open garage door when player gets within radius of door
 	PROC_CollideHitboxWithBucket(gGT->threadBuckets[PLAYER].thread, sps, 0);
 
-	ratio = MATH_Sin((int)inst->instDef->rot[1]);
+	ratio = MATH_Sin((int)inst->instDef->rot.y);
 
-	pos[0] = (int)inst->instDef->pos[0] + (ratio * -0x280 >> 0xc);
-	pos[1] = (int)inst->instDef->pos[1];
+	pos[0] = (int)inst->instDef->pos.x + (ratio * -0x280 >> 0xc);
+	pos[1] = (int)inst->instDef->pos.y;
 
-	ratio = MATH_Cos((int)inst->instDef->rot[1]);
+	ratio = MATH_Cos((int)inst->instDef->rot.y);
 
-	pos[2] = (int)inst->instDef->pos[2] + (ratio * -0x280 >> 0xc);
+	pos[2] = (int)inst->instDef->pos.z + (ratio * -0x280 >> 0xc);
 
 	// DriverPos - DoorPos
 	dist[0] = drv_inst->matrix.t[0] - pos[0];

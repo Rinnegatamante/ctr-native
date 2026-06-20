@@ -34,11 +34,11 @@ s16 *AH_WarpPad_GetSpawnPosRot(s16 *posData)
 	inst = t->inst;
 	instDef = inst->instDef;
 
-	posData[0] = inst->matrix.t[0] + ((MATH_Cos(instDef->rot[1]) << 0xA) >> 0xC);
+	posData[0] = inst->matrix.t[0] + ((MATH_Cos(instDef->rot.y) << 0xA) >> 0xC);
 
 	posData[1] = inst->matrix.t[1];
 
-	posData[2] = inst->matrix.t[2] + ((MATH_Sin(instDef->rot[1]) * -0x400) >> 0xC);
+	posData[2] = inst->matrix.t[2] + ((MATH_Sin(instDef->rot.y) * -0x400) >> 0xC);
 
-	return &instDef->rot[0];
+	return &instDef->rot.x;
 }

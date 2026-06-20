@@ -10,8 +10,8 @@ void RB_Blade_ThTick(struct Thread *t)
 	bladeObj = (struct Blade *)t->object;
 	bladeInst = t->inst;
 
-	rot.x = bladeInst->instDef->rot[0];
-	rot.y = bladeInst->instDef->rot[1] + 0x400;
+	rot.x = bladeInst->instDef->rot.x;
+	rot.y = bladeInst->instDef->rot.y + 0x400;
 	rot.z = bladeObj->angle;
 
 	bladeObj->angle += 0x100;

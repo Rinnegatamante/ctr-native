@@ -217,9 +217,9 @@ void RB_Orca_LInB(struct Instance *inst)
 	orcaObj = (struct Orca *)t->object;
 	orcaObj->animIndex = -10;
 	orcaObj->direction = 1;
-	orcaObj->instDefRot[0] = inst->instDef->rot[0];
-	orcaObj->instDefRot[1] = inst->instDef->rot[1];
-	orcaObj->instDefRot[2] = inst->instDef->rot[2];
+	orcaObj->instDefRot[0] = inst->instDef->rot.x;
+	orcaObj->instDefRot[1] = inst->instDef->rot.y;
+	orcaObj->instDefRot[2] = inst->instDef->rot.z;
 
 	orcaID = inst->name[strlen(inst->name) - 1] - '0';
 	orcaObj->orcaID = orcaID;
