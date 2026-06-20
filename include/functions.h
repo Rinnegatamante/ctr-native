@@ -764,7 +764,7 @@ void VehTurbo_ThDestroy(struct Thread *t);
 void VehGroundShadow_Main(void);
 void VehGroundSkids_Main(struct Thread *thread, struct PushBuffer *pb);
 
-void Vector_SpecLightSpin2D(struct Instance *inst, s16 *rot, s16 *lightDir);
+void Vector_SpecLightSpin2D(struct Instance *inst, s16 *rot, const SVec3 *lightDir);
 void Vector_BakeMatrixTable(void);
 
 void VehStuckProc_Tumble_Update(struct Thread *thread, struct Driver *driver);
@@ -1019,7 +1019,7 @@ void AH_MaskHint_Update(void);
 struct Particle *Particle_Init(u32 param_1, struct IconGroup *ig, struct ParticleEmitter *emSet);
 void Particle_FuncPtr_PotionShatter(struct Particle *p);
 void Particle_FuncPtr_ExhaustUnderwater(struct Particle *p);
-void Vector_SpecLightSpin3D(struct Instance *inst, s16 *rot, s16 *lightDir);
+void Vector_SpecLightSpin3D(struct Instance *inst, s16 *rot, const SVec3 *lightDir);
 
 // 233
 void CS_Garage_ZoomOut(char zoomState);

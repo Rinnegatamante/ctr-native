@@ -8,7 +8,7 @@ void CS_Podium_Prize_Spin(struct Instance *inst, s16 *prize)
 	s16 prevAngle;
 	int ratio;
 	u32 angle;
-	s16 lightDir[3];
+	SVec3 lightDir;
 
 	prize[5] += 100;
 	ConvertRotToMatrix(&inst->matrix, &prize[4]);
@@ -50,7 +50,7 @@ void CS_Podium_Prize_Spin(struct Instance *inst, s16 *prize)
 			cos1 = -cos1;
 			sine1 = -sine1;
 		}
-		lightDir[1] = cos1;
+		lightDir.y = cos1;
 
 		ratio = (prize[0x10] & 0xfff) - 0x800;
 		if (ratio < 0)
@@ -77,9 +77,9 @@ void CS_Podium_Prize_Spin(struct Instance *inst, s16 *prize)
 			cos2 = -cos2;
 			sine2 = -sine2;
 		}
-		lightDir[0] = (sine1 * cos2) >> 12;
-		lightDir[2] = (sine1 * sine2) >> 12;
+		lightDir.x = (sine1 * cos2) >> 12;
+		lightDir.z = (sine1 * sine2) >> 12;
 	}
 
-	Vector_SpecLightSpin3D(inst, &prize[4], lightDir);
+	Vector_SpecLightSpin3D(inst, &prize[4], &lightDir);
 }

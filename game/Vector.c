@@ -13,13 +13,13 @@ static void Vector_SpecLightSpin2D_RotMatrixMul(MATRIX *matrix, const SVec3 *inp
 	output->z = (s16)mac->vz;
 }
 
-void Vector_SpecLightSpin2D(struct Instance *inst, s16 *rot, s16 *lightDir)
+void Vector_SpecLightSpin2D(struct Instance *inst, s16 *rot, const SVec3 *lightDir)
 {
 	// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800572d0-0x8005741c.
 	MATRIX rotMatrix;
 	VECTOR lightMac;
 	VECTOR viewMac;
-	SVec3 light = {.x = lightDir[0], .y = lightDir[1], .z = lightDir[2]};
+	SVec3 light = *lightDir;
 	SVec3 lightLocal;
 	SVec3 view = {.x = 0, .y = 0, .z = 0x1000};
 	SVec3 viewLocal;
@@ -61,11 +61,11 @@ static void Vector_LightMatrixMul(MATRIX *matrix, const SVec3 *input, SVec3 *out
 	output->z = (s16)mac.vz;
 }
 
-void Vector_SpecLightSpin3D(struct Instance *inst, s16 *rot, s16 *lightDir)
+void Vector_SpecLightSpin3D(struct Instance *inst, s16 *rot, const SVec3 *lightDir)
 {
 	// NOTE(aalhendi): ASM-verified NTSC-U 926 0x8005741c-0x800576b8.
 	MATRIX rotMatrix;
-	SVec3 light = {.x = lightDir[0], .y = lightDir[1], .z = lightDir[2]};
+	SVec3 light = *lightDir;
 	struct GameTracker *gGT = sdata->gGT;
 	struct InstDrawPerPlayer *idpp = INST_GETIDPP(inst);
 
@@ -102,11 +102,11 @@ void Vector_SpecLightSpin3D(struct Instance *inst, s16 *rot, s16 *lightDir)
 }
 
 
-void Vector_SpecLightNoSpin3D(struct Instance *inst, s16 *rot, s16 *lightDir)
+void Vector_SpecLightNoSpin3D(struct Instance *inst, s16 *rot, const SVec3 *lightDir)
 {
 	// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800576b8-0x80057884.
 	MATRIX lightMatrix;
-	SVec3 light = {.x = lightDir[0], .y = lightDir[1], .z = lightDir[2]};
+	SVec3 light = *lightDir;
 	SVec3 lightLocal;
 	struct GameTracker *gGT = sdata->gGT;
 	struct InstDrawPerPlayer *idpp = INST_GETIDPP(inst);

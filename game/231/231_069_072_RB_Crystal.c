@@ -1,6 +1,6 @@
 #include <common.h>
 
-s16 crystalLightDir[4] = {0x94F, 0x94F, 0x94F, 0};
+SVec3 crystalLightDir = {0x94F, 0x94F, 0x94F};
 
 static void RB_Crystal_RotateStep(struct Instance *crystalInst, struct Crystal *crystalObj)
 {
@@ -81,7 +81,7 @@ void RB_Crystal_ThTick(struct Thread *t)
 	                           ((sine << 4) >> 0xc) +         // sine (bounce up/down)
 	                           0x30;                          // airborne bump
 
-	Vector_SpecLightSpin3D(crystalInst, &crystalObj->rot[0], &crystalLightDir[0]);
+	Vector_SpecLightSpin3D(crystalInst, &crystalObj->rot[0], &crystalLightDir);
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b4e7c-0x800b4f48.

@@ -3,7 +3,7 @@
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800abdfc-0x800abf48.
 void AH_WarpPad_SpinRewards(struct Instance *prizeInst, struct WarpPad *warppadObj, int index, int x, int y, int z)
 {
-	s16 *specLight;
+	SVec3 *lightDir;
 	u32 modelID;
 	u32 trig;
 	u32 thirds;
@@ -12,23 +12,23 @@ void AH_WarpPad_SpinRewards(struct Instance *prizeInst, struct WarpPad *warppadO
 
 	modelID = prizeInst->model->id;
 
-	if (modelID != STATIC_TROPHY) // if not trophy (no specLight on trophy)
+	if (modelID != STATIC_TROPHY) // if not trophy (no lightDir on trophy)
 	{
 		if (modelID == STATIC_GEM) // gem
-			specLight = &warppadObj->specLightGem[0];
+			lightDir = &warppadObj->lightDirGem;
 		else
 		{
 			if (modelID == STATIC_RELIC) // relic
-				specLight = &warppadObj->specLightRelic[0];
+				lightDir = &warppadObj->lightDirRelic;
 			else
 			{
 				if (modelID == STATIC_TOKEN) // token
-					specLight = &warppadObj->specLightToken[0];
+					lightDir = &warppadObj->lightDirToken;
 				else
 					goto SpinReward;
 			}
 		}
-		Vector_SpecLightSpin3D(prizeInst, &warppadObj->spinRot_Prize[0], specLight);
+		Vector_SpecLightSpin3D(prizeInst, &warppadObj->spinRot_Prize[0], lightDir);
 	}
 
 SpinReward:

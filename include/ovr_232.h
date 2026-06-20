@@ -107,13 +107,16 @@ struct WarpPad
 	s16 spinRot_Rewards[4];
 
 	// 0x50
-	s16 specLightGem[4];
+	SVec3 lightDirGem;
+	s16 _pad_lightDirGem;
 
 	// 0x58
-	s16 specLightRelic[4];
+	SVec3 lightDirRelic;
+	s16 _pad_lightDirRelic;
 
 	// 0x60
-	s16 specLightToken[4];
+	SVec3 lightDirToken;
+	s16 _pad_lightDirToken;
 
 	// 0x68
 	s16 digit10s;
@@ -194,14 +197,17 @@ struct OverlayRDATA_232
 
 struct OverlayDATA_232
 {
-	// 800b4ddc (3*5 plus padding)
-	s16 specLightGem[16];
+	// 800b4ddc (5 light directions plus padding)
+	SVec3 lightDirGem[5];
+	s16 _pad_lightDirGemTable;
 
-	// 800b4dfc (3*5 plus padding)
-	s16 specLightRelic[16];
+	// 800b4dfc (5 light directions plus padding)
+	SVec3 lightDirRelic[5];
+	s16 _pad_lightDirRelicTable;
 
-	// 800b4e1c (3*5 plus padding)
-	s16 specLightToken[16];
+	// 800b4e1c (5 light directions plus padding)
+	SVec3 lightDirToken[5];
+	s16 _pad_lightDirTokenTable;
 
 	// 800b4e3c
 	struct MenuRow rowsTokenRelic[3];
@@ -331,7 +337,8 @@ struct OverlayDATA_232
 
 		// 0xC
 		// same for all gems
-		s16 specLight[4];
+		SVec3 lightDir;
+		s16 _pad_lightDir;
 
 
 		// 0x14 bytes each

@@ -7,7 +7,7 @@ struct HitboxDesc fjBoxDesc = {.inst = (struct Instance *)0,
                                .threadHit = (struct Thread *)0,
                                .funcThCollide = (void *)0};
 
-s16 fjLightDir[4] = {0x8B8, 0xD6A, 0, 0};
+SVec3 fjLightDir = {0x8B8, 0xD6A, 0};
 
 struct ParticleEmitter emSet_fjHeat[0xb] = {[0] =
                                                 {
@@ -388,7 +388,7 @@ void RB_FlameJet_ThTick(struct Thread *t)
 EndFjThTick:
 
 	fjObj->cycleTimer++;
-	Vector_SpecLightNoSpin3D(fjInst, &fjInst->instDef->rot[0], &fjLightDir[0]);
+	Vector_SpecLightNoSpin3D(fjInst, &fjInst->instDef->rot[0], &fjLightDir);
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b6938-0x800b6d58.

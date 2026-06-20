@@ -405,7 +405,7 @@ void AH_Pause_Draw(int pageID, int posX)
 			// if using specular light
 			if ((inst->flags & 0x70000) == 0x20000)
 			{
-				s16 *specArr = &D232.advPauseInst[index].specLight[0];
+				SVec3 *specArr = &D232.advPauseInst[index].lightDir;
 
 				Vector_SpecLightSpin2D(inst, rotArr, specArr);
 			}

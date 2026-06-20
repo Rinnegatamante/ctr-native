@@ -1,7 +1,7 @@
 #include <common.h>
 
 _Static_assert(sizeof(struct WarpPad) == 0x78);
-_Static_assert(offsetof(struct WarpPad, specLightGem) == 0x50);
+_Static_assert(offsetof(struct WarpPad, lightDirGem) == 0x50);
 _Static_assert(offsetof(struct WarpPad, digit10s) == 0x68);
 _Static_assert(offsetof(struct WarpPad, levelID) == 0x6c);
 

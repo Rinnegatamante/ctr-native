@@ -275,9 +275,7 @@ void AH_WarpPad_LInB(struct Instance *inst)
 						// specular lighting
 						newInst->flags |= 0x30000;
 
-						warppadObj->specLightToken[0] = D232.specLightToken[tokenGroupID * 3 + 0];
-						warppadObj->specLightToken[1] = D232.specLightToken[tokenGroupID * 3 + 1];
-						warppadObj->specLightToken[2] = D232.specLightToken[tokenGroupID * 3 + 2];
+						warppadObj->lightDirToken = D232.lightDirToken[tokenGroupID];
 
 						newInst->scale[0] = 0x2000;
 						newInst->scale[1] = 0x2000;
@@ -311,9 +309,7 @@ void AH_WarpPad_LInB(struct Instance *inst)
 				// specular lighting
 				newInst->flags |= 0x20000;
 
-				warppadObj->specLightRelic[0] = D232.specLightRelic[0];
-				warppadObj->specLightRelic[1] = D232.specLightRelic[1];
-				warppadObj->specLightRelic[2] = D232.specLightRelic[2];
+				warppadObj->lightDirRelic = D232.lightDirRelic[0];
 
 				// copy matrix
 				*(int *)((int)&newInst->matrix + 0x0) = *(int *)((int)&inst->matrix + 0x0);
@@ -350,9 +346,7 @@ void AH_WarpPad_LInB(struct Instance *inst)
 			// specular lighting
 			newInst->flags |= 0x30000;
 
-			warppadObj->specLightToken[0] = D232.specLightToken[tokenGroupID * 3 + 0];
-			warppadObj->specLightToken[1] = D232.specLightToken[tokenGroupID * 3 + 1];
-			warppadObj->specLightToken[2] = D232.specLightToken[tokenGroupID * 3 + 2];
+			warppadObj->lightDirToken = D232.lightDirToken[tokenGroupID];
 
 			// copy matrix
 			*(int *)((int)&newInst->matrix + 0x0) = *(int *)((int)&inst->matrix + 0x0);
@@ -394,9 +388,7 @@ void AH_WarpPad_LInB(struct Instance *inst)
 					// specular lighting
 					newInst->flags |= 0x20000;
 
-					warppadObj->specLightRelic[0] = D232.specLightRelic[0];
-					warppadObj->specLightRelic[1] = D232.specLightRelic[1];
-					warppadObj->specLightRelic[2] = D232.specLightRelic[2];
+					warppadObj->lightDirRelic = D232.lightDirRelic[0];
 
 					newInst->scale[0] = 0x1800;
 					newInst->scale[1] = 0x1800;
@@ -457,9 +449,7 @@ void AH_WarpPad_LInB(struct Instance *inst)
 				newInst->colorRGBA = ((u32)data.AdvCups[tokenGroupID].color[0] << 0x14) | ((u32)data.AdvCups[tokenGroupID].color[1] << 0xc) |
 				                     ((u32)data.AdvCups[tokenGroupID].color[2] << 0x4);
 
-				warppadObj->specLightToken[0] = D232.specLightToken[tokenGroupID * 3 + 0];
-				warppadObj->specLightToken[1] = D232.specLightToken[tokenGroupID * 3 + 1];
-				warppadObj->specLightToken[2] = D232.specLightToken[tokenGroupID * 3 + 2];
+				warppadObj->lightDirToken = D232.lightDirToken[tokenGroupID];
 
 				newInst->scale[0] = 0x2000;
 				newInst->scale[1] = 0x2000;
@@ -503,9 +493,7 @@ void AH_WarpPad_LInB(struct Instance *inst)
 			warppadObj->inst[WPIS_OPEN_PRIZE1] = newInst;
 
 			// store in Gem array
-			warppadObj->specLightGem[0] = D232.specLightGem[i * 3 + 0];
-			warppadObj->specLightGem[1] = D232.specLightGem[i * 3 + 1];
-			warppadObj->specLightGem[2] = D232.specLightGem[i * 3 + 2];
+			warppadObj->lightDirGem = D232.lightDirGem[i];
 
 			newInst->scale[0] = 0x2000;
 			newInst->scale[1] = 0x2000;
@@ -563,9 +551,7 @@ void AH_WarpPad_LInB(struct Instance *inst)
 			// Relic blue color
 			newInst->colorRGBA = 0x20a5ff0;
 
-			warppadObj->specLightRelic[0] = D232.specLightRelic[0];
-			warppadObj->specLightRelic[1] = D232.specLightRelic[1];
-			warppadObj->specLightRelic[2] = D232.specLightRelic[2];
+			warppadObj->lightDirRelic = D232.lightDirRelic[0];
 		}
 
 		// Key
@@ -575,9 +561,7 @@ void AH_WarpPad_LInB(struct Instance *inst)
 			newInst->colorRGBA = 0xdca6000;
 
 			// store in Gem array (intended by ND, not a bug)
-			warppadObj->specLightGem[0] = D232.specLightGem[0];
-			warppadObj->specLightGem[1] = D232.specLightGem[1];
-			warppadObj->specLightGem[2] = D232.specLightGem[2];
+			warppadObj->lightDirGem = D232.lightDirGem[0];
 		}
 
 		// Gem
@@ -586,9 +570,7 @@ void AH_WarpPad_LInB(struct Instance *inst)
 			newInst->colorRGBA = ((u32)data.AdvCups[0].color[0] << 0x14) | ((u32)data.AdvCups[0].color[1] << 0xc) | ((u32)data.AdvCups[0].color[2] << 0x4);
 
 			// store in Gem array
-			warppadObj->specLightGem[0] = D232.specLightGem[0];
-			warppadObj->specLightGem[1] = D232.specLightGem[1];
-			warppadObj->specLightGem[2] = D232.specLightGem[2];
+			warppadObj->lightDirGem = D232.lightDirGem[0];
 		}
 
 		// assume token
@@ -599,9 +581,7 @@ void AH_WarpPad_LInB(struct Instance *inst)
 			// token color
 			newInst->colorRGBA = ((u32)data.AdvCups[i].color[0] << 0x14) | ((u32)data.AdvCups[i].color[1] << 0xc) | ((u32)data.AdvCups[i].color[2] << 0x4);
 
-			warppadObj->specLightToken[0] = D232.specLightToken[i * 3 + 0];
-			warppadObj->specLightToken[1] = D232.specLightToken[i * 3 + 1];
-			warppadObj->specLightToken[2] = D232.specLightToken[i * 3 + 2];
+			warppadObj->lightDirToken = D232.lightDirToken[i];
 		}
 	}
 

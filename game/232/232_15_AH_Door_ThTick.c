@@ -38,6 +38,7 @@ void AH_Door_ThTick(struct Thread *t)
 	int iVar18;
 	s16 desiredPos[3];
 	s16 desiredRot[3];
+	SVec3 keyLightDir;
 	s16 *scaler;
 
 	struct GameTracker *gGT = sdata->gGT;
@@ -231,10 +232,9 @@ void AH_Door_ThTick(struct Thread *t)
 		{
 			if (driver->speedApprox < 0x80)
 			{
-				// Actually, specLightDir
-				desiredPos[0] = -0xc98;
-				desiredPos[1] = 0x99f;
-				desiredPos[2] = 0x232;
+				keyLightDir.x = -0xc98;
+				keyLightDir.y = 0x99f;
+				keyLightDir.z = 0x232;
 
 				// if keys are not spawned, create them
 				if (door->keyInst[0] == NULL)
@@ -324,8 +324,7 @@ void AH_Door_ThTick(struct Thread *t)
 
 							s16 *kr = &door->keyRot[0];
 
-							// desiredPos is actually specLightDir in this case, variable re-use
-							Vector_SpecLightSpin3D(keyInst, kr, &desiredPos[0]);
+							Vector_SpecLightSpin3D(keyInst, kr, &keyLightDir);
 
 							// convert 3 rotation shorts into rotation matrix
 							ConvertRotToMatrix(&keyInst->matrix, kr);

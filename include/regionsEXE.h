@@ -2214,7 +2214,7 @@ struct Data
 
 		// 0x4
 		// parameter to Vector_SpecLightSpin3D
-		s16 vec3_specular_inverted[3];
+		SVec3 vec3_specular_inverted;
 
 		// 0xA
 		char r;

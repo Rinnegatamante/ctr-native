@@ -15,7 +15,8 @@ struct UiElement3D
 	MATRIX m;
 
 	// 0x28
-	s16 lightDir[4];
+	SVec3 lightDir;
+	s16 _pad_lightDir;
 
 	// 0x30
 	s16 vel[4];

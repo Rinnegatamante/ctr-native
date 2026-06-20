@@ -72,9 +72,9 @@ struct Instance *UI_INSTANCE_BirthWithThread(int param_1, int param_2, int param
 		{
 			color = 0x6c08080;
 		LAB_8004cc4c:
-			ui3D->lightDir[0] = 0xf368;
-			ui3D->lightDir[1] = 0x99f;
-			ui3D->lightDir[2] = 0x232;
+			ui3D->lightDir.x = 0xf368;
+			ui3D->lightDir.y = 0x99f;
+			ui3D->lightDir.z = 0x232;
 		LAB_8004cc58:
 			inst->colorRGBA = color;
 
@@ -85,9 +85,9 @@ struct Instance *UI_INSTANCE_BirthWithThread(int param_1, int param_2, int param
 		// crystal
 		else if (modelID == STATIC_CRYSTAL)
 		{
-			ui3D->lightDir[0] = 0xf4a0;
-			ui3D->lightDir[1] = 0xb60;
-			ui3D->lightDir[2] = 0xfd28;
+			ui3D->lightDir.x = 0xf4a0;
+			ui3D->lightDir.y = 0xb60;
+			ui3D->lightDir.z = 0xfd28;
 			color = 0xd22fff0;
 			goto LAB_8004cc58;
 		}
@@ -133,9 +133,9 @@ struct Instance *UI_INSTANCE_BirthWithThread(int param_1, int param_2, int param
 
 		lightDir_spec0x30000:
 
-			ui3D->lightDir[0] = 0xf368;
-			ui3D->lightDir[1] = 0x99f;
-			ui3D->lightDir[2] = 0x232;
+			ui3D->lightDir.x = 0xf368;
+			ui3D->lightDir.y = 0x99f;
+			ui3D->lightDir.z = 0x232;
 
 			inst->flags |= 0x30000;
 		}

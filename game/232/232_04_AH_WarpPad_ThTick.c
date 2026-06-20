@@ -263,14 +263,14 @@ void AH_WarpPad_ThTick(struct Thread *t)
 		// Relic
 		if (modelID == STATIC_RELIC)
 		{
-			Vector_SpecLightSpin3D(InstArr0, &warppadObj->spinRot_Prize[0], &warppadObj->specLightRelic[0]);
+			Vector_SpecLightSpin3D(InstArr0, &warppadObj->spinRot_Prize[0], &warppadObj->lightDirRelic);
 			return;
 		}
 
 		// Token
 		if (modelID == STATIC_TOKEN)
 		{
-			Vector_SpecLightSpin3D(InstArr0, &warppadObj->spinRot_Prize[0], &warppadObj->specLightToken[0]);
+			Vector_SpecLightSpin3D(InstArr0, &warppadObj->spinRot_Prize[0], &warppadObj->lightDirToken);
 			return;
 		}
 
@@ -283,7 +283,7 @@ void AH_WarpPad_ThTick(struct Thread *t)
 		}
 
 		// for Key or Gem
-		Vector_SpecLightSpin3D(InstArr0, &warppadObj->spinRot_Prize[0], &warppadObj->specLightGem[0]);
+		Vector_SpecLightSpin3D(InstArr0, &warppadObj->spinRot_Prize[0], &warppadObj->lightDirGem);
 		return;
 	}
 

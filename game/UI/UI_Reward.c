@@ -149,7 +149,7 @@ void UI_ThTick_Reward(struct Thread *bucket)
 	// Spin on the Y axis
 	obj->rot[1] += 0x40;
 
-	Vector_SpecLightSpin2D(inst, (s16 *)obj->rot, (s16 *)obj->lightDir);
+	Vector_SpecLightSpin2D(inst, (s16 *)obj->rot, &obj->lightDir);
 
 	// pointer to matrix
 	mat = &inst->matrix;
@@ -200,7 +200,7 @@ void UI_ThTick_CtrLetters(struct Thread *bucket)
 	// Rotate on the Y axis
 	obj->rot[1] += 0x40;
 
-	Vector_SpecLightSpin2D(inst, (s16 *)obj->rot, (s16 *)obj->lightDir);
+	Vector_SpecLightSpin2D(inst, (s16 *)obj->rot, &obj->lightDir);
 
 	if (
 	    // If you're in End-Of-Race menu
