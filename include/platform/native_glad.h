@@ -29,6 +29,10 @@
 #ifndef __glad_h_
 #define __glad_h_
 
+#ifdef __vita__
+#include <vitaGL.h>
+#else
+
 #ifdef __gl_h_
 #error OpenGL header already included, remove this include, glad already provides it
 #endif
@@ -3561,5 +3565,5 @@ GLAPI int GLAD_GL_KHR_debug;
 #ifdef __cplusplus
 }
 #endif
-
+#endif
 #endif

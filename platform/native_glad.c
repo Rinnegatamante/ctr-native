@@ -25,12 +25,17 @@
  * See THIRD_PARTY_NOTICES.md for copyright and license details.
  */
 
+#ifndef __vita__
 #include <macros.h>
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "platform/native_glad.h"
+
+#ifdef __vita__
+void *vglGetProcAddress(const char *name);
+#endif
 
 internal void *get_proc(const char *namez);
 
@@ -96,6 +101,9 @@ global_variable PFNGLXGETPROCADDRESSPROC_PRIVATE gladGetProcAddressPtr;
 
 internal int open_gl(void)
 {
+#ifdef __vita__
+	return 1;
+#else
 #ifdef __APPLE__
 	local_persist const char *NAMES[] = {"../Frameworks/OpenGL.framework/OpenGL", "/Library/Frameworks/OpenGL.framework/OpenGL",
 	                                     "/System/Library/Frameworks/OpenGL.framework/OpenGL",
@@ -121,21 +129,27 @@ internal int open_gl(void)
 	}
 
 	return 0;
+#endif
 }
 
 internal void close_gl(void)
 {
+#ifndef __vita__
 	if (libGL != NULL)
 	{
 		dlclose(libGL);
 		libGL = NULL;
 	}
+#endif
 }
 #endif
 
 internal void *get_proc(const char *namez)
 {
 	void *result = NULL;
+#ifdef __vita__
+	result = vglGetProcAddress(namez);
+#else
 	if (libGL == NULL)
 		return NULL;
 
@@ -153,7 +167,7 @@ internal void *get_proc(const char *namez)
 		result = dlsym(libGL, namez);
 #endif
 	}
-
+#endif
 	return result;
 }
 
@@ -1713,6 +1727,10 @@ internal int find_extensionsGL(void)
 
 internal void find_coreGL(void)
 {
+#ifdef __vita__
+	GLAD_GL_VERSION_2_0 = 1;
+	return;
+#endif
 	/* Thank you @elmindreda
 	 * https://github.com/elmindreda/greg/blob/master/templates/greg.c.in#L176
 	 * https://github.com/glfw/glfw/blob/master/src/context.c#L36
@@ -2008,3 +2026,4 @@ int gladLoadGLES2Loader(GLADloadproc load)
 	load_GL_KHR_debug(load);
 	return GLVersion.major != 0 || GLVersion.minor != 0;
 }
+#endif

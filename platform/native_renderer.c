@@ -27,7 +27,11 @@ __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 #endif // def WIN32
 
 #define VRAM_FORMAT          GL_RG
+#ifdef __vita__
+#define VRAM_INTERNAL_FORMAT GL_RG
+#else
 #define VRAM_INTERNAL_FORMAT GL_RG32F
+#endif
 
 extern SDL_Window *g_window;
 
@@ -150,11 +154,12 @@ internal int NativeRenderer_InitialiseGLContext(char *windowName, int fullscreen
 
 internal int NativeRenderer_InitialiseGLExt(void)
 {
+#ifndef __vita__
 	GLenum err = gladLoadGL();
 
 	if (err == 0)
 		return 0;
-
+#endif
 	const char *rend = (const char *)glGetString(GL_RENDERER);
 	const char *vendor = (const char *)glGetString(GL_VENDOR);
 	NATIVE_RENDERER_LOG("*Video adapter: %s by %s\n", rend, vendor);
@@ -485,7 +490,7 @@ GLint u_psxTextureOutputStpLoc;
 	    "	float sampledStp = 0.0;\n"                                                                                                                  \
 	    "	const vec2 c_LUTTexel = vec2(1.0 / 256.0, 1.0 / 256.0);\n"                                                                                  \
 	    "	vec4 lut(vec2 rg) { return texture2D(s_rgLut, rg - c_LUTTexel * 0.0001); }\n" GPU_STP_PASS_FUNC "	vec4 bilinearTextureSample(vec2 P) {\n" \
-	    "		vec2 frac = fract(P);\n"                                                                                                                   \
+	    "		vec2 _frac = fract(P);\n"                                                                                                                   \
 	    "		vec2 pixel = floor(P);\n"                                                                                                                  \
 	    "		vec2 C11 = samplePSX(pixel);\n"                                                                                                            \
 	    "		vec2 C21 = samplePSX(pixel + vec2(1.0, 0.0));\n"                                                                                           \
@@ -503,21 +508,21 @@ GLint u_psxTextureOutputStpLoc;
 	    "		float n21 = v21 - s21;\n"                                                                                                                   \
 	    "		float n12 = v12 - s12;\n"                                                                                                                   \
 	    "		float n22 = v22 - s22;\n"                                                                                                                   \
-	    "		float ax1 = mix(v11, v21, frac.x);\n"                                                                                                      \
-	    "		float ax2 = mix(v12, v22, frac.x);\n"                                                                                                      \
-	    "		float axm = mix(ax1, ax2, frac.y);\n"                                                                                                      \
-	    "		float sx1 = mix(s11, s21, frac.x);\n"                                                                                                      \
-	    "		float sx2 = mix(s12, s22, frac.x);\n"                                                                                                      \
-	    "		float stp = mix(sx1, sx2, frac.y);\n"                                                                                                      \
-	    "		float nx1 = mix(n11, n21, frac.x);\n"                                                                                                      \
-	    "		float nx2 = mix(n12, n22, frac.x);\n"                                                                                                      \
-	    "		float nonStp = mix(nx1, nx2, frac.y);\n"                                                                                                   \
-	    "		vec2 rg = mix(mix(C11, C21, frac.x), mix(C12, C22, frac.x), frac.y);\n"                                                                    \
+	    "		float ax1 = mix(v11, v21, _frac.x);\n"                                                                                                      \
+	    "		float ax2 = mix(v12, v22, _frac.x);\n"                                                                                                      \
+	    "		float axm = mix(ax1, ax2, _frac.y);\n"                                                                                                      \
+	    "		float sx1 = mix(s11, s21, _frac.x);\n"                                                                                                      \
+	    "		float sx2 = mix(s12, s22, _frac.x);\n"                                                                                                      \
+	    "		float stp = mix(sx1, sx2, _frac.y);\n"                                                                                                      \
+	    "		float nx1 = mix(n11, n21, _frac.x);\n"                                                                                                      \
+	    "		float nx2 = mix(n12, n22, _frac.x);\n"                                                                                                      \
+	    "		float nonStp = mix(nx1, nx2, _frac.y);\n"                                                                                                   \
+	    "		vec2 rg = mix(mix(C11, C21, _frac.x), mix(C12, C22, _frac.x), _frac.y);\n"                                                                    \
 	    "		sampledStp = stp;\n"                                                                                                                       \
 	    "		if(discardForSemiTransPass(axm, stp, nonStp)) { discard; }\n"                                                                              \
-	    "		vec4 x1 = mix(lut(C11), lut(C21), frac.x);\n"                                                                                              \
-	    "		vec4 x2 = mix(lut(C12), lut(C22), frac.x);\n"                                                                                              \
-	    "		vec4 t = mix(x1, x2, frac.y);\n"                                                                                                           \
+	    "		vec4 x1 = mix(lut(C11), lut(C21), _frac.x);\n"                                                                                              \
+	    "		vec4 x2 = mix(lut(C12), lut(C22), _frac.x);\n"                                                                                              \
+	    "		vec4 t = mix(x1, x2, _frac.y);\n"                                                                                                           \
 	    "		t.w = 1.0 - t.w;\n"                                                                                                                        \
 	    "		return t;\n"                                                                                                                               \
 	    "	}\n"                                                                                                                                        \
@@ -532,8 +537,8 @@ GLint u_psxTextureOutputStpLoc;
 	    "	}\n"                                                                                                                                        \
 	    "	void main() {\n"                                                                                                                            \
 	    "		vec4 color = (bilinearFilter > 0) ? bilinearTextureSample(v_texcoord.xy) : nearestTextureSample(v_texcoord.xy);\n"                         \
-	    "		fragColor = dither(color * v_color);\n"                                                                                                    \
-	    "		fragColor.a = (psxDrawMaskSet != 0 || (psxTextureOutputStp != 0 && sampledStp >= 0.5)) ? 1.0 : 0.0;\n"                                     \
+	    "		gl_FragColor = dither(color * v_color);\n"                                                                                                    \
+	    "		gl_FragColor.a = (psxDrawMaskSet != 0 || (psxTextureOutputStp != 0 && sampledStp >= 0.5)) ? 1.0 : 0.0;\n"                                     \
 	    "	}\n"
 
 global_variable const char *gpu_shader_common = "	varying vec4 v_texcoord;\n"
@@ -551,8 +556,8 @@ const char *gte_shader_32_rgba = "	uniform sampler2D s_texture;\n"
                                  "	void main() {\n"
                                  "		vec2 tc = v_texcoord.xy * texelSize + texelSize * 0.5;\n"
                                  "		vec4 color = texture2D(s_texture, tc);\n"
-                                 "		fragColor = dither(color * v_color);\n"
-                                 "		fragColor.a = float(psxDrawMaskSet);\n"
+                                 "		gl_FragColor = dither(color * v_color);\n"
+                                 "		gl_FragColor.a = float(psxDrawMaskSet);\n"
                                  "	}\n";
 
 #define GTE_PERSPECTIVE_CORRECTION "	gl_Position = Projection * vec4(a_position.xy, 0.0, 1.0);\n"
@@ -623,16 +628,22 @@ internal ShaderID NativeRenderer_Shader_Compile(const char *source, bool isPsxSh
 	const char *GLSL_HEADER_VERT = "	#version 140\n"
 	                               "	precision lowp  int;\n"
 	                               "	precision highp float;\n"
+#ifndef __vita__								   
 	                               "	#define varying   out\n"
 	                               "	#define attribute in\n"
-	                               "	#define texture2D texture\n";
+	                               "	#define texture2D texture\n"
+#endif
+								   ;
 
 	const char *GLSL_HEADER_FRAG = "	#version 140\n"
 	                               "	precision lowp  int;\n"
 	                               "	precision highp float;\n"
+#ifndef __vita__
 	                               "	#define varying     in\n"
 	                               "	#define texture2D   texture\n"
-	                               "	out vec4 fragColor;\n";
+	                               "	out vec4 fragColor;\n"
+#endif
+								   ;
 
 	char extra_vs_defines[1024];
 	char extra_fs_defines[1024];
@@ -801,7 +812,9 @@ int NativeRenderer_InitialisePSX(void)
 
 	glDepthFunc(GL_LEQUAL);
 	glEnable(GL_STENCIL_TEST);
+#ifndef __vita__
 	glBlendColor(0.5f, 0.5f, 0.5f, 0.25f);
+#endif
 
 	// gen framebuffer
 	{
@@ -825,8 +838,10 @@ int NativeRenderer_InitialisePSX(void)
 			glBindFramebuffer(GL_FRAMEBUFFER, s_glBlitFramebuffer);
 
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, s_framebufferTexture, 0);
+#ifndef __vita__
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, 0, 0);
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D, 0, 0);
+#endif
 
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
@@ -853,8 +868,10 @@ int NativeRenderer_InitialisePSX(void)
 			glBindFramebuffer(GL_FRAMEBUFFER, s_glOffscreenFramebuffer);
 
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, s_offscreenRenderTexture, 0);
+#ifndef __vita__
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, 0, 0);
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D, 0, 0);
+#endif
 
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
@@ -888,8 +905,10 @@ int NativeRenderer_InitialisePSX(void)
 			glBindFramebuffer(GL_FRAMEBUFFER, s_glVramFramebuffer);
 
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, s_vramTexture, 0);
+#ifndef __vita__
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, 0, 0);
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D, 0, 0);
+#endif
 
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
@@ -1334,7 +1353,12 @@ void NativeRenderer_ReadFramebufferDataToVRAM(void)
 		// effects sample PS1 VRAM. A delayed readback replays an older frame
 		// into VRAM and turns clock/idle blur into flicker; use the latest
 		// framebuffer texture here.
+#ifndef __vita__
 		glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+#else
+		void *tex_data = vglGetTexDataPointer(GL_TEXTURE_2D);
+		sceClibMemcpy(pixels, tex_data, w * h * sizeof(u32));
+#endif
 		glBindTexture(GL_TEXTURE_2D, 0);
 		// NOTE(aalhendi): Keep the CPU-side VRAM mirror packed like PS1 VRAM.
 		// Host texture bindings are invalid after this direct GL texture read.
@@ -1384,7 +1408,12 @@ internal void NativeRenderer_FlushOffscreenToVRAM(void)
 			return;
 
 		glBindTexture(GL_TEXTURE_2D, s_offscreenRenderTexture);
+#ifndef __vita__
 		glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+#else
+		void *tex_data = vglGetTexDataPointer(GL_TEXTURE_2D);
+		sceClibMemcpy(pixels, tex_data, (size_t)s_previousOffscreen.w * (size_t)s_previousOffscreen.h * sizeof(u32));
+#endif
 		glBindTexture(GL_TEXTURE_2D, s_lastBoundTexture != (TextureID)-1 ? s_lastBoundTexture : 0);
 
 		NativeRenderer_CopyRGBAFramebufferToVRAM(pixels, s_previousOffscreen.x, s_previousOffscreen.y, s_previousOffscreen.w, s_previousOffscreen.h, 0, 1);
@@ -1513,7 +1542,12 @@ void NativeRenderer_StoreFrameBuffer(int x, int y, int w, int h)
 		// can sample it.
 		glBindTexture(GL_TEXTURE_2D, s_framebufferTexture);
 		NativePerf_BeginScope(NATIVE_PERF_BUCKET_FRAMEBUFFER_READBACK);
+#ifndef __vita__
 		glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+#else
+		void *tex_data = vglGetTexDataPointer(GL_TEXTURE_2D);
+		sceClibMemcpy(pixels, tex_data, (size_t)w * (size_t)h * sizeof(u32));
+#endif
 		NativePerf_EndScope(NATIVE_PERF_BUCKET_FRAMEBUFFER_READBACK);
 		glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -1798,7 +1832,9 @@ void NativeRenderer_SetBlendMode(BlendMode blendMode)
 	{
 		if (s_previousBlendMode != BM_NONE)
 		{
+#ifndef __vita__
 			glBlendColor(1.f, 1.f, 1.f, 1.f);
+#endif
 			glDisable(GL_BLEND);
 		}
 
@@ -1810,7 +1846,9 @@ void NativeRenderer_SetBlendMode(BlendMode blendMode)
 	{
 		if (s_previousBlendMode == BM_NONE)
 		{
+#ifndef __vita__
 			glBlendColor(0.25f, 0.25f, 0.25f, 0.5f);
+#endif
 			glEnable(GL_BLEND);
 		}
 
@@ -1822,15 +1860,23 @@ void NativeRenderer_SetBlendMode(BlendMode blendMode)
 	switch (blendMode)
 	{
 	case BM_AVERAGE:
+#ifdef __vita__
+		glBlendFuncSeparate(GL_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+#else
 		// NOTE(aalhendi): keep RGB blend weight constant so alpha can carry the PS1 mask bit.
 		glBlendFuncSeparate(GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA, GL_ONE, GL_ZERO);
+#endif
 		break;
 	case BM_ADD:
 	case BM_SUBTRACT:
 		glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ZERO);
 		break;
 	case BM_ADD_QUATER_SOURCE:
+#ifdef __vita__
+		glBlendFuncSeparate(GL_SRC_COLOR, GL_ONE, GL_ONE, GL_ZERO);
+#else
 		glBlendFuncSeparate(GL_CONSTANT_COLOR, GL_ONE, GL_ONE, GL_ZERO);
+#endif
 		break;
 	}
 
@@ -1890,14 +1936,18 @@ void NativeRenderer_DrawTriangles(int start_vertex, int triangles)
 
 void NativeRenderer_PushDebugLabel(const char *label)
 {
+#ifndef __vita__
 	if (!GLAD_GL_KHR_debug)
 		return;
 	glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0x8000, strlen(label), label);
+#endif
 }
 
 void NativeRenderer_PopDebugLabel(void)
 {
+#ifndef __vita__
 	if (!GLAD_GL_KHR_debug)
 		return;
 	glPopDebugGroup();
+#endif
 }

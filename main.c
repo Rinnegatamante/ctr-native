@@ -34,6 +34,42 @@
 #include "platform/native_replay_scheduler.h"
 #include "platform/native_savestate.h"
 
+#ifdef __vita__
+#include <vitasdk.h>
+#include <dirent.h>
+int _newlib_heap_size_user = 256 * 1024 * 1024;
+#if 0
+int __real_mkdir(const char *fname, mode_t mode);
+int __wrap_mkdir(const char *fname, mode_t mode) {
+	sceClibPrintf("mkdir %s\n", fname);
+	char patched_fname[256];
+	sprintf(patched_fname, "ux0:data/ctr/%s", fname);
+	return __real_mkdir(patched_fname, mode);
+}
+FILE *__real_fopen(char *fname, char *mode);
+FILE *__wrap_fopen(char *fname, char *mode) {
+	sceClibPrintf("fopen %s\n", fname);
+	char patched_fname[256];
+	sprintf(patched_fname, "ux0:data/ctr/%s", fname);
+	return __real_fopen(patched_fname, mode);
+}
+int __real_unlink(const char *fname);
+int __wrap_unlink(const char *fname) {
+	sceClibPrintf("unlink %s\n", fname);
+	char patched_fname[256];
+	sprintf(patched_fname, "ux0:data/ctr/%s", fname);
+	return __real_unlink(patched_fname);
+}
+DIR *__real_opendir(const char *fname);
+DIR *__wrap_opendir(const char *fname) {
+	sceClibPrintf("opendir %s\n", fname);
+	char patched_fname[256];
+	sprintf(patched_fname, "ux0:data/ctr/%s", fname);
+	return __real_opendir(patched_fname);
+}
+#endif
+#endif
+
 #ifndef __GNUC__
 #define _Static_assert(x)
 #define __attribute__(x)
@@ -161,9 +197,30 @@ static int NativeArg_IsVersion(const char *arg)
 	return (arg != NULL) && ((strcmp(arg, "--version") == 0) || (strcmp(arg, "-v") == 0));
 }
 
+#ifdef __vita__
+#include <pthread.h>
+uint8_t vglInitExtended(int legacy_pool_size, int width, int height, int ram_threshold, SceGxmMultisampleMode msaa);
+void *real_main(void *argv);
 
+int main(int argc, char *argv[]) {
+	pthread_t t;
+	pthread_attr_t attr;
+	pthread_attr_init(&attr);
+	pthread_attr_setstacksize(&attr, 0x400000);
+	pthread_create(&t, &attr, real_main, NULL);
+
+	return sceKernelExitDeleteThread(0);
+}
+
+void *real_main(void *_argv)
+{
+	vglInitExtended(0, 960, 544, 4 * 1024 * 1024, SCE_GXM_MULTISAMPLE_4X);
+	char **argv = _argv;
+	int argc = 0;
+#else
 int main(int argc, char *argv[])
 {
+#endif
 	for (int argIndex = 1; argIndex < argc; argIndex++)
 	{
 		if (NativeArg_IsVersion(argv[argIndex]))
@@ -176,7 +233,11 @@ int main(int argc, char *argv[])
 	printf("[CTR Native] Starting...\n");
 	fflush(stdout);
 
+#ifdef __vita__
+	const char *sdlBasePath = "ux0:data/ctr";
+#else
 	const char *sdlBasePath = SDL_GetBasePath();
+#endif
 	printf("[CTR Native] SDL base path: %s\n", sdlBasePath ? sdlBasePath : "(null)");
 	fflush(stdout);
 
@@ -209,6 +270,9 @@ int main(int argc, char *argv[])
 #ifdef USE_16BY9
 	printf("[CTR Native] Widescreen\n");
 	Platform_Init("Crash Team Racing", 1280, 720);
+#elif defined(__vita__)
+	printf("[CTR Native] 16:10\n");
+	Platform_Init("Crash Team Racing", 960, 544);
 #else
 	printf("[CTR Native] 4:3\n");
 	Platform_Init("Crash Team Racing", 800, 600);
