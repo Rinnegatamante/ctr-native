@@ -318,24 +318,24 @@ void PushBuffer_SetMatrixVP(struct PushBuffer *pb)
 	ConvertRotToMatrix(matrixDST, (s16 *)&scratchpad[0x3f4]);
 #endif
 
-	s16 negPos[3];
+	SVec3 negPos;
 
 	pb->matrix_Camera.t[0] = pb->pos.x;
 	pb->matrix_Camera.t[1] = pb->pos.y;
 	pb->matrix_Camera.t[2] = pb->pos.z;
 
-	negPos[0] = -pb->pos.x;
-	negPos[1] = -pb->pos.y;
-	negPos[2] = -pb->pos.z;
+	negPos.x = -pb->pos.x;
+	negPos.y = -pb->pos.y;
+	negPos.z = -pb->pos.z;
 
 	// load inverted camera position
 #ifndef CTR_NATIVE
 #define gte_ldVXY0(r0) __asm__ volatile("mtc2   %0, $0" : : "r"(r0))
 #define gte_ldVZ0(r0)  __asm__ volatile("mtc2   %0, $1" : : "r"(r0))
-	gte_ldVXY0(*(int *)&negPos[0]);
-	gte_ldVZ0(negPos[2]);
+	gte_ldVXY0(*(int *)&negPos.v[0]);
+	gte_ldVZ0(negPos.z);
 #else
-	gte_ldv0(&negPos[0]);
+	gte_ldv0(&negPos);
 #endif
 
 #ifndef CTR_NATIVE

@@ -13,7 +13,7 @@ static void Vector_SpecLightSpin2D_RotMatrixMul(MATRIX *matrix, const SVec3 *inp
 	output->z = (s16)mac->vz;
 }
 
-void Vector_SpecLightSpin2D(struct Instance *inst, s16 *rot, const SVec3 *lightDir)
+void Vector_SpecLightSpin2D(struct Instance *inst, const SVec3 *rot, const SVec3 *lightDir)
 {
 	// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800572d0-0x8005741c.
 	MATRIX rotMatrix;

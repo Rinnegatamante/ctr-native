@@ -6,7 +6,7 @@ void CS_Thread_ThTick(struct Thread *t)
 	// Retail uses scratchpad 0x1f800108/0x1f800118 for parent frame-data temporaries.
 	s16 *parentPos = CTR_SCRATCHPAD_PTR(s16, 0x108);
 	s16 *parentRot = CTR_SCRATCHPAD_PTR(s16, 0x118);
-	s16 bonePos[3];
+	SVec3 bonePos;
 	struct CutsceneObj *cs = t->object;
 	struct Instance *inst = t->inst;
 	struct Instance *parentInst;
@@ -58,9 +58,9 @@ void CS_Thread_ThTick(struct Thread *t)
 		// ASM: 0x800ae6b4 - flag 0x8 writes bone Y to overlay-233 mutable state.
 		if ((cs->flags & 0x8) != 0)
 		{
-			CS_Instance_GetFrameData(inst, inst->animIndex, inst->animFrame, (u16 *)bonePos, 0, 0);
+			CS_Instance_GetFrameData(inst, inst->animIndex, inst->animFrame, (u16 *)bonePos.v, 0, 0);
 
-			D233.VertSplitLine = bonePos[1];
+			D233.VertSplitLine = bonePos.y;
 
 			inst = t->inst;
 			if (inst == 0)
@@ -276,9 +276,9 @@ after_opcode:
 		ConvertRotToMatrix(&inst->matrix, param_3 + 0xc);
 
 		cs->unk1c = param_3[0xd] & 0xfff;
-		cs->unk20 = param_3[0xc] & 0xfff;
-		cs->unk22 = param_3[0xd] & 0xfff;
-		cs->unk24 = param_3[0xe] & 0xfff;
+		cs->rot.x = param_3[0xc] & 0xfff;
+		cs->rot.y = param_3[0xd] & 0xfff;
+		cs->rot.z = param_3[0xe] & 0xfff;
 	}
 
 	cs->particleID = 0xff;

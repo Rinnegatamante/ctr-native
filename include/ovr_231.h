@@ -24,7 +24,8 @@ struct MaskHeadScratch
 	s16 _pad_rot;
 
 	// 0x1f800130
-	s16 posOffset[4];
+	SVec3 posOffset;
+	s16 _pad_posOffset;
 };
 
 struct MaskHeadWeapon
@@ -151,10 +152,12 @@ struct RainLocal
 	s16 unk1[4];
 
 	// 0x14
-	s16 vel[4];
+	SVec3 vel;
+	s16 _pad_vel;
 
 	// 0x1c
-	s16 pos[4];
+	SVec3 pos;
+	s16 _pad_pos;
 
 	// 0x24
 	struct Instance *cloudInst;
@@ -450,7 +453,8 @@ struct Follower
 	struct Thread *mineTh;
 	int backupTimesDestroyed;
 
-	s16 realPos[4];
+	SVec3 realPos;
+	s16 _pad_realPos;
 };
 
 struct Fruit
@@ -591,7 +595,7 @@ struct Seal
 struct Snowball
 {
 	// 0x0
-	s16 rot_unused[3];
+	SVec3 rot_unused;
 
 	// 0x6
 	s16 pointIndex;

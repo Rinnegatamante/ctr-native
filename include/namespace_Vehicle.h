@@ -675,7 +675,8 @@ struct BotData
 	Vec3 positionBackup;
 
 	// 0x5fc
-	s16 ai_rot4[4];
+	SVec3 aiRot;
+	s16 _pad_aiRot;
 
 	// 0x604
 	int ai_progress_cooldown;

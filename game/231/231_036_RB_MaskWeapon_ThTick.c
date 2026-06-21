@@ -75,10 +75,10 @@ void RB_MaskWeapon_ThTick(struct Thread *maskTh)
 
 	rot = mask->rot.y;
 
-	mhs->posOffset[0] = (((MATH_Sin(rot) << 6) >> 0xc) * mask->scale) >> 0xc;
-	mhs->posOffset[2] = (((MATH_Cos(rot) << 6) >> 0xc) * mask->scale) >> 0xc;
+	mhs->posOffset.x = (((MATH_Sin(rot) << 6) >> 0xc) * mask->scale) >> 0xc;
+	mhs->posOffset.z = (((MATH_Cos(rot) << 6) >> 0xc) * mask->scale) >> 0xc;
 
-	mhs->posOffset[1] = R231.maskPosArr[(int)maskBeamInst->animFrame >> 0] + 0x40;
+	mhs->posOffset.y = R231.maskPosArr[(int)maskBeamInst->animFrame >> 0] + 0x40;
 
 	mhs->rot.x = 0;
 	mhs->rot.y = rot;
@@ -92,23 +92,23 @@ void RB_MaskWeapon_ThTick(struct Thread *maskTh)
 	{
 		if ((mask->rot.z & 1) == 0)
 		{
-			LHMatrix_Parent(instCurr, driverInst, (SVECTOR *)&mhs->posOffset[0]);
+			LHMatrix_Parent(instCurr, driverInst, (SVECTOR *)&mhs->posOffset);
 			ConvertRotToMatrix(&mhs->m, &mhs->rot);
 			MatrixRotate(&instCurr->matrix, &instCurr->matrix, &mhs->m);
 		}
 		else
 		{
-			instCurr->matrix.t[0] = (int)mask->pos.x + mhs->posOffset[0];
-			instCurr->matrix.t[1] = (int)mask->pos.y + mhs->posOffset[1];
-			instCurr->matrix.t[2] = (int)mask->pos.z + mhs->posOffset[2];
+			instCurr->matrix.t[0] = (int)mask->pos.x + mhs->posOffset.x;
+			instCurr->matrix.t[1] = (int)mask->pos.y + mhs->posOffset.y;
+			instCurr->matrix.t[2] = (int)mask->pos.z + mhs->posOffset.z;
 			ConvertRotToMatrix(&instCurr->matrix, &mhs->rot);
 		}
 
 		// Set up the Second pass (BeamInst)
 
-		mhs->posOffset[0] = 0;
-		mhs->posOffset[1] = 0x40;
-		mhs->posOffset[2] = 0;
+		mhs->posOffset.x = 0;
+		mhs->posOffset.y = 0x40;
+		mhs->posOffset.z = 0;
 
 		instCurr = maskBeamInst;
 	}

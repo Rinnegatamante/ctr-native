@@ -30,9 +30,9 @@ void AH_Pause_Update()
 
 			ptrPauseObject->PauseMember[i].indexAdvPauseInst = -1;
 			ptrPauseObject->PauseMember[i].inst = inst;
-			ptrPauseObject->PauseMember[i].rot[0] = 0;
-			ptrPauseObject->PauseMember[i].rot[1] = 0;
-			ptrPauseObject->PauseMember[i].rot[2] = 0;
+			ptrPauseObject->PauseMember[i].rot.x = 0;
+			ptrPauseObject->PauseMember[i].rot.y = 0;
+			ptrPauseObject->PauseMember[i].rot.z = 0;
 
 			inst->flags |= (USE_SPECULAR_LIGHT | SCREENSPACE_INSTANCE | HIDE_MODEL);
 

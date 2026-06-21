@@ -138,9 +138,9 @@ void MM_Characters_DrawWindows(int boolShowDrivers)
 		gGT->cameraDC[iVar6].cameraMode = 3;
 
 		// Set position of player
-		iVar10->matrix.t[0] = D230.csm_instPos[0];
-		iVar10->matrix.t[1] = D230.csm_instPos[1];
-		iVar10->matrix.t[2] = D230.csm_instPos[2];
+		iVar10->matrix.t[0] = D230.csm_instPos.x;
+		iVar10->matrix.t[1] = D230.csm_instPos.y;
+		iVar10->matrix.t[2] = D230.csm_instPos.z;
 
 		psVar11 = &D230.timerPerPlayer[iVar6];
 		sVar9 = *psVar11 + -1;
@@ -189,9 +189,9 @@ void MM_Characters_DrawWindows(int boolShowDrivers)
 		}
 
 		// driver rotation
-		rot.x = D230.csm_instRot[0];
-		rot.y = D230.csm_instRot[1] + D230.characterSelect_angle[iVar14];
-		rot.z = D230.csm_instRot[2];
+		rot.x = D230.csm_instRot.x;
+		rot.y = D230.csm_instRot.y + D230.characterSelect_angle[iVar14];
+		rot.z = D230.csm_instRot.z;
 
 		ConvertRotToMatrix(&iVar10->matrix, &rot);
 	}

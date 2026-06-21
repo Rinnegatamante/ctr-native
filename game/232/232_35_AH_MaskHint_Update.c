@@ -70,9 +70,9 @@ void AH_MaskHint_Update()
 		{
 			struct CameraDC *cdc = &gGT->cameraDC[0];
 
-			CTR_COPY_VEC3(cdc->driverOffset_CamEyePos.v, D232.eyePos);
+			CTR_COPY_VEC3(cdc->driverOffset_CamEyePos.v, D232.eyePos.v);
 
-			CTR_COPY_VEC3(cdc->driverOffset_CamLookAtPos.v, D232.lookAtPos);
+			CTR_COPY_VEC3(cdc->driverOffset_CamLookAtPos.v, D232.lookAtPos.v);
 
 			cdc->flags |= 8;
 
@@ -101,11 +101,11 @@ void AH_MaskHint_Update()
 		CTR_MatrixToRot((SVECTOR *)&rot, &dInst->matrix, 0x11);
 
 		// not a typo
-		D232.maskCamRotStart[0] = rot.y & 0xfff;
-		D232.maskCamRotStart[2] = rot.z & 0xfff;
-		D232.maskCamRotStart[1] = rot.x & 0xfff;
+		D232.maskCamRotStart.x = rot.y & 0xfff;
+		D232.maskCamRotStart.z = rot.z & 0xfff;
+		D232.maskCamRotStart.y = rot.x & 0xfff;
 
-		CTR_COPY_VEC3(D232.maskCamPosStart, dInst->matrix.t);
+		CTR_COPY_VEC3(D232.maskCamPosStart.v, dInst->matrix.t);
 
 		((struct MaskHint *)mhInst->thread->object)->scale = 0;
 

@@ -12,9 +12,9 @@ void CS_Credits_ThTick(void)
 	{
 		danceInst->flags |= HIDE_MODEL;
 
-		danceInst->matrix.t[0] = (int)creditsBSS.creditGhost_Pos[0];
-		danceInst->matrix.t[1] = (int)creditsBSS.creditGhost_Pos[1];
-		danceInst->matrix.t[2] = (int)creditsBSS.creditGhost_Pos[2];
+		danceInst->matrix.t[0] = (int)creditsBSS.creditGhost_Pos.x;
+		danceInst->matrix.t[1] = (int)creditsBSS.creditGhost_Pos.y;
+		danceInst->matrix.t[2] = (int)creditsBSS.creditGhost_Pos.z;
 
 		struct GameTracker *gGT = sdata->gGT;
 

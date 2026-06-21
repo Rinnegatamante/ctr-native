@@ -16,7 +16,8 @@ struct BossGarageDoor
 
 	struct Instance *garageTopInst;
 
-	s16 rot[4];
+	SVec3 rot;
+	s16 _pad_rot;
 
 	// 0x14 bytes large
 };
@@ -363,10 +364,12 @@ struct OverlayDATA_232
 	int fiveArrow_col2[3];
 
 	// 0x800b51dc
-	s16 maskPos[4];
+	SVec3 maskPos;
+	s16 _pad_maskPos;
 
 	// 0x800b51e4
-	s16 maskRot[4];
+	SVec3 maskRot;
+	s16 _pad_maskRot;
 
 	// 0x800b51ec
 	s16 maskScale;
@@ -375,10 +378,12 @@ struct OverlayDATA_232
 	s16 maskCooldown;
 
 	// 0x800b51f0
-	s16 maskOffsetPos[4];
+	SVec3 maskOffsetPos;
+	s16 _pad_maskOffsetPos;
 
 	// 0x800b51f8
-	s16 maskOffsetRot[4];
+	SVec3 maskOffsetRot;
+	s16 _pad_maskOffsetRot;
 
 	// 0x800b5200
 	s16 maskVars[12];
@@ -400,10 +405,12 @@ struct OverlayDATA_232
 	s16 hintMenu_lngIndexArr[22];
 
 	// 800b5520
-	s16 eyePos[4];
+	SVec3 eyePos;
+	s16 _pad_eyePos;
 
 	// 800b5528
-	s16 lookAtPos[4];
+	SVec3 lookAtPos;
+	s16 _pad_lookAtPos;
 
 	// 800b5530
 	int colorQuad[4]; // maybe should be `char*` instead of `int`
@@ -435,10 +442,12 @@ struct OverlayDATA_232
 	int maskAngle;
 
 	// 800b5560
-	s16 maskCamPosStart[4];
+	SVec3 maskCamPosStart;
+	s16 _pad_maskCamPosStart;
 
 	// 800b5568
-	s16 maskCamRotStart[4];
+	SVec3 maskCamRotStart;
+	s16 _pad_maskCamRotStart;
 
 	// 800b5570
 	int maskWarppadDelayFrames;
@@ -460,7 +469,8 @@ struct OverlayDATA_232
 			s16 unlockFlag;
 
 			// 0x4
-			s16 rot[4];
+			SVec3 rot;
+			s16 _pad_rot;
 
 			// 0xC
 			struct Instance *inst;

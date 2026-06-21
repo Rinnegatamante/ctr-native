@@ -2743,10 +2743,12 @@ struct sData
 	struct
 	{
 		// 8008CF94
-		s16 posOffset[4];
+		SVec3 posOffset;
+		s16 _pad_posOffset;
 
 		// 8008CF9C
-		s16 rotOffset[4];
+		SVec3 rotOffset;
+		s16 _pad_rotOffset;
 
 	} FirstPersonCamera;
 
@@ -4909,7 +4911,7 @@ struct sData
 	{
 		struct Instance *inst;
 
-		s16 rot[3];
+		SVec3 rot;
 
 		s16 padding;
 

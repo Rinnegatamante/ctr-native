@@ -34,13 +34,13 @@ void CS_Thread_Particles(struct Thread *t)
 
 			if (p != NULL)
 			{
-				s16 pos[3];
+				SVec3 pos;
 
-				CS_Instance_GetFrameData(inst, inst->animIndex, inst->animFrame, (u16 *)pos, NULL, frameOffset);
+				CS_Instance_GetFrameData(inst, inst->animIndex, inst->animFrame, (u16 *)pos.v, NULL, frameOffset);
 
-				p->axis[0].startVal += (pos[0] + inst->matrix.t[0]) << 8;
-				p->axis[1].startVal += (pos[1] + inst->matrix.t[1]) << 8;
-				p->axis[2].startVal += (pos[2] + inst->matrix.t[2]) << 8;
+				p->axis[0].startVal += (pos.x + inst->matrix.t[0]) << 8;
+				p->axis[1].startVal += (pos.y + inst->matrix.t[1]) << 8;
+				p->axis[2].startVal += (pos.z + inst->matrix.t[2]) << 8;
 				p->otIndexOffset = inst->depthBiasNormal + modelDelta;
 			}
 		}

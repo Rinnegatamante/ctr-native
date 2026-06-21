@@ -1416,7 +1416,7 @@ void VehStuckProc_Warp_AddDustPuff2(struct Driver *d, int *warp)
 void VehStuckProc_Warp_PhysAngular(struct Thread *th, struct Driver *d)
 {
 	int warpTimer;
-	s16 flarePos[4];
+	SVec4 flarePos;
 
 	// get instance from driver object
 	struct Instance *inst = d->instSelf;
@@ -1472,11 +1472,11 @@ void VehStuckProc_Warp_PhysAngular(struct Thread *th, struct Driver *d)
 			if ((inst->flags & HIDE_MODEL) == 0)
 			{
 				// position above kart
-				flarePos[0] = (s16)CTR_MipsSra(d->posCurr.x, 8);
-				flarePos[1] = (s16)CTR_MipsAddLo(CTR_MipsSra(d->KartStates.Warp.quadHeight, 8), 0x40);
-				flarePos[2] = (s16)CTR_MipsSra(d->posCurr.z, 8);
+				flarePos.x = (s16)CTR_MipsSra(d->posCurr.x, 8);
+				flarePos.y = (s16)CTR_MipsAddLo(CTR_MipsSra(d->KartStates.Warp.quadHeight, 8), 0x40);
+				flarePos.z = (s16)CTR_MipsSra(d->posCurr.z, 8);
 
-				FLARE_Init(flarePos);
+				FLARE_Init(flarePos.v);
 			}
 
 			// make invisible

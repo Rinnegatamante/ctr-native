@@ -3,7 +3,7 @@
 void RB_Fruit_GetScreenCoords(struct PushBuffer *pb, struct Instance *inst, s16 *output)
 {
 	MATRIX *m;
-	s16 posWorld[4];
+	SVec4 posWorld;
 
 	// load camera matrix
 	m = &pb->matrix_ViewProj;
@@ -11,11 +11,11 @@ void RB_Fruit_GetScreenCoords(struct PushBuffer *pb, struct Instance *inst, s16 
 	gte_SetTransMatrix(m);
 
 	// load input vector, each int casts to s16
-	posWorld[0] = (s16)inst->matrix.t[0];
-	posWorld[1] = (s16)inst->matrix.t[1];
-	posWorld[2] = (s16)inst->matrix.t[2];
-	posWorld[3] = 0;
-	gte_ldv0(&posWorld[0]);
+	posWorld.x = (s16)inst->matrix.t[0];
+	posWorld.y = (s16)inst->matrix.t[1];
+	posWorld.z = (s16)inst->matrix.t[2];
+	posWorld.w = 0;
+	gte_ldv0((SVECTOR *)&posWorld);
 
 	// perspective projection
 	gte_rtps();

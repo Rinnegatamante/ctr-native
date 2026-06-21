@@ -76,7 +76,7 @@ void MM_MenuProc_Main(struct RectMenu *mainMenu)
 	if (titleObj != NULL)
 	{
 		// CameraPosOffset X
-		titleObj->cameraPosOffset[0] = 0;
+		titleObj->cameraPosOffset.x = 0;
 	}
 
 	// if you are at highest level of menu hierarchy

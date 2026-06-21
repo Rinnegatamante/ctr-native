@@ -2,8 +2,8 @@
 
 struct VehBirthPosRot
 {
-	s16 pos[3];
-	s16 rot[3];
+	SVec3 pos;
+	SVec3 rot;
 };
 
 static int VehBirth_IsDoor5InstDef(struct InstDef *instDef)
@@ -69,11 +69,11 @@ static struct VehBirthPosRot *VehBirth_SpawnType2PosRot(struct Level *level)
 	return (struct VehBirthPosRot *)level->ptrSpawnType2_PosRot[1].posCoords;
 }
 
-static void VehBirth_SetBottomFromPos(SVec3 *posBottom, const s16 *pos)
+static void VehBirth_SetBottomFromPos(SVec3 *posBottom, const SVec3 *pos)
 {
-	posBottom->x = pos[0];
-	posBottom->y = (s16)CTR_MipsAddLo(pos[1], 0x80);
-	posBottom->z = pos[2];
+	posBottom->x = pos->x;
+	posBottom->y = (s16)CTR_MipsAddLo(pos->y, 0x80);
+	posBottom->z = pos->z;
 }
 
 static u8 VehBirth_GetStartlineIndex(struct Driver *d)
@@ -96,7 +96,7 @@ static void VehBirth_SetStartlinePosition(struct Driver *d, struct Level *level,
 	else
 #endif
 		d->distanceToFinish_checkpoint = level->ptr_restart_points[0].distToFinish << 3;
-	VehBirth_SetBottomFromPos(posBottom, level->DriverSpawn[spawnIndex].pos.v);
+	VehBirth_SetBottomFromPos(posBottom, &level->DriverSpawn[spawnIndex].pos);
 }
 
 static void VehBirth_SetStartlineRotation(struct Driver *d, struct Level *level)
@@ -174,7 +174,7 @@ void VehBirth_TeleportSelf(struct Driver *d, u8 spawnFlag, int spawnPosY)
 		else if (spawnOutsideBoss != 0)
 		{
 			advSpawn = VehBirth_SpawnType2PosRot(level1);
-			VehBirth_SetBottomFromPos(&posBottom, advSpawn[1].pos);
+			VehBirth_SetBottomFromPos(&posBottom, &advSpawn[1].pos);
 		}
 		else if ((gGT->gameMode1 & ADVENTURE_ARENA) == 0)
 		{
@@ -190,13 +190,13 @@ void VehBirth_TeleportSelf(struct Driver *d, u8 spawnFlag, int spawnPosY)
 			else
 			{
 				warppadRot = AH_WarpPad_GetSpawnPosRot(warppadPos.v);
-				VehBirth_SetBottomFromPos(&posBottom, warppadPos.v);
+				VehBirth_SetBottomFromPos(&posBottom, &warppadPos);
 			}
 		}
 		else
 		{
 			advSpawn = VehBirth_SpawnType2PosRot(level1);
-			VehBirth_SetBottomFromPos(&posBottom, advSpawn[0].pos);
+			VehBirth_SetBottomFromPos(&posBottom, &advSpawn[0].pos);
 		}
 	}
 
@@ -240,7 +240,7 @@ void VehBirth_TeleportSelf(struct Driver *d, u8 spawnFlag, int spawnPosY)
 			if (advSpawn == NULL)
 				advSpawn = VehBirth_SpawnType2PosRot(level1);
 
-			u16 rotY = (advSpawn[1].rot[1] + 0x400) & 0xfff;
+			u16 rotY = (advSpawn[1].rot.y + 0x400) & 0xfff;
 
 			d->rotCurr.y = rotY;
 			if (spawnAtBoss != 0)
@@ -268,7 +268,7 @@ void VehBirth_TeleportSelf(struct Driver *d, u8 spawnFlag, int spawnPosY)
 			if (advSpawn == NULL)
 				advSpawn = VehBirth_SpawnType2PosRot(level1);
 
-			d->rotCurr.y = advSpawn[0].rot[1] & 0xfff;
+			d->rotCurr.y = advSpawn[0].rot.y & 0xfff;
 		}
 		else if (VehBirth_ShouldUseStartlineInAdv(gGT, warppadRot))
 		{

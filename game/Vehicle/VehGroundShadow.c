@@ -35,7 +35,7 @@ struct VehGroundShadowEntry
 	struct Driver *driver;
 	struct Instance *inst;
 	u8 idppFlags[VEH_GROUND_SHADOW_MAX_PLAYERS];
-	s16 pos[3];
+	SVec3 pos;
 	u16 instFlags;
 };
 
@@ -127,9 +127,9 @@ static void VehGroundShadow_BuildEntry(struct VehGroundShadowEntry *entry, struc
 	for (int playerIndex = numPlayers - 1; playerIndex >= 0; playerIndex--)
 		entry->idppFlags[playerIndex] = (u8)VehGroundShadow_GetIdpp(inst, playerIndex)->instFlags;
 
-	entry->pos[0] = (s16)CTR_MipsSra(driver->posCurr.x, 8);
-	entry->pos[1] = (s16)CTR_MipsAddLo(CTR_MipsSra(driver->quadBlockHeight, 8), 3);
-	entry->pos[2] = (s16)CTR_MipsSra(driver->posCurr.z, 8);
+	entry->pos.x = (s16)CTR_MipsSra(driver->posCurr.x, 8);
+	entry->pos.y = (s16)CTR_MipsAddLo(CTR_MipsSra(driver->quadBlockHeight, 8), 3);
+	entry->pos.z = (s16)CTR_MipsSra(driver->posCurr.z, 8);
 	entry->depthBias = (s8)((entry->instFlags & SPLIT_LINE) != 0 ? inst->depthBiasSecondary : inst->depthBiasNormal) + 1;
 }
 
@@ -353,9 +353,9 @@ void VehGroundShadow_Main(void)
 			if ((entry->idppFlags[playerIndex] & DRAW_SUCCESSFUL) == 0)
 				continue;
 
-			diffX = VehGroundShadow_DiffS16(entry->pos[0], camX);
-			diffY = VehGroundShadow_DiffS16(entry->pos[1], camY);
-			diffZ = VehGroundShadow_DiffS16(entry->pos[2], camZ);
+			diffX = VehGroundShadow_DiffS16(entry->pos.x, camX);
+			diffY = VehGroundShadow_DiffS16(entry->pos.y, camY);
+			diffZ = VehGroundShadow_DiffS16(entry->pos.z, camZ);
 			scaledX = (s16)(diffX * 4);
 			scaledY = (s16)(diffY * 4);
 			scaledZ = (s16)(diffZ * 4);

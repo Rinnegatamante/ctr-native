@@ -142,9 +142,7 @@ struct CutsceneObj
 
 	s16 unk1c;
 	s16 unk1e;
-	s16 unk20;
-	s16 unk22;
-	s16 unk24;
+	SVec3 rot;
 	s16 unk26;
 	u16 pathProgress32;
 
@@ -444,7 +442,8 @@ struct OverlayRDATA_233
 	RECT introClearBoxRect;
 
 	// 800b7480
-	s16 creditsDancerRotOffset[4];
+	SVec3 creditsDancerRotOffset;
+	s16 _pad_creditsDancerRotOffset;
 
 
 	// 800B7488
@@ -575,7 +574,8 @@ OVR233_LAYOUT_ASSERT(cs_initMatrixTable, 0xb940, 0x20);
 OVR233_LAYOUT_ASSERT(cs_initMatrixBool, 0xb960, 0x1);
 OVR233_LAYOUT_ASSERT(introClearBoxColor, 0xba84, 0x4);
 OVR233_LAYOUT_ASSERT(introClearBoxRect, 0xba88, 0x8);
-OVR233_LAYOUT_ASSERT(creditsDancerRotOffset, 0xba90, 0x8);
+OVR233_LAYOUT_ASSERT(creditsDancerRotOffset, 0xba90, 0x6);
+OVR233_LAYOUT_ASSERT(_pad_creditsDancerRotOffset, 0xba96, 0x2);
 OVR233_LAYOUT_ASSERT(bossCS, 0xba98, 0x2d8);
 OVR233_LAYOUT_ASSERT(isCutsceneOver, 0xbd70, 0x4);
 OVR233_LAYOUT_ASSERT(PodiumInitUnk2, 0xbd74, 0x4);
@@ -770,10 +770,12 @@ _Static_assert(sizeof(struct CreditsObj) == 0x340);
 struct Ovr233_Credits_BSS
 {
 	// 800b9488
-	s16 creditGhost_Pos[4];
+	SVec3 creditGhost_Pos;
+	s16 _pad_creditGhost_Pos;
 
 	// 800b9490
-	s16 unused_Pos[4];
+	SVec3 unused_Pos;
+	s16 _pad_unused_Pos;
 
 	// 800b9498
 	int creditText_PosX;
@@ -836,8 +838,10 @@ _Static_assert(sizeof(struct CreditsObj) == 0x340);
 	_Static_assert(OFFSETOF(struct Ovr233_Credits_BSS, ELEMENT) == (OFFSET)); \
 	_Static_assert(sizeof(((struct Ovr233_Credits_BSS *)0)->ELEMENT) == (SIZE))
 
-OVR233_CREDITS_BSS_ASSERT(creditGhost_Pos, 0x0, 0x8);
-OVR233_CREDITS_BSS_ASSERT(unused_Pos, 0x8, 0x8);
+OVR233_CREDITS_BSS_ASSERT(creditGhost_Pos, 0x0, 0x6);
+OVR233_CREDITS_BSS_ASSERT(_pad_creditGhost_Pos, 0x6, 0x2);
+OVR233_CREDITS_BSS_ASSERT(unused_Pos, 0x8, 0x6);
+OVR233_CREDITS_BSS_ASSERT(_pad_unused_Pos, 0xe, 0x2);
 OVR233_CREDITS_BSS_ASSERT(creditText_PosX, 0x10, 0x4);
 OVR233_CREDITS_BSS_ASSERT(CreditThread, 0x14, 0x4);
 OVR233_CREDITS_BSS_ASSERT(DancerThread, 0x18, 0x4);

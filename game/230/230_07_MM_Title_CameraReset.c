@@ -8,5 +8,5 @@ void MM_Title_CameraReset(void)
 	if (title == NULL)
 		return;
 
-	title->cameraPosOffset[0] = 2000;
+	title->cameraPosOffset.x = 2000;
 }

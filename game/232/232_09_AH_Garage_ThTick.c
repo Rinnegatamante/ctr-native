@@ -110,10 +110,10 @@ void AH_Garage_ThTick(struct Thread *t)
 		else if (garage->garageTopInst != 0)
 		{
 			// Update rotation of garagetop
-			garage->rot[0] += (s16)garage->direction * 0x40;
+			garage->rot.x += (s16)garage->direction * 0x40;
 
 			// converted to TEST in rebuildPS1
-			ConvertRotToMatrix(&garage->garageTopInst->matrix, &garage->rot[0]);
+			ConvertRotToMatrix(&garage->garageTopInst->matrix, &garage->rot);
 		}
 
 		inst->flags &= ~SPLIT_SPECIAL;

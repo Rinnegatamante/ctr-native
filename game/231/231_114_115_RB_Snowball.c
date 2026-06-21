@@ -78,7 +78,7 @@ void RB_Snowball_LInB(struct Instance *inst)
 	t->inst = inst;
 
 	snowObj = ((struct Snowball *)t->object);
-	snowObj->rot_unused[0] = 0;
+	snowObj->rot_unused.x = 0;
 
 	snowObj->snowID = inst->name[strlen(inst->name) - 1] - '0';
 
@@ -88,7 +88,7 @@ void RB_Snowball_LInB(struct Instance *inst)
 	inst->scale.y = 0x1000;
 	inst->scale.z = 0x1000;
 
-	snowObj->rot_unused[1] = inst->matrix.m[0][2] >> 2;
-	snowObj->rot_unused[2] = inst->matrix.m[2][2] >> 2;
+	snowObj->rot_unused.y = inst->matrix.m[0][2] >> 2;
+	snowObj->rot_unused.z = inst->matrix.m[2][2] >> 2;
 	snowObj->audioPtr = 0;
 }

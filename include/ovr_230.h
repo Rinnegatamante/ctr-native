@@ -24,7 +24,7 @@ struct Title
 	struct Instance *i[6];
 
 	// 0x1c
-	s16 cameraPosOffset[3];
+	SVec3 cameraPosOffset;
 
 	// 0x22
 	s16 UnusedPadding;
@@ -350,8 +350,10 @@ struct OverlayDATA_230
 	// 800B4830 - UsaRetail
 	// 800b500c - EurRetail
 	// 800b882c - JpnRetail
-	s16 titleCameraPos[4];
-	s16 titleCameraRot[4];
+	SVec3 titleCameraPos;
+	s16 _pad_titleCameraPos;
+	SVec3 titleCameraRot;
+	s16 _pad_titleCameraRot;
 
 	// 800B4840 - UsaRetail
 	// 800b501c - EurRetail
@@ -391,7 +393,8 @@ struct OverlayDATA_230
 	s16 title_diffPosY;
 
 	// 800B485c
-	s16 title_camPos[4];
+	SVec3 title_camPos;
+	s16 _pad_title_camPos;
 
 	// 800B4864
 	struct TransitionMeta transitionMeta_Menu[8];
@@ -551,8 +554,9 @@ struct OverlayDATA_230
 
 	// 800B5360 - UsaRetail
 	// 800b5b3c - EurRetail
-	s16 csm_instPos[4];
-	s16 csm_instRot[3];
+	SVec3 csm_instPos;
+	s16 _pad_csm_instPos;
+	SVec3 csm_instRot;
 	s16 moveModels;
 
 	// 800B5370 - UsaRetail

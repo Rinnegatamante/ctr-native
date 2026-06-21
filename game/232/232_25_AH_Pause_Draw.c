@@ -358,7 +358,7 @@ void AH_Pause_Draw(int pageID, int posX)
 		int index = ptrPauseObject->PauseMember[i].indexAdvPauseInst;
 
 		struct Instance *inst = ptrPauseObject->PauseMember[i].inst;
-		s16 *rotArr = &ptrPauseObject->PauseMember[i].rot[0];
+		SVec3 *rot = &ptrPauseObject->PauseMember[i].rot;
 
 		if (index < 0)
 		{
@@ -400,13 +400,13 @@ void AH_Pause_Draw(int pageID, int posX)
 
 			inst->model = gGT->modelPtr[modelID];
 
-			ConvertRotToMatrix(&inst->matrix, rotArr);
+			ConvertRotToMatrix(&inst->matrix, rot);
 
 			if ((inst->flags & 0x70000) == USE_SPECULAR_LIGHT)
 			{
 				SVec3 *specArr = &D232.advPauseInst[index].lightDir;
 
-				Vector_SpecLightSpin2D(inst, rotArr, specArr);
+				Vector_SpecLightSpin2D(inst, rot, specArr);
 			}
 
 			else
@@ -415,8 +415,8 @@ void AH_Pause_Draw(int pageID, int posX)
 			}
 		}
 
-		rotArr[1] = inst->matrix.t[0] * 0x10 + inst->matrix.t[1] * 0x20 + sdata->frameCounter * 0x40;
+		rot->y = inst->matrix.t[0] * 0x10 + inst->matrix.t[1] * 0x20 + sdata->frameCounter * 0x40;
 
-		rotArr[1] &= 0xfff;
+		rot->y &= 0xfff;
 	}
 }

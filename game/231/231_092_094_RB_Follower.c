@@ -73,9 +73,9 @@ void RB_Follower_ThTick(struct Thread *t)
 		}
 
 		// midpoint between real mine position, and driver position
-		inst->matrix.t[0] = (fObj->realPos[0] + (d->posCurr.x >> 8)) >> 1;
-		inst->matrix.t[1] = (fObj->realPos[1] + (d->posCurr.y >> 8)) >> 1;
-		inst->matrix.t[2] = (fObj->realPos[2] + (d->posCurr.z >> 8)) >> 1;
+		inst->matrix.t[0] = (fObj->realPos.x + (d->posCurr.x >> 8)) >> 1;
+		inst->matrix.t[1] = (fObj->realPos.y + (d->posCurr.y >> 8)) >> 1;
+		inst->matrix.t[2] = (fObj->realPos.z + (d->posCurr.z >> 8)) >> 1;
 
 		return;
 	}
@@ -132,6 +132,6 @@ void RB_Follower_Init(struct Driver *d, struct Thread *mineTh)
 	// backup original position
 	for (int i = 0; i < 3; i++)
 	{
-		fObj->realPos[i] = iVar3->matrix.t[i];
+		fObj->realPos.v[i] = iVar3->matrix.t[i];
 	}
 }

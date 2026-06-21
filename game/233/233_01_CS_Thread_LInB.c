@@ -57,9 +57,9 @@ void CS_Thread_LInB(struct Instance *inst)
 		s16 frameEnd = meta[3];
 
 		cs->unk1c = 0;
-		cs->unk20 = 0;
-		cs->unk22 = 0;
-		cs->unk24 = 0;
+		cs->rot.x = 0;
+		cs->rot.y = 0;
+		cs->rot.z = 0;
 		cs->pathProgress32 = 0;
 		cs->unk1e = 0;
 		cs->flags = 0;

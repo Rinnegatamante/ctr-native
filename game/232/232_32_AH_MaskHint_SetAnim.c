@@ -11,7 +11,7 @@ void AH_MaskHint_SetAnim(int scale)
 	gte_SetRotMatrix(m);
 	gte_SetTransMatrix(m);
 
-	gte_ldv0(&D232.maskOffsetPos[0]);
+	gte_ldv0(&D232.maskOffsetPos);
 	gte_rt();
 
 	int posEndINT[3];
@@ -24,13 +24,13 @@ void AH_MaskHint_SetAnim(int scale)
 	posEnd.z = posEndINT[2];
 
 	SVec3 rotEnd;
-	rotEnd.x = pb->rot.x - D232.maskOffsetRot[0];
-	rotEnd.y = pb->rot.y + D232.maskOffsetRot[1];
-	rotEnd.z = pb->rot.z - D232.maskOffsetRot[2];
+	rotEnd.x = pb->rot.x - D232.maskOffsetRot.x;
+	rotEnd.y = pb->rot.y + D232.maskOffsetRot.y;
+	rotEnd.z = pb->rot.z - D232.maskOffsetRot.z;
 
 	SVec3 posCurr;
 	SVec3 rotCurr;
-	CAM_ProcessTransition(&posCurr, &rotCurr, (SVec3 *)&D232.maskCamPosStart[0], (SVec3 *)&D232.maskCamRotStart[0], &posEnd, &rotEnd, scale);
+	CAM_ProcessTransition(&posCurr, &rotCurr, &D232.maskCamPosStart, &D232.maskCamRotStart, &posEnd, &rotEnd, scale);
 
 	int rot = 0x1000;
 	if (D232.maskSpawnFrame - 20 < D232.maskFrameCurr)

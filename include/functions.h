@@ -764,7 +764,7 @@ void VehTurbo_ThDestroy(struct Thread *t);
 void VehGroundShadow_Main(void);
 void VehGroundSkids_Main(struct Thread *thread, struct PushBuffer *pb);
 
-void Vector_SpecLightSpin2D(struct Instance *inst, s16 *rot, const SVec3 *lightDir);
+void Vector_SpecLightSpin2D(struct Instance *inst, const SVec3 *rot, const SVec3 *lightDir);
 void Vector_BakeMatrixTable(void);
 
 void VehStuckProc_Tumble_Update(struct Thread *thread, struct Driver *driver);

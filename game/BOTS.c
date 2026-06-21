@@ -502,7 +502,7 @@ void BOTS_SetRotation(struct Driver *bot, int useSpawnYaw)
 	bot->angle = v;
 	bot->rotCurr.y = v;
 	bot->rotPrev.y = v;
-	bot->botData.ai_rot4[1] = v;
+	bot->botData.aiRot.y = v;
 
 	bot->botData.botFlags |= BOT_FLAG_ESTIMATE_NAV;
 }
@@ -1858,7 +1858,7 @@ UpdateTireColorTimer:
 			deltaRotY = CTR_MipsSubLo(deltaRotY, 0x1000);
 		}
 
-		botDriver->botData.ai_rot4[1] = CTR_MipsAddLo(CTR_MipsSll(navFrameCurr->rot[1], 4), CTR_MipsSra(CTR_MipsMulLo(deltaRotY, percentage), 0xc)) & 0xfff;
+		botDriver->botData.aiRot.y = CTR_MipsAddLo(CTR_MipsSll(navFrameCurr->rot[1], 4), CTR_MipsSra(CTR_MipsMulLo(deltaRotY, percentage), 0xc)) & 0xfff;
 
 		s16 probeY = (s16)CTR_MipsSra(CTR_MipsAddLo(botDriver->botData.positionBackup.y, botDriver->botData.aiPhysics.velocity.y), 8);
 		s16 probeX = (s16)CTR_MipsSra(CTR_MipsAddLo(botDriver->botData.positionBackup.x, botDriver->botData.aiPhysics.velocity.x), 8);
@@ -1887,7 +1887,7 @@ UpdateTireColorTimer:
 
 			botDriver->botData.ai_quadblock_checkpointIndex = sps->hit.ptrQuadblock->checkpointIndex;
 
-			VehPhysForce_RotAxisAngle(&botInstance->matrix, sps->hit.plane.normal.v, botDriver->botData.ai_rot4[1]);
+			VehPhysForce_RotAxisAngle(&botInstance->matrix, sps->hit.plane.normal.v, botDriver->botData.aiRot.y);
 
 			botDriver->AxisAngle3_normalVec = sps->hit.plane.normal;
 
@@ -2305,7 +2305,7 @@ UpdateTireColorTimer:
 				uVar8 = CTR_MipsSubLo(uVar8, 0x1000);
 			}
 
-			botDriver->botData.ai_rot4[0] = CTR_MipsAddLo(CTR_MipsSll(navFrameCurr->rot[0], 4), CTR_MipsSra(CTR_MipsMulLo(uVar8, percentage), 0xc)) & 0xfff;
+			botDriver->botData.aiRot.x = CTR_MipsAddLo(CTR_MipsSll(navFrameCurr->rot[0], 4), CTR_MipsSra(CTR_MipsMulLo(uVar8, percentage), 0xc)) & 0xfff;
 
 			uVar8 = CTR_MipsSubLo(CTR_MipsSll(navFrameNext->rot[2], 4), CTR_MipsSll(navFrameCurr->rot[2], 4)) & 0xfff;
 			if (0x7ff < uVar8)
@@ -2313,7 +2313,7 @@ UpdateTireColorTimer:
 				uVar8 = CTR_MipsSubLo(uVar8, 0x1000);
 			}
 
-			botDriver->botData.ai_rot4[2] = CTR_MipsAddLo(CTR_MipsSll(navFrameCurr->rot[2], 4), CTR_MipsSra(CTR_MipsMulLo(uVar8, percentage), 0xc)) & 0xfff;
+			botDriver->botData.aiRot.z = CTR_MipsAddLo(CTR_MipsSll(navFrameCurr->rot[2], 4), CTR_MipsSra(CTR_MipsMulLo(uVar8, percentage), 0xc)) & 0xfff;
 		}
 
 		int other_uVar8 = CTR_MipsSubLo(CTR_MipsSll(navFrameNext->rot[1], 4), CTR_MipsSll(navFrameCurr->rot[1], 4)) & 0xfff;
@@ -2322,7 +2322,7 @@ UpdateTireColorTimer:
 			other_uVar8 = CTR_MipsSubLo(other_uVar8, 0x1000);
 		}
 
-		botDriver->botData.ai_rot4[1] = CTR_MipsAddLo(CTR_MipsSll(navFrameCurr->rot[1], 4), CTR_MipsSra(CTR_MipsMulLo(other_uVar8, percentage), 0xc)) & 0xfff;
+		botDriver->botData.aiRot.y = CTR_MipsAddLo(CTR_MipsSll(navFrameCurr->rot[1], 4), CTR_MipsSra(CTR_MipsMulLo(other_uVar8, percentage), 0xc)) & 0xfff;
 
 		if ((botDriver->botData.botFlags & BOT_FLAG_ESTIMATE_NAV) != 0)
 		{
@@ -2402,9 +2402,9 @@ UpdateTireColorTimer:
 		botDriver->simpTurnState = (s8)(u8)botDriver->botData.aiPhysics.simpTurnState;
 	}
 
-	botDriver->rotCurr.x = botDriver->botData.ai_rot4[0];
-	botDriver->rotCurr.y = botDriver->botData.ai_rot4[1];
-	botDriver->rotCurr.z = botDriver->botData.ai_rot4[2];
+	botDriver->rotCurr.x = botDriver->botData.aiRot.x;
+	botDriver->rotCurr.y = botDriver->botData.aiRot.y;
+	botDriver->rotCurr.z = botDriver->botData.aiRot.z;
 
 	int badnessRecieveTimer = botDriver->clockReceive; // iVar4
 
@@ -2473,7 +2473,7 @@ UpdateTireColorTimer:
 
 	botDriver->speed = botDriver->botData.aiPhysics.speedLinear;
 	botDriver->jumpHeightPrev = botDriver->jumpHeightCurr;
-	botDriver->axisRotationX = botDriver->botData.ai_rot4[1] & 0xfff;
+	botDriver->axisRotationX = botDriver->botData.aiRot.y & 0xfff;
 
 	int iVar4_lifetime_2 = MATH_Cos(navFrameCurr->rot[3]);
 
@@ -2826,8 +2826,8 @@ void BOTS_CollideWithOtherAI(struct Driver *robot_1, struct Driver *robot_2)
 	// robot_1 = iVar2
 	// robot_2 = param_2
 
-	s16 *navSegmentStartPos;
-	s16 *navSegmentEndPos;
+	SVec3 *navSegmentStartPos;
+	SVec3 *navSegmentEndPos;
 	if ((robot_1->botData.botFlags & BOT_FLAG_ESTIMATE_NAV) == 0)
 	{
 		// nav path index
@@ -2838,7 +2838,7 @@ void BOTS_CollideWithOtherAI(struct Driver *robot_1, struct Driver *robot_2)
 		struct NavFrame *navFrameNext = navFrameCurr + 1;
 
 		// iVar4
-		navSegmentStartPos = &navFrameCurr->pos.x;
+		navSegmentStartPos = &navFrameCurr->pos;
 
 		// if you go out of bounds
 		if (sdata->NavPath_ptrHeader[botPathIndex]->last <= navFrameNext)
@@ -2846,7 +2846,7 @@ void BOTS_CollideWithOtherAI(struct Driver *robot_1, struct Driver *robot_2)
 			// loop back to first navFrame
 			navFrameNext = sdata->NavPath_ptrNavFrameArray[botPathIndex];
 		}
-		navSegmentEndPos = &navFrameNext->pos.x;
+		navSegmentEndPos = &navFrameNext->pos;
 	}
 	else
 	{
@@ -2854,8 +2854,8 @@ void BOTS_CollideWithOtherAI(struct Driver *robot_1, struct Driver *robot_2)
 		struct NavFrame *navFrameNext = robot_1->botData.botNavFrame;
 
 		// iVar4
-		navSegmentStartPos = robot_1->botData.estimatePosition.v;
-		navSegmentEndPos = &navFrameNext->pos.x;
+		navSegmentStartPos = &robot_1->botData.estimatePosition;
+		navSegmentEndPos = &navFrameNext->pos;
 	}
 
 	SVec3 pos = {
@@ -2929,10 +2929,10 @@ void BOTS_GotoStartingLine(struct Driver *d)
 
 	d->rotCurr.z = 0;
 	d->rotPrev.z = 0;
-	d->botData.ai_rot4[2] = 0;
+	d->botData.aiRot.z = 0;
 	d->rotCurr.x = 0;
 	d->rotPrev.x = 0;
-	d->botData.ai_rot4[0] = 0;
+	d->botData.aiRot.x = 0;
 	d->turnAngleCurr = 0;
 
 	// turn on 21st flag of actions flag set, means driver is AI
@@ -2946,7 +2946,7 @@ void BOTS_GotoStartingLine(struct Driver *d)
 	d->angle = rotY;
 	d->rotCurr.y = rotY;
 	d->rotPrev.y = rotY;
-	d->botData.ai_rot4[1] = rotY;
+	d->botData.aiRot.y = rotY;
 
 	// acceleration from start-line to full speed
 	d->botData.botAccel = CTR_MipsMulLo(accelDuration, accel);

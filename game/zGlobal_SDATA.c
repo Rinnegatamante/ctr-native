@@ -32,8 +32,8 @@ struct sData sdata_static = {.langBufferSize = 0x3F04,
 
                              .FirstPersonCamera =
                                  {
-                                     .posOffset = {0, 0x60, 0, 0},
-                                     .rotOffset = {0x800, 0x800, 0, 0},
+                                     .posOffset = {0, 0x60, 0},
+                                     .rotOffset = {0x800, 0x800, 0},
                                  },
 
                              .s_DCH = "DCH",

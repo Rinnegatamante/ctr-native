@@ -91,21 +91,21 @@ void UI_ThTick_CountPickup(struct Thread *bucket)
 		if (inst->model->id != STATIC_TIME_CRATE_01)
 		{
 			// rotation speed 0x80
-			rotSpd = obj->rot[1] + 0x80;
+			rotSpd = obj->rot.y + 0x80;
 			goto LAB_8004c7d4;
 		}
 	}
 
 	// if wumpa or crystal,
 	// rotation speed 0x40
-	rotSpd = obj->rot[1] + 0x40;
+	rotSpd = obj->rot.y + 0x40;
 
 LAB_8004c7d4:
 
-	obj->rot[1] = rotSpd;
+	obj->rot.y = rotSpd;
 	mat = &inst->matrix;
 
-	ConvertRotToMatrix(mat, (s16 *)obj->rot);
+	ConvertRotToMatrix(mat, &obj->rot);
 
 	MatrixRotate(mat, &obj->m, mat);
 
@@ -145,14 +145,14 @@ void UI_ThTick_Reward(struct Thread *bucket)
 	obj = bucket->object;
 
 	// Spin on the Y axis
-	obj->rot[1] += 0x40;
+	obj->rot.y += 0x40;
 
-	Vector_SpecLightSpin2D(inst, (s16 *)obj->rot, &obj->lightDir);
+	Vector_SpecLightSpin2D(inst, &obj->rot, &obj->lightDir);
 
 	// pointer to matrix
 	mat = &inst->matrix;
 
-	ConvertRotToMatrix(mat, (s16 *)obj->rot);
+	ConvertRotToMatrix(mat, &obj->rot);
 
 	MatrixRotate(mat, &obj->m, mat);
 
@@ -194,9 +194,9 @@ void UI_ThTick_CtrLetters(struct Thread *bucket)
 	// that's why the lighting changes in the HUD
 
 	// Rotate on the Y axis
-	obj->rot[1] += 0x40;
+	obj->rot.y += 0x40;
 
-	Vector_SpecLightSpin2D(inst, (s16 *)obj->rot, &obj->lightDir);
+	Vector_SpecLightSpin2D(inst, &obj->rot, &obj->lightDir);
 
 	if (
 	    // If you're in End-Of-Race menu
@@ -249,7 +249,7 @@ void UI_ThTick_big1(struct Thread *bucket)
 	// Get instance from thread
 	inst = bucket->inst;
 
-	uVar1 = obj->rot[3];
+	uVar1 = obj->scale;
 	*(int *)&inst->matrix.m[0][0] = uVar1;
 	*(int *)&inst->matrix.m[0][2] = 0;
 	*(int *)&inst->matrix.m[1][1] = uVar1;

@@ -37,8 +37,8 @@ void CS_Camera_ThTick_Podium(struct Thread *th)
 		{
 			u16 frameTime = podium[0] + gGT->elapsedTimeMS;
 			int frameTimeSigned = (s16)frameTime;
-			s16 pos[3];
-			s16 rot[3];
+			SVec3 pos;
+			SVec3 rot;
 			s16 camPath[4];
 			int frame;
 
@@ -57,14 +57,10 @@ void CS_Camera_ThTick_Podium(struct Thread *th)
 			D233.PodiumInitUnk2 = frame;
 			podium[0] = frameTime;
 
-			CAM_Path_Move(frame, pos, rot, camPath);
+			CAM_Path_Move(frame, pos.v, rot.v, camPath);
 
-			gGT->pushBuffer[0].pos.x = pos[0];
-			gGT->pushBuffer[0].pos.y = pos[1];
-			gGT->pushBuffer[0].pos.z = pos[2];
-			gGT->pushBuffer[0].rot.x = rot[0];
-			gGT->pushBuffer[0].rot.y = rot[1];
-			gGT->pushBuffer[0].rot.z = rot[2];
+			gGT->pushBuffer[0].pos = pos;
+			gGT->pushBuffer[0].rot = rot;
 		}
 	}
 	else

@@ -48,8 +48,8 @@ int CS_Thread_UseOpcode(struct Instance *instance, struct CutsceneObj *cs)
 	int lodIndex;
 	struct ModelHeader *modelHeader;
 	int metadataBackup[5];
-	s16 camRot[3];
-	s16 camPos[3];
+	SVec3 camRot;
+	SVec3 camPos;
 	u16 camPathFlags[2];
 	int animIndex;
 	int opcodeDuration;
@@ -148,13 +148,9 @@ int CS_Thread_UseOpcode(struct Instance *instance, struct CutsceneObj *cs)
 			iVar10 = ((s32)((u32)gGT->msInThisLEV << 11)) >> 16;
 			if (iVar10 < (int)numCamPathPoints + -1)
 			{
-				CAM_Path_Move(iVar10, camPos, camRot, camPathFlags);
-				gGT->pushBuffer[0].pos.x = camPos[0];
-				gGT->pushBuffer[0].pos.y = camPos[1];
-				gGT->pushBuffer[0].pos.z = camPos[2];
-				gGT->pushBuffer[0].rot.x = camRot[0];
-				gGT->pushBuffer[0].rot.y = camRot[1];
-				gGT->pushBuffer[0].rot.z = camRot[2];
+				CAM_Path_Move(iVar10, camPos.v, camRot.v, camPathFlags);
+				gGT->pushBuffer[0].pos = camPos;
+				gGT->pushBuffer[0].rot = camRot;
 			}
 			else
 			{
@@ -255,9 +251,9 @@ afterCameraAndSkipChecks:
 			}
 		}
 		iVar10 = iVar10 + cs->unk1c;
-		if ((iVar10 != (int)cs->unk22) && (cs->unk22 = (s16)iVar10, instance != 0))
+		if ((iVar10 != (int)cs->rot.y) && (cs->rot.y = (s16)iVar10, instance != 0))
 		{
-			ConvertRotToMatrix(&instance->matrix, &cs->unk20);
+			ConvertRotToMatrix(&instance->matrix, &cs->rot);
 		}
 		iVar8 = CS_Instance_SafeCheckAnimFrame(instance, animIndex, iVar8, iVar12);
 		if (iVar12 != iVar8)
@@ -701,9 +697,9 @@ processOpcode:
 		if (dancerModelID == STATIC_CRASHDANCE)
 			initData->rot.y += 0x800;
 
-		initData->rot.x += R233.creditsDancerRotOffset[0];
-		initData->rot.y += R233.creditsDancerRotOffset[1];
-		initData->rot.z += R233.creditsDancerRotOffset[2];
+		initData->rot.x += R233.creditsDancerRotOffset.x;
+		initData->rot.y += R233.creditsDancerRotOffset.y;
+		initData->rot.z += R233.creditsDancerRotOffset.z;
 
 		dancerThread = (struct Thread *)CS_Thread_Init(dancerModelID, R233.s_g_dancer, (s16 *)initData, 0, 0);
 		CS_Credits_NewDancer(dancerThread, (int)opcodeMetaShorts[6]);

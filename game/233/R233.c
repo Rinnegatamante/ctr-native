@@ -2463,7 +2463,7 @@ const struct OverlayRDATA_233 R233 =
             },
         .introClearBoxColor = {.r = 0x40, .g = 0x40, .b = 0x60},
         .introClearBoxRect = {.x = 0, .y = 0, .w = 0x200, .h = 0xd8},
-        .creditsDancerRotOffset = {0, 0xf00, 0, 0},
+        .creditsDancerRotOffset = {0, 0xf00, 0},
         .bossCS =
             {
                 {

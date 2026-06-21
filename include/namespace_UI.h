@@ -9,7 +9,8 @@ struct UiElement2D
 struct UiElement3D
 {
 	// 0x0
-	s16 rot[4];
+	SVec3 rot;
+	s16 scale;
 
 	// 0x8
 	MATRIX m;
@@ -43,6 +44,9 @@ struct QuipMeta
 };
 
 _Static_assert(sizeof(struct UiElement2D) == 0x8);
+_Static_assert(OFFSETOF(struct UiElement3D, rot) == 0x0);
+_Static_assert(OFFSETOF(struct UiElement3D, scale) == 0x6);
+_Static_assert(OFFSETOF(struct UiElement3D, m) == 0x8);
 _Static_assert(sizeof(struct UiElement3D) == 0x38);
 _Static_assert(sizeof(struct QuipStr) == 0x8);
 _Static_assert(sizeof(struct QuipMeta) == 0x18);

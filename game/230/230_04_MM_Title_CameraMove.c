@@ -18,9 +18,9 @@ void MM_Title_CameraMove(struct Title *title, int frameIndex)
 	for (int i = 0; i < 3; i++)
 	{
 		// position XYZ
-		gGT->pushBuffer[0].pos.v[i] = title->cameraPosOffset[i] + posRot[i] + (s16)((D230.titleCameraPos[i] * result) >> 0xc);
+		gGT->pushBuffer[0].pos.v[i] = title->cameraPosOffset.v[i] + posRot[i] + (s16)((D230.titleCameraPos.v[i] * result) >> 0xc);
 
 		// rotation XYZ
-		gGT->pushBuffer[0].rot.v[i] = posRot[3 + i] + (s16)((D230.titleCameraRot[i] * result) >> 0xc);
+		gGT->pushBuffer[0].rot.v[i] = posRot[3 + i] + (s16)((D230.titleCameraRot.v[i] * result) >> 0xc);
 	}
 }

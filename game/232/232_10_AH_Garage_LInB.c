@@ -123,9 +123,9 @@ void AH_Garage_LInB(struct Instance *inst)
 		t->modelIndex = 0;
 	}
 
-	garage->rot[0] = inst->instDef->rot.x;
-	garage->rot[1] = inst->instDef->rot.y;
-	garage->rot[2] = inst->instDef->rot.z;
+	garage->rot.x = inst->instDef->rot.x;
+	garage->rot.y = inst->instDef->rot.y;
+	garage->rot.z = inst->instDef->rot.z;
 
 	inst->depthBiasNormal = 1;
 	inst->depthBiasSecondary = inst->depthBiasNormal;

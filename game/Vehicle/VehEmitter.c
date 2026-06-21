@@ -142,7 +142,7 @@ void VehEmitter_Sparks_Ground(struct Driver *d, struct ParticleEmitter *emSet)
 	}
 }
 
-static const s16 terrainEmitterPos[4][4] = {
+static const SVec4 terrainEmitterPos[4] = {
     {0x1E, 0xA, -0x14, 0},
     {-0x1E, 0xA, -0x14, 0},
     {0x1E, 0xA, 0x28, 0},
@@ -190,7 +190,7 @@ void VehEmitter_Terrain_Ground(struct Driver *d, struct ParticleEmitter *emSet)
 	// spawn particles on wheels
 	for (; numTires != 0; numTires--)
 	{
-		gte_ldv0(&terrainEmitterPos[numTires - 1][0]);
+		gte_ldv0((SVECTOR *)&terrainEmitterPos[numTires - 1]);
 		gte_rtv0();
 		gte_stlvnl(&pos[0]);
 

@@ -356,7 +356,7 @@ struct ScratchpadStructExtended
 	MATRIX cameraMatrix;
 
 	// 0x2ec - 1f8003f4
-	s16 cameraRot[3];
+	SVec3 cameraRot;
 
 	// 0x2f2 - 1f8003fa
 	s16 pad2F2;

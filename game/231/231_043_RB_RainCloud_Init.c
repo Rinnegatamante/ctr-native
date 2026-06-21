@@ -43,13 +43,13 @@ void RB_RainCloud_Init(struct Driver *d)
 			rlocal->unk1[1] = 0;
 			rlocal->unk1[2] = 0;
 
-			rlocal->vel[0] = 0;
-			rlocal->vel[1] = -0x28;
-			rlocal->vel[2] = 0;
+			rlocal->vel.x = 0;
+			rlocal->vel.y = -0x28;
+			rlocal->vel.z = 0;
 
-			rlocal->pos[0] = d->instSelf->matrix.t[0];
-			rlocal->pos[1] = d->instSelf->matrix.t[1] + 0x80;
-			rlocal->pos[2] = d->instSelf->matrix.t[2];
+			rlocal->pos.x = d->instSelf->matrix.t[0];
+			rlocal->pos.y = d->instSelf->matrix.t[1] + 0x80;
+			rlocal->pos.z = d->instSelf->matrix.t[2];
 
 			rlocal->cloudInst = cloudInst;
 		}

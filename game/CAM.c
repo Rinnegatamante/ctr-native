@@ -2005,19 +2005,19 @@ SkipNewCameraEOR:
 							cDC->transitionFrame = 0;
 						}
 
-						s16 stackMemPos[3];
+						SVec3 stackMemPos;
 
-						stackMemPos[0] = (s16)CTR_MipsSra(d->posCurr.x, 8);
-						stackMemPos[1] = (s16)CTR_MipsSra(d->posCurr.y, 8);
-						stackMemPos[2] = (s16)CTR_MipsSra(d->posCurr.z, 8);
+						stackMemPos.x = (s16)CTR_MipsSra(d->posCurr.x, 8);
+						stackMemPos.y = (s16)CTR_MipsSra(d->posCurr.y, 8);
+						stackMemPos.z = (s16)CTR_MipsSra(d->posCurr.z, 8);
 
-						iVar8 = CAM_MapRange_PosPoints((cDC->transitionTo).pos.v, (cDC->transitionTo).rot.v, &stackMemPos[0]);
+						iVar8 = CAM_MapRange_PosPoints(&cDC->transitionTo.pos, &cDC->transitionTo.rot, &stackMemPos);
 
 						iVar17 = (s32)cDC->eorModeData.pointPath.speed;
 
-						stackMemPos[0] = cDC->eorModeData.pointPath.endPos.x - (cDC->transitionTo).rot.x;
-						stackMemPos[1] = cDC->eorModeData.pointPath.endPos.y - (cDC->transitionTo).rot.y;
-						stackMemPos[2] = cDC->eorModeData.pointPath.endPos.z - (cDC->transitionTo).rot.z;
+						stackMemPos.x = cDC->eorModeData.pointPath.endPos.x - (cDC->transitionTo).rot.x;
+						stackMemPos.y = cDC->eorModeData.pointPath.endPos.y - (cDC->transitionTo).rot.y;
+						stackMemPos.z = cDC->eorModeData.pointPath.endPos.z - (cDC->transitionTo).rot.z;
 
 						iVar7 = iVar17;
 						if (iVar17 < 0)
@@ -2026,14 +2026,14 @@ SkipNewCameraEOR:
 						}
 						if (iVar17 < 0)
 						{
-							stackMemPos[0] = -stackMemPos[0];
-							stackMemPos[1] = -stackMemPos[1];
-							stackMemPos[2] = -stackMemPos[2];
+							stackMemPos.x = -stackMemPos.x;
+							stackMemPos.y = -stackMemPos.y;
+							stackMemPos.z = -stackMemPos.z;
 						}
 
-						iVar24 = SquareRoot0_stub(CTR_MipsAddLo(
-						    CTR_MipsAddLo(CAM_MulLo((s32)stackMemPos[0], (s32)stackMemPos[0]), CAM_MulLo((s32)stackMemPos[1], (s32)stackMemPos[1])),
-						    CAM_MulLo((s32)stackMemPos[2], (s32)stackMemPos[2])));
+						iVar24 = SquareRoot0_stub(
+						    CTR_MipsAddLo(CTR_MipsAddLo(CAM_MulLo((s32)stackMemPos.x, (s32)stackMemPos.x), CAM_MulLo((s32)stackMemPos.y, (s32)stackMemPos.y)),
+						                  CAM_MulLo((s32)stackMemPos.z, (s32)stackMemPos.z)));
 
 						iVar18 = cDC->trackPathProgress << 0xc;
 						iVar25 = iVar18 / iVar24;
@@ -2072,9 +2072,9 @@ SkipNewCameraEOR:
 						{
 							psVar21 = cDC->eorModeData.pointPath.endPos.v;
 						}
-						pb->pos.x = psVar21[0] + (s16)((stackMemPos[0] * iVar25) >> 0xc);
-						pb->pos.y = psVar21[1] + (s16)((stackMemPos[1] * iVar25) >> 0xc);
-						pb->pos.z = psVar21[2] + (s16)((stackMemPos[2] * iVar25) >> 0xc);
+						pb->pos.x = psVar21[0] + (s16)((stackMemPos.x * iVar25) >> 0xc);
+						pb->pos.y = psVar21[1] + (s16)((stackMemPos.y * iVar25) >> 0xc);
+						pb->pos.z = psVar21[2] + (s16)((stackMemPos.z * iVar25) >> 0xc);
 						goto LAB_8001c11c;
 					}
 					if (sVar6 == 7)
@@ -2094,16 +2094,16 @@ SkipNewCameraEOR:
 					}
 					else if ((u16)(sVar5 - 0xfU) < 2)
 					{
-						pb->pos.x = sdata->FirstPersonCamera.posOffset[0] + (s16)CTR_MipsSra(d->posCurr.x, 8);
-						pb->pos.y = sdata->FirstPersonCamera.posOffset[1] + (s16)CTR_MipsSra(d->posCurr.y, 8);
-						pb->pos.z = sdata->FirstPersonCamera.posOffset[2] + (s16)CTR_MipsSra(d->posCurr.z, 8);
+						pb->pos.x = sdata->FirstPersonCamera.posOffset.x + (s16)CTR_MipsSra(d->posCurr.x, 8);
+						pb->pos.y = sdata->FirstPersonCamera.posOffset.y + (s16)CTR_MipsSra(d->posCurr.y, 8);
+						pb->pos.z = sdata->FirstPersonCamera.posOffset.z + (s16)CTR_MipsSra(d->posCurr.z, 8);
 
-						pb->rot.x = sdata->FirstPersonCamera.rotOffset[0] + (d->rotCurr).x;
+						pb->rot.x = sdata->FirstPersonCamera.rotOffset.x + (d->rotCurr).x;
 						if (cDC->cameraMode == 0x10)
-							pb->rot.y = sdata->FirstPersonCamera.rotOffset[1] + d->angle;
+							pb->rot.y = sdata->FirstPersonCamera.rotOffset.y + d->angle;
 						else
-							pb->rot.y = sdata->FirstPersonCamera.rotOffset[1] + (d->rotCurr).y;
-						pb->rot.z = sdata->FirstPersonCamera.rotOffset[2] + (d->rotCurr).z;
+							pb->rot.y = sdata->FirstPersonCamera.rotOffset.y + (d->rotCurr).y;
+						pb->rot.z = sdata->FirstPersonCamera.rotOffset.z + (d->rotCurr).z;
 					}
 					else
 					{

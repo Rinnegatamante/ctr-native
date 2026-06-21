@@ -83,9 +83,9 @@ void CS_Thread_MoveOnPath(struct Thread *t)
 		if (modelID == 0xDF)
 			return;
 
-		rot.x = cs->unk20;
-		rot.y = cs->unk22 + ratan2(next[0] - curr[0], next[2] - curr[2]);
-		rot.z = cs->unk24;
+		rot.x = cs->rot.x;
+		rot.y = cs->rot.y + ratan2(next[0] - curr[0], next[2] - curr[2]);
+		rot.z = cs->rot.z;
 
 		ConvertRotToMatrix(&inst->matrix, &rot);
 		return;

@@ -215,8 +215,8 @@ struct OverlayDATA_230 D230 = {
 
     .titleInstances = {{0x68, 0x4e, 0xe6, 0}, {0x66, 0x0, 0xe6, 1}, {0x67, 0x14, 0xe6, 0}, {0x69, 0x4e, 0xe6, 0}, {0x6a, 0x8c, 0xe6, 0}, {0x6b, 0xd7, 0xe6, 0}},
 
-    .titleCameraPos = {0x32, 0xFFE2, 0x64, 0},
-    .titleCameraRot = {0, 0xFF9C, 0, 0},
+    .titleCameraPos = {0x32, 0xFFE2, 0x64},
+    .titleCameraRot = {0, 0xFF9C, 0},
 
     .title_numFrameTotal = 0xC,
     .title_numTransition = 8,
@@ -233,7 +233,7 @@ struct OverlayDATA_230 D230 = {
     .title_diffPosX = 0,
     .title_diffPosY = 0,
 
-    .title_camPos = {0x32, 0xFFE2, 0x64, 0},
+    .title_camPos = {0x32, 0xFFE2, 0x64},
 
     .transitionMeta_Menu =
         {
@@ -524,7 +524,7 @@ struct OverlayDATA_230 D230 = {
     .ptr_transitionMeta_csm = {&D230.transitionMeta_csm_1P2P[0], &D230.transitionMeta_csm_1P2P[0], &D230.transitionMeta_csm_3P[0],
                                &D230.transitionMeta_csm_4P[0]},
 
-    .csm_instPos = {0, 0x28, 0xFA, 0},
+    .csm_instPos = {0, 0x28, 0xFA},
 
     .csm_instRot = {0x800, 0, 0},
 

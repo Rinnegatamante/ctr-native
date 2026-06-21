@@ -235,15 +235,13 @@ END_FUNCTION:
 	// Crash + C-T-R animation cutscene
 	if (D230.MM_State == 0)
 	{
-		D230.titleCameraPos[0] = D230.title_camPos[0];
-		D230.titleCameraPos[1] = D230.title_camPos[1];
-		D230.titleCameraPos[2] = D230.title_camPos[2];
+		D230.titleCameraPos = D230.title_camPos;
 	}
 	else
 	{
-		D230.titleCameraPos[0] = D230.title_camPos[0] + D230.transitionMeta_Menu[5].currX;
-		D230.titleCameraPos[1] = D230.title_camPos[1] + D230.transitionMeta_Menu[5].currY;
-		D230.titleCameraPos[2] = D230.title_camPos[2] + D230.transitionMeta_Menu[6].currX;
+		D230.titleCameraPos.x = D230.title_camPos.x + D230.transitionMeta_Menu[5].currX;
+		D230.titleCameraPos.y = D230.title_camPos.y + D230.transitionMeta_Menu[5].currY;
+		D230.titleCameraPos.z = D230.title_camPos.z + D230.transitionMeta_Menu[6].currX;
 	}
 
 	D230.menuMainMenu.posX_curr = D230.title_mainPosX + D230.transitionMeta_Menu[0].currX;

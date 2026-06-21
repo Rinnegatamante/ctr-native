@@ -20,9 +20,9 @@ void RB_MaskWeapon_FadeAway(struct Thread *t)
 	// Set up First pass (maskInst)
 
 	int durationAdjusted = ((int)(mask->duration >> 5) * -4 + 0x40);
-	mhs->posOffset[0] = ((durationAdjusted * MATH_Sin(mask->rot.y)) >> 0xc);
-	mhs->posOffset[2] = ((durationAdjusted * MATH_Cos(mask->rot.y)) >> 0xc);
-	mhs->posOffset[1] = 0x40;
+	mhs->posOffset.x = ((durationAdjusted * MATH_Sin(mask->rot.y)) >> 0xc);
+	mhs->posOffset.z = ((durationAdjusted * MATH_Cos(mask->rot.y)) >> 0xc);
+	mhs->posOffset.y = 0x40;
 
 	mask->rot.y += -0x100;
 
@@ -33,15 +33,15 @@ void RB_MaskWeapon_FadeAway(struct Thread *t)
 	// Second time is BeamInst
 	for (int i = 0; i < 2; i++)
 	{
-		LHMatrix_Parent(instCurr, driverInst, (SVECTOR *)&mhs->posOffset[0]);
+		LHMatrix_Parent(instCurr, driverInst, (SVECTOR *)&mhs->posOffset);
 
 		instCurr->scale.x += -0x100;
 		instCurr->scale.y += -0x100;
 		instCurr->scale.z += -0x100;
 
 		// position offset
-		mhs->posOffset[0] = 0;
-		mhs->posOffset[2] = 0;
+		mhs->posOffset.x = 0;
+		mhs->posOffset.z = 0;
 
 		instCurr = maskBeamInst;
 	}

@@ -48,13 +48,13 @@ void AH_MaskHint_Start(s16 hintId, u16 bool_interruptWarppad)
 
 	s16 *input = &D232.maskVars[0];
 
-	D232.maskOffsetPos[0] = input[iVar3 + 0];
-	D232.maskOffsetPos[1] = input[iVar3 + 1];
-	D232.maskOffsetPos[2] = input[iVar3 + 2];
+	D232.maskOffsetPos.x = input[iVar3 + 0];
+	D232.maskOffsetPos.y = input[iVar3 + 1];
+	D232.maskOffsetPos.z = input[iVar3 + 2];
 
-	D232.maskOffsetRot[0] = input[iVar3 + 6];
-	D232.maskOffsetRot[1] = input[iVar3 + 7];
-	D232.maskOffsetRot[2] = input[iVar3 + 8];
+	D232.maskOffsetRot.x = input[iVar3 + 6];
+	D232.maskOffsetRot.y = input[iVar3 + 7];
+	D232.maskOffsetRot.z = input[iVar3 + 8];
 
 	for (int i = 0; i < 3; i++)
 	{

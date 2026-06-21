@@ -50,8 +50,8 @@ void MM_Characters_SetMenuLayout(void)
 
 	D230.characterSelectIconLayout = iVar3;
 
-	D230.csm_instPos[1] = D230.driverPosY[iVar3];
-	D230.csm_instPos[2] = D230.driverPosZ[iVar3];
+	D230.csm_instPos.y = D230.driverPosY[iVar3];
+	D230.csm_instPos.z = D230.driverPosZ[iVar3];
 
 	D230.characterSelect_sizeX = D230.windowW[iVar3];
 	D230.characterSelect_sizeY = D230.windowH[iVar3];
