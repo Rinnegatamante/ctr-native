@@ -11,9 +11,14 @@
 #include "platform/native_win32.h"
 #elif defined(__GNUC__)
 #include <errno.h>
+#ifndef __vita__
 #include <sys/mman.h>
 #ifndef MAP_ANONYMOUS
 #define MAP_ANONYMOUS MAP_ANON
+#endif
+#else
+#include <vitasdk.h>
+#include <kubridge.h>
 #endif
 #endif
 
@@ -51,6 +56,18 @@ void Platform_InitScratchpad(void)
 		fprintf(stderr, "[CTR Native] Failed to map PS1 scratchpad at %p: GetLastError=%lu\n", scratchpad, GetLastError());
 		abort();
 	}
+#elif defined(__vita__)
+	SceKernelAllocMemBlockKernelOpt opt;
+	memset(&opt, 0, sizeof(SceKernelAllocMemBlockKernelOpt));
+	opt.size = sizeof(SceKernelAllocMemBlockKernelOpt);
+	opt.attr = 0x1;
+	opt.field_C = CTR_SCRATCHPAD_ADDR;
+	SceUID res = kuKernelAllocMemBlock("scratchpad", SCE_KERNEL_MEMBLOCK_TYPE_USER_RW, CTR_SCRATCHPAD_MAP_SIZE, &opt);
+	if (res < 0) {
+		sceClibPrintf("FATAL ERROR: Failed to alloc scratchpad!\n");
+	}
+	void *mapped = NULL;
+	sceKernelGetMemBlockBase(res, &mapped);
 #elif defined(__GNUC__)
 #ifdef MAP_FIXED_NOREPLACE
 	int fixedFlag = MAP_FIXED_NOREPLACE;

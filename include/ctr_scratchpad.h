@@ -1,7 +1,11 @@
 #ifndef CTR_SCRATCHPAD_H
 #define CTR_SCRATCHPAD_H
 
+#ifdef __vita__
+#define CTR_SCRATCHPAD_ADDR                 0x98000000u
+#else
 #define CTR_SCRATCHPAD_ADDR                 0x1f800000u
+#endif
 #define CTR_SCRATCHPAD_SIZE                 0x400u
 #define CTR_SCRATCHPAD_MAP_SIZE             0x1000u
 
