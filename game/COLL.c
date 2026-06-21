@@ -571,7 +571,7 @@ void COLL_FIXED_BSPLEAF_TestInstance(struct BSP *node, struct ScratchpadStruct *
 			COLL_FIXED_INSTANC_TestPoint(sps, bspArray);
 		}
 
-	NextBSP:
+	NextBSP:;
 	}
 }
 
@@ -1860,7 +1860,7 @@ void COLL_MOVED_TRIANGL_TestPoint(struct ScratchpadStruct *sps, struct BspSearch
 		sps->candidate.plane.halfDistance = (s16)CTR_MipsNegLo(sps->candidate.plane.halfDistance);
 	}
 
-KeepNormal:
+KeepNormal:;
 	u16 quadFlags = quad->quadFlags;
 	sps->numTrianglesTested = (s16)CTR_MipsAddLo(sps->numTrianglesTested, 1);
 

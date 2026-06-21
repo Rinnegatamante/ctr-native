@@ -573,7 +573,7 @@ void VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 		mineHitModel = weaponInst->model->id | COLL_MODELID_BLOCKAGE_FLAG;
 		mineShouldInitFollower = (flags == 0);
 
-	RunMineCOLL:
+	RunMineCOLL:;
 
 		SVec3 probeTop;
 		SVec3 probeBottom;
@@ -725,7 +725,7 @@ void VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 		break;
 
 	// Shield Bubble
-	case 6:
+	case 6:;
 
 		char *shieldDarkName = rdata.s_shielddark;
 		char *highlightName = rdata.s_highlight;

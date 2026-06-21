@@ -1381,7 +1381,7 @@ UpdateTireColorTimer:
 			CheckAccelerationTowardTerrainTarget:
 				if (botDriver->botData.aiPhysics.speedLinear < velocityAccountingForTerrain)
 				{
-				ApplyTerrainAcceleration:
+				ApplyTerrainAcceleration:;
 					short accel; // sVar7
 					if (botDriver->reserves < 1)
 					{
@@ -2436,7 +2436,7 @@ UpdateTireColorTimer:
 	}
 	else
 	{
-	badEffectKartWiggle:
+	badEffectKartWiggle:;
 		int wiggleX = CTR_MipsSra(CTR_MipsMulLo(MATH_Sin(CTR_MipsMulLo(badnessRecieveTimer, 0xc)), 50), 10);
 		int wiggleZ = CTR_MipsSra(CTR_MipsMulLo(MATH_Cos(CTR_MipsMulLo(badnessRecieveTimer, 0xc)), 50), 10);
 		SVECTOR wiggle = {

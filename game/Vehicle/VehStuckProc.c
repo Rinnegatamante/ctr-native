@@ -901,7 +901,7 @@ void VehStuckProc_RevEngine_Animate(struct Thread *t, struct Driver *d)
 	if (d->fireSpeed < 1)
 		d->KartStates.RevEngine.lockoutFlags &= ~REV_ENGINE_LOCKOUT_PEDAL_HELD;
 
-LAB_80067dec:
+LAB_80067dec:;
 
 	u32 packedStatus = ((u32)(u16)d->KartStates.RevEngine.emptyCooldownTimerMS) | ((u32)d->KartStates.RevEngine.chargeState << 16) |
 	                   ((u32)d->KartStates.RevEngine.lockoutFlags << 24);
