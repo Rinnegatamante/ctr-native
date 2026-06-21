@@ -820,6 +820,15 @@ void RenderAllLevelGeometry(struct GameTracker *gGT, struct Level *level1, struc
 		{
 			// relationship between near-clip and far-clip,
 			// for each RenderList LOD set in the level
+#if defined(CTR_NATIVE)
+			*(int *)(CTR_SCRATCHPAD_ADDR + 0x14) = 0x1e00;
+			*(int *)(CTR_SCRATCHPAD_ADDR + 0x18) = 0x640;
+			*(int *)(CTR_SCRATCHPAD_ADDR + 0x1c) = 0x640;
+			*(int *)(CTR_SCRATCHPAD_ADDR + 0x20) = 0x500;
+			*(int *)(CTR_SCRATCHPAD_ADDR + 0x24) = 0x280;
+			*(int *)(CTR_SCRATCHPAD_ADDR + 0x28) = 0x140;
+			*(int *)(CTR_SCRATCHPAD_ADDR + 0x2c) = 0x640 + 0x140;
+#else
 			*(int *)0x1f800014 = 0x1e00;
 			*(int *)0x1f800018 = 0x640;
 			*(int *)0x1f80001c = 0x640;
@@ -827,6 +836,7 @@ void RenderAllLevelGeometry(struct GameTracker *gGT, struct Level *level1, struc
 			*(int *)0x1f800024 = 0x280;
 			*(int *)0x1f800028 = 0x140;
 			*(int *)0x1f80002c = 0x640 + 0x140;
+#endif
 		}
 
 		// every non-cutscene,
@@ -837,6 +847,24 @@ void RenderAllLevelGeometry(struct GameTracker *gGT, struct Level *level1, struc
 			distToScreen = pushBuffer->distanceToScreen_PREV;
 
 			// int and u32 have specific purposes
+#if defined(CTR_NATIVE)
+			*(u32 *)(CTR_SCRATCHPAD_ADDR + 0x14) = distToScreen * 0x2080;
+			if (*(int *)(CTR_SCRATCHPAD_ADDR + 0x14) < 0)
+				*(int *)(CTR_SCRATCHPAD_ADDR + 0x14) = *(int *)(CTR_SCRATCHPAD_ADDR + 0x14) + 0xff;
+			*(int *)(CTR_SCRATCHPAD_ADDR + 0x14) = *(int *)(CTR_SCRATCHPAD_ADDR + 0x14) >> 8; // 0x3921
+
+			*(int *)(CTR_SCRATCHPAD_ADDR + 0x18) = distToScreen * 0x1a;        // 0x2DB4
+			*(int *)(CTR_SCRATCHPAD_ADDR + 0x1c) = distToScreen * 0x18;        // 0x2A30
+			*(int *)(CTR_SCRATCHPAD_ADDR + 0x20) = distToScreen * 0xc;         // 0x1518
+			*(int *)(CTR_SCRATCHPAD_ADDR + 0x24) = distToScreen * 7;           // 0xC4E
+			*(int *)(CTR_SCRATCHPAD_ADDR + 0x2c) = *(int *)(CTR_SCRATCHPAD_ADDR + 0x18) + 0x140; // 0x2EF4
+
+			// int and u32 have specific purposes
+			*(u32 *)(CTR_SCRATCHPAD_ADDR + 0x28) = distToScreen * 0x380;
+			if (*(int *)(CTR_SCRATCHPAD_ADDR + 0x28) < 0)
+				*(int *)(CTR_SCRATCHPAD_ADDR + 0x28) = *(int *)(CTR_SCRATCHPAD_ADDR + 0x28) + 0xff;
+			*(int *)(CTR_SCRATCHPAD_ADDR + 0x28) = *(int *)(CTR_SCRATCHPAD_ADDR + 0x28) >> 8; // 0x627
+#else
 			*(u32 *)0x1f800014 = distToScreen * 0x2080;
 			if (*(int *)0x1f800014 < 0)
 				*(int *)0x1f800014 = *(int *)0x1f800014 + 0xff;
@@ -853,6 +881,7 @@ void RenderAllLevelGeometry(struct GameTracker *gGT, struct Level *level1, struc
 			if (*(int *)0x1f800028 < 0)
 				*(int *)0x1f800028 = *(int *)0x1f800028 + 0xff;
 			*(int *)0x1f800028 = *(int *)0x1f800028 >> 8; // 0x627
+#endif
 		}
 
 		RenderLists_PreInit();
