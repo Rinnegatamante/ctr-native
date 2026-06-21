@@ -50,6 +50,14 @@ typedef enum LoadStage : s32
 	LOAD_TEN_STAGES_0 = 0, // begin TenStages pipeline
 } LoadStage;
 
+_Static_assert(sizeof(LoadStage) == 0x4);
+_Static_assert(LOAD_VLC == -6);
+_Static_assert(LOAD_RESTART == -5);
+_Static_assert(LOAD_REQUESTED == -4);
+_Static_assert(LOAD_FINISHED == -2);
+_Static_assert(LOAD_IDLE == -1);
+_Static_assert(LOAD_TEN_STAGES_0 == 0);
+
 typedef enum MainMenuState : s16
 {
 	MAIN_MENU_TITLE = 0,

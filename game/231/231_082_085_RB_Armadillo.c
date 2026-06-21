@@ -55,7 +55,7 @@ void RB_Armadillo_ThTick_TurnAround(struct Thread *t)
 		armObj->rotCurr.y = RB_Hazard_InterpolateValue(armObj->rotCurr.y, armObj->rotDesired.y, 0x100);
 
 		// converted to TEST in rebuildPS1
-		ConvertRotToMatrix(&armInst->matrix, &armObj->rotCurr.x);
+		ConvertRotToMatrix(&armInst->matrix, &armObj->rotCurr);
 
 		// increment frame
 		armInst->animFrame = armInst->animFrame + 1;

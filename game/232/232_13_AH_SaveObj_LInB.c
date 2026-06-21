@@ -56,7 +56,7 @@ void AH_SaveObj_LInB(struct Instance *savInst)
 				rot.y = spawn->posCoords[4];
 				rot.z = spawn->posCoords[5];
 
-				ConvertRotToMatrix(&inst->matrix, rot.v);
+				ConvertRotToMatrix(&inst->matrix, &rot);
 
 				inst->matrix.t[0] = spawn->posCoords[0];
 				inst->matrix.t[1] = spawn->posCoords[1];

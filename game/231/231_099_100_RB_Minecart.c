@@ -135,7 +135,7 @@ void RB_Minecart_ThTick(struct Thread *t)
 	minecartObj->rotCurr.x = RB_Hazard_InterpolateValue(minecartObj->rotCurr.x, minecartObj->rotDesired.x, minecartObj->rotSpeed);
 
 	// converted to TEST in rebuildPS1
-	ConvertRotToMatrix(&minecartInst->matrix, &minecartObj->rotCurr.x);
+	ConvertRotToMatrix(&minecartInst->matrix, &minecartObj->rotCurr);
 
 	PlaySound3D_Flags(&minecartObj->audioPtr,
 	                  0x72, // minecart sound

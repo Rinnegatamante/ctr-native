@@ -126,7 +126,7 @@ void RB_ShieldDark_ThTick_Grow(struct Thread *th)
 	colorInst->matrix.m[2][2] = 0x1000;
 
 	// convert 3 rotation shorts into rotation matrix
-	ConvertRotToMatrix(&highlightInst->matrix, &shield->highlightRot.x);
+	ConvertRotToMatrix(&highlightInst->matrix, &shield->highlightRot);
 
 	s16 scaleXZ;
 	s16 scaleY;

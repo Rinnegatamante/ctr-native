@@ -169,7 +169,7 @@ void RB_Orca_ThTick(struct Thread *t)
 	orcaInst->animFrame = 0;
 	orcaObj->direction = direction ^ 1;
 	orcaObj->instDefRot.y += 0x800;
-	ConvertRotToMatrix(&orcaInst->matrix, &orcaObj->instDefRot.x);
+	ConvertRotToMatrix(&orcaInst->matrix, &orcaObj->instDefRot);
 }
 
 int RB_Orca_ThCollide(struct Thread *orcaThread, struct Thread *driverTh, void *funcThCollide, struct ScratchpadStruct *sps)

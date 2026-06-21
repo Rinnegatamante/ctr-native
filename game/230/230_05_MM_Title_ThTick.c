@@ -23,7 +23,7 @@ static void MM_Title_UpdateTrophySpecLight(struct Instance *titleInst)
 	rot.x = -pb->rot.x;
 	rot.y = -pb->rot.y;
 	rot.z = -pb->rot.z;
-	ConvertRotToMatrix_Transpose(&matrix, (s16 *)&rot);
+	ConvertRotToMatrix_Transpose(&matrix, &rot);
 
 	light.x = 0;
 	light.y = 0x1000;

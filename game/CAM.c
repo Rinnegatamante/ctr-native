@@ -998,7 +998,7 @@ void CAM_FollowDriver_Spin360(struct CameraDC *cDC, u8 *scratchpad, struct Drive
 
 	desiredPos->y = (s16)CTR_MipsAddLo((u16)cDC->transitionTo.pos.y, CTR_MipsSra(d->posCurr.y, 8));
 
-	CAM_LookAtPosition(scratchpad, (s32 *)&d->posCurr.x, desiredPos, desiredRot);
+	CAM_LookAtPosition(scratchpad, &d->posCurr, desiredPos, desiredRot);
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8001a054-0x8001a0bc
@@ -1506,7 +1506,7 @@ LAB_8001ab04:
 	// if end-of-race battle
 	if ((backupFlags & CAMERA_FLAG_BATTLE_END_OF_RACE) != 0)
 	{
-		CAM_FollowDriver_Spin360(cDC, scratchpad, d, &local_40.x, &local_38.x);
+		CAM_FollowDriver_Spin360(cDC, scratchpad, d, &local_40, &local_38);
 
 		// reverse interpolation of fly-in [0x1000 to 0]
 		x = 0x1000 - cDC->transitionBlend;
@@ -1561,7 +1561,7 @@ LAB_8001ab04:
 				if ((s16)x > 0x96)
 					x = 0x96;
 
-				CAM_StartLine_FlyIn(&flyInData, 0x96, x, &local_40.x, &local_38.x);
+				CAM_StartLine_FlyIn(&flyInData, 0x96, x, local_40.v, local_38.v);
 
 				x = (s32)cDC->transitionBlend;
 			}
@@ -1588,7 +1588,7 @@ LAB_8001ab04:
 	}
 
 	// use camera pos+rot, TransitionTo pos+rot, camera pos+rot, and interpolation
-	CAM_ProcessTransition(&pb->pos.x, &pb->rot.x, &local_40.x, &local_38.x, &pb->pos.x, &pb->rot.x, x);
+	CAM_ProcessTransition(&pb->pos, &pb->rot, &local_40, &local_38, &pb->pos, &pb->rot, x);
 
 	cam->pos.x = (s32)pb->pos.x;
 	cam->pos.y = (s32)pb->pos.y;
@@ -1983,7 +1983,7 @@ SkipNewCameraEOR:
 			if (sVar6 == 4)
 			{
 			LAB_8001c11c:
-				CAM_LookAtPosition(scratchpadBytes, (s32 *)&d->posCurr.x, &pb->pos.x, &pb->rot.x);
+				CAM_LookAtPosition(scratchpadBytes, &d->posCurr, &pb->pos, &pb->rot);
 				psVar21 = scratchpad;
 			LAB_8001c128:
 				scratchpad = psVar21;
@@ -1993,7 +1993,7 @@ SkipNewCameraEOR:
 				psVar21 = scratchpad;
 				if (sVar6 == 10)
 				{
-					CAM_FollowDriver_Spin360(cDC, scratchpadBytes, d, pb->pos.v, pb->rot.v);
+					CAM_FollowDriver_Spin360(cDC, scratchpadBytes, d, &pb->pos, &pb->rot);
 					goto LAB_8001c128;
 				}
 				if (sVar6 != 0xb)
@@ -2115,7 +2115,7 @@ SkipNewCameraEOR:
 								{
 									cDC->flags = cDC->flags | CAMERA_FLAG_RESET_RAIN_POS | CAMERA_FLAG_DIRECTION_CHANGED;
 								}
-								CAM_FollowDriver_AngleAxis(cDC, d, scratchpadBytes, pb->pos.v, pb->rot.v);
+								CAM_FollowDriver_AngleAxis(cDC, d, scratchpadBytes, &pb->pos, &pb->rot);
 							}
 							else
 							{
@@ -2123,7 +2123,7 @@ SkipNewCameraEOR:
 								{
 									cDC->flags = cDC->flags | CAMERA_FLAG_RESET_RAIN_POS | CAMERA_FLAG_DIRECTION_CHANGED;
 								}
-								CAM_FollowDriver_Normal(cDC, d, pb->pos.v, scratchpadBytes, ptrZoomData);
+								CAM_FollowDriver_Normal(cDC, d, &pb->pos, scratchpadBytes, ptrZoomData);
 							}
 							cDC->botFlagsPrevFrame = d->botData.botFlags;
 							goto LAB_8001c150;
@@ -2181,7 +2181,7 @@ SkipNewCameraEOR:
 					goto LAB_8001c128;
 				}
 
-				CAM_LookAtPosition(scratchpadBytes, (s32 *)&d->posCurr.x, &pb->pos.x, &pb->rot.x);
+				CAM_LookAtPosition(scratchpadBytes, &d->posCurr, &pb->pos, &pb->rot);
 
 				iVar7 = SquareRoot0_stub(CTR_MipsAddLo(CAM_MulLo(camThTick->dir.x, camThTick->dir.x), CAM_MulLo(camThTick->dir.z, camThTick->dir.z)));
 				iVar17 = (s32)(cDC->transitionTo).pos.x;

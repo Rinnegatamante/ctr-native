@@ -193,7 +193,7 @@ void MM_Characters_DrawWindows(int boolShowDrivers)
 		rot.y = D230.csm_instRot[1] + D230.characterSelect_angle[iVar14];
 		rot.z = D230.csm_instRot[2];
 
-		ConvertRotToMatrix(&iVar10->matrix, rot.v);
+		ConvertRotToMatrix(&iVar10->matrix, &rot);
 	}
 	return;
 }

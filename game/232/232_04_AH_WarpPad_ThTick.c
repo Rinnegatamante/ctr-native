@@ -246,7 +246,7 @@ void AH_WarpPad_ThTick(struct Thread *t)
 #define InstArr0 warppadInst
 
 		// converted to TEST in rebuildPS1
-		ConvertRotToMatrix(&InstArr0->matrix, &warppadObj->spinRot_Prize.x);
+		ConvertRotToMatrix(&InstArr0->matrix, &warppadObj->spinRot_Prize);
 
 		modelID = InstArr0->model->id;
 
@@ -517,7 +517,7 @@ WarpPad_AnimateOpen:
 		warppadObj->spinRot_Beam.y += ((s16)(i >> 3) + (s16)((i >> 3) / 6) * -6 + 1) * 0x200;
 
 		// converted to TEST in rebuildPS1
-		ConvertRotToMatrix(&instArr[WPIS_OPEN_BEAM]->matrix, &warppadObj->spinRot_Beam.x);
+		ConvertRotToMatrix(&instArr[WPIS_OPEN_BEAM]->matrix, &warppadObj->spinRot_Beam);
 	}
 
 	wispRiseRate = 0x20;
@@ -538,7 +538,7 @@ WarpPad_AnimateOpen:
 			warppadObj->spinRot_Wisp[i].y += 0x100;
 
 			// converted to TEST in rebuildPS1
-			ConvertRotToMatrix(&instArr[WPIS_OPEN_RING1 + i]->matrix, &warppadObj->spinRot_Wisp[i].x);
+			ConvertRotToMatrix(&instArr[WPIS_OPEN_RING1 + i]->matrix, &warppadObj->spinRot_Wisp[i]);
 
 			// if height hasn't reached max height
 			if (instArr[WPIS_OPEN_RING1 + i]->matrix.t[1] < (warppadInst->matrix.t[1] + wispMaxHeight))

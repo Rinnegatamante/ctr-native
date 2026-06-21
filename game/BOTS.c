@@ -2445,13 +2445,13 @@ UpdateTireColorTimer:
 
 	if ((botDriver->botData.botFlags & (BOT_FLAG_ESTIMATE_NAV | BOT_FLAG_FREE_PHYSICS)) == 0)
 	{
-		s16 rot[3];
-		rot[0] = (s16)CTR_MipsSll(navFrameCurr->rot[0], 4);
-		rot[1] = (s16)CTR_MipsSll(navFrameCurr->rot[1], 4);
-		rot[2] = (s16)CTR_MipsSll(navFrameCurr->rot[2], 4);
+		SVec3 rot;
+		rot.x = (s16)CTR_MipsSll(navFrameCurr->rot[0], 4);
+		rot.y = (s16)CTR_MipsSll(navFrameCurr->rot[1], 4);
+		rot.z = (s16)CTR_MipsSll(navFrameCurr->rot[2], 4);
 		MATRIX m;
 
-		ConvertRotToMatrix(&m, rot);
+		ConvertRotToMatrix(&m, &rot);
 
 		botDriver->AxisAngle3_normalVec.x = m.m[0][1];
 		botDriver->AxisAngle3_normalVec.y = m.m[1][1];
@@ -2460,7 +2460,7 @@ UpdateTireColorTimer:
 		botInstance->bitCompressed_NormalVector_AndDriverIndex = INST_CompressNormalVectorAndDriverIndex(m.m[0][1], m.m[1][1], m.m[2][1], botDriver->driverID);
 	}
 
-	ConvertRotToMatrix(&botInstance->matrix, &botDriver->rotCurr.x);
+	ConvertRotToMatrix(&botInstance->matrix, &botDriver->rotCurr);
 
 	// c is row-major (i.e., ticking the rightmost indeces has smaller memory address delta vs ticking the leftmost indeces)
 	botDriver->AxisAngle2_normalVec.x = botInstance->matrix.m[0][1];
@@ -2600,12 +2600,12 @@ FinishHazardTimerUpdate:
 
 	if (((botDriver->botData.botFlags & BOT_FLAG_DAMAGE_ACTIVE) != 0) && (botDriver->botData.aiDamageState == BOTS_DAMAGE_STATE_BLAST))
 	{
-		s16 rot[3];
-		rot[0] = (s16)CTR_MipsSll(botDriver->botData.aiPhysics.rotXZ, 8);
-		rot[2] = 0;
-		rot[1] = (s16)CTR_MipsMulLo(botDriver->botData.aiPhysics.rotXZ, 0xe0);
+		SVec3 rot;
+		rot.x = (s16)CTR_MipsSll(botDriver->botData.aiPhysics.rotXZ, 8);
+		rot.z = 0;
+		rot.y = (s16)CTR_MipsMulLo(botDriver->botData.aiPhysics.rotXZ, 0xe0);
 
-		ConvertRotToMatrix(&sdata->rotXZ, &rot[0]);
+		ConvertRotToMatrix(&sdata->rotXZ, &rot);
 
 		MATH_MatrixMul(&sdata->rotXYZ, &botInstance->matrix, &sdata->rotXZ);
 

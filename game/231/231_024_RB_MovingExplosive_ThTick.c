@@ -180,7 +180,7 @@ LAB_800adc08:;
 			tw->dir.y = tw->rotY;
 
 			// convert 3 rotation shorts into rotation matrix
-			ConvertRotToMatrix(&inst->matrix, &tw->dir.x);
+			ConvertRotToMatrix(&inst->matrix, &tw->dir);
 		}
 	}
 
@@ -244,7 +244,7 @@ LAB_800adc08:;
 		}
 
 		// convert 3 rotation shorts into rotation matrix
-		ConvertRotToMatrix(&inst->matrix, (s16 *)&tw->dir);
+		ConvertRotToMatrix(&inst->matrix, &tw->dir);
 	}
 
 	posA.x = inst->matrix.t[0];

@@ -17,7 +17,7 @@ void CS_Thread_MoveOnPath(struct Thread *t)
 	u16 progress;
 	int idx;
 	u16 frac;
-	s16 rot[3];
+	SVec3 rot;
 
 	if ((cs->flags & CS_FLAG_PATH_MOTION_DISABLED) != 0)
 		return;
@@ -83,11 +83,11 @@ void CS_Thread_MoveOnPath(struct Thread *t)
 		if (modelID == 0xDF)
 			return;
 
-		rot[0] = cs->unk20;
-		rot[1] = cs->unk22 + ratan2(next[0] - curr[0], next[2] - curr[2]);
-		rot[2] = cs->unk24;
+		rot.x = cs->unk20;
+		rot.y = cs->unk22 + ratan2(next[0] - curr[0], next[2] - curr[2]);
+		rot.z = cs->unk24;
 
-		ConvertRotToMatrix(&inst->matrix, rot);
+		ConvertRotToMatrix(&inst->matrix, &rot);
 		return;
 
 	case 0x01:
@@ -123,9 +123,9 @@ void CS_Thread_MoveOnPath(struct Thread *t)
 			inst->matrix.t[1] = point[1];
 			inst->matrix.t[2] = point[2];
 
-			rot[0] = point[3];
-			rot[1] = point[4];
-			rot[2] = point[5];
+			rot.x = point[3];
+			rot.y = point[4];
+			rot.z = point[5];
 		}
 
 		break;
@@ -181,5 +181,5 @@ void CS_Thread_MoveOnPath(struct Thread *t)
 		return;
 	}
 
-	ConvertRotToMatrix(&inst->matrix, rot);
+	ConvertRotToMatrix(&inst->matrix, &rot);
 }

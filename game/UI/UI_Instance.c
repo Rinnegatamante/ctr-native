@@ -185,7 +185,7 @@ struct Instance *UI_INSTANCE_BirthWithThread(int param_1, int param_2, int param
 		rot.z = 0;
 
 		// converted to TEST in rebuildPS1
-		ConvertRotToMatrix(&ui3D->m, &rot.x);
+		ConvertRotToMatrix(&ui3D->m, &rot);
 
 		ui3D->rot[0] = 0;
 		ui3D->rot[1] = 0;

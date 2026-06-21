@@ -75,7 +75,7 @@ void CS_Podium_FullScene_Init(void)
 	InitData.rot.z = posRot->rot.z;
 
 	// convert 3 rotation shorts into rotation matrix
-	ConvertRotToMatrix((MATRIX *)&InitData.local_30, &InitData.rot.x);
+	ConvertRotToMatrix((MATRIX *)&InitData.local_30, &InitData.rot);
 	// Move position of trophy girl
 	gte_SetLightMatrix(&InitData.local_30);
 

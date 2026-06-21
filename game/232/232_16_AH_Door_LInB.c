@@ -167,8 +167,8 @@ void AH_Door_LInB(struct Instance *inst)
 		// make matrices for both doors rotated open
 
 		// converted to TEST in rebuildPS1
-		ConvertRotToMatrix(&inst->matrix, leftRot.v);
-		ConvertRotToMatrix(&otherDoorInst->matrix, rightRot.v);
+		ConvertRotToMatrix(&inst->matrix, &leftRot);
+		ConvertRotToMatrix(&otherDoorInst->matrix, &rightRot);
 	}
 	return;
 }

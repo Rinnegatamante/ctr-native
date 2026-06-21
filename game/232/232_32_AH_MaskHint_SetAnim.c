@@ -30,7 +30,7 @@ void AH_MaskHint_SetAnim(int scale)
 
 	SVec3 posCurr;
 	SVec3 rotCurr;
-	CAM_ProcessTransition(posCurr.v, rotCurr.v, &D232.maskCamPosStart[0], &D232.maskCamRotStart[0], posEnd.v, rotEnd.v, scale);
+	CAM_ProcessTransition(&posCurr, &rotCurr, (SVec3 *)&D232.maskCamPosStart[0], (SVec3 *)&D232.maskCamRotStart[0], &posEnd, &rotEnd, scale);
 
 	int rot = 0x1000;
 	if (D232.maskSpawnFrame - 20 < D232.maskFrameCurr)
@@ -52,7 +52,7 @@ void AH_MaskHint_SetAnim(int scale)
 	posCurr.z += (s16)((cos * rot) >> 0xc);
 
 	rotCurr.y += angle;
-	ConvertRotToMatrix(&mhInst->matrix, rotCurr.v);
+	ConvertRotToMatrix(&mhInst->matrix, &rotCurr);
 
 	((struct MaskHint *)mhInst->thread->object)->scale = scale * 4 - 1;
 

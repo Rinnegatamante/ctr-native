@@ -124,7 +124,7 @@ void RB_Seal_ThTick_TurnAround(struct Thread *t)
 			sealObj->rotDesired.v[i] = sealObj->rotCurr.v[i];
 		}
 
-		ConvertRotToMatrix(&sealInst->matrix, &sealObj->rotCurr.x);
+		ConvertRotToMatrix(&sealInst->matrix, &sealObj->rotCurr);
 
 		ThTick_SetAndExec(t, RB_Seal_ThTick_Move);
 		return;
@@ -144,7 +144,7 @@ void RB_Seal_ThTick_TurnAround(struct Thread *t)
 		sealObj->numFramesSpinning++;
 
 		// converted to TEST in rebuildPS1
-		ConvertRotToMatrix(&sealInst->matrix, &sealObj->rotCurr.x);
+		ConvertRotToMatrix(&sealInst->matrix, &sealObj->rotCurr);
 	}
 
 	Seal_CheckColl(sealInst, t, 1, 0x4000, 0x78);
@@ -296,7 +296,7 @@ void RB_Seal_LInB(struct Instance *inst)
 	sealObj->numFramesSpinning = 0;
 
 	// converted to TEST in rebuildPS1
-	ConvertRotToMatrix(&inst->matrix, &sealObj->rotCurr.x);
+	ConvertRotToMatrix(&inst->matrix, &sealObj->rotCurr);
 
 	// dont call RB_Default_LInB(inst),
 	// we know seal is never over ice

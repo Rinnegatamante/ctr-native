@@ -46,7 +46,7 @@ void SelectProfile_ThTick(struct Thread *t)
 		int slot = i % 3;
 
 		icon->rot.y = (s16)(icon->rot.y + sdata->LoadSave_SpinRateY[slot]);
-		ConvertRotToMatrix(&icon->inst->matrix, &icon->rot.x);
+		ConvertRotToMatrix(&icon->inst->matrix, &icon->rot);
 
 		if (slot != 1)
 		{

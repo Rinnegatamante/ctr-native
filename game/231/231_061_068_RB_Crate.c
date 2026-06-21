@@ -122,7 +122,7 @@ static void RB_CrateAny_ExplodeInit(struct Instance *crateInst, int color, b32 r
 		rot.x = 0;
 		rot.y = rand() % 0xfff;
 		rot.z = 0;
-		ConvertRotToMatrix(&matrix, rot.v);
+		ConvertRotToMatrix(&matrix, &rot);
 
 		// explosion matrix = rotated crate matrix
 		MatrixRotate(&explosionInst->matrix, &crateInst->matrix, &matrix);

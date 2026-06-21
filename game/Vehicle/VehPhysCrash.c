@@ -123,7 +123,7 @@ void VehPhysCrash_AI(struct Driver *bot, Vec3 *vel)
 	int *forward = (int *)&sdata->dataLibFiller[0];
 	MATRIX *matrix = (MATRIX *)&sdata->dataLibFiller[0x10];
 
-	ConvertRotToMatrix(matrix, &sdata->botCrashNavRot.v[0]);
+	ConvertRotToMatrix(matrix, &sdata->botCrashNavRot);
 
 	forward[0] = CTR_MipsSra(matrix->m[0][2], 4);
 	forward[1] = CTR_MipsSra(matrix->m[1][2], 4);

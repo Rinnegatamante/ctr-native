@@ -65,7 +65,7 @@ void RB_TNT_ThTick_ThrowOnHead(struct Thread *t)
 	rot.z = 0;
 
 	// convert 3 rotation shorts into rotation matrix
-	ConvertRotToMatrix((MATRIX *)auStack48, rot.v);
+	ConvertRotToMatrix((MATRIX *)auStack48, &rot);
 
 	MatrixRotate(&inst->matrix, &inst->matrix, (MATRIX *)auStack48);
 

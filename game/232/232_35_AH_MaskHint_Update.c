@@ -77,7 +77,7 @@ void AH_MaskHint_Update()
 			cdc->flags |= 8;
 
 			// NOTE(aalhendi): Retail passes a stack work buffer here, not 0x1f800108.
-			CAM_FollowDriver_AngleAxis(cdc, d, (u8 *)(void *)angleAxisWork, pos.v, rot.v);
+			CAM_FollowDriver_AngleAxis(cdc, d, (u8 *)(void *)angleAxisWork, &pos, &rot);
 			CAM_SetDesiredPosRot(cdc, &pos, &rot);
 		}
 

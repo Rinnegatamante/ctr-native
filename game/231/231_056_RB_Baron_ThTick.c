@@ -16,7 +16,7 @@ static void RB_Baron_SetPathFrame(struct Instance *inst, struct SpawnType2 *spaw
 	if (flipRotX)
 		rot.x = -rot.x;
 
-	ConvertRotToMatrix(&inst->matrix, rot.v);
+	ConvertRotToMatrix(&inst->matrix, &rot);
 
 	inst->matrix.t[0] = coord[0] + offsetX;
 	inst->matrix.t[1] = coord[1];

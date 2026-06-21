@@ -375,5 +375,5 @@ void RB_Spider_LInB(struct Instance *inst)
 	rot.x = 0;
 	rot.y = 0x200;
 	rot.z = 0;
-	ConvertRotToMatrix(&shadowInst->matrix, rot.v);
+	ConvertRotToMatrix(&shadowInst->matrix, &rot);
 }

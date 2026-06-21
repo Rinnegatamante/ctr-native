@@ -321,12 +321,10 @@ void AH_Door_ThTick(struct Thread *t)
 								keyInst->matrix.t[2] = driver->instSelf->matrix.t[2] + ((iVar17 >> 5) * ratio >> 0xc);
 							}
 
-							s16 *kr = &door->keyRot.x;
-
-							Vector_SpecLightSpin3D(keyInst, kr, &keyLightDir);
+							Vector_SpecLightSpin3D(keyInst, door->keyRot.v, &keyLightDir);
 
 							// convert 3 rotation shorts into rotation matrix
-							ConvertRotToMatrix(&keyInst->matrix, kr);
+							ConvertRotToMatrix(&keyInst->matrix, &door->keyRot);
 						}
 						door->keyInst[i] = keyInst;
 					}
@@ -424,13 +422,13 @@ void AH_Door_ThTick(struct Thread *t)
 		desiredRot.z = door->doorRot.z;
 
 		// converted to TEST in rebuildPS1
-		ConvertRotToMatrix(&door->otherDoor->matrix, desiredRot.v);
+		ConvertRotToMatrix(&door->otherDoor->matrix, &desiredRot);
 
 		// left-hand door rot[x,y,z]
 		desiredRot.y = doorInst->instDef->rot.y + door->doorRot.y;
 
 		// converted to TEST in rebuildPS1
-		ConvertRotToMatrix(&doorInst->matrix, desiredRot.v);
+		ConvertRotToMatrix(&doorInst->matrix, &desiredRot);
 
 		// if less than 11 frames have passed,
 		// decrease key scale, then quit function

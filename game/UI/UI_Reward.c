@@ -227,7 +227,7 @@ void UI_ThTick_CtrLetters(struct Thread *bucket)
 	rot.x = 0;
 	rot.z = 0;
 
-	ConvertRotToMatrix(&inst->matrix, &rot.x);
+	ConvertRotToMatrix(&inst->matrix, &rot);
 
 	MatrixRotate(&inst->matrix, &obj->m, &inst->matrix);
 

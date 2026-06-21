@@ -8,7 +8,7 @@ void AH_WarpPad_SpinRewards(struct Instance *prizeInst, struct WarpPad *warppadO
 	u32 trig;
 	u32 thirds;
 
-	ConvertRotToMatrix(&prizeInst->matrix, &warppadObj->spinRot_Prize.x);
+	ConvertRotToMatrix(&prizeInst->matrix, &warppadObj->spinRot_Prize);
 
 	modelID = prizeInst->model->id;
 

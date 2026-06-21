@@ -17,7 +17,7 @@ void RB_Blade_ThTick(struct Thread *t)
 	bladeObj->angle += 0x100;
 
 	// converted to TEST in rebuildPS1
-	ConvertRotToMatrix(&bladeInst->matrix, rot.v);
+	ConvertRotToMatrix(&bladeInst->matrix, &rot);
 
 	bladeInst->scale.x = 0x1000;
 	bladeInst->scale.y = 0x1000;
