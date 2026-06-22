@@ -151,6 +151,35 @@ enum CharacterUnlock
 	UNLOCK_CHARACTERS = UNLOCK_TROPY | UNLOCK_PENTA | UNLOCK_ROO | UNLOCK_PAPU | UNLOCK_JOE | UNLOCK_PINSTRIPE | UNLOCK_FAKE_CRASH,
 };
 
+enum MainRenderLevelGeometryScratchConstants
+{
+	MAIN_RENDER_LEVEL_GEOMETRY_FULL_DYNAMIC_FADE_OFFSET = 0x140,
+};
+
+// NOTE(aalhendi): Retail seeds scratchpad 0x14..0x2c here before RenderLists/226;
+// later 226 paths can reuse part of this range for split-ground thresholds.
+struct MainRenderLevelGeometryScratch
+{
+	u8 reserved0[0x14];
+
+	s32 depthScale;
+	s32 bspLodDistanceThreshold;
+	s32 textureLodDepthThreshold0;
+	s32 textureLodDepthThreshold1;
+	s32 topLevelNearDepthThreshold;
+	s32 recursiveNearDepthThreshold;
+	s32 fullDynamicFadeDepthStart;
+};
+
+_Static_assert(offsetof(struct MainRenderLevelGeometryScratch, depthScale) == 0x14);
+_Static_assert(offsetof(struct MainRenderLevelGeometryScratch, bspLodDistanceThreshold) == 0x18);
+_Static_assert(offsetof(struct MainRenderLevelGeometryScratch, textureLodDepthThreshold0) == 0x1c);
+_Static_assert(offsetof(struct MainRenderLevelGeometryScratch, textureLodDepthThreshold1) == 0x20);
+_Static_assert(offsetof(struct MainRenderLevelGeometryScratch, topLevelNearDepthThreshold) == 0x24);
+_Static_assert(offsetof(struct MainRenderLevelGeometryScratch, recursiveNearDepthThreshold) == 0x28);
+_Static_assert(offsetof(struct MainRenderLevelGeometryScratch, fullDynamicFadeDepthStart) == 0x2c);
+_Static_assert(sizeof(struct MainRenderLevelGeometryScratch) == 0x30);
+
 // real ND name
 struct GameTracker
 {

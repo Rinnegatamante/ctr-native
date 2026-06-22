@@ -771,11 +771,22 @@ void RenderAllHeatParticles(struct GameTracker *gGT)
 	Torch_Main(gGT->particleList_heatWarp, &gGT->pushBuffer[0], &gGT->backBuffer->primMem, gGT->numPlyrCurrGame, gGT->swapchainIndex * 0x128);
 }
 
+static s32 RenderAllLevelGeometry_ScaleDistanceShift8(s32 distToScreen, s32 scale)
+{
+	s32 product = CTR_MipsMulLo(distToScreen, scale);
+
+	if (product < 0)
+		product = CTR_MipsAddLo(product, 0xff);
+
+	return CTR_MipsSra(product, 8);
+}
+
 void RenderAllLevelGeometry(struct GameTracker *gGT, struct Level *level1, struct mesh_info *ptr_mesh_info)
 {
 	int i;
-	int distToScreen;
+	s32 distToScreen;
 	int numPlyrCurrGame;
+	struct MainRenderLevelGeometryScratch *scratch;
 	struct PushBuffer *pushBuffer;
 
 	if (level1 == 0)
@@ -809,6 +820,7 @@ void RenderAllLevelGeometry(struct GameTracker *gGT, struct Level *level1, struc
 
 		// camera of player 1
 		pushBuffer = &gGT->pushBuffer[0];
+		scratch = CTR_SCRATCHPAD_PTR(struct MainRenderLevelGeometryScratch, 0);
 
 		if (
 		    // adv character selection screen
@@ -820,13 +832,13 @@ void RenderAllLevelGeometry(struct GameTracker *gGT, struct Level *level1, struc
 		{
 			// relationship between near-clip and far-clip,
 			// for each RenderList LOD set in the level
-			*(int *)0x1f800014 = 0x1e00;
-			*(int *)0x1f800018 = 0x640;
-			*(int *)0x1f80001c = 0x640;
-			*(int *)0x1f800020 = 0x500;
-			*(int *)0x1f800024 = 0x280;
-			*(int *)0x1f800028 = 0x140;
-			*(int *)0x1f80002c = 0x640 + 0x140;
+			scratch->depthScale = 0x1e00;
+			scratch->bspLodDistanceThreshold = 0x640;
+			scratch->textureLodDepthThreshold0 = 0x640;
+			scratch->textureLodDepthThreshold1 = 0x500;
+			scratch->topLevelNearDepthThreshold = 0x280;
+			scratch->recursiveNearDepthThreshold = 0x140;
+			scratch->fullDynamicFadeDepthStart = scratch->bspLodDistanceThreshold + MAIN_RENDER_LEVEL_GEOMETRY_FULL_DYNAMIC_FADE_OFFSET;
 		}
 
 		// every non-cutscene,
@@ -836,23 +848,13 @@ void RenderAllLevelGeometry(struct GameTracker *gGT, struct Level *level1, struc
 			// 0x1c2 in 1P mode
 			distToScreen = pushBuffer->distanceToScreen_PREV;
 
-			// int and u32 have specific purposes
-			*(u32 *)0x1f800014 = distToScreen * 0x2080;
-			if (*(int *)0x1f800014 < 0)
-				*(int *)0x1f800014 = *(int *)0x1f800014 + 0xff;
-			*(int *)0x1f800014 = *(int *)0x1f800014 >> 8; // 0x3921
-
-			*(int *)0x1f800018 = distToScreen * 0x1a;        // 0x2DB4
-			*(int *)0x1f80001c = distToScreen * 0x18;        // 0x2A30
-			*(int *)0x1f800020 = distToScreen * 0xc;         // 0x1518
-			*(int *)0x1f800024 = distToScreen * 7;           // 0xC4E
-			*(int *)0x1f80002c = *(int *)0x1f800018 + 0x140; // 0x2EF4
-
-			// int and u32 have specific purposes
-			*(u32 *)0x1f800028 = distToScreen * 0x380;
-			if (*(int *)0x1f800028 < 0)
-				*(int *)0x1f800028 = *(int *)0x1f800028 + 0xff;
-			*(int *)0x1f800028 = *(int *)0x1f800028 >> 8; // 0x627
+			scratch->depthScale = RenderAllLevelGeometry_ScaleDistanceShift8(distToScreen, 0x2080);
+			scratch->bspLodDistanceThreshold = CTR_MipsMulLo(distToScreen, 0x1a);
+			scratch->textureLodDepthThreshold0 = CTR_MipsMulLo(distToScreen, 0x18);
+			scratch->textureLodDepthThreshold1 = CTR_MipsMulLo(distToScreen, 0xc);
+			scratch->topLevelNearDepthThreshold = CTR_MipsMulLo(distToScreen, 7);
+			scratch->recursiveNearDepthThreshold = RenderAllLevelGeometry_ScaleDistanceShift8(distToScreen, 0x380);
+			scratch->fullDynamicFadeDepthStart = CTR_MipsAddLo(scratch->bspLodDistanceThreshold, MAIN_RENDER_LEVEL_GEOMETRY_FULL_DYNAMIC_FADE_OFFSET);
 		}
 
 		RenderLists_PreInit();
