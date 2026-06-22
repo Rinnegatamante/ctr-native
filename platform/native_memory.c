@@ -7,24 +7,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-<<<<<<< HEAD
-#if defined(_WIN32)
-#include "platform/native_win32.h"
-#elif defined(__GNUC__)
-#include <errno.h>
-#ifndef __vita__
-#include <sys/mman.h>
-#ifndef MAP_ANONYMOUS
-#define MAP_ANONYMOUS MAP_ANON
-#endif
-#else
-#include <vitasdk.h>
-#include <kubridge.h>
-#endif
-#endif
-
-=======
->>>>>>> d6707779938f839e485fdbbe91dafea53fe421ef
 #ifndef CTR_NATIVE_MEMPACK_RETAIL_PRESSURE
 #define CTR_NATIVE_MEMPACK_RETAIL_PRESSURE 1
 #endif

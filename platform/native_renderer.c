@@ -1861,7 +1861,7 @@ void NativeRenderer_SetBlendMode(BlendMode blendMode)
 	{
 	case BM_AVERAGE:
 #ifdef __vita__
-		glBlendFuncSeparate(GL_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
 #else
 		// NOTE(aalhendi): keep RGB blend weight constant so alpha can carry the PS1 mask bit.
 		glBlendFuncSeparate(GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA, GL_ONE, GL_ZERO);
