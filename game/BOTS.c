@@ -2446,7 +2446,7 @@ UpdateTireColorTimer:
 		    .pad = 0,
 		};
 
-		gte_ldv0(&wiggle);
+		CTR_GteLoadSV0(&wiggle);
 		gte_mvmva(1, 0, 0, 3, 0);
 
 		botDriver->botData.aiPhysics.turboMeter = 0;

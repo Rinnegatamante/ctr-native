@@ -1,12 +1,24 @@
 #include <common.h>
 
+struct RBDefaultScratch
+{
+	SVec3Slot probeTop;
+	SVec3Slot probeBottom;
+	struct ScratchpadStruct sps;
+};
+
+_Static_assert(offsetof(struct RBDefaultScratch, probeTop) == 0x00);
+_Static_assert(offsetof(struct RBDefaultScratch, probeBottom) == 0x08);
+_Static_assert(offsetof(struct RBDefaultScratch, sps) == 0x10);
+
 // NOTE(aalhendi): ASM-verified against NTSC-U 926 overlay 231 0x800b4fe4-0x800b5090.
 
 void RB_Default_LInB(struct Instance *inst)
 {
-	SVec3 *probeTop = CTR_SCRATCHPAD_PTR(SVec3, 0x108);
-	SVec3 *probeBottom = CTR_SCRATCHPAD_PTR(SVec3, 0x110);
-	struct ScratchpadStruct *sps = CTR_SCRATCHPAD_PTR(struct ScratchpadStruct, 0x118);
+	struct RBDefaultScratch *scratch = CTR_SCRATCHPAD_PTR(struct RBDefaultScratch, 0x108);
+	SVec3Slot *probeTop = &scratch->probeTop;
+	SVec3Slot *probeBottom = &scratch->probeBottom;
+	struct ScratchpadStruct *sps = &scratch->sps;
 
 	// high-LOD coll (8 triangles)
 	sps->Union.QuadBlockColl.searchFlags = COLL_SEARCH_HIGH_LOD;
@@ -23,7 +35,7 @@ void RB_Default_LInB(struct Instance *inst)
 	probeTop->y = inst->matrix.t[1] - 0x180;
 	probeBottom->y = inst->matrix.t[1] + 0x80;
 
-	COLL_SearchBSP_CallbackQUADBLK(probeTop, probeBottom, sps, 0);
+	COLL_SearchBSP_CallbackQUADBLK(&probeTop->vec, &probeBottom->vec, sps, 0);
 
 	RB_MakeInstanceReflective(sps, inst);
 }

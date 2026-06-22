@@ -16,7 +16,7 @@ void MEMPACK_Init(int ramSize)
 	startPtr = (u32)arena->start;
 	packSize = arena->size;
 
-	printf("[CTR] Where does memory starts? (%s) %08x\n", arena->lowAddressValid ? "GOOD" : "BAD", (u32)arena->base);
+	printf("[CTR] MEMPACK native backing: base=%08x\n", (u32)arena->base);
 
 	MEMPACK_NewPack((void *)startPtr, packSize);
 	sdata->PtrMempack->endOfMemory = arena->endOfMemory;

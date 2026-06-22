@@ -345,9 +345,9 @@ void MM_Title_CameraMove(struct Title *title, int frameIndex)
 static void MM_Title_RotMatrixMul(MATRIX *matrix, const SVec3 *input, VECTOR *mac)
 {
 	gte_SetRotMatrix(matrix);
-	gte_ldv0((SVECTOR *)input);
+	CTR_GteLoadSVec3V0(input);
 	gte_rtv0();
-	gte_stlvnl(mac);
+	CTR_GteStoreMAC(&mac->vx);
 }
 
 static void MM_Title_UpdateTrophySpecLight(struct Instance *titleInst)

@@ -18,10 +18,10 @@ u8 CS_Camera_BoolGotoBoss(void)
 		return 1;
 
 	struct Instance *inst = gGT->drivers[0]->instSelf;
-	s16 *posCoords = gGT->level1->ptrSpawnType2_PosRot[1].posCoords;
+	const SVec3 *podiumPos = &gGT->level1->ptrSpawnType2_PosRot[1].posRot->pos;
 
 	// TRUE if TeleportSelf did NOT spawn on podium (goto boss door)
-	return (inst->matrix.t[0] != posCoords[0]) || (inst->matrix.t[2] != posCoords[2]);
+	return (inst->matrix.t[0] != podiumPos->x) || (inst->matrix.t[2] != podiumPos->z);
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800ae9a8-0x800aed48

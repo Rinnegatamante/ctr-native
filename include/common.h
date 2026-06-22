@@ -8,13 +8,13 @@
 // Not native host
 #ifndef CTR_NATIVE
 #include <gccHeaders.h>
-#include <ctr_gte.h>
 #endif
 
 
 // headers we wrote to simplify the code
 #include <macros.h>
 #include <ctr_math.h>
+#include <ctr_gte.h>
 #include <ctr_scratchpad.h>
 #include <prim.h>
 #include <psx/libpad.h>
@@ -64,6 +64,8 @@
 
 // should not be here
 #include <namespace_Main.h>
+
+#include <namespace_DrawLevel.h>
 
 #include <namespace_UI.h>
 #include <namespace_Vehicle.h>

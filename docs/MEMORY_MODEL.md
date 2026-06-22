@@ -129,8 +129,9 @@ The PS1 scratchpad is 1 KiB:
 0x1f800000 - 0x1f8003ff
 ```
 
-Native maps an OS page at `0x1f800000` in `Platform_InitScratchpad`, but only the first `0x400` bytes are retail scratchpad.
-The page is `0x1000` bytes because that is the usual minimum virtual-memory mapping unit.
+Native uses a process-local scratchpad buffer and routes `CTR_SCRATCHPAD_PTR`
+through that runtime base. Retail absolute scratchpad addresses are translated
+back to offsets from this buffer.
 
 Scratchpad-heavy areas include:
 
@@ -154,10 +155,9 @@ u32 addr : 24;
 u32 size : 8;
 ```
 
-Native currently keeps primitive-linkable memory below `0x01000000` and routes
-manual link writes through `CtrGpu_PrimToOTLink24`.
+Native keeps the retail packet layout and routes primitive/OT links through the
+native GPU link bridge. Under `CTR_NATIVE`, the 24-bit field is a bridge token,
+not a truncated host pointer.
 
-TODO(aalhendi): Replace the low-address MEMPACK requirement with an explicit
-native GPU link bridge before removing the 32-bit build constraint. Keep
-game-visible primitive packets retail-shaped; do not reintroduce PsyCross's
-widened primitive packets.
+Keep game-visible primitive packets retail-shaped; do not reintroduce
+PsyCross's widened primitive packets.

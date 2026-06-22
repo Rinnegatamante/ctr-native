@@ -90,12 +90,24 @@ internal void Platform_HandleWindowResize(int width, int height)
 	NativeRenderer_ResetDevice();
 }
 
+internal void Platform_UpdateCursorVisibility(void)
+{
+	if (g_window == NULL)
+		return;
+
+	if ((SDL_GetWindowFlags(g_window) & SDL_WINDOW_FULLSCREEN) != 0)
+		SDL_HideCursor();
+	else
+		SDL_ShowCursor();
+}
+
 internal void Platform_HandleFullscreenToggle(void)
 {
 	int fullscreen = (SDL_GetWindowFlags(g_window) & SDL_WINDOW_FULLSCREEN) != 0;
 
 	SDL_SetWindowFullscreen(g_window, fullscreen == 0);
 	SDL_GetWindowSize(g_window, &g_windowWidth, &g_windowHeight);
+	Platform_UpdateCursorVisibility();
 	NativeRenderer_ResetDevice();
 }
 
@@ -206,7 +218,7 @@ void Platform_Init(const char *title, int width, int height)
 	}
 
 	atexit(Platform_Shutdown);
-	SDL_HideCursor();
+	Platform_UpdateCursorVisibility();
 	Platform_InputInit();
 }
 
@@ -366,6 +378,10 @@ void Platform_PollHostEvents(void)
 			break;
 		case SDL_EVENT_WINDOW_RESIZED:
 			Platform_HandleWindowResize(event.window.data1, event.window.data2);
+			break;
+		case SDL_EVENT_WINDOW_ENTER_FULLSCREEN:
+		case SDL_EVENT_WINDOW_LEAVE_FULLSCREEN:
+			Platform_UpdateCursorVisibility();
 			break;
 		case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
 			exit(0);

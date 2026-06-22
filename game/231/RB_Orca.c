@@ -228,11 +228,8 @@ void RB_Orca_LInB(struct Instance *inst)
 	{
 		spawnType2 = &sdata->gGT->level1->ptrSpawnType2[orcaID + 4];
 
-		*(int *)&orcaObj->startPos.x = *(int *)&spawnType2->posCoords[0];
-		orcaObj->startPos.z = spawnType2->posCoords[2];
-
-		*(int *)&orcaObj->endPos.x = *(int *)&spawnType2->posCoords[3];
-		orcaObj->endPos.z = spawnType2->posCoords[5];
+		orcaObj->startPos = spawnType2->positions[0];
+		orcaObj->endPos = spawnType2->positions[1];
 	}
 
 	orcaObj->midpoint[0] = orcaObj->startPos.x - orcaObj->endPos.x;

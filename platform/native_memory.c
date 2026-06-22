@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+<<<<<<< HEAD
 #if defined(_WIN32)
 #include "platform/native_win32.h"
 #elif defined(__GNUC__)
@@ -22,12 +23,14 @@
 #endif
 #endif
 
+=======
+>>>>>>> d6707779938f839e485fdbbe91dafea53fe421ef
 #ifndef CTR_NATIVE_MEMPACK_RETAIL_PRESSURE
 #define CTR_NATIVE_MEMPACK_RETAIL_PRESSURE 1
 #endif
 
 // TODO(aalhendi): Re-audit LOAD_ReadFile_ex, LOAD_DramFileCallback, LEV/PTR
-// callbacks, and hub swapping before removing the expanded arena escape hatch.
+// callbacks, hub swapping, MEMPACK size arithmetic + PSX shaped ptr storage before removing the expanded arena escape hatch
 #if CTR_NATIVE_MEMPACK_RETAIL_PRESSURE
 // NOTE(aalhendi): Retail pressure mode exposes the NTSC-U 926 mempack window
 // inside a 2 MiB backing store.
@@ -40,58 +43,24 @@
 #define CTR_NATIVE_MEMPACK_SIZE         CTR_NATIVE_MEMPACK_BUFFER_SIZE
 #endif
 
+union NativeScratchpadStorage
+{
+	u8 bytes[CTR_SCRATCHPAD_SIZE];
+	u32 words[CTR_SCRATCHPAD_SIZE / sizeof(u32)];
+};
+
+_Static_assert(sizeof(union NativeScratchpadStorage) == CTR_SCRATCHPAD_SIZE);
+
 global_variable char s_mempackMemory[CTR_NATIVE_MEMPACK_BUFFER_SIZE];
 global_variable struct PlatformMempackArena s_mempackArena;
+global_variable union NativeScratchpadStorage s_scratchpadMemory;
+u8 *gCTRNativeScratchpadBase;
 
 void Platform_InitScratchpad(void)
 {
 #if defined(CTR_NATIVE)
-	void *scratchpad = (void *)CTR_SCRATCHPAD_ADDR;
-	size_t scratchpadSize = CTR_SCRATCHPAD_MAP_SIZE;
-
-#if defined(_WIN32)
-	void *mapped = VirtualAlloc(scratchpad, scratchpadSize, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
-	if (mapped == NULL)
-	{
-		fprintf(stderr, "[CTR Native] Failed to map PS1 scratchpad at %p: GetLastError=%lu\n", scratchpad, GetLastError());
-		abort();
-	}
-#elif defined(__vita__)
-	SceKernelAllocMemBlockKernelOpt opt;
-	memset(&opt, 0, sizeof(SceKernelAllocMemBlockKernelOpt));
-	opt.size = sizeof(SceKernelAllocMemBlockKernelOpt);
-	opt.attr = 0x1;
-	opt.field_C = CTR_SCRATCHPAD_ADDR;
-	SceUID res = kuKernelAllocMemBlock("scratchpad", SCE_KERNEL_MEMBLOCK_TYPE_USER_RW, CTR_SCRATCHPAD_MAP_SIZE, &opt);
-	if (res < 0) {
-		sceClibPrintf("FATAL ERROR: Failed to alloc scratchpad!\n");
-	}
-	void *mapped = NULL;
-	sceKernelGetMemBlockBase(res, &mapped);
-#elif defined(__GNUC__)
-#ifdef MAP_FIXED_NOREPLACE
-	int fixedFlag = MAP_FIXED_NOREPLACE;
-#else
-	int fixedFlag = MAP_FIXED;
-#endif
-
-	void *mapped = mmap(scratchpad, scratchpadSize, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | fixedFlag, -1, 0);
-	if (mapped == MAP_FAILED)
-	{
-		fprintf(stderr, "[CTR Native] Failed to map PS1 scratchpad at %p: %s\n", scratchpad, strerror(errno));
-		abort();
-	}
-#else
-#error "Platform_InitScratchpad needs a fixed-address virtual-memory mapper for this platform"
-#endif
-
-	if (mapped != scratchpad)
-	{
-		fprintf(stderr, "[CTR Native] PS1 scratchpad mapped at %p, expected %p\n", mapped, scratchpad);
-		abort();
-	}
-
-	memset(mapped, 0, scratchpadSize);
+	gCTRNativeScratchpadBase = &s_scratchpadMemory.bytes[0];
+	memset(&s_scratchpadMemory, 0, sizeof(s_scratchpadMemory));
 #endif
 }
 
@@ -102,12 +71,6 @@ internal void Platform_ConfigureMempackArena(void)
 	s_mempackArena.endOfMemory = &s_mempackMemory[CTR_NATIVE_MEMPACK_BUFFER_SIZE];
 	s_mempackArena.size = CTR_NATIVE_MEMPACK_SIZE;
 	s_mempackArena.backingSize = CTR_NATIVE_MEMPACK_BUFFER_SIZE;
-
-	// NOTE(aalhendi): Native still uses PS1-shaped OT links for many render
-	// paths. MEMPACK must stay below 0x01000000 so CtrGpu_PrimToOTLink24 can
-	// pack linked primitive pointers without losing address bits.
-	s_mempackArena.lowAddressValid =
-	    ((u32)s_mempackArena.base < 0x01000000) && ((u32)s_mempackArena.start < 0x01000000) && ((u32)s_mempackArena.endOfMemory <= 0x01000000);
 }
 
 const struct PlatformMempackArena *Platform_InitMempackArena(void)
@@ -115,6 +78,11 @@ const struct PlatformMempackArena *Platform_InitMempackArena(void)
 	memset(s_mempackMemory, 0, sizeof(s_mempackMemory));
 	Platform_ConfigureMempackArena();
 
+	return &s_mempackArena;
+}
+
+const struct PlatformMempackArena *Platform_GetMempackArena(void)
+{
 	return &s_mempackArena;
 }
 

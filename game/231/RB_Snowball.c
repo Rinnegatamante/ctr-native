@@ -9,8 +9,9 @@ void RB_Snowball_ThTick(struct Thread *t)
 
 	int modelID;
 	int soundID;
-	int baseShort;
+	int pointIndex;
 	struct SpawnType2 *ptrSpawnType2;
+	const struct SpawnPosRot *frame;
 
 	snowInst = t->inst;
 	snowObj = (struct Snowball *)t->object;
@@ -37,17 +38,17 @@ void RB_Snowball_ThTick(struct Thread *t)
 			PlaySound3D_Flags(&snowObj->audioPtr, soundID, snowInst);
 		}
 
-		baseShort = snowObj->pointIndex;
-		if (baseShort > snowObj->numPoints)
-			baseShort = (snowObj->numPoints * 2) - baseShort;
+		pointIndex = snowObj->pointIndex;
+		if (pointIndex > snowObj->numPoints)
+			pointIndex = (snowObj->numPoints * 2) - pointIndex;
 
-		baseShort *= 6;
+		frame = &ptrSpawnType2->posRot[pointIndex];
 
-		ConvertRotToMatrix(&snowInst->matrix, &ptrSpawnType2->posCoords[baseShort + 3]);
+		ConvertRotToMatrix(&snowInst->matrix, &frame->rot);
 
-		snowInst->matrix.t[0] = ptrSpawnType2->posCoords[baseShort + 0];
-		snowInst->matrix.t[1] = ptrSpawnType2->posCoords[baseShort + 1];
-		snowInst->matrix.t[2] = ptrSpawnType2->posCoords[baseShort + 2];
+		snowInst->matrix.t[0] = frame->pos.x;
+		snowInst->matrix.t[1] = frame->pos.y;
+		snowInst->matrix.t[2] = frame->pos.z;
 
 		RB_Minecart_CheckColl(snowInst, t);
 	}

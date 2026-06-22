@@ -5,6 +5,7 @@
  */
 
 #include <macros.h>
+#include <ctr_gte.h>
 #include <psx/gtemac.h>
 #include <psx/gtereg.h>
 #include <psx/inline_c.h>
@@ -134,9 +135,9 @@ void RotTrans(SVECTOR *v0, VECTOR *v1, long *flag)
 
 void RotTransSV(SVECTOR *v0, SVECTOR *v1, long *flag)
 {
-	gte_ldv0(v0);
+	CTR_GteLoadSV0(v0);
 	gte_rt();
-	gte_stsv(v1);
+	CTR_GteStoreSV(v1);
 	gte_stflg(flag);
 }
 
@@ -161,17 +162,17 @@ int RotTransPers4(SVECTOR *v0, SVECTOR *v1, SVECTOR *v2, SVECTOR *v3, long *sxy0
 	int _flag;
 	int sz;
 
-	gte_ldv3(v0, v1, v2);
+	CTR_GteLoadSV3(v0, v1, v2);
 	gte_rtpt();
 
-	gte_stsxy3(sxy0, sxy1, sxy2);
+	CTR_GteStoreSXY3(sxy0, sxy1, sxy2);
 
 	gte_stflg(&_flag);
 
-	gte_ldv0(v3);
+	CTR_GteLoadSV0(v3);
 	gte_rtps();
 
-	gte_stsxy(sxy3);
+	CTR_GteStoreSXY(sxy3);
 	gte_stflg(flag);
 	gte_stdp(p);
 
@@ -237,7 +238,7 @@ void LocalLight(SVECTOR *v0, VECTOR *v1)
 
 int RotAverageNclip4(SVECTOR *v0, SVECTOR *v1, SVECTOR *v2, SVECTOR *v3, long *sxy0, long *sxy1, long *sxy2, long *sxy3, long *p, long *otz, long *flag)
 {
-	gte_ldv3(v0, v1, v2);
+	CTR_GteLoadSV3(v0, v1, v2);
 	gte_rtpt();
 	gte_stflg(flag);
 
@@ -248,13 +249,13 @@ int RotAverageNclip4(SVECTOR *v0, SVECTOR *v1, SVECTOR *v2, SVECTOR *v3, long *s
 
 	if (opz > 0)
 	{
-		gte_stsxy3(sxy0, sxy1, sxy2);
+		CTR_GteStoreSXY3(sxy0, sxy1, sxy2);
 
-		gte_ldv0(v3);
+		CTR_GteLoadSV0(v3);
 
 		gte_rtps();
 
-		gte_stsxy(sxy3);
+		CTR_GteStoreSXY(sxy3);
 		gte_stdp(p);
 		gte_stflg(flag);
 
@@ -277,25 +278,25 @@ MATRIX *MulMatrix0(MATRIX *m0, MATRIX *m1, MATRIX *m2)
 	v0.vy = m1->m[1][0];
 	v0.vz = m1->m[2][0];
 
-	gte_ldv0(&v0);
+	CTR_GteLoadSV0(&v0);
 	gte_rtv0();
-	gte_stsv(&r0);
+	CTR_GteStoreSV(&r0);
 
 	v0.vx = m1->m[0][1];
 	v0.vy = m1->m[1][1];
 	v0.vz = m1->m[2][1];
 
-	gte_ldv0(&v0);
+	CTR_GteLoadSV0(&v0);
 	gte_rtv0();
-	gte_stsv(&r1);
+	CTR_GteStoreSV(&r1);
 
 	v0.vx = m1->m[0][2];
 	v0.vy = m1->m[1][2];
 	v0.vz = m1->m[2][2];
 
-	gte_ldv0(&v0);
+	CTR_GteLoadSV0(&v0);
 	gte_rtv0();
-	gte_stsv(&r2);
+	CTR_GteStoreSV(&r2);
 
 	m2->m[0][0] = r0.vx;
 	m2->m[0][1] = r1.vx;
@@ -337,17 +338,17 @@ MATRIX *MulMatrix2(MATRIX *m0, MATRIX *m1)
 MATRIX *MulRotMatrix(MATRIX *m0)
 {
 	// TODO(aalhendi): Verify against PsyQ behavior; RTV0 may be insufficient.
-	gte_ldv0(&m0->m[0]);
+	CTR_GteLoadS16TripletV0(&m0->m[0][0]);
 	gte_rtv0();
-	gte_stsv(&m0->m[0]);
+	CTR_GteStoreS16Triplet(&m0->m[0][0]);
 
-	gte_ldv0(&m0->m[1]);
+	CTR_GteLoadS16TripletV0(&m0->m[1][0]);
 	gte_rtv0();
-	gte_stsv(&m0->m[1]);
+	CTR_GteStoreS16Triplet(&m0->m[1][0]);
 
-	gte_ldv0(&m0->m[2]);
+	CTR_GteLoadS16TripletV0(&m0->m[2][0]);
 	gte_rtv0();
-	gte_stsv(&m0->m[2]);
+	CTR_GteStoreS16Triplet(&m0->m[2][0]);
 
 	return m0;
 }
@@ -365,17 +366,17 @@ void SetFarColor(int rfc, int gfc, int bfc)
 VECTOR *ApplyMatrix(MATRIX *m, SVECTOR *v0, VECTOR *v1)
 {
 	gte_SetRotMatrix(m);
-	gte_ldv0(v0);
+	CTR_GteLoadSV0(v0);
 	gte_rtv0();
-	gte_stlvnl(v1);
+	CTR_GteStoreMAC(&v1->vx);
 	return v1;
 }
 
 VECTOR *ApplyRotMatrix(SVECTOR *v0, VECTOR *v1)
 {
-	gte_ldv0(v0);
+	CTR_GteLoadSV0(v0);
 	gte_rtv0();
-	gte_stlvnl(v1);
+	CTR_GteStoreMAC(&v1->vx);
 	return v1;
 }
 
@@ -421,11 +422,11 @@ VECTOR *ApplyRotMatrixLV(VECTOR *v0, VECTOR *v1)
 		tmpHI.vz = tmpHI.vz & 0x7fff;
 	}
 
-	gte_ldlvl(&tmpLO);
+	CTR_GteLoadLVL(&tmpLO.vx);
 	gte_rtir_sf0();
-	gte_stlvnl(&tmpLO);
+	CTR_GteStoreMAC(&tmpLO.vx);
 
-	gte_ldlvl(&tmpHI);
+	CTR_GteLoadLVL(&tmpHI.vx);
 	gte_rtir();
 
 	if (tmpLO.vx < 0)
@@ -443,7 +444,7 @@ VECTOR *ApplyRotMatrixLV(VECTOR *v0, VECTOR *v1)
 	else
 		tmpLO.vz <<= 3;
 
-	gte_stlvnl(&tmpHI);
+	CTR_GteStoreMAC(&tmpHI.vx);
 
 	v1->vx = tmpHI.vx + tmpLO.vx;
 	v1->vy = tmpHI.vy + tmpLO.vy;
@@ -454,9 +455,9 @@ VECTOR *ApplyRotMatrixLV(VECTOR *v0, VECTOR *v1)
 SVECTOR *ApplyMatrixSV(MATRIX *m, SVECTOR *v0, SVECTOR *v1)
 {
 	gte_SetRotMatrix(m);
-	gte_ldv0(v0);
+	CTR_GteLoadSV0(v0);
 	gte_rtv0();
-	gte_stsv(v1);
+	CTR_GteStoreSV(v1);
 	return v1;
 }
 
@@ -504,11 +505,11 @@ VECTOR *ApplyMatrixLV(MATRIX *m, VECTOR *v0, VECTOR *v1)
 		tmpHI.vz = tmpHI.vz & 0x7fff;
 	}
 
-	gte_ldlvl(&tmpLO);
+	CTR_GteLoadLVL(&tmpLO.vx);
 	gte_rtir_sf0();
-	gte_stlvnl(&tmpLO);
+	CTR_GteStoreMAC(&tmpLO.vx);
 
-	gte_ldlvl(&tmpHI);
+	CTR_GteLoadLVL(&tmpHI.vx);
 	gte_rtir();
 
 	if (tmpLO.vx < 0)
@@ -526,7 +527,7 @@ VECTOR *ApplyMatrixLV(MATRIX *m, VECTOR *v0, VECTOR *v1)
 	else
 		tmpLO.vz <<= 3;
 
-	gte_stlvnl(&tmpHI);
+	CTR_GteStoreMAC(&tmpHI.vx);
 
 	v1->vx = tmpHI.vx + tmpLO.vx;
 	v1->vy = tmpHI.vy + tmpLO.vy;
@@ -699,9 +700,9 @@ MATRIX *CompMatrix(MATRIX *m0, MATRIX *m1, MATRIX *m2)
 	tmp.vy = m1->t[1];
 	tmp.vz = m1->t[2];
 
-	gte_ldv0(&tmp);
+	CTR_GteLoadSV0(&tmp);
 	gte_rtv0();
-	gte_stlvnl(m2->t);
+	CTR_GteStoreMAC(m2->t);
 
 	m2->t[0] += m0->t[0];
 	m2->t[1] += m0->t[1];
@@ -756,11 +757,11 @@ MATRIX *CompMatrixLV(MATRIX *m0, MATRIX *m1, MATRIX *m2)
 		tmpHI.vz = tmpHI.vz & 0x7fff;
 	}
 
-	gte_ldlvl(&tmpLO);
+	CTR_GteLoadLVL(&tmpLO.vx);
 	gte_rtir_sf0();
-	gte_stlvnl(&tmpLO);
+	CTR_GteStoreMAC(&tmpLO.vx);
 
-	gte_ldlvl(&tmpHI);
+	CTR_GteLoadLVL(&tmpHI.vx);
 	gte_rtir();
 
 	if (tmpLO.vx < 0)
@@ -778,7 +779,7 @@ MATRIX *CompMatrixLV(MATRIX *m0, MATRIX *m1, MATRIX *m2)
 	else
 		tmpLO.vz = tmpLO.vz << 3;
 
-	gte_stlvnl(&tmpHI);
+	CTR_GteStoreMAC(&tmpHI.vx);
 
 	m2->t[0] = tmpHI.vx + tmpLO.vx + m0->t[0];
 	m2->t[1] = tmpHI.vy + tmpLO.vy + m0->t[1];

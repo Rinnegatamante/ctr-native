@@ -768,7 +768,7 @@ PROCESS_JUMP:
 
 	int verticalSpeed = VehCalc_FastSqrt((u32)CTR_MipsSra(CTR_MipsAddLo(jumpVelYSquared, CTR_MipsMulLo(d->jump_InitialVelY, d->jump_InitialVelY)), 8), 8);
 
-	int maxVerticalSpeed = ((u8)sdata->gGT->level1->unk_18C) << 8;
+	int maxVerticalSpeed = sdata->gGT->level1->jumpVerticalSpeedCap << 8;
 	if (maxVerticalSpeed == 0)
 	{
 		maxVerticalSpeed = 0x3700;

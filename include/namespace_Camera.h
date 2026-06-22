@@ -1,7 +1,5 @@
-// Camera scratchpad overlay.
-// Cast from (scratchpad + 0x20C) where scratchpad is the u8* parameter
-// pointing to absolute 0x1f800108.
-// Fields span absolute scratchpad 0x314-0x36B.
+// Camera scratchpad overlay rooted at retail scratchpad 0x1f800108.
+// Camera-owned fields begin at work+0x20c, absolute scratchpad 0x1f800314.
 struct CameraScratch
 {
 	SVec3 rot;     // +0x00 (abs 0x314)
@@ -20,6 +18,32 @@ _Static_assert(offsetof(struct CameraScratch, pos) == 0x34);
 _Static_assert(offsetof(struct CameraScratch, dir) == 0x40);
 _Static_assert(offsetof(struct CameraScratch, delta) == 0x4C);
 _Static_assert(sizeof(struct CameraScratch) == 0x58);
+
+struct CameraScratchWork
+{
+	union
+	{
+		u8 collisionScratch[0x20c];
+		struct
+		{
+			u8 pad_000[0x1e];
+			s16 terrainHeightFloor;
+		};
+	};
+
+	struct CameraScratch camera;
+	u8 pad_264[0x18];
+	Vec3 sideOffset;
+	SVec3 trackPathPos;
+	s16 pad_28e;
+	SVec3 trackPathLookaheadPos;
+};
+
+_Static_assert(offsetof(struct CameraScratchWork, terrainHeightFloor) == 0x01e);
+_Static_assert(offsetof(struct CameraScratchWork, camera) == 0x20c);
+_Static_assert(offsetof(struct CameraScratchWork, sideOffset) == 0x27c);
+_Static_assert(offsetof(struct CameraScratchWork, trackPathPos) == 0x288);
+_Static_assert(offsetof(struct CameraScratchWork, trackPathLookaheadPos) == 0x290);
 
 struct ZoomData
 {

@@ -1551,9 +1551,9 @@ BlendNormal:
 		    (s16)CTR_MipsSra(CTR_MipsMulLo(trig.z, COLL_FIXED_PLAYER_SEARCH_HAZARD_WOBBLE_AMPLITUDE), COLL_FIXED_PLAYER_SEARCH_HAZARD_WOBBLE_SHIFT), 0};
 		s32 output[3];
 
-		gte_ldv0(input);
+		CTR_GteLoadS16TripletV0(input);
 		gte_rtv0();
-		gte_stlvnl(output);
+		CTR_GteStoreMAC(output);
 
 		normalX = CTR_MipsAddLo(normalX, output[0]);
 		normalY = CTR_MipsAddLo(normalY, output[1]);

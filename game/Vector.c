@@ -4,9 +4,9 @@
 static void Vector_SpecLightSpin2D_RotMatrixMul(MATRIX *matrix, const SVec3 *input, VECTOR *mac, SVec3 *output)
 {
 	gte_SetRotMatrix(matrix);
-	gte_ldv0((SVECTOR *)input);
+	CTR_GteLoadSVec3V0(input);
 	gte_rtv0();
-	gte_stlvnl(mac);
+	CTR_GteStoreMAC(&mac->vx);
 
 	output->x = (s16)mac->vx;
 	output->y = (s16)mac->vy;
@@ -52,9 +52,9 @@ static void Vector_LightMatrixMul(MATRIX *matrix, const SVec3 *input, SVec3 *out
 	VECTOR mac;
 
 	gte_SetLightMatrix(matrix);
-	gte_ldv0((SVECTOR *)input);
+	CTR_GteLoadSVec3V0(input);
 	gte_llv0();
-	gte_stlvnl(&mac);
+	CTR_GteStoreMAC(&mac.vx);
 
 	output->x = (s16)mac.vx;
 	output->y = (s16)mac.vy;

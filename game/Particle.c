@@ -483,11 +483,6 @@ static u8 Particle_RenderList_ReadByte(const void *base, int offset)
 	return *(const u8 *)(const void *)((const char *)base + offset);
 }
 
-static u32 Particle_RenderList_Ptr24(const void *ptr)
-{
-	return CtrGpu_PrimToOTLink24(ptr);
-}
-
 static s32 Particle_RenderList_MulLo(s32 left, s32 right)
 {
 	return (s32)(u32)((s64)left * (s64)right);
@@ -530,6 +525,32 @@ struct ParticleRenderListMatrix
 	u32 r31r32;
 	u32 r33;
 };
+
+struct ParticleRenderListScratch
+{
+	union
+	{
+		u32 viewProjWords[5];
+		struct
+		{
+			u32 viewProjR11R12;
+			u32 viewProjR13R21;
+			u32 viewProjR22R23;
+			u32 viewProjR31R32;
+			u16 viewProjR33Low;
+		};
+	};
+	u8 pad_14[0x0c];
+	u_long *ot;
+	s32 cameraOffset[3];
+	s32 depth;
+};
+
+_Static_assert(offsetof(struct ParticleRenderListScratch, viewProjWords) == 0x00);
+_Static_assert(offsetof(struct ParticleRenderListScratch, viewProjR33Low) == 0x10);
+_Static_assert(offsetof(struct ParticleRenderListScratch, ot) == 0x20);
+_Static_assert(offsetof(struct ParticleRenderListScratch, cameraOffset) == 0x24);
+_Static_assert(offsetof(struct ParticleRenderListScratch, depth) == 0x30);
 
 struct ParticleSpecialLineBody
 {
@@ -595,8 +616,7 @@ static struct ParticleRenderListTrig Particle_RenderList_ReadTrig(s32 angle)
 
 static void Particle_RenderList_LinkPrimitive(u32 *tagWord, const void *packet, u_long *ot, u32 tag)
 {
-	*tagWord = (u32)*ot | tag;
-	*ot = (u_long)Particle_RenderList_Ptr24(packet);
+	CtrGpu_LinkPacket24(ot, tagWord, packet, tag);
 }
 
 static void Particle_RenderList_LinkAndAdvance(u32 **primCursor, u32 **payloadCursor, struct Particle *particle, struct InstDrawPerPlayer *idpp,
@@ -650,13 +670,13 @@ static void Particle_RenderList_LinkAndAdvance(u32 **primCursor, u32 **payloadCu
 }
 
 static void Particle_RenderList_WriteSpecialPrimitive(struct ParticleSpecialPacket *packet, struct Particle *particle, u16 flagsAxis, u16 flagsSetColor,
-                                                      u32 color, u32 *scratch, s32 *scratchDepth)
+                                                      u32 color, struct ParticleRenderListScratch *scratch)
 {
-	CTC2(scratch[0], 0);
-	CTC2(scratch[1], 1);
-	CTC2(scratch[2], 2);
-	CTC2(scratch[3], 3);
-	CTC2(scratch[4], 4);
+	CTC2(scratch->viewProjWords[0], 0);
+	CTC2(scratch->viewProjWords[1], 1);
+	CTC2(scratch->viewProjWords[2], 2);
+	CTC2(scratch->viewProjWords[3], 3);
+	CTC2(scratch->viewProjWords[4], 4);
 
 	MTC2(0, 0);
 	MTC2(0, 1);
@@ -701,7 +721,7 @@ static void Particle_RenderList_WriteSpecialPrimitive(struct ParticleSpecialPack
 	packet->pad = 0;
 	packet->line.xy0 = MFC2(12);
 	packet->line.xy1 = MFC2(13);
-	*scratchDepth = (s32)MFC2(17);
+	scratch->depth = (s32)MFC2(17);
 }
 
 static struct ParticleRenderListMatrix Particle_RenderList_BuildNormalMatrix(struct Particle *particle, u16 flagsAxis)
@@ -955,34 +975,30 @@ void Particle_RenderList(struct PushBuffer *pb, void *particleList)
 	struct GameTracker *gGT = sdata->gGT;
 	struct PrimMem *primMem = &gGT->backBuffer->primMem;
 	struct Particle *particle = particleList;
-	u32 *scratch = CTR_SCRATCHPAD_PTR(u32, 0x00);
-	u16 *scratchR33Low = CTR_SCRATCHPAD_PTR(u16, 0x10);
-	u_long **scratchOT = CTR_SCRATCHPAD_PTR(u_long *, 0x20);
-	s32 *scratchCameraOffset = CTR_SCRATCHPAD_PTR(s32, 0x24);
-	s32 *scratchDepth = CTR_SCRATCHPAD_PTR(s32, 0x30);
+	struct ParticleRenderListScratch *scratch = CTR_SCRATCHPAD_PTR(struct ParticleRenderListScratch, 0x00);
 	u32 *prim = (u32 *)primMem->cursor;
 	u32 *primPayload = prim + 8;
 	char cameraID;
 
 	PushBuffer_SetPsyqGeom(pb);
 
-	scratch[0] = Particle_RenderList_ReadWord(&pb->matrix_ViewProj, 0x00);
-	scratch[1] = Particle_RenderList_ReadWord(&pb->matrix_ViewProj, 0x04);
-	scratch[2] = Particle_RenderList_ReadWord(&pb->matrix_ViewProj, 0x08);
-	scratch[3] = Particle_RenderList_ReadWord(&pb->matrix_ViewProj, 0x0c);
-	*scratchR33Low = *(u16 *)(void *)((char *)&pb->matrix_ViewProj + 0x10);
+	scratch->viewProjWords[0] = Particle_RenderList_ReadWord(&pb->matrix_ViewProj, 0x00);
+	scratch->viewProjWords[1] = Particle_RenderList_ReadWord(&pb->matrix_ViewProj, 0x04);
+	scratch->viewProjWords[2] = Particle_RenderList_ReadWord(&pb->matrix_ViewProj, 0x08);
+	scratch->viewProjWords[3] = Particle_RenderList_ReadWord(&pb->matrix_ViewProj, 0x0c);
+	scratch->viewProjR33Low = *(u16 *)(void *)((char *)&pb->matrix_ViewProj + 0x10);
 
-	CTC2(scratch[0], 8);
-	CTC2(scratch[1], 9);
-	CTC2(scratch[2], 10);
-	CTC2(scratch[3], 11);
-	CTC2(scratch[4], 12);
+	CTC2(scratch->viewProjWords[0], 8);
+	CTC2(scratch->viewProjWords[1], 9);
+	CTC2(scratch->viewProjWords[2], 10);
+	CTC2(scratch->viewProjWords[3], 11);
+	CTC2(scratch->viewProjWords[4], 12);
 
-	*scratchOT = pb->ptrOT;
+	scratch->ot = pb->ptrOT;
 	cameraID = (char)pb->cameraID;
-	scratchCameraOffset[0] = (s32)Particle_RenderList_ReadWord(pb, 0x7c) << 2;
-	scratchCameraOffset[1] = (s32)Particle_RenderList_ReadWord(pb, 0x80) << 2;
-	scratchCameraOffset[2] = (s32)Particle_RenderList_ReadWord(pb, 0x84) << 2;
+	scratch->cameraOffset[0] = (s32)Particle_RenderList_ReadWord(pb, 0x7c) << 2;
+	scratch->cameraOffset[1] = (s32)Particle_RenderList_ReadWord(pb, 0x80) << 2;
+	scratch->cameraOffset[2] = (s32)Particle_RenderList_ReadWord(pb, 0x84) << 2;
 
 	if (prim + (gGT->numParticles * 10) >= (u32 *)primMem->guardEnd)
 		return;
@@ -1067,9 +1083,9 @@ void Particle_RenderList(struct PushBuffer *pb, void *particleList)
 					idpp = NULL;
 			}
 
-			posX -= scratchCameraOffset[0];
-			posY -= scratchCameraOffset[1];
-			posZ -= scratchCameraOffset[2];
+			posX -= scratch->cameraOffset[0];
+			posY -= scratch->cameraOffset[1];
+			posZ -= scratch->cameraOffset[2];
 
 			if (!Particle_RenderList_IsNearCamera(posX))
 				goto next_particle;
@@ -1097,17 +1113,16 @@ void Particle_RenderList(struct PushBuffer *pb, void *particleList)
 
 			if ((flagsSetColor & 0x1000) != 0)
 			{
-				Particle_RenderList_WriteSpecialPrimitive((struct ParticleSpecialPacket *)prim, particle, flagsAxis, flagsSetColor, color, scratch,
-				                                          scratchDepth);
-				Particle_RenderList_LinkAndAdvance(&primCursor, &payloadCursor, particle, idpp, flagsSetColor, *scratchDepth, *scratchOT);
+				Particle_RenderList_WriteSpecialPrimitive((struct ParticleSpecialPacket *)prim, particle, flagsAxis, flagsSetColor, color, scratch);
+				Particle_RenderList_LinkAndAdvance(&primCursor, &payloadCursor, particle, idpp, flagsSetColor, scratch->depth, scratch->ot);
 				prim = primCursor;
 				goto next_particle;
 			}
 
 			struct ParticleRenderListMatrix matrix = Particle_RenderList_BuildNormalMatrix(particle, flagsAxis);
 
-			Particle_RenderList_WriteNormalPrimitive((POLY_FT4 *)prim, icon, flagsAxis, flagsSetColor, color, &matrix, scratchDepth);
-			Particle_RenderList_LinkAndAdvance(&primCursor, &payloadCursor, particle, idpp, flagsSetColor, *scratchDepth, *scratchOT);
+			Particle_RenderList_WriteNormalPrimitive((POLY_FT4 *)prim, icon, flagsAxis, flagsSetColor, color, &matrix, &scratch->depth);
+			Particle_RenderList_LinkAndAdvance(&primCursor, &payloadCursor, particle, idpp, flagsSetColor, scratch->depth, scratch->ot);
 			prim = primCursor;
 
 		next_particle:

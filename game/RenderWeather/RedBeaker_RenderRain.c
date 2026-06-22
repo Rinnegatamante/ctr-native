@@ -159,14 +159,24 @@ static void RedBeaker_RenderPass(u32 **primCursor, u_long *ot, u32 color, u32 dr
 	RedBeaker_EmitDrawMode(primCursor, ot, drawMode);
 }
 
+struct RedBeakerRainScratch
+{
+	u32 centerXY;
+	u8 pad_04[0x14];
+	u32 colorTop;
+	u32 colorBottom;
+};
+
+_Static_assert(offsetof(struct RedBeakerRainScratch, centerXY) == 0x00);
+_Static_assert(offsetof(struct RedBeakerRainScratch, colorTop) == 0x18);
+_Static_assert(offsetof(struct RedBeakerRainScratch, colorBottom) == 0x1C);
+
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8006dc30-0x8006e26c
 void RedBeaker_RenderRain(struct PushBuffer *pb, struct PrimMem *primMem, struct JitPool *rain, char numPlyr, int gameMode1)
 {
 	u32 *prim = (u32 *)primMem->cursor;
 	struct RainLocal *firstRain = (struct RainLocal *)rain->taken.first;
-	u32 *scratchCenterXY = CTR_SCRATCHPAD_PTR(u32, 0x30);
-	u32 *scratchColorTop = CTR_SCRATCHPAD_PTR(u32, 0x48);
-	u32 *scratchColorBottom = CTR_SCRATCHPAD_PTR(u32, 0x4c);
+	struct RedBeakerRainScratch *scratch = CTR_SCRATCHPAD_PTR(struct RedBeakerRainScratch, 0x30);
 
 	// NOTE(aalhendi): PSX-backfeed blocker: retail saves/restores callee registers in scratchpad 0x00-0x2c and stores 32-bit pointer cursors at 0x34/0x38.
 	// Native C keeps pointer cursors as host-width locals; restore those exact scratchpad pointer stores before PSX backfeed.
@@ -176,9 +186,9 @@ void RedBeaker_RenderRain(struct PushBuffer *pb, struct PrimMem *primMem, struct
 		return;
 	}
 
-	*scratchCenterXY = RED_BEAKER_CENTER_XY;
-	*scratchColorTop = 0;
-	*scratchColorBottom = 0;
+	scratch->centerXY = RED_BEAKER_CENTER_XY;
+	scratch->colorTop = 0;
+	scratch->colorBottom = 0;
 
 	for (int playerIndex = 0; playerIndex < numPlyr; playerIndex++, pb++)
 	{
@@ -251,8 +261,8 @@ void RedBeaker_RenderRain(struct PushBuffer *pb, struct PrimMem *primMem, struct
 			}
 
 			top = (u8)(fade - (fade >> 2));
-			*scratchColorTop = (u32)top | ((u32)top << 8) | ((u32)fade << 16);
-			*scratchColorBottom = (u32)fade | ((u32)fade << 8) | ((u32)fade << 16);
+			scratch->colorTop = (u32)top | ((u32)top << 8) | ((u32)fade << 16);
+			scratch->colorBottom = (u32)fade | ((u32)fade << 8) | ((u32)fade << 16);
 
 			otOffset = ((cloudZ >> 7) + RedBeaker_ReadS8(instBase, 0x50) - 6);
 			if (otOffset < 0)
@@ -265,9 +275,9 @@ void RedBeaker_RenderRain(struct PushBuffer *pb, struct PrimMem *primMem, struct
 
 			ot = (u_long *)(void *)((char *)otBase + otOffset);
 
-			RedBeaker_RenderPass(&prim, ot, *scratchColorTop, 0xe1000a20, rainLocal->frameCount, scrollXY, nextScrollXY, scrollZ, nextScrollZ, velocityXY,
+			RedBeaker_RenderPass(&prim, ot, scratch->colorTop, 0xe1000a20, rainLocal->frameCount, scrollXY, nextScrollXY, scrollZ, nextScrollZ, velocityXY,
 			                     velocityZ, screenBounds);
-			RedBeaker_RenderPass(&prim, ot, *scratchColorBottom, 0xe1000a40, rainLocal->frameCount, scrollXY, nextScrollXY, scrollZ, nextScrollZ, velocityXY,
+			RedBeaker_RenderPass(&prim, ot, scratch->colorBottom, 0xe1000a40, rainLocal->frameCount, scrollXY, nextScrollXY, scrollZ, nextScrollZ, velocityXY,
 			                     velocityZ, screenBounds);
 		}
 	}

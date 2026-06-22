@@ -1,11 +1,21 @@
 
-// Hacky matrix for baked data
+enum
+{
+	MATRIX_ND_BAKED_MATRIX_OFFSET = 0x8,
+};
+
+// NOTE(aalhendi): Retail stores vehicle animation data as 0x20-byte packed
+// entries. VehPhysForce also reads a MATRIX at entry+0x8, intentionally
+// overlapping this entry and the next stride.
 struct MatrixND
 {
 	s16 m[3][3];
-	s16 extraShort; // the heck is this?
+	s16 extraShort;
 	int t[3];
 };
+
+_Static_assert(sizeof(struct MatrixND) == 0x20);
+_Static_assert(MATRIX_ND_BAKED_MATRIX_OFFSET == offsetof(struct MatrixND, m[1][1]));
 
 enum
 {

@@ -60,18 +60,18 @@ static void Ovr227_800a0f04_ApplyBucketSetup(u32 setupAddress, u32 handlerAddres
 
 	if (setup == NULL)
 	{
-		*CTR_SCRATCHPAD_PTR(u32, 0x74) = handlerAddress;
+		DrawLevelOvr1P_Scratch()->currentHandlerAddress = handlerAddress;
 		return;
 	}
 
 	Ovr227_CopyScratchWordsTranslated(setup->copy0, &setup->copies[0]);
 	Ovr227_CopyScratchWordsTranslated(setup->copy1, &setup->copies[1]);
-	*CTR_SCRATCHPAD_PTR(u32, 0x74) = handlerAddress;
+	DrawLevelOvr1P_Scratch()->currentHandlerAddress = handlerAddress;
 }
 
 static void Ovr227_800a0d68_CopyScratchInitTable(void)
 {
-	u32 *scratch = CTR_SCRATCHPAD_PTR(u32, 0xec);
+	u32 *scratch = CTR_SCRATCHPAD_PTR(u32, DRAW_LEVEL_OVR1P_SCRATCH_INIT_TABLE_OFFSET);
 
 	for (int i = 0; i < OVR227_SCRATCH_INIT_WORD_COUNT; i++)
 		scratch[i] = R227.scratchInitTable[i];
@@ -82,11 +82,11 @@ static void Ovr227_SeedSharedHelperThresholdScratch(void)
 	// NOTE(aalhendi): Retail 227 bakes these thresholds as immediates in
 	// copied BSP handler bodies. Native reuses 226 C helpers that still read
 	// the equivalent thresholds from scratch, so seed the shared-helper view.
-	*CTR_SCRATCHPAD_PTR(u32, 0x14) = 0x19c0;
-	*CTR_SCRATCHPAD_PTR(u32, 0x1c) = 0x1000;
-	*CTR_SCRATCHPAD_PTR(u32, 0x20) = 0x800;
-	*CTR_SCRATCHPAD_PTR(u32, 0x24) = 0x600;
-	*CTR_SCRATCHPAD_PTR(u32, 0x28) = 0x300;
+	DrawLevelOvr1P_RenderScratch()->depthScale = 0x19c0;
+	DrawLevelOvr1P_RenderScratch()->textureLodDepthThreshold0 = 0x1000;
+	DrawLevelOvr1P_RenderScratch()->textureLodDepthThreshold1 = 0x800;
+	DrawLevelOvr1P_RenderScratch()->topLevelNearDepthThreshold = 0x600;
+	DrawLevelOvr1P_RenderScratch()->recursiveNearDepthThreshold = 0x300;
 }
 
 static const struct DrawLevelOvr1PBucket *Ovr227_800a0ddc_FindBucketByHandler(u32 handlerAddress)
@@ -143,9 +143,9 @@ static void Ovr227_ClearRenderedOverflowBase(int playerIndex)
 static void Ovr227_800a0f60_SetViewportContext(struct PushBuffer *pb, const int *visFaceList, u8 *clipStart, u8 *clipCursor,
                                                struct QuadBlock **renderedOverflowBase)
 {
-	*CTR_SCRATCHPAD_PTR(u32, 0x64) = (u32)(uintptr_t)renderedOverflowBase;
-	*CTR_SCRATCHPAD_PTR(u32, 0x10) = (u32)(uintptr_t)clipCursor;
-	*CTR_SCRATCHPAD_PTR(u32, 0xc8) = (u32)(uintptr_t)visFaceList;
+	DrawLevelOvr1P_Scratch()->renderedOverflowPtr32 = (u32)(uintptr_t)renderedOverflowBase;
+	DrawLevelOvr1P_Scratch()->clipCursorPtr32 = (u32)(uintptr_t)clipCursor;
+	DrawLevelOvr1P_Scratch()->visFaceListPtr32 = (u32)(uintptr_t)visFaceList;
 	DrawLevelOvr1P_SetClipRecordStart(clipStart);
 	DrawLevelOvr1P_SetRenderedOverflowBase(renderedOverflowBase);
 	Ovr226_800a0d34_SetEntryGteAndCameraScratch(pb);
@@ -184,7 +184,7 @@ static int Ovr227_800a0d9c_DispatchBucketTable(struct DrawLevelOvr1PRenderList *
 	{
 		void *viewport0BucketValue = DrawLevelOvr1P_GetRenderListField(&renderLists[0], renderListOffset);
 
-		*CTR_SCRATCHPAD_PTR(u32, 0x34) = (u32)renderListOffset;
+		DrawLevelOvr1P_Scratch()->currentBucketOffset = (u32)renderListOffset;
 
 		if (!Ovr227_DrawViewportBucket(&renderLists[0], renderListOffset, &pushBuffers[0], mesh, primMem, visFaceList0, &clipCursors[0], 0, 1))
 			return 0;
@@ -220,19 +220,19 @@ static int Ovr227_800a0cbc_Entry(void *LevRenderList, struct PushBuffer *pb, str
 	// NOTE(aalhendi): ASM-audited against NTSC-U 926 227 entry/setup
 	// 0x800a0cbc-0x800a1010. Native keeps explicit host pointers while
 	// preserving the retail scratch ownership and two-viewport ordering.
-	*CTR_SCRATCHPAD_PTR(u32, 0x38) = (u32)(uintptr_t)&hostStackAnchor;
-	*CTR_SCRATCHPAD_PTR(u32, 0x30) = (u32)(uintptr_t)primMem->end;
-	*CTR_SCRATCHPAD_PTR(u32, 0xcc) = (u32)(uintptr_t)VisMem10;
-	*CTR_SCRATCHPAD_PTR(u32, 0xd0) = (u32)(uintptr_t)VisMem14;
+	DrawLevelOvr1P_Scratch()->savedStackPtr32 = (u32)(uintptr_t)&hostStackAnchor;
+	DrawLevelOvr1P_Scratch()->primMemEndPtr32 = (u32)(uintptr_t)primMem->end;
+	DrawLevelOvr1P_Scratch()->visFaceListArgPtr32[0] = (u32)(uintptr_t)VisMem10;
+	DrawLevelOvr1P_Scratch()->visFaceListArgPtr32[1] = (u32)(uintptr_t)VisMem14;
 
 	if ((VisMem10 == NULL) || (VisMem14 == NULL))
 		return 1;
 
-	*CTR_SCRATCHPAD_PTR(u32, 0x88) = (u32)(uintptr_t)waterEnvMap;
-	*CTR_SCRATCHPAD_PTR(u32, 0xdc) = (u32)(uintptr_t)&pb[0];
-	*CTR_SCRATCHPAD_PTR(u32, 0xe0) = (u32)(uintptr_t)&pb[1];
-	*CTR_SCRATCHPAD_PTR(u32, 0x0) = (u32)(uintptr_t)clipCursors[0];
-	*CTR_SCRATCHPAD_PTR(u32, 0x4) = (u32)(uintptr_t)clipCursors[1];
+	DrawLevelOvr1P_Scratch()->waterEnvMapPtr32 = (u32)(uintptr_t)waterEnvMap;
+	DrawLevelOvr1P_Scratch()->pushBufferPtr32[0] = (u32)(uintptr_t)&pb[0];
+	DrawLevelOvr1P_Scratch()->pushBufferPtr32[1] = (u32)(uintptr_t)&pb[1];
+	DrawLevelOvr1P_Scratch()->playerClipCursorPtr32[0] = (u32)(uintptr_t)clipCursors[0];
+	DrawLevelOvr1P_Scratch()->playerClipCursorPtr32[1] = (u32)(uintptr_t)clipCursors[1];
 
 	if (mesh->ptrQuadBlockArray == NULL)
 		return 1;
@@ -246,8 +246,8 @@ static int Ovr227_800a0cbc_Entry(void *LevRenderList, struct PushBuffer *pb, str
 	if (!Ovr227_800a0d9c_DispatchBucketTable(renderLists, pb, mesh, primMem, visFaceList0, visFaceList1, clipCursors))
 		return 0;
 
-	*CTR_SCRATCHPAD_PTR(u32, 0x0) = (u32)(uintptr_t)clipCursors[0];
-	*CTR_SCRATCHPAD_PTR(u32, 0x4) = (u32)(uintptr_t)clipCursors[1];
+	DrawLevelOvr1P_Scratch()->playerClipCursorPtr32[0] = (u32)(uintptr_t)clipCursors[0];
+	DrawLevelOvr1P_Scratch()->playerClipCursorPtr32[1] = (u32)(uintptr_t)clipCursors[1];
 
 	if (!Ovr227_ConsumeClipRecordsForViewport(&pb[0], primMem, clipCursors[0], 0))
 		return 0;
@@ -260,7 +260,7 @@ static int Ovr227_800a0cbc_Entry(void *LevRenderList, struct PushBuffer *pb, str
 
 static void Ovr227_800ab45c_CopyClipRecordJumpTable(void)
 {
-	u32 *clipRecordJumpTable = CTR_SCRATCHPAD_PTR(u32, 0x240);
+	u32 *clipRecordJumpTable = CTR_SCRATCHPAD_PTR(u32, DRAW_LEVEL_OVR1P_GT3_CLIP_RECORD_JUMP_TABLE_OFFSET);
 
 	for (int i = 0; i < OVR227_CLIP_RECORD_JUMP_WORD_COUNT; i++)
 		clipRecordJumpTable[i] = Ovr227_TranslateCopiedLabel(R227.clipRecordJumpTable[i]);

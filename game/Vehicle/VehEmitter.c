@@ -52,11 +52,12 @@ struct Particle *VehEmitter_Exhaust(struct Driver *d, VECTOR *exhaustPos, VECTOR
 	if (p == NULL)
 		return p;
 
-	for (char i = 0; i < 3; i++)
-	{
-		p->axis[i].startVal += (((int *)exhaustPos)[i] - ((int *)exhaustVel)[i]);
-		p->axis[i].velocity = ((int *)exhaustVel)[i];
-	}
+	p->axis[0].startVal += exhaustPos->vx - exhaustVel->vx;
+	p->axis[0].velocity = (s16)exhaustVel->vx;
+	p->axis[1].startVal += exhaustPos->vy - exhaustVel->vy;
+	p->axis[1].velocity = (s16)exhaustVel->vy;
+	p->axis[2].startVal += exhaustPos->vz - exhaustVel->vz;
+	p->axis[2].velocity = (s16)exhaustVel->vz;
 
 	p->driverInst = dInst;
 	p->otIndexOffset = dInst->depthBiasNormal;
@@ -91,30 +92,30 @@ struct Particle *VehEmitter_Exhaust(struct Driver *d, VECTOR *exhaustPos, VECTOR
 	return p;
 }
 
-static const s16 sparkGround_inX[4] = {0x1800, 0, 0, 0};
-static const s16 sparkGround_inZ[4] = {0, 0, -0x1800, 0};
-static const s16 sparkGround_inZ2[4] = {0, 0, -0x200, 0};
+static const SVECTOR sparkGround_inX = {0x1800, 0, 0, 0};
+static const SVECTOR sparkGround_inZ = {0, 0, -0x1800, 0};
+static const SVECTOR sparkGround_inZ2 = {0, 0, -0x200, 0};
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80059344-0x80059558.
 void VehEmitter_Sparks_Ground(struct Driver *d, struct ParticleEmitter *emSet)
 {
 	struct GameTracker *gGT = sdata->gGT;
 
-	int outX[3];
-	int outZ[3];
-	int outZ2[3];
+	Vec3 outX;
+	Vec3 outZ;
+	Vec3 outZ2;
 
-	gte_ldv0(sparkGround_inX);
+	CTR_GteLoadSV0(&sparkGround_inX);
 	gte_rtv0();
-	gte_stlvnl(outX);
+	CTR_GteStoreMAC(outX.v);
 
-	gte_ldv0(sparkGround_inZ);
+	CTR_GteLoadSV0(&sparkGround_inZ);
 	gte_rtv0();
-	gte_stlvnl(outZ);
+	CTR_GteStoreMAC(outZ.v);
 
-	gte_ldv0(sparkGround_inZ2);
+	CTR_GteLoadSV0(&sparkGround_inZ2);
 	gte_rtv0();
-	gte_stlvnl(outZ2);
+	CTR_GteStoreMAC(outZ2.v);
 
 	for (int i = 0; i < 10; i++)
 	{
@@ -133,8 +134,8 @@ void VehEmitter_Sparks_Ground(struct Driver *d, struct ParticleEmitter *emSet)
 
 		for (int j = 0; j < 3; j++)
 		{
-			p->axis[j].velocity += (s16)outZ2[j] + (s16)((rng * outX[j]) >> 12);
-			p->axis[j].startVal += (int)outZ[j] + p->axis[j].velocity;
+			p->axis[j].velocity += (s16)outZ2.v[j] + (s16)((rng * outX.v[j]) >> 12);
+			p->axis[j].startVal += outZ.v[j] + p->axis[j].velocity;
 		}
 
 		p->driverInst = d->instSelf;
@@ -142,7 +143,7 @@ void VehEmitter_Sparks_Ground(struct Driver *d, struct ParticleEmitter *emSet)
 	}
 }
 
-static const SVec4 terrainEmitterPos[4] = {
+static const SVECTOR terrainEmitterPos[4] = {
     {0x1E, 0xA, -0x14, 0},
     {-0x1E, 0xA, -0x14, 0},
     {0x1E, 0xA, 0x28, 0},
@@ -154,8 +155,8 @@ void VehEmitter_Terrain_Ground(struct Driver *d, struct ParticleEmitter *emSet)
 {
 	int speed;
 	char numTires;
-	int pos[3];
-	int vel[3];
+	Vec3 pos;
+	Vec3 vel;
 
 	int flags = d->actionsFlagSet;
 
@@ -190,25 +191,25 @@ void VehEmitter_Terrain_Ground(struct Driver *d, struct ParticleEmitter *emSet)
 	// spawn particles on wheels
 	for (; numTires != 0; numTires--)
 	{
-		gte_ldv0((SVECTOR *)&terrainEmitterPos[numTires - 1]);
+		CTR_GteLoadSV0(&terrainEmitterPos[numTires - 1]);
 		gte_rtv0();
-		gte_stlvnl(&pos[0]);
+		CTR_GteStoreMAC(pos.v);
 
 		struct Particle *p = Particle_Init(0, ig, emSet);
 
 		if (p == NULL)
 			continue;
 
-		s16 velInput[3] = {p->axis[0].velocity, p->axis[1].velocity, p->axis[2].velocity};
+		SVECTOR velInput = {p->axis[0].velocity, p->axis[1].velocity, p->axis[2].velocity, 0};
 
-		gte_ldv0(&velInput[0]);
+		CTR_GteLoadSV0(&velInput);
 		gte_rtv0();
-		gte_stlvnl(&vel[0]);
+		CTR_GteStoreMAC(vel.v);
 
 		for (int i = 0; i < 3; i++)
 		{
-			p->axis[i].startVal += pos[i] * 0x100;
-			p->axis[i].velocity = (s16)vel[i];
+			p->axis[i].startVal += pos.v[i] * 0x100;
+			p->axis[i].velocity = (s16)vel.v[i];
 		}
 
 		p->driverInst = dInst;
@@ -241,38 +242,38 @@ void VehEmitter_Sparks_Wall(struct Driver *d, struct ParticleEmitter *emSet)
 	if (speedAbs <= 0x200)
 		return;
 
-	s16 *matrix = CTR_SCRATCHPAD_ADDR_PTR(s16, CTR_SCRATCHPAD_ADDR);
-	int *TireLeftOutS32 = (int *)&matrix[0];
-	int *TireRightOutS32 = (int *)&matrix[6];
-	s16 *TireLeftOutS16 = &matrix[0];
-	s16 *TireRightOutS16 = &matrix[3];
-	s16 *distIn4 = &matrix[6];
-	int *distOut4 = (int *)&matrix[6];
+	union VehEmitterWallScratch *scratch = CTR_SCRATCHPAD_PTR(union VehEmitterWallScratch, 0);
+	s32 *tireLeftOutWord = &scratch->word[0];
+	s32 *tireRightOutWord = &scratch->word[3];
+	s16 *tireLeftOutHalf = &scratch->half[0];
+	s16 *tireRightOutHalf = &scratch->half[3];
+	s16 *distIn4 = &scratch->half[6];
+	s32 *distOut4 = &scratch->word[3];
 
 	// s16[3] array
-	*(int *)&TireLeftOutS32[0] = 0xa00de00;
-	*(int *)&TireRightOutS32[0] = 0xa002200;
+	tireLeftOutWord[0] = 0xa00de00;
+	tireRightOutWord[0] = 0xa002200;
 
 	int valZ = -0x1400;
 	if (d->speedApprox > 0)
 		valZ = 0x2800;
 
 	// s16[3] array
-	*(int *)&TireLeftOutS32[1] = valZ;
-	*(int *)&TireRightOutS32[1] = valZ;
+	tireLeftOutWord[1] = valZ;
+	tireRightOutWord[1] = valZ;
 
-	gte_ldv0(&TireLeftOutS32[0]);
+	CTR_GteLoadS16TripletV0(tireLeftOutHalf);
 	gte_rtv0();
-	gte_stlvnl(&TireLeftOutS32[0]);
+	CTR_GteStoreMAC(&tireLeftOutWord[0]);
 
-	gte_ldv0(&TireRightOutS32[0]);
+	CTR_GteLoadS16TripletV0(tireRightOutHalf);
 	gte_rtv0();
-	gte_stlvnl(&TireRightOutS32[0]);
+	CTR_GteStoreMAC(&tireRightOutWord[0]);
 
 	// this compresses TireLeft and TireRight from int to s16,
 	// which then doubles in usage as a matrix (3x2)
 	for (int i = 0; i < 6; i++)
-		TireLeftOutS16[i] = (u16)TireLeftOutS32[i];
+		tireLeftOutHalf[i] = (u16)scratch->word[i];
 
 #ifdef CTR_NATIVE
 
@@ -298,19 +299,19 @@ void VehEmitter_Sparks_Wall(struct Driver *d, struct ParticleEmitter *emSet)
 
 #endif
 
-	gte_SetLightMatrix3x2(&matrix[0]);
+	gte_SetLightMatrix3x2(&scratch->half[0]);
 
 	// dist4 is actual distance
 	distIn4[0] = (d->posWallColl.x * 0x100) - d->posCurr.x;
 	distIn4[1] = (d->posWallColl.y * 0x100) - d->posCurr.y;
 	distIn4[2] = (d->posWallColl.z * 0x100) - d->posCurr.z;
 
-	gte_ldv0(&distIn4[0]);
+	CTR_GteLoadS16TripletV0(&distIn4[0]);
 	gte_llv0();
-	gte_stlvnl(&distOut4[0]);
+	CTR_GteStoreMAC(&distOut4[0]);
 	if (distOut4[0] < distOut4[1])
 	{
-		TireLeftOutS16 = TireRightOutS16;
+		tireLeftOutHalf = tireRightOutHalf;
 	}
 
 	// Create instance in particle pool
@@ -321,14 +322,14 @@ void VehEmitter_Sparks_Wall(struct Driver *d, struct ParticleEmitter *emSet)
 
 	for (int i = 0; i < 3; i++)
 	{
-		p->axis[i].startVal += TireLeftOutS16[i];
+		p->axis[i].startVal += tireLeftOutHalf[i];
 		distIn4[i] = p->axis[i].velocity;
 	}
 
 	// dist4 now determines velocity
-	gte_ldv0(&distIn4[0]);
+	CTR_GteLoadS16TripletV0(&distIn4[0]);
 	gte_rtv0();
-	gte_stlvnl(&distOut4[0]);
+	CTR_GteStoreMAC(&distOut4[0]);
 
 	p->axis[0].velocity = (s16)distOut4[0];
 	p->axis[1].velocity = (s16)distOut4[1];
@@ -336,21 +337,6 @@ void VehEmitter_Sparks_Wall(struct Driver *d, struct ParticleEmitter *emSet)
 
 	p->driverInst = d->instSelf;
 }
-
-struct VehEmitterSkidmark
-{
-	s16 x0;
-	s16 y0;
-	s16 z0;
-	u8 color;
-	u8 flags;
-	s16 x1;
-	s16 y1;
-	s16 z1;
-	s16 pad;
-};
-
-_Static_assert(sizeof(struct VehEmitterSkidmark) == 0x10);
 
 static void VehEmitter_SetRotTransMatrix(MATRIX *m)
 {
@@ -360,35 +346,35 @@ static void VehEmitter_SetRotTransMatrix(MATRIX *m)
 
 static void VehEmitter_RotVec(const SVECTOR *in, VECTOR *out)
 {
-	gte_ldv0(in);
+	CTR_GteLoadSV0(in);
 	gte_rtv0();
-	gte_stlvnl(out);
+	CTR_GteStoreMAC(&out->vx);
 }
 
 static void VehEmitter_RotTransVec(const SVECTOR *in, VECTOR *out)
 {
-	gte_ldv0(in);
+	CTR_GteLoadSV0(in);
 	gte_rt();
-	gte_stlvnl(out);
+	CTR_GteStoreMAC(&out->vx);
 }
 
-static struct VehEmitterSkidmark *VehEmitter_GetSkidmark(struct Driver *d, u8 frameIndex, int tireIndex)
+static union VehEmitterSkidmark *VehEmitter_GetSkidmark(struct Driver *d, u8 frameIndex, int tireIndex)
 {
-	return (struct VehEmitterSkidmark *)(void *)&d->skidmarks[((frameIndex & 7) * 0x40) + (tireIndex * 0x10)];
+	return &d->skidmarks[frameIndex & (DRIVER_SKIDMARK_FRAME_COUNT - 1)][tireIndex];
 }
 
 static void VehEmitter_WriteSkidmark(struct Driver *d, u8 frameIndex, int tireIndex, int x, int y, int z, int widthX, int widthZ, u8 color, u8 flags)
 {
-	struct VehEmitterSkidmark *mark = VehEmitter_GetSkidmark(d, frameIndex, tireIndex);
+	union VehEmitterSkidmark *mark = VehEmitter_GetSkidmark(d, frameIndex, tireIndex);
 
-	mark->x0 = (s16)(x + widthX);
-	mark->y0 = (s16)y;
-	mark->z0 = (s16)(z + widthZ);
+	mark->edge0.x = (s16)(x + widthX);
+	mark->edge0.y = (s16)y;
+	mark->edge0.z = (s16)(z + widthZ);
 	mark->color = color;
 	mark->flags = flags;
-	mark->x1 = (s16)(x - widthX);
-	mark->y1 = (s16)y;
-	mark->z1 = (s16)(z - widthZ);
+	mark->edge1.x = (s16)(x - widthX);
+	mark->edge1.y = (s16)y;
+	mark->edge1.z = (s16)(z - widthZ);
 }
 
 static void VehEmitter_WriteSkidmarkPair(struct Driver *d, int tireIndex, int x, int y, int z, int lateralX, int lateralZ, int widthX, int widthZ, u8 color,

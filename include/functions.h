@@ -86,7 +86,8 @@ void DecalMP_01(struct GameTracker *gGT);
 void DecalMP_02(struct GameTracker *gGT);
 void DecalMP_03(struct GameTracker *gGT);
 
-u32 *DISPLAY_Blur_SubFunc(u32 *prim, s16 *tile);
+struct DisplayBlurTile;
+u32 *DISPLAY_Blur_SubFunc(u32 *prim, struct DisplayBlurTile *tile);
 void DISPLAY_Blur_Main(struct PushBuffer *pb, int strength);
 void DISPLAY_Swap(void);
 
@@ -1152,8 +1153,8 @@ int VehCalc_SteerAccel(int steeringFrameCount, int stage2FirstFrame, int stage2F
 void VehFrameProc_Driving(struct Thread *t, struct Driver *d);
 void VehFrameProc_Spinning(struct Thread *t, struct Driver *d);
 void VehFrameProc_LastSpin(struct Thread *t, struct Driver *d);
-void VehGroundSkids_Subset1(u32 *currXY, u32 *prevXY, int depth, u8 *scratch);
-void VehGroundSkids_Subset2(SVECTOR *scratch, SVECTOR *v1, SVECTOR *v2, SVECTOR *v3);
+void VehGroundSkids_Subset1(u32 *currXY, u32 *prevXY, int depth, struct VehGroundSkidsScratch *scratch);
+void VehGroundSkids_Subset2(struct VehGroundSkidsScratch *scratch, const SVECTOR *v1, const SVECTOR *v2, const SVECTOR *v3);
 void GAMEPAD_ShockForce1(struct Driver *d, int frame, int val);
 u32 *RaceFlag_GetOT(void);
 void RaceFlag_DrawLoadingString(void);
@@ -1174,9 +1175,9 @@ struct RectMenu *MainFreeze_GetMenuPtr(void);
 void LOAD_TalkingMask(int packID, int maskID);
 int LOAD_GetAdvPackIndex(void);
 void CAM_ProcessTransition(SVec3 *currPos, SVec3 *currRot, SVec3 *startPos, SVec3 *startRot, SVec3 *endPos, SVec3 *endRot, s32 frame);
-void CAM_LookAtPosition(u8 *scratchpad, Vec3 *positions, SVec3 *desiredPos, SVec3 *desiredRot);
-void CAM_FollowDriver_Spin360(struct CameraDC *cDC, u8 *scratchpad, struct Driver *d, SVec3 *desiredPos, SVec3 *desiredRot);
-void CAM_FollowDriver_AngleAxis(struct CameraDC *cDC, struct Driver *d, u8 *workBuffer, SVec3 *pushBufferPos, SVec3 *pushBufferRot);
+void CAM_LookAtPosition(struct CameraScratchWork *scratchWork, Vec3 *positions, SVec3 *desiredPos, SVec3 *desiredRot);
+void CAM_FollowDriver_Spin360(struct CameraDC *cDC, struct CameraScratchWork *scratchWork, struct Driver *d, SVec3 *desiredPos, SVec3 *desiredRot);
+void CAM_FollowDriver_AngleAxis(struct CameraDC *cDC, struct Driver *d, struct CameraScratchWork *scratchWork, SVec3 *pushBufferPos, SVec3 *pushBufferRot);
 int MainDB_GetClipSize(u32 levelID, int numPlyrCurrGame);
 void MainFreeze_ConfigDrawArrows(s16 offsetX, s16 offsetY, char *str);
 void CAM_StartOfRace(struct CameraDC *cDC);

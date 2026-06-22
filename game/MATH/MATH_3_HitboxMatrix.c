@@ -27,7 +27,7 @@ MATRIX *MATH_HitboxMatrix(MATRIX *output, MATRIX *input)
 	out[2] = r22r23;
 	out[3] = r31r32;
 	*(s16 *)&out[4] = r33;
-	gte_stlvnl((VECTOR *)&out[5]);
+	CTR_GteStoreMAC(output->t);
 
 	return output;
 }

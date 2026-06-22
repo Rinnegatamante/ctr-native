@@ -454,9 +454,9 @@ void RB_Burst_DrawAll(struct GameTracker *gGT)
 			pos.vy = burstInst->matrix.t[1];
 			pos.vz = burstInst->matrix.t[2];
 
-			gte_ldv0(&pos);
+			CTR_GteLoadSV0(&pos);
 			gte_mvmva(0, 0, 0, 3, 0);
-			gte_stlvnl(&transformed);
+			CTR_GteStoreMAC(&transformed.vx);
 
 			absX = transformed.vx;
 			if (absX < 0)

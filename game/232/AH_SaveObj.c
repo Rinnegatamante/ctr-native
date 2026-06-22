@@ -90,15 +90,17 @@ void AH_SaveObj_ThTick(struct Thread *t)
 			// if scanline goes past the top
 			if ((int)(uVar2 << 0x10) < 0)
 			{
+				struct SpawnPosRot *saveSpawn = gGT->level1->ptrSpawnType2_PosRot->posRot;
+
 				// desired transition position (x,y,z)
-				desiredPos.x = gGT->level1->ptrSpawnType2_PosRot->posCoords[0] + (s16)((int)saveInst->matrix.m[0][0] * 0x19 >> 7);
-				desiredPos.y = gGT->level1->ptrSpawnType2_PosRot->posCoords[1] + (s16)((int)saveInst->matrix.m[1][0] * 0x19 >> 7);
-				desiredPos.z = gGT->level1->ptrSpawnType2_PosRot->posCoords[2] + (s16)((int)saveInst->matrix.m[2][0] * 0x19 >> 7);
+				desiredPos.x = saveSpawn->pos.x + (s16)((int)saveInst->matrix.m[0][0] * 0x19 >> 7);
+				desiredPos.y = saveSpawn->pos.y + (s16)((int)saveInst->matrix.m[1][0] * 0x19 >> 7);
+				desiredPos.z = saveSpawn->pos.z + (s16)((int)saveInst->matrix.m[2][0] * 0x19 >> 7);
 
 				// desired transition rotation (x,y,z)
-				desiredRot.x = gGT->level1->ptrSpawnType2_PosRot->posCoords[3] + D232.saveObjCameraOffset[0];
-				desiredRot.y = gGT->level1->ptrSpawnType2_PosRot->posCoords[4] + D232.saveObjCameraOffset[1];
-				desiredRot.z = gGT->level1->ptrSpawnType2_PosRot->posCoords[5] + D232.saveObjCameraOffset[2];
+				desiredRot.x = saveSpawn->rot.x + D232.saveObjCameraOffset[0];
+				desiredRot.y = saveSpawn->rot.y + D232.saveObjCameraOffset[1];
+				desiredRot.z = saveSpawn->rot.z + D232.saveObjCameraOffset[2];
 
 				// VehBirth_NullThread is an empty function that does nothing
 				driver->instSelf->thread->funcThTick = VehBirth_NullThread;
@@ -283,6 +285,7 @@ void AH_SaveObj_LInB(struct Instance *savInst)
 			}
 			else
 			{
+				struct SpawnPosRot *saveSpawn = spawn->posRot;
 				inst = INSTANCE_Birth3D(gGT->modelPtr[STATIC_SCAN], R232.s_scan, 0);
 				save->inst = inst;
 
@@ -291,15 +294,13 @@ void AH_SaveObj_LInB(struct Instance *savInst)
 				// keep unpatched until a valid hub/save repro proves failure.
 				memcpy(&inst->matrix, &savInst->matrix, sizeof(inst->matrix));
 
-				rot.x = spawn->posCoords[3];
-				rot.y = spawn->posCoords[4];
-				rot.z = spawn->posCoords[5];
+				rot = saveSpawn->rot;
 
 				ConvertRotToMatrix(&inst->matrix, &rot);
 
-				inst->matrix.t[0] = spawn->posCoords[0];
-				inst->matrix.t[1] = spawn->posCoords[1];
-				inst->matrix.t[2] = spawn->posCoords[2];
+				inst->matrix.t[0] = saveSpawn->pos.x;
+				inst->matrix.t[1] = saveSpawn->pos.y;
+				inst->matrix.t[2] = saveSpawn->pos.z;
 
 				inst->depthBiasNormal = 0xf8;
 			}

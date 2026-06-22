@@ -38,6 +38,31 @@ typedef union SVec4
 	s16 v[4];
 } SVec4;
 
+typedef union SVec3Slot
+{
+	struct
+	{
+		SVec3 vec;
+		s16 pad;
+	};
+	struct
+	{
+		s16 x;
+		s16 y;
+		s16 z;
+		s16 w;
+	};
+	s16 v[4];
+} SVec3Slot;
+
+_Static_assert(sizeof(SVec3Slot) == 0x8);
+_Static_assert(offsetof(SVec3Slot, vec) == 0x0);
+_Static_assert(offsetof(SVec3Slot, pad) == 0x6);
+_Static_assert(offsetof(SVec3Slot, x) == 0x0);
+_Static_assert(offsetof(SVec3Slot, y) == 0x2);
+_Static_assert(offsetof(SVec3Slot, z) == 0x4);
+_Static_assert(offsetof(SVec3Slot, w) == 0x6);
+
 typedef union Vec2
 {
 	struct

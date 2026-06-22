@@ -4,23 +4,21 @@
 
 static void RB_Baron_SetPathFrame(struct Instance *inst, struct SpawnType2 *spawn, int pointIndex, int offsetX, int offsetZ, int flipRotX)
 {
-	s16 *coord;
+	const struct SpawnPosRot *frame;
 	SVec3 rot;
 
-	coord = &spawn->posCoords[pointIndex * 6];
+	frame = &spawn->posRot[pointIndex];
 
-	rot.x = coord[3];
-	rot.y = coord[4];
-	rot.z = coord[5];
+	rot = frame->rot;
 
 	if (flipRotX)
 		rot.x = -rot.x;
 
 	ConvertRotToMatrix(&inst->matrix, &rot);
 
-	inst->matrix.t[0] = coord[0] + offsetX;
-	inst->matrix.t[1] = coord[1];
-	inst->matrix.t[2] = coord[2] + offsetZ;
+	inst->matrix.t[0] = frame->pos.x + offsetX;
+	inst->matrix.t[1] = frame->pos.y;
+	inst->matrix.t[2] = frame->pos.z + offsetZ;
 }
 
 void RB_Baron_ThTick(struct Thread *t)

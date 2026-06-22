@@ -626,28 +626,16 @@ int MainInit_StringToLevID(char *str)
 	return 0;
 }
 
-// NOTE(aalhendi): Native keeps these commands static because PsyCross consumes the
-// DrawOTag packet after this function returns; retail uses the stack-local path.
-#ifdef CTR_NATIVE
-struct
-{
-	int a;
-	s16 b1, b2, c, d, e, f;
-} commands;
-#endif
-
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8003c248-0x8003c310 for the retail path.
 void MainInit_VRAMClear()
 {
 	DRAWENV drawEnv;
 
-#ifndef CTR_NATIVE
 	struct
 	{
 		int a;
 		s16 b1, b2, c, d, e, f;
 	} commands;
-#endif
 
 	SetDefDrawEnv(&drawEnv, 0, 0, 0x400, 0x200);
 	drawEnv.dfe = '\x01';

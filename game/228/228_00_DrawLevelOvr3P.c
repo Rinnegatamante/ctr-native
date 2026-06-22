@@ -135,12 +135,12 @@ static void Ovr228_800a0fb8_ApplyBucketSetup(u32 setupAddress, u32 handlerAddres
 		}
 	}
 
-	*CTR_SCRATCHPAD_PTR(u32, 0x74) = handlerAddress;
+	DrawLevelOvr1P_Scratch()->currentHandlerAddress = handlerAddress;
 }
 
 static void Ovr228_800a0d68_CopyScratchInitTable(void)
 {
-	u32 *scratch = CTR_SCRATCHPAD_PTR(u32, 0xec);
+	u32 *scratch = CTR_SCRATCHPAD_PTR(u32, DRAW_LEVEL_OVR1P_SCRATCH_INIT_TABLE_OFFSET);
 
 	for (int i = 0; i < OVR228_SCRATCH_INIT_WORD_COUNT; i++)
 		scratch[i] = R228.scratchInitTable[i];
@@ -148,7 +148,7 @@ static void Ovr228_800a0d68_CopyScratchInitTable(void)
 
 static void Ovr228_800a8e08_CopyClipRecordJumpTable(void)
 {
-	u32 *clipRecordJumpTable = CTR_SCRATCHPAD_PTR(u32, 0x240);
+	u32 *clipRecordJumpTable = CTR_SCRATCHPAD_PTR(u32, DRAW_LEVEL_OVR1P_GT3_CLIP_RECORD_JUMP_TABLE_OFFSET);
 
 	for (int i = 0; i < OVR228_CLIP_RECORD_JUMP_WORD_COUNT; i++)
 		clipRecordJumpTable[i] = Ovr228_800a8e08_TranslateClipRecordLabel(R228.clipRecordJumpTable[i]);
@@ -157,9 +157,9 @@ static void Ovr228_800a8e08_CopyClipRecordJumpTable(void)
 static void Ovr228_800a1014_SetViewportContext(struct PushBuffer *pb, const int *visFaceList, u8 *clipStart, u8 *clipCursor,
                                                struct QuadBlock **renderedOverflowBase)
 {
-	*CTR_SCRATCHPAD_PTR(u32, 0x64) = (u32)(uintptr_t)renderedOverflowBase;
-	*CTR_SCRATCHPAD_PTR(u32, 0x10) = (u32)(uintptr_t)clipCursor;
-	*CTR_SCRATCHPAD_PTR(u32, 0xc8) = (u32)(uintptr_t)visFaceList;
+	DrawLevelOvr1P_Scratch()->renderedOverflowPtr32 = (u32)(uintptr_t)renderedOverflowBase;
+	DrawLevelOvr1P_Scratch()->clipCursorPtr32 = (u32)(uintptr_t)clipCursor;
+	DrawLevelOvr1P_Scratch()->visFaceListPtr32 = (u32)(uintptr_t)visFaceList;
 	DrawLevelOvr1P_SetClipRecordStart(clipStart);
 	DrawLevelOvr1P_SetRenderedOverflowBase(renderedOverflowBase);
 	Ovr226_800a0d34_SetEntryGteAndCameraScratch(pb);
@@ -212,7 +212,7 @@ static int Ovr228_800a0d9c_DispatchBucketTable(struct DrawLevelOvr1PRenderList *
 		int setupApplied = 0;
 		int didDispatch = 0;
 
-		*CTR_SCRATCHPAD_PTR(u32, 0x34) = (u32)renderListOffset;
+		DrawLevelOvr1P_Scratch()->currentBucketOffset = (u32)renderListOffset;
 
 		if (!Ovr228_DrawViewportBucket(&renderLists[0], renderListOffset, &pushBuffers[0], mesh, primMem, visFaceList0, &clipCursors[0], 0, 1, dispatch,
 		                               &didDispatch))
@@ -362,21 +362,21 @@ static int Ovr228_800a0cbc_EntryWithCallbacks(void *LevRenderList, struct PushBu
 	// NOTE(aalhendi): ASM-audited against NTSC-U 926 228 entry/setup
 	// 0x800a0cbc-0x800a10c4. Runtime proof is tracked separately from
 	// source ownership and public route promotion.
-	*CTR_SCRATCHPAD_PTR(u32, 0x38) = (u32)(uintptr_t)&hostStackAnchor;
-	*CTR_SCRATCHPAD_PTR(u32, 0xcc) = (u32)(uintptr_t)VisMem10;
+	DrawLevelOvr1P_Scratch()->savedStackPtr32 = (u32)(uintptr_t)&hostStackAnchor;
+	DrawLevelOvr1P_Scratch()->visFaceListArgPtr32[0] = (u32)(uintptr_t)VisMem10;
 	if (VisMem10 == NULL)
 		return 1;
 
-	*CTR_SCRATCHPAD_PTR(u32, 0xd0) = (u32)(uintptr_t)VisMem14;
+	DrawLevelOvr1P_Scratch()->visFaceListArgPtr32[1] = (u32)(uintptr_t)VisMem14;
 	if (VisMem14 == NULL)
 		return 1;
 
-	*CTR_SCRATCHPAD_PTR(u32, 0xd4) = (u32)(uintptr_t)VisMem18;
+	DrawLevelOvr1P_Scratch()->visFaceListArgPtr32[2] = (u32)(uintptr_t)VisMem18;
 	if (VisMem18 == NULL)
 		return 1;
 
-	*CTR_SCRATCHPAD_PTR(u32, 0x88) = (u32)(uintptr_t)waterEnvMap;
-	*CTR_SCRATCHPAD_PTR(u32, 0x30) = (u32)(uintptr_t)primMem->end;
+	DrawLevelOvr1P_Scratch()->waterEnvMapPtr32 = (u32)(uintptr_t)waterEnvMap;
+	DrawLevelOvr1P_Scratch()->primMemEndPtr32 = (u32)(uintptr_t)primMem->end;
 
 	if (mesh->ptrQuadBlockArray == NULL)
 		return 1;
@@ -385,25 +385,25 @@ static int Ovr228_800a0cbc_EntryWithCallbacks(void *LevRenderList, struct PushBu
 	clipCursors[1] = data.PtrClipBuffer[1];
 	clipCursors[2] = data.PtrClipBuffer[2];
 
-	*CTR_SCRATCHPAD_PTR(u32, 0xdc) = (u32)(uintptr_t)&pb[0];
-	*CTR_SCRATCHPAD_PTR(u32, 0xe0) = (u32)(uintptr_t)&pb[1];
-	*CTR_SCRATCHPAD_PTR(u32, 0xe4) = (u32)(uintptr_t)&pb[2];
-	*CTR_SCRATCHPAD_PTR(u32, 0x0) = (u32)(uintptr_t)clipCursors[0];
-	*CTR_SCRATCHPAD_PTR(u32, 0x4) = (u32)(uintptr_t)clipCursors[1];
-	*CTR_SCRATCHPAD_PTR(u32, 0x8) = (u32)(uintptr_t)clipCursors[2];
+	DrawLevelOvr1P_Scratch()->pushBufferPtr32[0] = (u32)(uintptr_t)&pb[0];
+	DrawLevelOvr1P_Scratch()->pushBufferPtr32[1] = (u32)(uintptr_t)&pb[1];
+	DrawLevelOvr1P_Scratch()->pushBufferPtr32[2] = (u32)(uintptr_t)&pb[2];
+	DrawLevelOvr1P_Scratch()->playerClipCursorPtr32[0] = (u32)(uintptr_t)clipCursors[0];
+	DrawLevelOvr1P_Scratch()->playerClipCursorPtr32[1] = (u32)(uintptr_t)clipCursors[1];
+	DrawLevelOvr1P_Scratch()->playerClipCursorPtr32[2] = (u32)(uintptr_t)clipCursors[2];
 
 	DrawLevelOvr1P_SetPrimReserveBias(0);
 	DrawLevelOvr1P_SetListHandlersSeedRenderedCursor(0);
 	Ovr226_800a0dc4_ClearProjectedScratch();
 	Ovr228_800a0d68_CopyScratchInitTable();
-	*CTR_SCRATCHPAD_PTR(u32, 0x60) = (u32)(uintptr_t)LevRenderList;
+	DrawLevelOvr1P_Scratch()->renderListPtr32 = (u32)(uintptr_t)LevRenderList;
 
 	if (!Ovr228_800a0d9c_DispatchBucketTable(renderLists, pb, mesh, primMem, visFaceList0, visFaceList1, visFaceList2, clipCursors, dispatch))
 		return 0;
 
-	*CTR_SCRATCHPAD_PTR(u32, 0x0) = (u32)(uintptr_t)clipCursors[0];
-	*CTR_SCRATCHPAD_PTR(u32, 0x4) = (u32)(uintptr_t)clipCursors[1];
-	*CTR_SCRATCHPAD_PTR(u32, 0x8) = (u32)(uintptr_t)clipCursors[2];
+	DrawLevelOvr1P_Scratch()->playerClipCursorPtr32[0] = (u32)(uintptr_t)clipCursors[0];
+	DrawLevelOvr1P_Scratch()->playerClipCursorPtr32[1] = (u32)(uintptr_t)clipCursors[1];
+	DrawLevelOvr1P_Scratch()->playerClipCursorPtr32[2] = (u32)(uintptr_t)clipCursors[2];
 
 	Ovr228_800a8e08_CopyClipRecordJumpTable();
 	if (!Ovr228_ConsumeClipRecordsForViewport(&pb[0], primMem, clipCursors[0], 0, consume))

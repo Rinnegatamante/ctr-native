@@ -89,13 +89,13 @@ void AH_MaskHint_SetAnim(int scale)
 	gte_SetRotMatrix(m);
 	gte_SetTransMatrix(m);
 
-	gte_ldv0(&D232.maskOffsetPos);
+	CTR_GteLoadSVec3V0(&D232.maskOffsetPos);
 	gte_rt();
 
 	int posEndINT[3];
 	SVec3 posEnd;
 
-	gte_stlvnl(&posEndINT[0]);
+	CTR_GteStoreMAC(&posEndINT[0]);
 
 	posEnd.x = posEndINT[0];
 	posEnd.y = posEndINT[1];

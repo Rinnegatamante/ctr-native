@@ -1,10 +1,5 @@
 #include <common.h>
 
-static inline u32 FLARE_Ptr24(const void *ptr)
-{
-	return CtrGpu_PrimToOTLink24(ptr);
-}
-
 static inline u32 FLARE_PackXY(s16 x, s16 y)
 {
 	return (u16)x | ((u32)(u16)y << 16);
@@ -168,11 +163,11 @@ void FLARE_ThTick(struct Thread *th)
 		depth = 0x3ff;
 
 	u_long *ot = &pb->ptrOT[depth];
-	p0->tag = FLARE_Ptr24(p1) | 0x0c000000;
-	p1->tag = FLARE_Ptr24(p2) | 0x0c000000;
-	p2->tag = FLARE_Ptr24(p3) | 0x0c000000;
-	p3->tag = *ot | 0x0c000000;
-	*ot = FLARE_Ptr24(p0);
+	p0->tag = CtrGpu_PackOTTag(CtrGpu_PrimToOTLink24(p1), 0x0c000000);
+	p1->tag = CtrGpu_PackOTTag(CtrGpu_PrimToOTLink24(p2), 0x0c000000);
+	p2->tag = CtrGpu_PackOTTag(CtrGpu_PrimToOTLink24(p3), 0x0c000000);
+	p3->tag = CtrGpu_PackOTTag(*ot, 0x0c000000);
+	*ot = CtrGpu_PrimToOTLink24(p0);
 
 	gGT->backBuffer->primMem.cursor = prim + 4;
 }

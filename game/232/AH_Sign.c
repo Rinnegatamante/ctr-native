@@ -1,12 +1,26 @@
 #include <common.h>
 
+struct AHSignScratch
+{
+	SVec3Slot probeTop;
+	SVec3Slot probeBottom;
+	SVec3Slot normal;
+	struct ScratchpadStruct sps;
+};
+
+_Static_assert(offsetof(struct AHSignScratch, probeTop) == 0x00);
+_Static_assert(offsetof(struct AHSignScratch, probeBottom) == 0x08);
+_Static_assert(offsetof(struct AHSignScratch, normal) == 0x10);
+_Static_assert(offsetof(struct AHSignScratch, sps) == 0x18);
+
 // NOTE(aalhendi): ASM-verified NTSC-U 926 overlay 232 0x800b4c80-0x800b4ddc.
 void AH_Sign_LInB(struct Instance *inst)
 {
-	SVec3 *probeTop = CTR_SCRATCHPAD_PTR(SVec3, 0x108);
-	SVec3 *probeBottom = CTR_SCRATCHPAD_PTR(SVec3, 0x110);
-	SVec3 *normal = CTR_SCRATCHPAD_PTR(SVec3, 0x118);
-	struct ScratchpadStruct *sps = CTR_SCRATCHPAD_PTR(struct ScratchpadStruct, 0x120);
+	struct AHSignScratch *scratch = CTR_SCRATCHPAD_PTR(struct AHSignScratch, 0x108);
+	SVec3Slot *probeTop = &scratch->probeTop;
+	SVec3Slot *probeBottom = &scratch->probeBottom;
+	SVec3Slot *normal = &scratch->normal;
+	struct ScratchpadStruct *sps = &scratch->sps;
 
 	normal->x = inst->matrix.m[0][2] >> 6;
 	normal->y = inst->matrix.m[1][2] >> 6;
@@ -26,7 +40,7 @@ void AH_Sign_LInB(struct Instance *inst)
 	probeTop->z = inst->matrix.t[2] + normal->z * 2;
 	probeBottom->z = probeTop->z - normal->z * 4;
 
-	COLL_SearchBSP_CallbackQUADBLK(probeTop, probeBottom, sps, 0);
+	COLL_SearchBSP_CallbackQUADBLK(&probeTop->vec, &probeBottom->vec, sps, 0);
 
 	if (sps->boolDidTouchQuadblock != 0)
 	{

@@ -157,12 +157,20 @@ void PushBuffer_SetPsyqGeom(struct PushBuffer *pb)
 }
 
 
-// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80042974-0x80042a8c.
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80042974-0x80042a8c for the retail path.
 void PushBuffer_SetDrawEnv_DecalMP(void *ot, struct DB *backBuffer, RECT *viewport, s16 offsetX, s16 offsetY, u8 dtd, u8 dfe, u8 isbg, u8 tpageUpper,
                                    u8 tpageLower)
 {
 	void *p;
 	DRAWENV newDrawEnv;
+
+#ifdef CTR_NATIVE
+	// NOTE(aalhendi): Retail receives PS1 RAM OT slots here. Native translates
+	// 24-bit OT tokens back to host pointers, so stale DecalMP range metadata
+	// must not splice a DR_ENV packet into unrelated current-frame memory.
+	if (!CtrGpu_IsCurrentOTRange(backBuffer, ot, ot))
+		return;
+#endif
 
 	// Copy DrawEnv from gGT->backBuffer
 	int *dst = (int *)&newDrawEnv;
@@ -271,12 +279,6 @@ void PushBuffer_SetDrawEnv_Normal(void *ot, struct PushBuffer *pb, struct DB *ba
 	}
 }
 
-
-#ifdef CTR_NATIVE
-// NOTE(aalhendi): Native uses host GTE/scratch shims; PS1 path is retail.
-static char buf[0x400];
-#endif
-
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80042c04-0x80042e50.
 void PushBuffer_SetMatrixVP(struct PushBuffer *pb)
 {
@@ -292,31 +294,12 @@ void PushBuffer_SetMatrixVP(struct PushBuffer *pb)
 	u32 view8;
 	u32 viewC;
 
-#ifdef CTR_NATIVE
-	char *scratchpad;
-	scratchpad = &buf[0];
-#endif
-
 	// originally used 556 bytes
+	struct PushBufferSetMatrixVPScratch *scratch = CTR_SCRATCHPAD_PTR(struct PushBufferSetMatrixVPScratch, 0);
+	MATRIX *matrixDST = &scratch->cameraMatrix;
 
-#ifdef CTR_NATIVE
-	MATRIX *matrixDST = (MATRIX *)&scratchpad[0x3d4];
-#else
-	// ordinary PlayStation 1, use scratchpad
-	MATRIX *matrixDST = (MATRIX *)0x1f8003d4;
-#endif
-
-#ifndef CTR_NATIVE
-	*(s16 *)0x1f8003f4 = pb->rot.x;
-	*(s16 *)0x1f8003f6 = pb->rot.y;
-	*(s16 *)0x1f8003f8 = pb->rot.z;
-	ConvertRotToMatrix(matrixDST, (s16 *)0x1f8003f4);
-#else
-	*(s16 *)&scratchpad[0x3f4] = pb->rot.x;
-	*(s16 *)&scratchpad[0x3f6] = pb->rot.y;
-	*(s16 *)&scratchpad[0x3f8] = pb->rot.z;
-	ConvertRotToMatrix(matrixDST, (s16 *)&scratchpad[0x3f4]);
-#endif
+	scratch->rot = pb->rot;
+	ConvertRotToMatrix(matrixDST, &scratch->rot);
 
 	SVec3 negPos;
 
@@ -335,7 +318,7 @@ void PushBuffer_SetMatrixVP(struct PushBuffer *pb)
 	gte_ldVXY0(*(int *)&negPos.v[0]);
 	gte_ldVZ0(negPos.z);
 #else
-	gte_ldv0(&negPos);
+	CTR_GteLoadSVec3V0(&negPos);
 #endif
 
 #ifndef CTR_NATIVE
@@ -392,8 +375,8 @@ void PushBuffer_SetMatrixVP(struct PushBuffer *pb)
 	// by transpose camera matrix
 	gte_llv0();
 
-	gte_stlvnl(&pb->matrix_CameraTranspose.t[0]);
-	gte_stlvnl(&pb->matrix_ViewProj.t[0]);
+	CTR_GteStoreMAC(&pb->matrix_CameraTranspose.t[0]);
+	CTR_GteStoreMAC(&pb->matrix_ViewProj.t[0]);
 
 	// start with transpose camera matrix
 	*(int *)((int)&pb->matrix_ViewProj + 0x0) = view0;
@@ -446,7 +429,7 @@ void PushBuffer_SetMatrixVP(struct PushBuffer *pb)
 	gte_r10(uVar5);
 	gte_r11(uVar6);
 #else
-	gte_SetLightMatrix(&scratchpad[0x3d4]);
+	gte_SetLightMatrix(&scratch->cameraMatrix);
 #endif
 
 	return;
@@ -664,9 +647,9 @@ void PushBuffer_UpdateFrustum(struct PushBuffer *pb)
 		fcOUT->pos.z = tz + cameraPosZ;
 
 		// far clip: pos + dir*100
-		spf->pos[0] = posX;
-		spf->pos[1] = posY;
-		spf->pos[2] = posZ;
+		spf->clippedFarPos.x = posX;
+		spf->clippedFarPos.y = posY;
+		spf->clippedFarPos.z = posZ;
 
 		// === X Axis ===
 		if (((cameraPosX < -0x8000) && (-0x8000 < posX)) || ((-0x8000 < cameraPosX && (posX < -0x8000))))
@@ -677,9 +660,9 @@ void PushBuffer_UpdateFrustum(struct PushBuffer *pb)
 
 			if (tz < 0x1000)
 			{
-				spf->pos[0] = -0x8000;
-				spf->pos[1] = cameraPosY + (tz * (posY - cameraPosY) >> 0xc);
-				spf->pos[2] = cameraPosZ + (tz * (posZ - cameraPosZ) >> 0xc);
+				spf->clippedFarPos.x = -0x8000;
+				spf->clippedFarPos.y = cameraPosY + (tz * (posY - cameraPosY) >> 0xc);
+				spf->clippedFarPos.z = cameraPosZ + (tz * (posZ - cameraPosZ) >> 0xc);
 				iVar19 = tz;
 			}
 		}
@@ -693,9 +676,9 @@ void PushBuffer_UpdateFrustum(struct PushBuffer *pb)
 
 			if (tz < iVar19)
 			{
-				spf->pos[1] = -0x8000;
-				spf->pos[0] = cameraPosX + (tz * (posX - cameraPosX) >> 0xc);
-				spf->pos[2] = cameraPosZ + (tz * (posZ - cameraPosZ) >> 0xc);
+				spf->clippedFarPos.y = -0x8000;
+				spf->clippedFarPos.x = cameraPosX + (tz * (posX - cameraPosX) >> 0xc);
+				spf->clippedFarPos.z = cameraPosZ + (tz * (posZ - cameraPosZ) >> 0xc);
 				iVar19 = tz;
 			}
 		}
@@ -709,9 +692,9 @@ void PushBuffer_UpdateFrustum(struct PushBuffer *pb)
 
 			if (tz < iVar19)
 			{
-				spf->pos[2] = -0x8000;
-				spf->pos[0] = cameraPosX + (tz * (posX - cameraPosX) >> 0xc);
-				spf->pos[1] = cameraPosY + (tz * (posY - cameraPosY) >> 0xc);
+				spf->clippedFarPos.z = -0x8000;
+				spf->clippedFarPos.x = cameraPosX + (tz * (posX - cameraPosX) >> 0xc);
+				spf->clippedFarPos.y = cameraPosY + (tz * (posY - cameraPosY) >> 0xc);
 				iVar19 = tz;
 			}
 		}
@@ -725,9 +708,9 @@ void PushBuffer_UpdateFrustum(struct PushBuffer *pb)
 
 			if (tz < iVar19)
 			{
-				spf->pos[0] = 0x7fff;
-				spf->pos[1] = cameraPosY + (tz * (posY - cameraPosY) >> 0xc);
-				spf->pos[2] = cameraPosZ + (tz * (posZ - cameraPosZ) >> 0xc);
+				spf->clippedFarPos.x = 0x7fff;
+				spf->clippedFarPos.y = cameraPosY + (tz * (posY - cameraPosY) >> 0xc);
+				spf->clippedFarPos.z = cameraPosZ + (tz * (posZ - cameraPosZ) >> 0xc);
 				iVar19 = tz;
 			}
 		}
@@ -741,9 +724,9 @@ void PushBuffer_UpdateFrustum(struct PushBuffer *pb)
 
 			if (tz < iVar19)
 			{
-				spf->pos[1] = 0x7fff;
-				spf->pos[0] = cameraPosX + (tz * (posX - cameraPosX) >> 0xc);
-				spf->pos[2] = cameraPosZ + (tz * (posZ - cameraPosZ) >> 0xc);
+				spf->clippedFarPos.y = 0x7fff;
+				spf->clippedFarPos.x = cameraPosX + (tz * (posX - cameraPosX) >> 0xc);
+				spf->clippedFarPos.z = cameraPosZ + (tz * (posZ - cameraPosZ) >> 0xc);
 				iVar19 = tz;
 			}
 		}
@@ -757,27 +740,27 @@ void PushBuffer_UpdateFrustum(struct PushBuffer *pb)
 
 			if (ty < iVar19)
 			{
-				spf->pos[2] = 0x7fff;
-				spf->pos[0] = cameraPosX + (ty * (posX - cameraPosX) >> 0xc);
-				spf->pos[1] = cameraPosY + (ty * (posY - cameraPosY) >> 0xc);
+				spf->clippedFarPos.z = 0x7fff;
+				spf->clippedFarPos.x = cameraPosX + (ty * (posX - cameraPosX) >> 0xc);
+				spf->clippedFarPos.y = cameraPosY + (ty * (posY - cameraPosY) >> 0xc);
 			}
 		}
 
 		// === Set 6 Min/Max X,Y,Z variables ===
 
-		if (min_X > spf->pos[0])
-			min_X = spf->pos[0];
-		if (min_Y > spf->pos[1])
-			min_Y = spf->pos[1];
-		if (min_Z > spf->pos[2])
-			min_Z = spf->pos[2];
+		if (min_X > spf->clippedFarPos.x)
+			min_X = spf->clippedFarPos.x;
+		if (min_Y > spf->clippedFarPos.y)
+			min_Y = spf->clippedFarPos.y;
+		if (min_Z > spf->clippedFarPos.z)
+			min_Z = spf->clippedFarPos.z;
 
-		if (max_X < spf->pos[0])
-			max_X = spf->pos[0];
-		if (max_Y < spf->pos[1])
-			max_Y = spf->pos[1];
-		if (max_Z < spf->pos[2])
-			max_Z = spf->pos[2];
+		if (max_X < spf->clippedFarPos.x)
+			max_X = spf->clippedFarPos.x;
+		if (max_Y < spf->clippedFarPos.y)
+			max_Y = spf->clippedFarPos.y;
+		if (max_Z < spf->clippedFarPos.z)
+			max_Z = spf->clippedFarPos.z;
 
 		// next corner to write
 		fcOUT--;

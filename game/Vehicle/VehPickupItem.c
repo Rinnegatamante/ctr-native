@@ -446,14 +446,13 @@ void VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 			talk = 10;
 			d->instBombThrow = weaponInst;
 
-			// Original Code
-			SVec3 rot;
-			CTR_MatrixToRot((SVECTOR *)&rot.x, &weaponInst->matrix, 0x11);
+			SVECTOR rot;
+			CTR_MatrixToRot(&rot, &weaponInst->matrix, 0x11);
 
 			// not a typo, required like this
-			tw->dir.x = rot.y;
-			tw->dir.y = rot.x;
-			tw->dir.z = rot.z;
+			tw->dir.x = rot.vy;
+			tw->dir.y = rot.vx;
+			tw->dir.z = rot.vz;
 
 			PlaySound3D(0x47, weaponInst);
 		}

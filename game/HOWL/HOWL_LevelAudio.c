@@ -240,11 +240,11 @@ void Level_AmbientSound(void)
 
 			for (int coordIndex = 0; coordIndex < spawn->numCoords; coordIndex++)
 			{
-				s16 *coord = &spawn->posCoords[coordIndex * 3];
+				SVec3 *coord = &spawn->positions[coordIndex];
 
 				for (int playerIndex = 0; playerIndex < (u8)gGT->numPlyrCurrGame; playerIndex++)
 				{
-					int distance = GTE_GetSquaredDistance(gGT->pushBuffer[playerIndex].pos.v, coord);
+					int distance = GTE_GetSquaredDistance(gGT->pushBuffer[playerIndex].pos.v, coord->v);
 
 					if (distance < closestDistance[soundSlot])
 					{

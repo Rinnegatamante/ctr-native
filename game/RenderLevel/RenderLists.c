@@ -10,6 +10,12 @@ enum RenderListsSlot1P2P
 	RENDER_LIST_SLOT_FULL_DYNAMIC = 5,
 };
 
+enum RenderListsScratchOffset
+{
+	RENDER_LISTS_CORNER_JUMP_TABLE_OFFSET = 0x84,
+	RENDER_LISTS_STACK_OFFSET = 0xd0,
+};
+
 struct RenderListsScratchRecord
 {
 	BspChildId childID;
@@ -99,7 +105,7 @@ static int RenderLists_ProjectDistance(struct PushBuffer *pb, const struct Bound
 
 	RenderLists_SelectBoxCorner(box, pb->RenderListJmpIndex[5] & 7, point);
 
-	gte_ldv0(point);
+	CTR_GteLoadS16TripletV0(point);
 	gte_rtps();
 	gte_stsz(&distance);
 
@@ -191,11 +197,11 @@ static void RenderLists_PushChild(struct BSP *bspRoot, const int *visLeafList, s
 static int RenderLists_Walk1P2P(struct BSP *bspRoot, const int *visLeafList, struct PushBuffer *pb, void *LevRenderList, struct VisMemBspListNode *bspList,
                                 char numPlyr)
 {
-	struct RenderListsScratchRecord *stackBase = CTR_SCRATCHPAD_PTR(struct RenderListsScratchRecord, 0xd0);
+	struct RenderListsScratchRecord *stackBase = CTR_SCRATCHPAD_PTR(struct RenderListsScratchRecord, RENDER_LISTS_STACK_OFFSET);
 	struct RenderListsScratchRecord *stackEnd = CTR_SCRATCHPAD_PTR(struct RenderListsScratchRecord, CTR_SCRATCHPAD_SIZE);
 	struct RenderListsScratchRecord *stack = stackBase;
 	struct BSP *branch = bspRoot;
-	int lodDistanceThreshold = (numPlyr == 1) ? *CTR_SCRATCHPAD_PTR(int, 0x18) : 0x1540;
+	int lodDistanceThreshold = (numPlyr == 1) ? CTR_SCRATCHPAD_PTR(struct MainRenderLevelGeometryScratch, 0)->bspLodDistanceThreshold : 0x1540;
 	int count = 0;
 
 	if (bspRoot == 0 || pb == 0)
@@ -242,7 +248,7 @@ static int RenderLists_Walk1P2P(struct BSP *bspRoot, const int *visLeafList, str
 
 static int RenderLists_Walk3P4P(struct BSP *bspRoot, const int *visLeafList, struct PushBuffer *pb, void *LevRenderList, struct VisMemBspListNode *bspList)
 {
-	struct RenderListsScratchRecord *stackBase = CTR_SCRATCHPAD_PTR(struct RenderListsScratchRecord, 0xd0);
+	struct RenderListsScratchRecord *stackBase = CTR_SCRATCHPAD_PTR(struct RenderListsScratchRecord, RENDER_LISTS_STACK_OFFSET);
 	struct RenderListsScratchRecord *stackEnd = CTR_SCRATCHPAD_PTR(struct RenderListsScratchRecord, CTR_SCRATCHPAD_SIZE);
 	struct RenderListsScratchRecord *stack = stackBase;
 	struct BSP *branch = bspRoot;
@@ -300,7 +306,7 @@ void RenderLists_PreInit()
 	static const u32 renderListJumpTable[] = {
 	    0x80070310, 0x80070320, 0x80070330, 0x80070340, 0x8007034c, 0x8007035c, 0x8007036c, 0x8007037c,
 	};
-	u32 *scratchJumpTable = CTR_SCRATCHPAD_PTR(u32, 0x84);
+	u32 *scratchJumpTable = CTR_SCRATCHPAD_PTR(u32, RENDER_LISTS_CORNER_JUMP_TABLE_OFFSET);
 
 	for (int i = 0; i < 8; i++)
 		scratchJumpTable[i] = renderListJumpTable[i];

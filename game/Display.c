@@ -26,10 +26,27 @@ _Static_assert(offsetof(struct DisplayBlurFlatPacket, xy3) == 0x1C);
 _Static_assert(offsetof(struct DisplayBlurFlatPacket, drawModeEnd) == 0x20);
 _Static_assert(offsetof(struct DisplayBlurFlatPacket, maskBitDisable) == 0x24);
 
-static u32 DISPLAY_Blur_Ptr24(const void *ptr)
+struct DisplayBlurTile
 {
-	return CtrGpu_PrimToOTLink24(ptr);
-}
+	s16 srcX;
+	s16 srcY;
+	s16 srcW;
+	s16 srcH;
+	s16 dstX;
+	s16 dstY;
+	s16 dstW;
+	s16 dstH;
+};
+
+_Static_assert(sizeof(struct DisplayBlurTile) == 0x10);
+_Static_assert(offsetof(struct DisplayBlurTile, srcX) == 0x00);
+_Static_assert(offsetof(struct DisplayBlurTile, srcY) == 0x02);
+_Static_assert(offsetof(struct DisplayBlurTile, srcW) == 0x04);
+_Static_assert(offsetof(struct DisplayBlurTile, srcH) == 0x06);
+_Static_assert(offsetof(struct DisplayBlurTile, dstX) == 0x08);
+_Static_assert(offsetof(struct DisplayBlurTile, dstY) == 0x0A);
+_Static_assert(offsetof(struct DisplayBlurTile, dstW) == 0x0C);
+_Static_assert(offsetof(struct DisplayBlurTile, dstH) == 0x0E);
 
 static u32 DISPLAY_Blur_PackS16Pair(int x, int y)
 {
@@ -37,61 +54,65 @@ static u32 DISPLAY_Blur_PackS16Pair(int x, int y)
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80023a40-0x80023d4c
-u32 *DISPLAY_Blur_SubFunc(u32 *prim, s16 *tile)
+u32 *DISPLAY_Blur_SubFunc(u32 *prim, struct DisplayBlurTile *tile)
 {
-	int srcX = tile[0];
-	int srcY = tile[1];
-	int srcW = tile[2];
-	int srcH = tile[3];
+	int srcX = tile->srcX;
+	int srcY = tile->srcY;
+	int srcW = tile->srcW;
+	int srcH = tile->srcH;
 
 	if (((srcX + srcW) & -0x100) != (srcX & -0x100))
 	{
-		tile[10] = (s16)((srcX & -0x100) - (srcX - 0xff));
-		tile[14] = (s16)((tile[10] * tile[6]) / srcW);
+		struct DisplayBlurTile *child = tile + 1;
 
-		tile[8] = (s16)srcX;
-		tile[9] = (s16)srcY;
-		tile[11] = (s16)srcH;
-		tile[15] = tile[7];
-		tile[12] = tile[4];
-		tile[13] = tile[5];
+		child->srcW = (s16)((srcX & -0x100) - (srcX - 0xff));
+		child->dstW = (s16)((child->srcW * tile->dstW) / srcW);
 
-		if (tile[6] != 0)
-			prim = DISPLAY_Blur_SubFunc(prim, tile + 8);
+		child->srcX = (s16)srcX;
+		child->srcY = (s16)srcY;
+		child->srcH = (s16)srcH;
+		child->dstH = tile->dstH;
+		child->dstX = tile->dstX;
+		child->dstY = tile->dstY;
 
-		tile[8] = (s16)(tile[10] + tile[8] + 1);
-		tile[10] = (s16)(tile[2] - tile[10] - 1);
-		tile[12] = (s16)(tile[12] + tile[14]);
-		tile[14] = (s16)(tile[6] - tile[14]);
+		if (tile->dstW != 0)
+			prim = DISPLAY_Blur_SubFunc(prim, child);
 
-		if (tile[6] != 0)
-			prim = DISPLAY_Blur_SubFunc(prim, tile + 8);
+		child->srcX = (s16)(child->srcW + child->srcX + 1);
+		child->srcW = (s16)(tile->srcW - child->srcW - 1);
+		child->dstX = (s16)(child->dstX + child->dstW);
+		child->dstW = (s16)(tile->dstW - child->dstW);
+
+		if (tile->dstW != 0)
+			prim = DISPLAY_Blur_SubFunc(prim, child);
 
 		return prim;
 	}
 
 	if (((srcY + srcH) & -0x100) != (srcY & -0x100))
 	{
-		tile[11] = (s16)((srcY & -0x100) - (srcY - 0xff));
-		tile[15] = (s16)((tile[11] * tile[7]) / srcH);
+		struct DisplayBlurTile *child = tile + 1;
 
-		tile[8] = (s16)srcX;
-		tile[9] = (s16)srcY;
-		tile[10] = (s16)srcW;
-		tile[14] = tile[6];
-		tile[12] = tile[4];
-		tile[13] = tile[5];
+		child->srcH = (s16)((srcY & -0x100) - (srcY - 0xff));
+		child->dstH = (s16)((child->srcH * tile->dstH) / srcH);
 
-		if (tile[7] != 0)
-			prim = DISPLAY_Blur_SubFunc(prim, tile + 8);
+		child->srcX = (s16)srcX;
+		child->srcY = (s16)srcY;
+		child->srcW = (s16)srcW;
+		child->dstW = tile->dstW;
+		child->dstX = tile->dstX;
+		child->dstY = tile->dstY;
 
-		tile[9] = (s16)(tile[11] + tile[9] + 1);
-		tile[11] = (s16)(tile[3] - tile[11] - 1);
-		tile[13] = (s16)(tile[13] + tile[15]);
-		tile[15] = (s16)(tile[7] - tile[15]);
+		if (tile->dstH != 0)
+			prim = DISPLAY_Blur_SubFunc(prim, child);
 
-		if (tile[7] != 0)
-			prim = DISPLAY_Blur_SubFunc(prim, tile + 8);
+		child->srcY = (s16)(child->srcH + child->srcY + 1);
+		child->srcH = (s16)(tile->srcH - child->srcH - 1);
+		child->dstY = (s16)(child->dstY + child->dstH);
+		child->dstH = (s16)(tile->dstH - child->dstH);
+
+		if (tile->dstH != 0)
+			prim = DISPLAY_Blur_SubFunc(prim, child);
 
 		return prim;
 	}
@@ -100,10 +121,10 @@ u32 *DISPLAY_Blur_SubFunc(u32 *prim, s16 *tile)
 	u32 v0 = ((u32)srcY & 0xff) << 8;
 	u32 u1 = (u32)(srcW + (int)u0);
 	u32 v1 = v0 + ((u32)srcH << 8);
-	int dstX = tile[4];
-	int dstY = tile[5];
-	int dstW = tile[6];
-	int dstH = tile[7];
+	int dstX = tile->dstX;
+	int dstY = tile->dstY;
+	int dstW = tile->dstW;
+	int dstH = tile->dstH;
 	u32 tpage = (((u32)srcY & 0x100) >> 4) | (((u32)srcX & 0x3ff) >> 6) | 0x100 | (((u32)srcY & 0x200) << 2);
 	POLY_FT4 *poly = (POLY_FT4 *)prim;
 
@@ -115,7 +136,7 @@ u32 *DISPLAY_Blur_SubFunc(u32 *prim, s16 *tile)
 	CtrGpu_WritePackedUV(&poly->u2, (u16)(u0 | v1));
 	CtrGpu_WritePackedUV(&poly->u3, (u16)(u1 | v1));
 	poly->code = 0x2f;
-	poly->tag = DISPLAY_Blur_Ptr24(poly + 1) | 0x09000000;
+	poly->tag = CtrGpu_PackOTTag(CtrGpu_PrimToOTLink24(poly + 1), 0x09000000);
 	CtrGpu_WritePackedUVWord(&poly->u1, u1 | v0 | (tpage << 16));
 
 	return (u32 *)(poly + 1);
@@ -153,14 +174,14 @@ void DISPLAY_Blur_Main(struct PushBuffer *pb, int strength)
 		packet->colorAndCode = (strength < 0) ? 0x2affffff : 0x2a000000;
 
 		ot = gGT->otSwapchainDB[gGT->swapchainIndex];
-		packet->tag = (u32)*ot | 0x09000000;
-		*ot = (u_long)DISPLAY_Blur_Ptr24(packet);
+		CtrGpu_LinkPacket24(ot, &packet->tag, packet, 0x09000000);
 		nextPrim = (u32 *)(packet + 1);
 	}
 	else
 	{
 		int wave = gGT->timer + cameraID;
-		s16 *scratch = CTR_SCRATCHPAD_PTR(s16, 0);
+		struct DisplayBlurTile *scratch = CTR_SCRATCHPAD_PTR(struct DisplayBlurTile, 0);
+		struct DisplayBlurTile *tile = &scratch[0];
 		u32 oldTag;
 		int blur;
 		int insetX;
@@ -179,23 +200,23 @@ void DISPLAY_Blur_Main(struct PushBuffer *pb, int strength)
 
 		ot = gGT->otSwapchainDB[gGT->swapchainIndex];
 		oldTag = *ot;
-		*ot = (u_long)DISPLAY_Blur_Ptr24(prim);
+		*ot = (u_long)CtrGpu_PrimToOTLink24(prim);
 
-		scratch[4] = pb->rect.x;
-		scratch[5] = pb->rect.y;
-		scratch[6] = pb->rect.w;
-		scratch[7] = pb->rect.h;
+		tile->dstX = pb->rect.x;
+		tile->dstY = pb->rect.y;
+		tile->dstW = pb->rect.w;
+		tile->dstH = pb->rect.h;
 
 		insetX = ((blur * 9) >> 12) + 2;
-		scratch[0] = backBuffer->dispEnv.disp.x + pb->rect.x + insetX;
-		scratch[2] = pb->rect.w - (insetX * 2);
+		tile->srcX = backBuffer->dispEnv.disp.x + pb->rect.x + insetX;
+		tile->srcW = pb->rect.w - (insetX * 2);
 
 		insetY = ((blur * 6) >> 12) + 2;
-		scratch[1] = backBuffer->dispEnv.disp.y + pb->rect.y + insetY;
-		scratch[3] = pb->rect.h - (insetY * 2);
+		tile->srcY = backBuffer->dispEnv.disp.y + pb->rect.y + insetY;
+		tile->srcH = pb->rect.h - (insetY * 2);
 
-		nextPrim = DISPLAY_Blur_SubFunc(prim, scratch);
-		((POLY_FT4 *)nextPrim - 1)->tag = oldTag | 0x09000000;
+		nextPrim = DISPLAY_Blur_SubFunc(prim, tile);
+		((POLY_FT4 *)nextPrim - 1)->tag = CtrGpu_PackOTTag(oldTag, 0x09000000);
 	}
 
 	backBuffer->primMem.cursor = nextPrim;

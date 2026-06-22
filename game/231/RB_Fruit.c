@@ -15,13 +15,13 @@ void RB_Fruit_GetScreenCoords(struct PushBuffer *pb, struct Instance *inst, s16 
 	posWorld.y = (s16)inst->matrix.t[1];
 	posWorld.z = (s16)inst->matrix.t[2];
 	posWorld.w = 0;
-	gte_ldv0((SVECTOR *)&posWorld);
+	CTR_GteLoadSVec4V0(&posWorld);
 
 	// perspective projection
 	gte_rtps();
 
 	// get result
-	gte_stsxy(&output[0]);
+	CTR_GteStoreSXY(&output[0]);
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b706c-0x800b70a8.

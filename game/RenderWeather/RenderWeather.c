@@ -9,6 +9,20 @@ struct RenderWeatherTrigPair
 	s32 cos;
 };
 
+struct RenderWeatherScratch
+{
+	u32 colorTop;
+	u32 colorBottom;
+	u32 packedCenterXY;
+	u32 centerZ;
+};
+
+_Static_assert(sizeof(struct RenderWeatherScratch) == 0x10);
+_Static_assert(offsetof(struct RenderWeatherScratch, colorTop) == 0x00);
+_Static_assert(offsetof(struct RenderWeatherScratch, colorBottom) == 0x04);
+_Static_assert(offsetof(struct RenderWeatherScratch, packedCenterXY) == 0x08);
+_Static_assert(offsetof(struct RenderWeatherScratch, centerZ) == 0x0C);
+
 _Static_assert(sizeof(LINE_G2) == 0x14);
 _Static_assert(offsetof(LINE_G2, tag) == 0x00);
 _Static_assert(offsetof(LINE_G2, r0) == 0x04);
@@ -102,10 +116,7 @@ void RenderWeather(struct PushBuffer *pb, struct PrimMem *primMem, struct RainBu
 	// NOTE(aalhendi): PSX-backfeed blocker: retail saves/restores callee
 	// registers in scratchpad 0x00-0x2c. Native C relies on the host ABI; restore
 	// the scratchpad register-save prologue/epilogue before PSX backfeed.
-	u32 *scratchColorTop = CTR_SCRATCHPAD_PTR(u32, 0x30);
-	u32 *scratchColorBottom = CTR_SCRATCHPAD_PTR(u32, 0x34);
-	u32 *scratchPackedCenterXY = CTR_SCRATCHPAD_PTR(u32, 0x38);
-	u32 *scratchCenterZ = CTR_SCRATCHPAD_PTR(u32, 0x3c);
+	struct RenderWeatherScratch *scratch = CTR_SCRATCHPAD_PTR(struct RenderWeatherScratch, 0x30);
 	struct RenderWeatherTrigPair trig;
 	u32 screenBounds;
 	u_long *ot;
@@ -152,8 +163,8 @@ void RenderWeather(struct PushBuffer *pb, struct PrimMem *primMem, struct RainBu
 	CTC2(RenderWeather_ReadWord(&pb->matrix_ViewProj, 0x10), 4);
 
 	trig = RenderWeather_TrigAngleSinCos(pb->rot.y);
-	*scratchPackedCenterXY = 0x04000000u | (u32)((trig.sin >> 2) + 0x400);
-	*scratchCenterZ = (u32)((trig.cos >> 2) + 0x400);
+	scratch->packedCenterXY = 0x04000000u | (u32)((trig.sin >> 2) + 0x400);
+	scratch->centerZ = (u32)((trig.cos >> 2) + 0x400);
 
 	screenBounds = RenderWeather_ReadWord(pb, 0x20);
 	ot = &pb->ptrOT[rainBuffer->offsetOT];
@@ -221,17 +232,17 @@ void RenderWeather(struct PushBuffer *pb, struct PrimMem *primMem, struct RainBu
 	smoothedCameraXY = (cameraXY - cameraCorrectionXY) & RENDER_WEATHER_XY_MASK;
 	smoothedCameraZ = cameraZ - ((cameraZ - prevCameraZ) >> 3);
 
-	startXY = ((scrollXYStart - smoothedCameraXY) & RENDER_WEATHER_XY_MASK) + *scratchPackedCenterXY;
+	startXY = ((scrollXYStart - smoothedCameraXY) & RENDER_WEATHER_XY_MASK) + scratch->packedCenterXY;
 	startXY &= RENDER_WEATHER_XY_MASK;
-	endXY = ((scrollXYEnd - cameraXY) & RENDER_WEATHER_XY_MASK) + *scratchPackedCenterXY;
+	endXY = ((scrollXYEnd - cameraXY) & RENDER_WEATHER_XY_MASK) + scratch->packedCenterXY;
 	endXY &= RENDER_WEATHER_XY_MASK;
-	startZ = (scrollZStart - smoothedCameraZ) + (s32)*scratchCenterZ;
-	endZ = (scrollZEnd - cameraZ) + (s32)*scratchCenterZ;
+	startZ = (scrollZStart - smoothedCameraZ) + (s32)scratch->centerZ;
+	endZ = (scrollZEnd - cameraZ) + (s32)scratch->centerZ;
 	spanXY = endXY - startXY;
 	spanZ = (u32)(endZ - startZ);
 
-	*scratchColorTop = rainBuffer->colorRGBA_top | 0x52000000u;
-	*scratchColorBottom = rainBuffer->colorRGBA_bottom;
+	scratch->colorTop = rainBuffer->colorRGBA_top | 0x52000000u;
+	scratch->colorBottom = rainBuffer->colorRGBA_bottom;
 	fillMode = rainBuffer->fillMode;
 
 	state0 = 0x30125400;
@@ -247,8 +258,8 @@ void RenderWeather(struct PushBuffer *pb, struct PrimMem *primMem, struct RainBu
 
 		particleCount--;
 
-		xy0 = ((rngXY + startXY) & RENDER_WEATHER_WRAP_MASK) - *scratchPackedCenterXY;
-		xy1 = ((rngXY + endXY) & RENDER_WEATHER_WRAP_MASK) - *scratchPackedCenterXY;
+		xy0 = ((rngXY + startXY) & RENDER_WEATHER_WRAP_MASK) - scratch->packedCenterXY;
+		xy1 = ((rngXY + endXY) & RENDER_WEATHER_WRAP_MASK) - scratch->packedCenterXY;
 
 		if ((u32)(xy1 - xy0) == spanXY)
 		{
@@ -267,8 +278,8 @@ void RenderWeather(struct PushBuffer *pb, struct PrimMem *primMem, struct RainBu
 				u32 sxy1;
 				u32 gteFlag;
 
-				z0 -= *scratchCenterZ;
-				z1 -= *scratchCenterZ;
+				z0 -= scratch->centerZ;
+				z1 -= scratch->centerZ;
 
 				MTC2(z0, 1);
 				MTC2(z1, 3);
@@ -285,9 +296,9 @@ void RenderWeather(struct PushBuffer *pb, struct PrimMem *primMem, struct RainBu
 				{
 					LINE_G2 *line = (LINE_G2 *)prim;
 
-					CtrGpu_WriteColorCode(&line->r0, *scratchColorTop);
+					CtrGpu_WriteColorCode(&line->r0, scratch->colorTop);
 					CtrGpu_WritePackedXY(&line->x0, sxy0);
-					CtrGpu_WriteColorCode(&line->r1, *scratchColorBottom);
+					CtrGpu_WriteColorCode(&line->r1, scratch->colorBottom);
 					CtrGpu_WritePackedXY(&line->x1, sxy1);
 					CtrGpu_LinkPacket24(ot, &line->tag, line, 0x04000000);
 					prim = (u32 *)(line + 1);

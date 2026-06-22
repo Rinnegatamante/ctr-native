@@ -118,24 +118,23 @@ void VehPhysCrash_AI(struct Driver *bot, Vec3 *vel)
 	sdata->botCrashNavRot.y = (s16)CTR_MipsSll(bot->botData.botNavFrame->rot[1], 4);
 	sdata->botCrashNavRot.z = (s16)CTR_MipsSll(bot->botData.botNavFrame->rot[2], 4);
 
-	// NOTE(aalhendi): Retail uses globals at 0x8009ae28 and 0x8009ae38.
-	// `dataLibFiller` covers that exact EXE data range in ctr-native.
-	int *forward = (int *)&sdata->dataLibFiller[0];
-	MATRIX *matrix = (MATRIX *)&sdata->dataLibFiller[0x10];
+	struct VehPhysCrashAiScratch *scratch = (struct VehPhysCrashAiScratch *)(void *)&sdata->dataLibFiller[0];
+	MATRIX *matrix = &scratch->matrix;
 
 	ConvertRotToMatrix(matrix, &sdata->botCrashNavRot);
 
-	forward[0] = CTR_MipsSra(matrix->m[0][2], 4);
-	forward[1] = CTR_MipsSra(matrix->m[1][2], 4);
-	forward[2] = CTR_MipsSra(matrix->m[2][2], 4);
+	scratch->forward.x = CTR_MipsSra(matrix->m[0][2], 4);
+	scratch->forward.y = CTR_MipsSra(matrix->m[1][2], 4);
+	scratch->forward.z = CTR_MipsSra(matrix->m[2][2], 4);
 
-	int botSpeed =
-	    CTR_MipsSra(CTR_MipsAddLo(CTR_MipsAddLo(CTR_MipsMulLo(forward[0], vel->x), CTR_MipsMulLo(forward[1], vel->y)), CTR_MipsMulLo(forward[2], vel->z)), 8);
+	int botSpeed = CTR_MipsSra(CTR_MipsAddLo(CTR_MipsAddLo(CTR_MipsMulLo(scratch->forward.x, vel->x), CTR_MipsMulLo(scratch->forward.y, vel->y)),
+	                                         CTR_MipsMulLo(scratch->forward.z, vel->z)),
+	                           8);
 
 	bot->botData.aiPhysics.speedLinear = botSpeed;
-	bot->botData.aiPhysics.accel.x = CTR_MipsSubLo(vel->x, CTR_MipsSra(CTR_MipsMulLo(forward[0], botSpeed), 8));
+	bot->botData.aiPhysics.accel.x = CTR_MipsSubLo(vel->x, CTR_MipsSra(CTR_MipsMulLo(scratch->forward.x, botSpeed), 8));
 	bot->botData.botFlags |= BOT_FLAG_FREE_PHYSICS;
-	bot->botData.aiPhysics.accel.z = CTR_MipsSubLo(vel->z, CTR_MipsSra(CTR_MipsMulLo(forward[2], botSpeed), 8));
+	bot->botData.aiPhysics.accel.z = CTR_MipsSubLo(vel->z, CTR_MipsSra(CTR_MipsMulLo(scratch->forward.z, botSpeed), 8));
 }
 
 static void VehPhysCrash_Attack_SetReason(struct Driver *driver, u8 reason)

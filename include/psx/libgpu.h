@@ -8,6 +8,10 @@
 #define LIBGPU_H
 
 #include "types.h"
+#ifdef CTR_NATIVE
+#include <string.h>
+#include <platform/native_gpu_links.h>
+#endif
 
 typedef short VERTTYPE;
 
@@ -127,6 +131,41 @@ extern int (*GPU_printf)(const char *fmt, ...);
  * Primitive Handling Macros
  */
 
+#ifdef CTR_NATIVE
+static inline u_int CTR_GPU_ReadTagWord(const void *p)
+{
+	u_int word;
+	memcpy(&word, p, sizeof(word));
+	return word;
+}
+
+static inline void CTR_GPU_WriteTagWord(void *p, u_int word)
+{
+	memcpy(p, &word, sizeof(word));
+}
+
+static inline void CTR_GPU_WriteTagCode(void *p, u_char code)
+{
+	((u_char *)p)[7] = code;
+}
+
+static inline void CTR_GPU_WriteTagAddrToken(void *p, u_int token)
+{
+	CTR_GPU_WriteTagWord((p), (CTR_GPU_ReadTagWord(p) & 0xff000000u) | (token & 0x00ffffffu));
+}
+
+#define isendprim(p)      NativeGpuLinks_IsTerminator(CTR_GPU_ReadTagWord(p) & 0x00ffffffu)
+#define nextPrim(p)       NativeGpuLinks_ToHostPointer(CTR_GPU_ReadTagWord(p) & 0x00ffffffu)
+
+#define setaddr(p, _addr) CTR_GPU_WriteTagAddrToken((p), NativeGpuLinks_FromHostPointer((const void *)(uintptr_t)(_addr)))
+#define getaddr(p)        (u_int)(CTR_GPU_ReadTagWord(p) & 0x00ffffffu)
+
+#define setlen(p, _len)   CTR_GPU_WriteTagWord((p), (CTR_GPU_ReadTagWord(p) & 0x00ffffffu) | ((u_int)(u_char)(_len) << 24))
+#define setcode(p, _code) CTR_GPU_WriteTagCode((p), (u_char)(_code))
+
+#define getlen(p)         (u_char)(CTR_GPU_ReadTagWord(p) >> 24)
+#define getcode(p)        (u_char)(((u_char *)(p))[7])
+#else
 #define isendprim(p)            ((((P_TAG *)(p))->addr) == 0xffffff)
 #define nextPrim(p)             (void *)(uintptr_t)(((P_TAG *)(p))->addr)
 
@@ -138,14 +177,27 @@ extern int (*GPU_printf)(const char *fmt, ...);
 
 #define getlen(p)               (u_char)(((P_TAG *)(p))->len)
 #define getcode(p)              (u_char)(((P_TAG *)(p))->code)
+#endif
 
+#ifdef CTR_NATIVE
+#define addPrim(ot, p)       CTR_GPU_WriteTagAddrToken((p), getaddr(ot)), setaddr((ot), (p))
+
+#define addPrims(ot, p0, p1) CTR_GPU_WriteTagAddrToken((p1), getaddr(ot)), setaddr((ot), (p0))
+
+#define catPrim(p0, p1)      setaddr((p0), (p1))
+#else
 #define addPrim(ot, p)          setaddr(p, getaddr(ot)), setaddr(ot, p)
 
 #define addPrims(ot, p0, p1)    setaddr(p1, getaddr(ot)), setaddr(ot, p0)
 
 #define catPrim(p0, p1)         setaddr(p0, p1)
+#endif
 
+#ifdef CTR_NATIVE
+#define termPrim(p) CTR_GPU_WriteTagAddrToken((p), NATIVE_GPU_LINK_TERMINATOR)
+#else
 #define termPrim(p)             (((P_TAG *)(p))->addr = 0xffffffu)
+#endif
 
 #define setSemiTrans(p, abe)    ((abe) ? setcode(p, getcode(p) | 0x02) : setcode(p, getcode(p) & ~0x02))
 

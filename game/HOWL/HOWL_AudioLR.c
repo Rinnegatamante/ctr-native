@@ -11,9 +11,9 @@ void GTE_AudioLR_Inst(MATRIX *matrix, s32 *vec)
 	input.pad = 0;
 
 	SetRotMatrix(matrix);
-	gte_ldv0(&input);
+	CTR_GteLoadSV0(&input);
 	gte_rtv0();
-	gte_stlvnl((VECTOR *)vec);
+	CTR_GteStoreMAC(vec);
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002e5cc-0x8002e658
@@ -27,9 +27,9 @@ void GTE_AudioLR_Driver(MATRIX *matrix, struct Driver *driver, s32 *out)
 	input.pad = 0;
 
 	SetRotMatrix(matrix);
-	gte_ldv0(&input);
+	CTR_GteLoadSV0(&input);
 	gte_rtv0();
-	gte_stlvnl((VECTOR *)out);
+	CTR_GteStoreMAC(out);
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002e658-0x8002e690

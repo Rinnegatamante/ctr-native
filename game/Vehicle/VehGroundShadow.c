@@ -39,14 +39,42 @@ struct VehGroundShadowEntry
 	u16 instFlags;
 };
 
-static u32 VehGroundShadow_Ptr24(const void *ptr)
+struct VehGroundShadowScratch
 {
-	return CtrGpu_PrimToOTLink24(ptr);
-}
+	u8 pad_000[0xa4];
+	struct VehGroundShadowEntry entries[VEH_GROUND_SHADOW_MAX_DRIVERS];
+	u8 pad_1e4[0x14];
+	struct Driver *sentinelDriver;
+	u8 pad_1fc[0x28];
+	struct TextureLayout shadowTex[2];
+};
+
+_Static_assert(sizeof(struct VehGroundShadowEntry) == 0x28);
+_Static_assert(offsetof(struct VehGroundShadowEntry, local) == 0x00);
+_Static_assert(offsetof(struct VehGroundShadowEntry, state) == 0x12);
+_Static_assert(offsetof(struct VehGroundShadowEntry, depthBias) == 0x13);
+_Static_assert(offsetof(struct VehGroundShadowEntry, driver) == 0x14);
+_Static_assert(offsetof(struct VehGroundShadowEntry, inst) == 0x18);
+_Static_assert(offsetof(struct VehGroundShadowEntry, idppFlags) == 0x1c);
+_Static_assert(offsetof(struct VehGroundShadowEntry, pos) == 0x20);
+_Static_assert(offsetof(struct VehGroundShadowEntry, instFlags) == 0x26);
+_Static_assert(offsetof(struct VehGroundShadowScratch, entries) == 0xa4);
+_Static_assert(offsetof(struct VehGroundShadowScratch, sentinelDriver) == 0x1f8);
+_Static_assert(offsetof(struct VehGroundShadowScratch, shadowTex[0]) == 0x224);
+_Static_assert(offsetof(struct VehGroundShadowScratch, shadowTex[1]) == 0x230);
 
 static u32 VehGroundShadow_ReadWord(const void *base, int offset)
 {
-	return *(const u32 *)(const void *)((const char *)base + offset);
+	u32 value;
+	memcpy(&value, (const char *)base + offset, sizeof(value));
+	return value;
+}
+
+static u16 VehGroundShadow_ReadHalf(const void *base, int offset)
+{
+	u16 value;
+	memcpy(&value, (const char *)base + offset, sizeof(value));
+	return value;
 }
 
 static u32 VehGroundShadow_PackXY(s32 x, s32 y)
@@ -119,7 +147,6 @@ static void VehGroundShadow_BuildEntry(struct VehGroundShadowEntry *entry, struc
 {
 	struct Instance *inst = driver->instSelf;
 
-	memset(entry, 0, sizeof(*entry));
 	entry->driver = driver;
 	entry->inst = inst;
 	entry->instFlags = (u16)inst->flags;
@@ -131,6 +158,7 @@ static void VehGroundShadow_BuildEntry(struct VehGroundShadowEntry *entry, struc
 	entry->pos.y = (s16)CTR_MipsAddLo(CTR_MipsSra(driver->quadBlockHeight, 8), 3);
 	entry->pos.z = (s16)CTR_MipsSra(driver->posCurr.z, 8);
 	entry->depthBias = (s8)((entry->instFlags & SPLIT_LINE) != 0 ? inst->depthBiasSecondary : inst->depthBiasNormal) + 1;
+	entry->state = 0;
 }
 
 static void VehGroundShadow_TransformLocalAxes(struct VehGroundShadowEntry *entry)
@@ -165,7 +193,7 @@ static void VehGroundShadow_TransformLocalAxes(struct VehGroundShadowEntry *entr
 
 	for (int i = 0; i < 3; i++)
 	{
-		gte_ldv0(local);
+		CTR_GteLoadS16TripletV0(local);
 		gte_llv0_b();
 
 		if (i == 0)
@@ -232,8 +260,8 @@ static void VehGroundShadow_WriteUv(POLY_FT4 *poly, const struct TextureLayout *
 {
 	CtrGpu_WritePackedUVWord(&poly->u0, VehGroundShadow_ReadWord(tex, 0x00));
 	CtrGpu_WritePackedUVWord(&poly->u1, VehGroundShadow_ReadWord(tex, 0x04));
-	CtrGpu_WritePackedUV(&poly->u2, *(const u16 *)(const void *)((const char *)tex + 0x08));
-	CtrGpu_WritePackedUV(&poly->u3, *(const u16 *)(const void *)((const char *)tex + 0x0a));
+	CtrGpu_WritePackedUV(&poly->u2, VehGroundShadow_ReadHalf(tex, 0x08));
+	CtrGpu_WritePackedUV(&poly->u3, VehGroundShadow_ReadHalf(tex, 0x0a));
 }
 
 static void VehGroundShadow_EmitQuad(u32 **primCursor, u_long *otBase, const struct TextureLayout *texture, u32 color, u32 sxy[VEH_GROUND_SHADOW_NUM_POINTS],
@@ -262,8 +290,7 @@ static void VehGroundShadow_EmitQuad(u32 **primCursor, u_long *otBase, const str
 	VehGroundShadow_WriteUv(poly, texture);
 
 	ot = &otBase[depthIndex];
-	poly->tag = (u32)*ot | 0x09000000;
-	*ot = (u_long)VehGroundShadow_Ptr24(poly);
+	CtrGpu_LinkPacket24(ot, &poly->tag, poly, 0x09000000);
 
 	*primCursor = (u32 *)(poly + 1);
 }
@@ -274,13 +301,12 @@ void VehGroundShadow_Main(void)
 	struct GameTracker *gGT = sdata->gGT;
 	struct PrimMem *primMem;
 	u32 *prim;
-	struct TextureLayout *shadowTex0 = CTR_SCRATCHPAD_PTR(struct TextureLayout, 0x224);
-	struct TextureLayout *shadowTex1 = CTR_SCRATCHPAD_PTR(struct TextureLayout, 0x230);
-	struct VehGroundShadowEntry entries[VEH_GROUND_SHADOW_MAX_DRIVERS + 1];
+	struct VehGroundShadowScratch *scratch = CTR_SCRATCHPAD_PTR(struct VehGroundShadowScratch, 0);
+	struct TextureLayout *shadowTex0 = &scratch->shadowTex[0];
+	struct TextureLayout *shadowTex1 = &scratch->shadowTex[1];
+	struct VehGroundShadowEntry *entries = scratch->entries;
 	int numPlayers;
 
-	// NOTE(aalhendi): PSX-backfeed blocker: retail stages driver pointers, instance pointers, and per-driver shadow state in scratchpad
-	// 0x1f8000a4-0x1f800208. Native C keeps pointer-bearing entries as host locals; restore the exact scratchpad layout before PSX backfeed.
 	if (!VehGroundShadow_Subset1(shadowTex0, 0))
 		return;
 
@@ -297,15 +323,21 @@ void VehGroundShadow_Main(void)
 	CTC2(0, 7);
 
 	numPlayers = gGT->numPlyrCurrGame;
-	memset(entries, 0, sizeof(entries));
 
 	for (int driverIndex = 0; driverIndex < VEH_GROUND_SHADOW_MAX_DRIVERS; driverIndex++)
 	{
+		struct VehGroundShadowEntry *entry = &entries[driverIndex];
 		struct Driver *driver = gGT->drivers[driverIndex];
 
 		if (driver != NULL)
-			VehGroundShadow_BuildEntry(&entries[driverIndex], driver, numPlayers);
+			VehGroundShadow_BuildEntry(entry, driver, numPlayers);
+		else
+		{
+			entry->driver = NULL;
+			entry->state = 0;
+		}
 	}
+	scratch->sentinelDriver = NULL;
 
 	for (int playerIndex = numPlayers - 1; playerIndex >= 0; playerIndex--)
 	{
@@ -370,7 +402,7 @@ void VehGroundShadow_Main(void)
 			scaled[1] = (s16)scaledY;
 			scaled[2] = (s16)scaledZ;
 			scaled[3] = 0;
-			gte_ldv0(scaled);
+			CTR_GteLoadS16TripletV0(scaled);
 			gte_rtv0_b();
 			groundDistance = (s32)MFC2(27) >> 2;
 

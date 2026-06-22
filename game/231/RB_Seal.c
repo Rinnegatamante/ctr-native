@@ -267,13 +267,8 @@ void RB_Seal_LInB(struct Instance *inst)
 	{
 		spawnType2 = &sdata->gGT->level1->ptrSpawnType2[sealObj->sealID];
 
-		// spawnPos
-		*(int *)&sealObj->spawnPos.x = *(int *)&spawnType2->posCoords[0];
-		sealObj->spawnPos.z = spawnType2->posCoords[2];
-
-		// endPos
-		*(int *)&sealObj->endPos.x = *(int *)&spawnType2->posCoords[3];
-		sealObj->endPos.z = spawnType2->posCoords[5];
+		sealObj->spawnPos = spawnType2->positions[0];
+		sealObj->endPos = spawnType2->positions[1];
 	}
 
 	// distance between points

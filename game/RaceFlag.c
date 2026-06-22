@@ -1,5 +1,29 @@
 #include <common.h>
 
+enum RaceFlagScratchConstants
+{
+	RACE_FLAG_SCREEN_ROWS = 10,
+	RACE_FLAG_SCREEN_POINTS_PER_ROW = 3,
+};
+
+struct RaceFlagProjectedRow
+{
+	u32 xy[RACE_FLAG_SCREEN_POINTS_PER_ROW];
+};
+
+union RaceFlagScreenBuffer
+{
+	struct RaceFlagProjectedRow row[RACE_FLAG_SCREEN_ROWS];
+	u32 xy[RACE_FLAG_SCREEN_ROWS * RACE_FLAG_SCREEN_POINTS_PER_ROW];
+};
+
+struct RaceFlagScratch
+{
+	union RaceFlagScreenBuffer screen[2];
+};
+
+_Static_assert(sizeof(union RaceFlagScreenBuffer) == 0x78);
+_Static_assert(sizeof(struct RaceFlagScratch) == 0xf0);
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80043e34-0x80043f1c.
 int RaceFlag_MoveModels(int frameIndex, int numFrames)
@@ -400,11 +424,6 @@ void RaceFlag_DrawLoadingString(void)
 	return;
 }
 
-
-#if defined(CTR_NATIVE)
-u32 scratchpadBuf[0x1000];
-#endif
-
 force_inline char RaceFlag_CalculateBrightness(u32 sine, u8 darkTile)
 {
 	if (darkTile)
@@ -438,7 +457,7 @@ force_inline int MathSinInline(u32 param_1)
 	return iVar1;
 }
 
-// NOTE(aalhendi): ASM-verified NTSC-U 926 PS1 path 0x800444e8-0x80044ef8; CTR_NATIVE uses host scratchpad.
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800444e8-0x80044ef8.
 void RaceFlag_DrawSelf()
 {
 	int i, j;
@@ -447,7 +466,6 @@ void RaceFlag_DrawSelf()
 
 	s16 flagPos;
 	u_long *ot;
-	u32 *scratchpad;
 	u32 screenlimit;
 	u32 dimensions;
 
@@ -462,12 +480,9 @@ void RaceFlag_DrawSelf()
 	int lightL;
 	int lightR;
 
-	// scratchpad
-	u32 *posL;
-	u32 *posR;
-	int *local;
-	SVECTOR *pos;
-
+	struct RaceFlagScratch *scratch;
+	s32 local[5];
+	SVECTOR pos[3] = {0};
 
 	if (sdata->RaceFlag_CanDraw == 0)
 		return;
@@ -497,12 +512,7 @@ SKIP_LOADING_TEXT:
 
 	p = (POLY_G4 *)gGT->backBuffer->primMem.cursor;
 
-#if defined(CTR_NATIVE)
-	scratchpad = &scratchpadBuf[0];
-	memset(&scratchpadBuf[0], 0, 0x1000 * 4);
-#else
-	scratchpad = (u32 *)0x1f800000;
-#endif
+	scratch = CTR_SCRATCHPAD_PTR(struct RaceFlagScratch, 0);
 
 	dimensions = 0xd80200;
 	screenlimit = 0x80008000;
@@ -513,19 +523,8 @@ SKIP_LOADING_TEXT:
 	// Remove 36*10 branching instructions,
 	// Reduces clock from ~150 to ~130
 	{
-#if defined(CTR_NATIVE)
-		posL = &scratchpadBuf[(toggle * 0x78 / 4) - 1];
+		union RaceFlagScreenBuffer *writeScreen = &scratch->screen[toggle];
 		toggle = toggle ^ 1;
-		posR = &scratchpadBuf[(toggle * 0x78 / 4)];
-		local = &scratchpadBuf[0xF0 / 4];
-		pos = &scratchpadBuf[0x108 / 4];
-#else
-		posL = (u32 *)(0x1f800000 + toggle * 0x78 - 4);
-		toggle = toggle ^ 1;
-		posR = (u32 *)(0x1f800000 + toggle * 0x78);
-		local = (u32 *)(0x1f8000F0);
-		pos = (u32 *)(0x1f800108);
-#endif
 
 		local[0] = data.checkerFlagVariables[0];
 		local[1] = data.checkerFlagVariables[1];
@@ -601,15 +600,14 @@ SKIP_LOADING_TEXT:
 				vect->vz = (s16)var2 + (s16)(var3 * 0x20 >> 0xd);
 			}
 
-			gte_ldv3(&pos[0], &pos[1], &pos[2]);
+			CTR_GteLoadSV3WithPad(&pos[0], &pos[1], &pos[2]);
 			gte_rtpt();
 
 			pos[0].vy += 0x11a;
 			pos[1].vy += 0x11a;
 			pos[2].vy += 0x11a;
 
-			gte_stsxy3((long *)(posL + 1), (long *)(posL + 2), (long *)(posL + 3));
-			posL += 3;
+			CTR_GteStoreSXY3(&writeScreen->row[row].xy[0], &writeScreen->row[row].xy[1], &writeScreen->row[row].xy[2]);
 		}
 
 		lightR = lightL;
@@ -620,15 +618,9 @@ SKIP_LOADING_TEXT:
 	// Now executing without branching
 	for (column = 1; column < 36; column++)
 	{
-#if defined(CTR_NATIVE)
-		posL = &scratchpadBuf[(toggle * 0x78 / 4) - 1];
+		union RaceFlagScreenBuffer *writeScreen = &scratch->screen[toggle];
 		toggle = toggle ^ 1;
-		posR = &scratchpadBuf[(toggle * 0x78 / 4)];
-#else
-		posL = (u32 *)((0x1f800000 + toggle * 0x78) - 4);
-		toggle = toggle ^ 1;
-		posR = (u32 *)(0x1f800000 + toggle * 0x78);
-#endif
+		union RaceFlagScreenBuffer *readScreen = &scratch->screen[toggle];
 
 		// === Step 1 ===
 		int stepRate = 0x40;
@@ -690,28 +682,27 @@ SKIP_LOADING_TEXT:
 				vect->vz = (s16)var2 + (s16)(var3 * 0x20 >> 0xd);
 			}
 
-			gte_ldv3(&pos[0], &pos[1], &pos[2]);
+			CTR_GteLoadSV3WithPad(&pos[0], &pos[1], &pos[2]);
 			gte_rtpt();
 
 			pos[0].vy += 0x11a;
 			pos[1].vy += 0x11a;
 			pos[2].vy += 0x11a;
 
-			gte_stsxy3((long *)(posL + 1), (long *)(posL + 2), (long *)(posL + 3));
+			CTR_GteStoreSXY3(&writeScreen->row[row].xy[0], &writeScreen->row[row].xy[1], &writeScreen->row[row].xy[2]);
 
-			// ============================
+			int firstSegment = (row == 0) ? 1 : 0;
 
-			j = 0;
-			if (i == 0)
+			for (j = firstSegment; j < RACE_FLAG_SCREEN_POINTS_PER_ROW; j++, i++)
 			{
-				j++;
-				posL++;
-			}
+				int pointIndex = row * RACE_FLAG_SCREEN_POINTS_PER_ROW + j - 1;
+				u32 read0 = readScreen->xy[pointIndex];
+				u32 read1 = readScreen->xy[pointIndex + 1];
+				u32 write0 = writeScreen->xy[pointIndex];
+				u32 write1 = writeScreen->xy[pointIndex + 1];
 
-			for (/**/; j < 3; posR++, posL++, j++, i++)
-			{
-				if (((posR[0] & posR[1] & posL[0] & posL[1] & screenlimit) == 0) &&
-				    ((dimensions - posR[0] & dimensions - posR[1] & dimensions - posL[0] & dimensions - posL[1] & screenlimit) == 0))
+				if (((read0 & read1 & write0 & write1 & screenlimit) == 0) &&
+				    (((dimensions - read0) & (dimensions - read1) & (dimensions - write0) & (dimensions - write1) & screenlimit) == 0))
 				{
 					// TRUE for gray, FALSE for white
 					u8 boolDark = (((column >> 2) + (i >> 2) & 1U) != 0);
@@ -725,17 +716,17 @@ SKIP_LOADING_TEXT:
 					*(int *)&p->r3 = *(int *)&p->r1;
 
 					// positions
-					*(int *)&p->x0 = posR[0];
-					*(int *)&p->x2 = posR[1];
-					*(int *)&p->x1 = posL[0];
-					*(int *)&p->x3 = posL[1];
+					*(int *)&p->x0 = read0;
+					*(int *)&p->x2 = read1;
+					*(int *)&p->x1 = write0;
+					*(int *)&p->x3 = write1;
 
 					// prim/code
 					setPolyG4(p);
 
 					// Prim/OT
 					// addPrim(ot, p); works but uses more instructions.
-					*(int *)p = *ot | 0x8000000;
+					*(int *)p = CtrGpu_PackOTTag(*ot, 0x8000000);
 					*ot = CtrGpu_PrimToOTLink24(p);
 
 					p++;

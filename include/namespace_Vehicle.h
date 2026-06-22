@@ -2,6 +2,7 @@
 
 struct Thread;
 struct Driver;
+struct PushBuffer;
 typedef void (*DriverFunc)(struct Thread *thread, struct Driver *driver);
 
 enum DriverFuncSlot
@@ -103,6 +104,25 @@ enum DriverTireColorCycle
 	DRIVER_TIRE_COLOR_STEP_WEIGHT = 0x177,
 };
 
+enum DriverSkidmarks
+{
+	DRIVER_SKIDMARK_FRAME_COUNT = 8,
+	DRIVER_SKIDMARK_TIRE_COUNT = 4,
+};
+
+union VehEmitterSkidmark
+{
+	SVECTOR edge[2];
+	struct
+	{
+		SVec3 edge0;
+		u8 color;
+		u8 flags;
+		SVec3 edge1;
+		s16 pad;
+	};
+};
+
 struct DriverCheckpointState
 {
 	// 0x0 - checkpoint chosen after a split, used by warpball pathing
@@ -110,6 +130,45 @@ struct DriverCheckpointState
 
 	// 0x1
 	u8 currentIndex;
+};
+
+// NOTE(aalhendi): Retail reuses this scratch range as transformed tire words,
+// a compressed 3x2 light matrix, then a distance vector.
+union VehEmitterWallScratch
+{
+	s32 word[6];
+	s16 half[12];
+};
+
+struct VehGroundSkidsScratch
+{
+	SVECTOR projected[3];
+	struct PushBuffer *pushBuffer;
+	u32 colorNear;
+	u32 colorFar;
+	union
+	{
+		u32 segmentFlags;
+		struct
+		{
+			u8 segmentFlagsLow;
+			u8 segmentFlagsPadding[3];
+		};
+	};
+	u32 currXY[9];
+	u32 prevXY[9];
+	s32 currDepth[9];
+	s32 prevDepth[9];
+	Vec3 origin;
+};
+
+// NOTE(aalhendi): Retail VehPhysCrash_AI uses globals 0x8009ae28
+// and 0x8009ae38 for this scratch state.
+struct VehPhysCrashAiScratch
+{
+	Vec3 forward;
+	s32 reserved_0x0c;
+	MATRIX matrix;
 };
 
 enum PhysType
@@ -918,7 +977,7 @@ struct Driver
 	// 0x010 per tire,
 	// 0x040 per frame (4 tires)
 	// 0x200 total (8 frames)
-	char skidmarks[0x200];
+	union VehEmitterSkidmark skidmarks[DRIVER_SKIDMARK_FRAME_COUNT][DRIVER_SKIDMARK_TIRE_COUNT];
 
 	// 0x2C4
 	u32 skidmarkEnableFlags;
@@ -2011,6 +2070,28 @@ _Static_assert(ACTION_REVERSE_STEER_RIGHT == 0x40000000);
 _Static_assert(ACTION_DROPPING_MINE == 0x80000000u);
 _Static_assert(sizeof(DriverCollisionFlags) == 0x2);
 _Static_assert(sizeof(RainCloudEffect) == 0x2);
+_Static_assert(sizeof(union VehEmitterSkidmark) == 0x10);
+_Static_assert(offsetof(union VehEmitterSkidmark, edge[0]) == 0x0);
+_Static_assert(offsetof(union VehEmitterSkidmark, edge[1]) == 0x8);
+_Static_assert(offsetof(union VehEmitterSkidmark, edge0) == 0x0);
+_Static_assert(offsetof(union VehEmitterSkidmark, color) == 0x6);
+_Static_assert(offsetof(union VehEmitterSkidmark, flags) == 0x7);
+_Static_assert(offsetof(union VehEmitterSkidmark, edge1) == 0x8);
+_Static_assert(sizeof(union VehEmitterWallScratch) == 0x18);
+_Static_assert(offsetof(struct VehGroundSkidsScratch, projected) == 0x0);
+_Static_assert(offsetof(struct VehGroundSkidsScratch, pushBuffer) == 0x18);
+_Static_assert(offsetof(struct VehGroundSkidsScratch, colorNear) == 0x1c);
+_Static_assert(offsetof(struct VehGroundSkidsScratch, colorFar) == 0x20);
+_Static_assert(offsetof(struct VehGroundSkidsScratch, segmentFlags) == 0x24);
+_Static_assert(offsetof(struct VehGroundSkidsScratch, currXY) == 0x28);
+_Static_assert(offsetof(struct VehGroundSkidsScratch, prevXY) == 0x4c);
+_Static_assert(offsetof(struct VehGroundSkidsScratch, currDepth) == 0x70);
+_Static_assert(offsetof(struct VehGroundSkidsScratch, prevDepth) == 0x94);
+_Static_assert(offsetof(struct VehGroundSkidsScratch, origin) == 0xb8);
+_Static_assert(sizeof(struct VehGroundSkidsScratch) == 0xc4);
+_Static_assert(offsetof(struct VehPhysCrashAiScratch, forward) == 0x0);
+_Static_assert(offsetof(struct VehPhysCrashAiScratch, matrix) == 0x10);
+_Static_assert(sizeof(struct VehPhysCrashAiScratch) == 0x30);
 _Static_assert(RAIN_CLOUD_EFFECT_NONE == 0x4);
 _Static_assert(DRIVER_COLL_FLAG_MASK_GRAB_REQUEST == 0x1);
 _Static_assert(DRIVER_COLL_FLAG_SURFACE_PUSHBACK == 0x2);
@@ -2037,6 +2118,8 @@ _Static_assert(offsetof(struct Driver, padding_0xb2) == 0xb2);
 _Static_assert(offsetof(struct Driver, spsNormalVec) == 0xb4);
 _Static_assert(offsetof(struct Driver, padding_0xba) == 0xba);
 _Static_assert(offsetof(struct Driver, stepFlagSet) == 0xbc);
+_Static_assert(offsetof(struct Driver, skidmarks) == 0xc4);
+_Static_assert(offsetof(struct Driver, skidmarkEnableFlags) == 0x2c4);
 _Static_assert(sizeof(((struct Driver *)0)->stepFlagSet) == 0x4);
 _Static_assert(sizeof(((struct Driver *)0)->spsHitPosRaw) == 0x8);
 _Static_assert(sizeof(((struct Driver *)0)->spsNormalVecRaw) == 0x8);

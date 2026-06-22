@@ -1,29 +1,73 @@
 #include <common.h>
 
+union RBBannerScratchVertex
+{
+	struct
+	{
+		s16 x;
+		s16 z;
+		s16 y;
+		s16 residue;
+	};
+	struct
+	{
+		u32 xz;
+		u32 yResidue;
+	};
+};
+
+enum
+{
+	RB_BANNER_TEMP_VERTEX_SCRATCH_OFFSET = 0x300,
+};
+
+_Static_assert(sizeof(union RBBannerScratchVertex) == 0x8);
+_Static_assert(offsetof(union RBBannerScratchVertex, x) == 0x0);
+_Static_assert(offsetof(union RBBannerScratchVertex, z) == 0x2);
+_Static_assert(offsetof(union RBBannerScratchVertex, y) == 0x4);
+_Static_assert(offsetof(union RBBannerScratchVertex, residue) == 0x6);
+_Static_assert(offsetof(union RBBannerScratchVertex, xz) == 0x0);
+_Static_assert(offsetof(union RBBannerScratchVertex, yResidue) == 0x4);
+
 static inline u8 *RB_Banner_FirstVertex(struct ModelHeader *mh)
 {
 	return (u8 *)mh->ptrFrameData + mh->ptrFrameData->vertexOffset;
 }
 
+static inline union RBBannerScratchVertex *RB_Banner_VertexSlot(u32 scratchOffset)
+{
+	return CTR_SCRATCHPAD_PTR(union RBBannerScratchVertex, scratchOffset);
+}
+
+static inline union RBBannerScratchVertex *RB_Banner_TempVertex(void)
+{
+	return RB_Banner_VertexSlot(RB_BANNER_TEMP_VERTEX_SCRATCH_OFFSET);
+}
+
 static inline void RB_Banner_SaveVertex(u8 stackIndex, const u8 *vertex)
 {
-	u32 *slot = CTR_SCRATCHPAD_PTR(u32, stackIndex * 8);
+	union RBBannerScratchVertex *temp = RB_Banner_TempVertex();
+	union RBBannerScratchVertex *slot = RB_Banner_VertexSlot((u32)stackIndex * sizeof(*slot));
 
-	slot[0] = (u32)vertex[0] | ((u32)vertex[2] << 16);
-	slot[1] = (slot[1] & 0xffff0000U) | (u32)vertex[1];
+	// NOTE(aalhendi): Retail stages X/Z/Y at scratch 0x300, then copies both
+	// words into the slot. The upper halfword at 0x306 is scratch residue.
+	temp->x = vertex[0];
+	temp->z = vertex[2];
+	temp->y = vertex[1];
+	slot->xz = temp->xz;
+	slot->yResidue = temp->yResidue;
 }
 
 static inline int RB_Banner_LoadSavedX(u32 command, u8 stackIndex)
 {
-	u32 saved;
-	u32 *slot;
+	union RBBannerScratchVertex *temp = RB_Banner_TempVertex();
+	union RBBannerScratchVertex *saved = RB_Banner_VertexSlot((command >> 13) & 0x7f8);
+	union RBBannerScratchVertex *slot = RB_Banner_VertexSlot((u32)stackIndex * sizeof(*slot));
 
-	saved = *CTR_SCRATCHPAD_PTR(u32, (command >> 13) & 0x7f8);
-	slot = CTR_SCRATCHPAD_PTR(u32, stackIndex * 8);
-	*CTR_SCRATCHPAD_PTR(u32, 0x300) = saved;
-	*CTR_SCRATCHPAD_PTR(u32, 0x304) = slot[1];
+	temp->xz = saved->xz;
+	temp->yResidue = slot->yResidue;
 
-	return (s32)(saved << 16) >> 18;
+	return (s32)((u32)(u16)temp->x << 16) >> 18;
 }
 
 static inline u32 RB_Banner_RewriteCommandX(u32 command, int xQuarter, int reusedVertex)

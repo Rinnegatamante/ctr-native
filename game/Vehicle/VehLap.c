@@ -48,7 +48,7 @@ void VehLap_UpdateProgress(struct Driver *driver)
 	CTC2(CTR_PackS16Pair(deltaZ, CTR_MipsSra(driver->matrixMovingDir.m[0][2], 5)), 1);
 	CTC2(CTR_PackS16Pair(CTR_MipsSra(driver->matrixMovingDir.m[1][2], 5), CTR_MipsSra(driver->matrixMovingDir.m[2][2], 5)), 2);
 
-	gte_ldv0(&nodeDelta);
+	CTR_GteLoadSVec4V0(&nodeDelta);
 	gte_mvmva(0, 0, 0, 3, 0);
 
 	s32 projection = MFC2_S(25);

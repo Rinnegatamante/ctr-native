@@ -1,5 +1,15 @@
 #include <common.h>
 
+struct CSThreadParentFrameScratch
+{
+	SVec3Slot parentPos;
+	u8 pad_110[0x08];
+	SVec3Slot parentRot;
+};
+
+_Static_assert(offsetof(struct CSThreadParentFrameScratch, parentPos) == 0x00);
+_Static_assert(offsetof(struct CSThreadParentFrameScratch, parentRot) == 0x10);
+
 static void CS_SaveDecodedOpcode(const struct CutsceneObj *cs, int out[5])
 {
 	const int *src = (const int *)&cs->decodedOpcode;
@@ -862,9 +872,10 @@ void CS_Thread_MoveOnPath(struct Thread *t)
 	int switchVal;
 	int digit;
 	struct SpawnType2 *spawnEntry;
-	s16 *coords;
-	s16 *curr;
-	s16 *next;
+	SVec3 *positions;
+	SVec3 *curr;
+	SVec3 *next;
+	struct SpawnPosRot *posRot;
 	u16 progress;
 	int idx;
 	u16 frac;
@@ -896,9 +907,9 @@ void CS_Thread_MoveOnPath(struct Thread *t)
 			return;
 
 		spawnEntry = (struct SpawnType2 *)((char *)level->ptrSpawnType2 + digit * 8);
-		coords = spawnEntry->posCoords;
+		positions = spawnEntry->positions;
 
-		if (coords == 0)
+		if (positions == 0)
 			return;
 
 		progress = cs->pathProgress32;
@@ -921,12 +932,12 @@ void CS_Thread_MoveOnPath(struct Thread *t)
 			}
 		}
 
-		curr = &coords[idx * 3];
-		next = &curr[3];
+		curr = &positions[idx];
+		next = &curr[1];
 
-		inst->matrix.t[0] = curr[0] + ((frac * (next[0] - curr[0])) >> 5);
-		inst->matrix.t[1] = curr[1] + ((frac * (next[1] - curr[1])) >> 5);
-		inst->matrix.t[2] = curr[2] + ((frac * (next[2] - curr[2])) >> 5);
+		inst->matrix.t[0] = curr->x + ((frac * (next->x - curr->x)) >> 5);
+		inst->matrix.t[1] = curr->y + ((frac * (next->y - curr->y)) >> 5);
+		inst->matrix.t[2] = curr->z + ((frac * (next->z - curr->z)) >> 5);
 
 		if (idx >= spawnEntry->numCoords - 1)
 			return;
@@ -935,7 +946,7 @@ void CS_Thread_MoveOnPath(struct Thread *t)
 			return;
 
 		rot.x = cs->rot.x;
-		rot.y = cs->rot.y + ratan2(next[0] - curr[0], next[2] - curr[2]);
+		rot.y = cs->rot.y + ratan2(next->x - curr->x, next->z - curr->z);
 		rot.z = cs->rot.z;
 
 		ConvertRotToMatrix(&inst->matrix, &rot);
@@ -952,9 +963,9 @@ void CS_Thread_MoveOnPath(struct Thread *t)
 			return;
 
 		spawnEntry = (struct SpawnType2 *)((char *)level->ptrSpawnType2_PosRot + digit * 8);
-		coords = spawnEntry->posCoords;
+		posRot = spawnEntry->posRot;
 
-		if (coords == 0)
+		if (posRot == 0)
 			return;
 
 		progress = cs->pathProgress32;
@@ -968,15 +979,13 @@ void CS_Thread_MoveOnPath(struct Thread *t)
 		}
 
 		{
-			s16 *point = &coords[idx * 6];
+			struct SpawnPosRot *frame = &posRot[idx];
 
-			inst->matrix.t[0] = point[0];
-			inst->matrix.t[1] = point[1];
-			inst->matrix.t[2] = point[2];
+			inst->matrix.t[0] = frame->pos.x;
+			inst->matrix.t[1] = frame->pos.y;
+			inst->matrix.t[2] = frame->pos.z;
 
-			rot.x = point[3];
-			rot.y = point[4];
-			rot.z = point[5];
+			rot = frame->rot;
 		}
 
 		break;
@@ -987,9 +996,9 @@ void CS_Thread_MoveOnPath(struct Thread *t)
 			return;
 
 		spawnEntry = level->ptrSpawnType2;
-		coords = spawnEntry->posCoords;
+		positions = spawnEntry->positions;
 
-		if (coords == 0)
+		if (positions == 0)
 			return;
 
 		{
@@ -1006,24 +1015,24 @@ void CS_Thread_MoveOnPath(struct Thread *t)
 			{
 				if (idx >= 0)
 				{
-					curr = &coords[idx * 3];
-					next = &curr[3];
+					curr = &positions[idx];
+					next = &curr[1];
 				}
 				else
 				{
-					curr = &coords[0];
+					curr = &positions[0];
 					next = curr;
 				}
 			}
 			else
 			{
-				curr = &coords[(numCoords - 1) * 3];
+				curr = &positions[numCoords - 1];
 				next = curr;
 			}
 
-			inst->matrix.t[0] = curr[0] + ((frac * (next[0] - curr[0])) >> 5);
-			inst->matrix.t[1] = curr[1] + ((frac * (next[1] - curr[1])) >> 5);
-			inst->matrix.t[2] = curr[2] + ((frac * (next[2] - curr[2])) >> 5);
+			inst->matrix.t[0] = curr->x + ((frac * (next->x - curr->x)) >> 5);
+			inst->matrix.t[1] = curr->y + ((frac * (next->y - curr->y)) >> 5);
+			inst->matrix.t[2] = curr->z + ((frac * (next->z - curr->z)) >> 5);
 		}
 
 		return;
@@ -1173,7 +1182,7 @@ void CS_Thread_InterpolateFramesMS(struct Thread *t)
 			otIndex = 0x3ff;
 
 		ot = (u32 *)&gGT->pushBuffer[0].ptrOT[otIndex];
-		packet->tag = (*ot & 0xffffff) | 0x05000000;
+		packet->tag = CtrGpu_PackOTTag(*ot, 0x05000000);
 		*ot = CtrGpu_PrimToOTLink24(packet);
 		packet++;
 	}
@@ -1274,8 +1283,7 @@ check_polar:
 void CS_Thread_ThTick(struct Thread *t)
 {
 	// Retail uses scratchpad 0x1f800108/0x1f800118 for parent frame-data temporaries.
-	s16 *parentPos = CTR_SCRATCHPAD_PTR(s16, 0x108);
-	s16 *parentRot = CTR_SCRATCHPAD_PTR(s16, 0x118);
+	struct CSThreadParentFrameScratch *parentFrame = CTR_SCRATCHPAD_PTR(struct CSThreadParentFrameScratch, 0x108);
 	SVec3 bonePos;
 	struct CutsceneObj *cs = t->object;
 	struct Instance *inst = t->inst;
@@ -1308,15 +1316,16 @@ void CS_Thread_ThTick(struct Thread *t)
 			{
 				parentInst = parentThread->inst;
 
-				CS_Instance_GetFrameData(parentInst, parentInst->animIndex, parentInst->animFrame, (u16 *)parentPos, (u16 *)parentRot, 0);
+				CS_Instance_GetFrameData(parentInst, parentInst->animIndex, parentInst->animFrame, (u16 *)parentFrame->parentPos.vec.v,
+				                         (u16 *)parentFrame->parentRot.vec.v, 0);
 
-				inst->matrix.t[0] = parentInst->matrix.t[0] + parentPos[0];
-				inst->matrix.t[1] = parentInst->matrix.t[1] + parentPos[1];
-				inst->matrix.t[2] = parentInst->matrix.t[2] + parentPos[2];
+				inst->matrix.t[0] = parentInst->matrix.t[0] + parentFrame->parentPos.x;
+				inst->matrix.t[1] = parentInst->matrix.t[1] + parentFrame->parentPos.y;
+				inst->matrix.t[2] = parentInst->matrix.t[2] + parentFrame->parentPos.z;
 
 				if ((cs->flags & 0x10) == 0)
 				{
-					ConvertRotToMatrix(&inst->matrix, parentRot);
+					ConvertRotToMatrix(&inst->matrix, &parentFrame->parentRot.vec);
 				}
 			}
 		}

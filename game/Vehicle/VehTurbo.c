@@ -56,16 +56,16 @@ void VehTurbo_ThDestroy(struct Thread *t)
 	INSTANCE_Death(turboObj->inst);
 }
 
-static void VehTurbo_TransformOffset(struct Instance *driverInst, s16 x, s16 y, s16 z, VECTOR *out)
+static void VehTurbo_TransformOffset(struct Instance *driverInst, s16 x, s16 y, s16 z, s32 *out)
 {
 	SVECTOR offset = {x, y, z, 0};
 
 	// NOTE(aalhendi): Native expression of retail VXY0/VZ0 loads before gte_rt.
 	gte_SetRotMatrix(&driverInst->matrix.m[0][0]);
 	gte_SetTransMatrix(&driverInst->matrix.m[0][0]);
-	gte_ldv0(&offset);
+	CTR_GteLoadSV0(&offset);
 	gte_rt();
-	gte_stlvl(out);
+	CTR_GteStoreIR(out);
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800693c8-0x80069bb0.
@@ -151,7 +151,7 @@ void VehTurbo_ThTick(struct Thread *turboThread)
 	instance->matrix.m[2][2] = (s16)(instanceDriver->matrix.m[2][2] * fireSize >> 3);
 
 	VehTurbo_TransformOffset(instanceDriver, instanceDriver->scale.x * 9 >> 0xb, instanceDriver->scale.y * 3 >> 8, instanceDriver->scale.z * -0x34 >> 0xc,
-	                         (VECTOR *)&instance->matrix.t[0]);
+	                         &instance->matrix.t[0]);
 
 	// matrix of second turbo instance, negate X axis
 	turbo->inst->matrix.m[0][0] = (s16)(-(int)instanceDriver->matrix.m[0][0] * fireSize >> 3);
@@ -165,7 +165,7 @@ void VehTurbo_ThTick(struct Thread *turboThread)
 	turbo->inst->matrix.m[2][2] = (s16)(instanceDriver->matrix.m[2][2] * fireSize >> 3);
 
 	VehTurbo_TransformOffset(instanceDriver, instanceDriver->scale.x * -0x12 >> 0xc, instanceDriver->scale.y * 3 >> 8, instanceDriver->scale.z * -0x34 >> 0xc,
-	                         (VECTOR *)&turbo->inst->matrix.t[0]);
+	                         &turbo->inst->matrix.t[0]);
 
 	// decrease turbo visibility cooldown by elapsed milliseconds per frame, ~32
 	s16 elapsedTime = turbo->fireVisibilityCooldown - gGT->elapsedTimeMS;

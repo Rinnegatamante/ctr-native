@@ -32,17 +32,18 @@ void RB_Minecart_CheckColl(struct Instance *minecartInst, struct Thread *minecar
 
 void RB_Minecart_NewPoint(struct Instance *minecartInst, struct Minecart *minecartObj, struct SpawnType2 *spawnType2)
 {
-	int pointIndex = minecartObj->posIndex * 3;
+	const SVec3 *start = &spawnType2->positions[minecartObj->posIndex - 1];
+	const SVec3 *end = &spawnType2->positions[minecartObj->posIndex];
 
 	for (int i = 0; i < 3; i++)
 	{
-		int start = spawnType2->posCoords[pointIndex + i - 3];
-		int end = spawnType2->posCoords[pointIndex + i];
+		int startValue = start->v[i];
+		int endValue = end->v[i];
 
-		minecartObj->posStart.v[i] = start;
-		minecartObj->posEnd.v[i] = end;
-		minecartInst->matrix.t[i] = start;
-		minecartObj->dir.v[i] = start - end;
+		minecartObj->posStart.v[i] = startValue;
+		minecartObj->posEnd.v[i] = endValue;
+		minecartInst->matrix.t[i] = startValue;
+		minecartObj->dir.v[i] = startValue - endValue;
 	}
 
 #if defined(CTR_NATIVE)

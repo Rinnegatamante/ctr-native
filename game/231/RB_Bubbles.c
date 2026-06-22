@@ -9,7 +9,7 @@ void RB_Bubbles_RoosTubes()
 	struct Level *level1;
 	struct SpawnType2 *spawnType2;
 	int numSpawnPosCoords;
-	s16 *ptrSpawnPosCoords;
+	SVec3 *spawnPos;
 	int numFreeParticles;
 	struct Particle *p;
 	struct Driver *d;
@@ -39,13 +39,13 @@ void RB_Bubbles_RoosTubes()
 	for (
 	    // initializer, skip one cause level geometry
 	    // covers the particles (see #ctr-early-content)
-	    numSpawnPosCoords = spawnType2->numCoords - 1, ptrSpawnPosCoords = &spawnType2->posCoords[3], numFreeParticles = gGT->JitPools.particle.free.count;
+	    numSpawnPosCoords = spawnType2->numCoords - 1, spawnPos = &spawnType2->positions[1], numFreeParticles = gGT->JitPools.particle.free.count;
 
 	    // end condition
 	    (numSpawnPosCoords > 0) && (numFreeParticles >= 0x14);
 
 	    // iterative condition
-	    numSpawnPosCoords--, ptrSpawnPosCoords += 3)
+	    numSpawnPosCoords--, spawnPos++)
 	{
 		// each particle gets spawned once every 8 frames
 		if (((timer + numSpawnPosCoords) & 7) != 0)
@@ -55,8 +55,8 @@ void RB_Bubbles_RoosTubes()
 		}
 
 		// speed approximation (what on earth is this logic?)
-		velX = ((d->posCurr.x - d->posPrev.x >> 4) + (d->posCurr.x >> 8)) - ptrSpawnPosCoords[0];
-		velZ = ((d->posCurr.z - d->posPrev.z >> 4) + (d->posCurr.z >> 8)) - ptrSpawnPosCoords[2];
+		velX = ((d->posCurr.x - d->posPrev.x >> 4) + (d->posCurr.x >> 8)) - spawnPos->x;
+		velZ = ((d->posCurr.z - d->posPrev.z >> 4) + (d->posCurr.z >> 8)) - spawnPos->z;
 		if (velX < 0)
 			velX = -velX;
 		if (velZ < 0)
@@ -82,7 +82,7 @@ void RB_Bubbles_RoosTubes()
 		p->otIndexOffset = 8;
 
 		for (i = 0; i < 3; i++)
-			p->axis[i].startVal += ptrSpawnPosCoords[i] * 0x100;
+			p->axis[i].startVal += spawnPos->v[i] * 0x100;
 	}
 }
 

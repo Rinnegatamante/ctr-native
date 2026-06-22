@@ -169,6 +169,118 @@ struct RenderBucketPackedVertex
 	u32 z;
 };
 
+struct RenderBucketFrameOriginScratch
+{
+	SVec2 xy;
+	s32 z;
+};
+
+union RenderBucketScratchColor
+{
+	struct
+	{
+		u8 r;
+		u8 g;
+		u8 b;
+		u8 code;
+	};
+	u32 word;
+};
+
+struct RenderBucketSplitScratch
+{
+	u8 pad_000[0x16];
+	s16 splitLineSecondary;
+	u8 pad_018[0x04];
+	u32 splitCounterPrimary;
+	u8 pad_020[0x0e];
+	s16 splitLineTertiary;
+	u8 pad_030[0x04];
+	u32 splitCounterSecondary;
+	u8 pad_038[0x20];
+	u32 splitFixedLine;
+	s16 alphaScale;
+	u8 pad_05e[0x02];
+	union RenderBucketScratchColor fadeColor;
+};
+
+struct RenderBucketExecuteScratch
+{
+	u32 savedSp;
+	u32 nextEntryPtr32;
+	u32 pushBufferPtr32;
+	u32 primMemPtr32;
+	u32 instPtr32;
+	u8 pad_014[0x08];
+	s16 geomW;
+	s16 geomH;
+	u32 pad_020;
+	u32 instFlags;
+	u8 pad_028[0x08];
+	struct RenderBucketFrameOriginScratch frameOrigin;
+	u8 pad_038[0x0c];
+	s16 splitLinePrimary;
+	u8 pad_046[0x02];
+	u8 splitInstanceUnk53;
+	u8 pad_049[0x03];
+	u32 splitFunc3Ptr32;
+	u8 pad_050[0x08];
+	u32 setupDrawClear;
+	u8 pad_05c[0x38];
+	u32 setupDispatch[8];
+	SVec3Slot rawView;
+	u8 pad_0bc[0x08];
+	union
+	{
+		u32 primDispatch[8];
+		struct RenderBucketSplitScratch split;
+	};
+};
+
+enum
+{
+	RENDER_BUCKET_PAYLOAD_SCRATCH_OFFSET = 0x140,
+};
+
+_Static_assert(sizeof(struct RenderBucketPackedVertex) == 0x8);
+_Static_assert(sizeof(struct RenderBucketFrameOriginScratch) == 0x8);
+_Static_assert(offsetof(struct RenderBucketFrameOriginScratch, xy) == 0x00);
+_Static_assert(offsetof(struct RenderBucketFrameOriginScratch, z) == 0x04);
+_Static_assert(sizeof(union RenderBucketScratchColor) == 0x4);
+_Static_assert(sizeof(struct RenderBucketSplitScratch) == 0x64);
+_Static_assert(offsetof(struct RenderBucketExecuteScratch, savedSp) == 0x00);
+_Static_assert(offsetof(struct RenderBucketExecuteScratch, nextEntryPtr32) == 0x04);
+_Static_assert(offsetof(struct RenderBucketExecuteScratch, pushBufferPtr32) == 0x08);
+_Static_assert(offsetof(struct RenderBucketExecuteScratch, primMemPtr32) == 0x0c);
+_Static_assert(offsetof(struct RenderBucketExecuteScratch, instPtr32) == 0x10);
+_Static_assert(offsetof(struct RenderBucketExecuteScratch, geomW) == 0x1c);
+_Static_assert(offsetof(struct RenderBucketExecuteScratch, geomH) == 0x1e);
+_Static_assert(offsetof(struct RenderBucketExecuteScratch, instFlags) == 0x24);
+_Static_assert(offsetof(struct RenderBucketExecuteScratch, frameOrigin) == 0x30);
+_Static_assert(offsetof(struct RenderBucketExecuteScratch, splitLinePrimary) == 0x44);
+_Static_assert(offsetof(struct RenderBucketExecuteScratch, splitInstanceUnk53) == 0x48);
+_Static_assert(offsetof(struct RenderBucketExecuteScratch, splitFunc3Ptr32) == 0x4c);
+_Static_assert(offsetof(struct RenderBucketExecuteScratch, setupDrawClear) == 0x58);
+_Static_assert(offsetof(struct RenderBucketExecuteScratch, setupDispatch) == 0x94);
+_Static_assert(offsetof(struct RenderBucketExecuteScratch, rawView) == 0xb4);
+_Static_assert(offsetof(struct RenderBucketExecuteScratch, primDispatch) == 0xc4);
+_Static_assert(offsetof(struct RenderBucketExecuteScratch, split) == 0xc4);
+_Static_assert(offsetof(struct RenderBucketSplitScratch, splitLineSecondary) == 0x16);
+_Static_assert(offsetof(struct RenderBucketSplitScratch, splitCounterPrimary) == 0x1c);
+_Static_assert(offsetof(struct RenderBucketSplitScratch, splitLineTertiary) == 0x2e);
+_Static_assert(offsetof(struct RenderBucketSplitScratch, splitCounterSecondary) == 0x34);
+_Static_assert(offsetof(struct RenderBucketSplitScratch, splitFixedLine) == 0x58);
+_Static_assert(offsetof(struct RenderBucketSplitScratch, alphaScale) == 0x5c);
+_Static_assert(offsetof(struct RenderBucketSplitScratch, fadeColor) == 0x60);
+_Static_assert(offsetof(struct RenderBucketExecuteScratch, split.splitLineSecondary) == 0xda);
+_Static_assert(offsetof(struct RenderBucketExecuteScratch, split.splitCounterPrimary) == 0xe0);
+_Static_assert(offsetof(struct RenderBucketExecuteScratch, split.splitLineTertiary) == 0xf2);
+_Static_assert(offsetof(struct RenderBucketExecuteScratch, split.splitCounterSecondary) == 0xf8);
+_Static_assert(offsetof(struct RenderBucketExecuteScratch, split.splitFixedLine) == 0x11c);
+_Static_assert(offsetof(struct RenderBucketExecuteScratch, split.alphaScale) == 0x120);
+_Static_assert(offsetof(struct RenderBucketExecuteScratch, split.fadeColor) == 0x124);
+_Static_assert(sizeof(struct RenderBucketExecuteScratch) == 0x128);
+
 struct RenderBucketUncompressResult
 {
 	struct RenderBucketPackedVertex packed;
@@ -500,6 +612,21 @@ static u32 RenderBucket_PackXY(int x, int y)
 	return ((u32)(u16)x) | ((u32)(u16)y << 16);
 }
 
+static struct RenderBucketExecuteScratch *RenderBucket_Scratch(void)
+{
+	return CTR_SCRATCHPAD_PTR(struct RenderBucketExecuteScratch, 0);
+}
+
+static struct RenderBucketPackedVertex *RenderBucket_PackedVertexScratch(u16 stackIndex)
+{
+	return CTR_SCRATCHPAD_PTR(struct RenderBucketPackedVertex, RENDER_BUCKET_PAYLOAD_SCRATCH_OFFSET + (stackIndex * sizeof(struct RenderBucketPackedVertex)));
+}
+
+static u32 *RenderBucket_ColorCacheScratch(void)
+{
+	return CTR_SCRATCHPAD_PTR(u32, RENDER_BUCKET_PAYLOAD_SCRATCH_OFFSET);
+}
+
 static int RenderBucket_SignExtendByte(u8 value)
 {
 	return ((value & 0x80) != 0) ? (int)value - 0x100 : value;
@@ -507,16 +634,19 @@ static int RenderBucket_SignExtendByte(u8 value)
 
 static void RenderBucket_StoreRawViewScratch(const VECTOR *rawViewPos)
 {
+	SVec3Slot *rawView = &RenderBucket_Scratch()->rawView;
+
 	// NOTE(aalhendi): Retail 0x80070a40-0x80070a4c writes these as halfwords,
 	// and the later compressed-normal test reads words from 0xb4/0xb8. The high
 	// halfword at 0xba is intentionally left with scratchpad lifetime.
-	*CTR_SCRATCHPAD_PTR(s16, 0xb4) = rawViewPos->vx;
-	*CTR_SCRATCHPAD_PTR(s16, 0xb6) = rawViewPos->vy;
-	*CTR_SCRATCHPAD_PTR(s16, 0xb8) = rawViewPos->vz;
+	rawView->x = rawViewPos->vx;
+	rawView->y = rawViewPos->vy;
+	rawView->z = rawViewPos->vz;
 }
 
 static void RenderBucket_AdjustDepthBiasForNormal(struct Instance *inst, int playerIndex, int *normalBias, int *reflectBias)
 {
+	SVec3Slot *rawView;
 	u32 compressed = inst->bitCompressed_NormalVector_AndDriverIndex;
 	int driverIndex;
 	int normalX;
@@ -537,10 +667,11 @@ static void RenderBucket_AdjustDepthBiasForNormal(struct Instance *inst, int pla
 	// NOTE(aalhendi): Source-backs QueueDraw 0x80070c2c-0x80070c9c. Retail
 	// tests the compressed ground normal against the pre-view-transform vector
 	// and biases both OT ranges by +10 when MAC2 is positive.
+	rawView = &RenderBucket_Scratch()->rawView;
 	CTC2((u16)normalX | ((u32)(u16)normalY << 16), 16);
 	CTC2(normalZ, 17);
-	MTC2(*CTR_SCRATCHPAD_PTR(u32, 0xb4), 0);
-	MTC2(*CTR_SCRATCHPAD_PTR(u32, 0xb8), 1);
+	MTC2(CTR_PackS16Pair(rawView->x, rawView->y), 0);
+	MTC2(CTR_PackS16Pair(rawView->z, rawView->w), 1);
 	doCOP2(0x04c6012);
 
 	if ((s32)MFC2(25) > 0)
@@ -564,7 +695,7 @@ static void RenderBucket_LinkPrimRaw(u_long *otEntry, void *prim, u32 lenWord)
 
 	// NOTE(aalhendi): Source-backs DrawInstPrim_Normal's retail OT tag write at
 	// 0x8006ae50-0x8006ae64.
-	*tag = *(u32 *)otEntry | lenWord;
+	*tag = CtrGpu_PackOTTag(*otEntry, lenWord);
 	*(u32 *)otEntry = RenderBucket_OTAddress(prim);
 }
 
@@ -648,8 +779,9 @@ _Static_assert(RB_MODEL_ALWAYS_POINT_NORTH == 0x1);
 
 static void RenderBucket_CopyDispatchTables(void)
 {
-	u32 *dst0 = CTR_SCRATCHPAD_PTR(u32, 0x94);
-	u32 *dst1 = CTR_SCRATCHPAD_PTR(u32, 0xc4);
+	struct RenderBucketExecuteScratch *scratch = RenderBucket_Scratch();
+	u32 *dst0 = scratch->setupDispatch;
+	u32 *dst1 = scratch->primDispatch;
 
 	// NOTE(aalhendi): ASM-verified helper 0x80071590 copies two 8-word table
 	// windows from 0x8008a428/0x8008a444 into scratch 0x94/0xc4.
@@ -666,8 +798,9 @@ static void RenderBucket_CopyDispatchTables(void)
 
 static void RenderBucket_WriteInstanceCallbackLabels(struct Instance *inst, u32 instFlags)
 {
-	u32 *setupTable = CTR_SCRATCHPAD_PTR(u32, 0x94);
-	u32 *primTable = CTR_SCRATCHPAD_PTR(u32, 0xc4);
+	struct RenderBucketExecuteScratch *scratch = RenderBucket_Scratch();
+	u32 *setupTable = scratch->setupDispatch;
+	u32 *primTable = scratch->primDispatch;
 	int func01Index = ((instFlags >> 14) & 0x1c) >> 2;
 	int func23Index = ((instFlags >> 18) & 0x0c) >> 2;
 
@@ -2029,34 +2162,32 @@ static u32 RenderBucket_InterpolatedModelVertexZ(struct RenderBucketDrawContext 
 
 static struct RenderBucketPackedVertex RenderBucket_CachePackedVertex(struct RenderBucketDrawContext *ctx, u16 stackIndex)
 {
-	u32 *scratchVertex = CTR_SCRATCHPAD_PTR(u32, 0x140 + (stackIndex * 8));
+	struct RenderBucketPackedVertex *scratchVertex = RenderBucket_PackedVertexScratch(stackIndex);
 	struct RenderBucketPackedVertex packed;
 
 	packed.xy = RenderBucket_PackModelVertexXY(ctx, &ctx->stack[stackIndex]);
 	packed.z = RenderBucket_ModelVertexZ(ctx, &ctx->stack[stackIndex]);
 	ctx->packedStack[stackIndex] = packed;
-	scratchVertex[0] = packed.xy;
-	scratchVertex[1] = packed.z;
+	*scratchVertex = packed;
 	return packed;
 }
 
 static struct RenderBucketPackedVertex RenderBucket_CacheInterpolatedPackedVertex(struct RenderBucketDrawContext *ctx, u16 stackIndex,
                                                                                   const RenderBucketVertex *curr, const RenderBucketVertex *next)
 {
-	u32 *scratchVertex = CTR_SCRATCHPAD_PTR(u32, 0x140 + (stackIndex * 8));
+	struct RenderBucketPackedVertex *scratchVertex = RenderBucket_PackedVertexScratch(stackIndex);
 	struct RenderBucketPackedVertex packed;
 
 	packed.xy = RenderBucket_PackInterpolatedModelVertexXY(ctx, curr, next);
 	packed.z = RenderBucket_InterpolatedModelVertexZ(ctx, curr, next);
 	ctx->packedStack[stackIndex] = packed;
-	scratchVertex[0] = packed.xy;
-	scratchVertex[1] = packed.z;
+	*scratchVertex = packed;
 	return packed;
 }
 
 static void RenderBucket_CopyScratchColorCache(struct RenderBucketDrawContext *ctx)
 {
-	u32 *scratchColor = CTR_SCRATCHPAD_PTR(u32, 0x140);
+	u32 *scratchColor = RenderBucket_ColorCacheScratch();
 	u32 *commandList = (u32 *)ctx->idpp->ptrCommandList;
 	u32 *colorLayout = (u32 *)ctx->idpp->ptrColorLayout;
 	u32 count = commandList[0];
@@ -2076,7 +2207,7 @@ static int RenderBucket_GetCommandColor(struct RenderBucketDrawContext *ctx, u32
 	u32 colorOffset = (command >> 7) & 0x1fc;
 
 	if ((s32)(command << 4) < 0)
-		return *CTR_SCRATCHPAD_PTR(u32, 0x140 + colorOffset);
+		return RenderBucket_ColorCacheScratch()[colorOffset / sizeof(u32)];
 
 	return *(u32 *)((char *)colorLayout + colorOffset);
 }
@@ -2084,7 +2215,7 @@ static int RenderBucket_GetCommandColor(struct RenderBucketDrawContext *ctx, u32
 static int RenderBucket_GetIndexedColor(struct RenderBucketDrawContext *ctx, u32 colorOffset, int useScratch)
 {
 	if (useScratch != 0)
-		return *CTR_SCRATCHPAD_PTR(u32, 0x140 + colorOffset);
+		return RenderBucket_ColorCacheScratch()[colorOffset / sizeof(u32)];
 
 	return *(u32 *)((char *)ctx->idpp->ptrColorLayout + colorOffset);
 }
@@ -2137,11 +2268,10 @@ struct RenderBucketUncompressResult RenderBucket_UncompressAnimationFrame(struct
 	// NOTE(aalhendi): ASM-verified NTSC-U 926 0x8006a8e0-0x8006aaa8.
 	if ((flags & 4) != 0)
 	{
-		u32 *scratchVertex = CTR_SCRATCHPAD_PTR(u32, 0x140 + (stackIndex * 8));
+		struct RenderBucketPackedVertex *scratchVertex = RenderBucket_PackedVertexScratch(stackIndex);
 
 		// Command bit 0x04000000 returns the cached packed vertex.
-		result.packed.xy = scratchVertex[0];
-		result.packed.z = scratchVertex[1];
+		result.packed = *scratchVertex;
 		result.color = RenderBucket_GetCommandColor(ctx, command);
 		ctx->packedStack[stackIndex] = result.packed;
 		return result;
@@ -2195,12 +2325,11 @@ static struct RenderBucketUncompressResult RenderBucket_UncompressAnimationFrame
 
 	if ((flags & 4) != 0)
 	{
-		u32 *scratchVertex = CTR_SCRATCHPAD_PTR(u32, 0x140 + (stackIndex * 8));
+		struct RenderBucketPackedVertex *scratchVertex = RenderBucket_PackedVertexScratch(stackIndex);
 
 		// NOTE(aalhendi): Retail next-frame entry shares the cached-vertex
 		// command bit path with 0x8006a8e0 before returning color.
-		result.packed.xy = scratchVertex[0];
-		result.packed.z = scratchVertex[1];
+		result.packed = *scratchVertex;
 		result.color = RenderBucket_GetCommandColor(ctx, command);
 		ctx->packedStack[stackIndex] = result.packed;
 		return result;
@@ -2253,7 +2382,7 @@ static struct RenderBucketUncompressResult RenderBucket_TransformSplitDecodedVer
                                                                                     struct RenderBucketUncompressResult result)
 {
 	u8 flags = (command >> 24) & 0xff;
-	u32 *scratchVertex = CTR_SCRATCHPAD_PTR(u32, 0x140 + (stackIndex * 8));
+	struct RenderBucketPackedVertex *scratchVertex = RenderBucket_PackedVertexScratch(stackIndex);
 
 	if ((flags & 4) != 0)
 		return result;
@@ -2267,8 +2396,7 @@ static struct RenderBucketUncompressResult RenderBucket_TransformSplitDecodedVer
 	result.packed.xy = ((u32)MFC2(10) << 16) | ((u32)MFC2(9) & 0xffff);
 	result.packed.z = MFC2(11);
 	ctx->packedStack[stackIndex] = result.packed;
-	scratchVertex[0] = result.packed.xy;
-	scratchVertex[1] = result.packed.z;
+	*scratchVertex = result.packed;
 	return result;
 }
 
@@ -2579,7 +2707,7 @@ static int RenderBucket_DrawInstPrim_NormalAtOTEntry(struct RenderBucketDrawCont
 		*(u32 *)&p->r0 = 0x30000000 | (u32)MFC2(20);
 		*(int *)&p->r1 = MFC2(21);
 		*(int *)&p->r2 = MFC2(22);
-		gte_stsxy3(&p->x0, &p->x1, &p->x2);
+		CTR_GteStoreSXY3(&p->x0, &p->x1, &p->x2);
 #ifdef CTR_INTERNAL
 		if (CtrTireDebug_ShouldLog(CTR_TIREDBG_RENDERBUCKET_PRIM) != 0)
 		{
@@ -2609,7 +2737,7 @@ static int RenderBucket_DrawInstPrim_NormalAtOTEntry(struct RenderBucketDrawCont
 		*(int *)&p->u0 = *(int *)&tex->u0;
 		*(u32 *)&p->u1 = texWord1;
 		*(u32 *)&p->u2 = *(u32 *)&tex->u2;
-		gte_stsxy3(&p->x0, &p->x1, &p->x2);
+		CTR_GteStoreSXY3(&p->x0, &p->x1, &p->x2);
 #ifdef CTR_INTERNAL
 		if (CtrTireDebug_ShouldLog(CTR_TIREDBG_RENDERBUCKET_PRIM) != 0)
 		{
@@ -2670,7 +2798,7 @@ static int RenderBucket_DrawInstPrim_KeyRelicTokenAtRange(struct RenderBucketDra
 		otEntry++;
 
 	POLY_FT3 *p = ctx->primMem->cursor;
-	gte_stsxy3(&p->x0, &p->x1, &p->x2);
+	CTR_GteStoreSXY3(&p->x0, &p->x1, &p->x2);
 
 	u32 sourceColor = (u32)ctx->tempColor[1];
 	MTC2((s32)(sourceColor << 24) >> 19, 9);
@@ -2799,7 +2927,7 @@ static int RenderBucket_DrawInstPrim_DepthFadeAtRange(struct RenderBucketDrawCon
 	*(u32 *)&p->r0 = 0x36000000 | (color0 & 0x00ffffff);
 	*(u32 *)&p->r1 = color1;
 	*(u32 *)&p->r2 = color2;
-	gte_stsxy3(&p->x0, &p->x1, &p->x2);
+	CTR_GteStoreSXY3(&p->x0, &p->x1, &p->x2);
 	*(u32 *)&p->u0 = *(u32 *)&tex->u0;
 	*(u32 *)&p->u1 = *(u32 *)&tex->u1;
 	*(u32 *)&p->u2 = *(u32 *)&tex->u2;
@@ -2926,7 +3054,7 @@ static int RenderBucket_DrawInstPrim_LitTextureAtRange(struct RenderBucketDrawCo
 
 	p = ctx->primMem->cursor;
 	*(u32 *)&p->r0 = codeWord | (b << 16) | (g << 8) | r;
-	gte_stsxy3(&p->x0, &p->x1, &p->x2);
+	CTR_GteStoreSXY3(&p->x0, &p->x1, &p->x2);
 	*(u32 *)&p->u0 = *(u32 *)&tex->u0;
 	*(u32 *)&p->u1 = texWord1 | tpageMask;
 	*(u32 *)&p->u2 = *(u32 *)&tex->u2;
@@ -2970,7 +3098,7 @@ static int RenderBucket_DrawInstPrim_GhostAtRange(struct RenderBucketDrawContext
 	mask = (struct RenderBucketGhostMaskPacket *)ctx->primMem->cursor;
 	mask->drawMode = 0xe1000a40;
 	mask->pad = 0;
-	mask->colorAndCode = *CTR_SCRATCHPAD_PTR(u32, 0x124);
+	mask->colorAndCode = RenderBucket_Scratch()->split.fadeColor.word;
 	mask->xy0 = (u32)MFC2(12);
 	mask->xy1 = (u32)MFC2(13);
 	mask->xy2 = (u32)MFC2(14);
@@ -3330,7 +3458,7 @@ static int RenderBucket_DrawSplitPrimitiveGhostAtRange(struct RenderBucketDrawCo
 	mask = (struct RenderBucketGhostMaskPacket *)ctx->primMem->cursor;
 	mask->drawMode = 0xe1000a40;
 	mask->pad = 0;
-	mask->colorAndCode = *CTR_SCRATCHPAD_PTR(u32, 0x124);
+	mask->colorAndCode = RenderBucket_Scratch()->split.fadeColor.word;
 	mask->xy0 = v0->sxy;
 	mask->xy1 = v1->sxy;
 	mask->xy2 = v2->sxy;
@@ -4598,13 +4726,13 @@ static int RenderBucket_RunInstanceSetupCallback(struct RenderBucketDrawContext 
 		}
 
 		{
-			u8 *scratchFade = CTR_SCRATCHPAD_PTR(u8, 0x124);
+			union RenderBucketScratchColor *scratchFade = &RenderBucket_Scratch()->split.fadeColor;
 			int fade = (int)((u32)(0x1000 - (s32)ctx->inst->alphaScale) >> 5);
 
-			scratchFade[0] = (u8)fade;
-			scratchFade[1] = (u8)fade;
-			scratchFade[2] = (u8)fade;
-			scratchFade[3] = 0x22;
+			scratchFade->r = (u8)fade;
+			scratchFade->g = (u8)fade;
+			scratchFade->b = (u8)fade;
+			scratchFade->code = 0x22;
 			if (ctx->inst->alphaScale == 0x1000)
 				return 0;
 		}
@@ -4674,6 +4802,7 @@ static void RenderBucket_DispatchDrawFunc(struct RenderBucketDrawContext *ctx)
 
 static int RenderBucket_PrepareDrawContext(struct RenderBucketDrawContext *ctx, struct Instance *inst, struct Instance *instPlayerBase, struct PrimMem *primMem)
 {
+	struct RenderBucketExecuteScratch *scratch = RenderBucket_Scratch();
 	struct InstDrawPerPlayer *idpp;
 	struct PushBuffer *pb;
 	struct ModelHeader *mh;
@@ -4712,50 +4841,50 @@ static int RenderBucket_PrepareDrawContext(struct RenderBucketDrawContext *ctx, 
 
 	anim = RenderBucket_GetAnim(inst, mh);
 
-	*CTR_SCRATCHPAD_PTR(u32, 0x10) = (u32)(uintptr_t)inst;
-	if (*CTR_SCRATCHPAD_PTR(u32, 0x8) != (u32)(uintptr_t)pb)
+	scratch->instPtr32 = (u32)(uintptr_t)inst;
+	if (scratch->pushBufferPtr32 != (u32)(uintptr_t)pb)
 	{
-		*CTR_SCRATCHPAD_PTR(u32, 0x8) = (u32)(uintptr_t)pb;
-		*CTR_SCRATCHPAD_PTR(s16, 0x1c) = pb->rect.w;
-		*CTR_SCRATCHPAD_PTR(s16, 0x1e) = pb->rect.h;
+		scratch->pushBufferPtr32 = (u32)(uintptr_t)pb;
+		scratch->geomW = pb->rect.w;
+		scratch->geomH = pb->rect.h;
 		gte_SetGeomOffset(pb->rect.w >> 1, pb->rect.h >> 1);
 		gte_SetGeomScreen(pb->distanceToScreen_PREV);
 	}
 	if (nextFrame != 0)
 	{
-		*CTR_SCRATCHPAD_PTR(s16, 0x30) = mf->pos.x + nextFrame->pos.x;
-		*CTR_SCRATCHPAD_PTR(s16, 0x32) = mf->pos.y + nextFrame->pos.y;
-		*CTR_SCRATCHPAD_PTR(u32, 0x34) = (u32)((s32)(mf->pos.z + nextFrame->pos.z) << 1);
+		scratch->frameOrigin.xy.x = mf->pos.x + nextFrame->pos.x;
+		scratch->frameOrigin.xy.y = mf->pos.y + nextFrame->pos.y;
+		scratch->frameOrigin.z = (s32)(mf->pos.z + nextFrame->pos.z) << 1;
 	}
 	else
 	{
-		*CTR_SCRATCHPAD_PTR(s16, 0x30) = mf->pos.x & 0x7fff;
-		*CTR_SCRATCHPAD_PTR(s16, 0x32) = mf->pos.y;
-		*CTR_SCRATCHPAD_PTR(u32, 0x34) = (s32)mf->pos.z;
+		scratch->frameOrigin.xy.x = mf->pos.x & 0x7fff;
+		scratch->frameOrigin.xy.y = mf->pos.y;
+		scratch->frameOrigin.z = mf->pos.z;
 	}
 
 	gte_SetRotMatrix(&idpp->mvp);
 	gte_SetTransMatrix(&idpp->mvp);
-	*CTR_SCRATCHPAD_PTR(u32, 0x24) = idpp->instFlags;
-	*CTR_SCRATCHPAD_PTR(s16, 0x120) = idpp->alphaScale;
+	scratch->instFlags = idpp->instFlags;
+	scratch->split.alphaScale = idpp->alphaScale;
 	if ((idpp->instFlags & SPLIT_STATE_MASK) != 0)
 	{
 		RenderBucket_GteLoadLightMatrixWords(&idpp->m3x3);
 		// NOTE(aalhendi): Retail Execute owns these split scratch words before
 		// callback dispatch.
-		*CTR_SCRATCHPAD_PTR(s16, 0x44) = idpp->splitLine;
-		*CTR_SCRATCHPAD_PTR(s16, 0xda) = idpp->splitLine;
-		*CTR_SCRATCHPAD_PTR(s16, 0xf2) = idpp->splitLine;
-		*CTR_SCRATCHPAD_PTR(u8, 0x48) = (u8)inst->unk53;
-		*CTR_SCRATCHPAD_PTR(u32, 0x4c) = (u32)(uintptr_t)inst->funcPtr[3];
-		*CTR_SCRATCHPAD_PTR(u32, 0x11c) = ((u32)(s32)idpp->splitLine) << 17;
-		*CTR_SCRATCHPAD_PTR(u32, 0xe0) = 0;
-		*CTR_SCRATCHPAD_PTR(u32, 0xf8) = 0;
+		scratch->splitLinePrimary = idpp->splitLine;
+		scratch->split.splitLineSecondary = idpp->splitLine;
+		scratch->split.splitLineTertiary = idpp->splitLine;
+		scratch->splitInstanceUnk53 = (u8)inst->unk53;
+		scratch->splitFunc3Ptr32 = (u32)(uintptr_t)inst->funcPtr[3];
+		scratch->split.splitFixedLine = ((u32)(s32)idpp->splitLine) << 17;
+		scratch->split.splitCounterPrimary = 0;
+		scratch->split.splitCounterSecondary = 0;
 		ctx->splitPlane = ((s32)CFC2(26) << 1) - (s32)CFC2(7);
 	}
 
 	// NOTE(aalhendi): Retail 0x8006ac94 clears scratch 0x58 before setup/draw.
-	*CTR_SCRATCHPAD_PTR(u32, 0x58) = 0;
+	scratch->setupDrawClear = 0;
 
 	ctx->inst = inst;
 	ctx->idpp = idpp;
@@ -4774,16 +4903,17 @@ static int RenderBucket_PrepareDrawContext(struct RenderBucketDrawContext *ctx, 
 void RenderBucket_Execute(void *param_1, struct PrimMem *param_2)
 {
 	struct RenderBucketEntry *entry = (struct RenderBucketEntry *)param_1;
+	struct RenderBucketExecuteScratch *scratch = RenderBucket_Scratch();
 
 	// NOTE(aalhendi): ASM-verified NTSC-U 926 0x8006aaa8-0x8006ad6c;
 	// native uses the accepted explicit RenderBucketDrawContext scratch/register ABI.
-	*CTR_SCRATCHPAD_PTR(u32, 0xc) = (u32)(uintptr_t)param_2;
-	*CTR_SCRATCHPAD_PTR(u32, 0x8) = 0;
+	scratch->primMemPtr32 = (u32)(uintptr_t)param_2;
+	scratch->pushBufferPtr32 = 0;
 	for (; entry->inst != 0; entry++)
 	{
 		struct RenderBucketDrawContext ctx = {0};
 
-		*CTR_SCRATCHPAD_PTR(u32, 0x4) = (u32)(uintptr_t)(entry + 1);
+		scratch->nextEntryPtr32 = (u32)(uintptr_t)(entry + 1);
 
 		if (RenderBucket_PrepareDrawContext(&ctx, entry->inst, entry->instPlayerBase, param_2) == 0)
 			continue;

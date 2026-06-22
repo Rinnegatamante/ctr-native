@@ -513,13 +513,7 @@ void CS_Podium_FullScene_Init(void)
 	u32 podiumMusic;
 	struct CsThreadInitData InitData;
 
-	struct PosRot
-	{
-		SVec3 pos;
-		SVec3 rot;
-	};
-
-	struct PosRot *posRot;
+	struct SpawnPosRot *posRot;
 
 	struct GameTracker *gGT = sdata->gGT;
 
@@ -571,7 +565,7 @@ void CS_Podium_FullScene_Init(void)
 
 	// position and rotation of podium scene
 	// Y coordinate (podiumPos.y) has added height
-	posRot = (struct PosRot *)gGT->level1->ptrSpawnType2_PosRot[1].posCoords;
+	posRot = gGT->level1->ptrSpawnType2_PosRot[1].posRot;
 	InitData.podiumPos.x = posRot->pos.x;
 	InitData.podiumPos.y = posRot->pos.y + 0x80;
 	InitData.podiumPos.z = posRot->pos.z;

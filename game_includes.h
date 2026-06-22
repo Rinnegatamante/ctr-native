@@ -201,7 +201,6 @@
 
 #include "game/prim.c"
 #include "game/math.c"
-#include "game/gte.c"
 #include "game/MATH/MATH_4_VectorLength.c"
 #include "game/MATH/MATH_5_VectorNormalize.c"
 #include "game/UI/UI_Reward.c"

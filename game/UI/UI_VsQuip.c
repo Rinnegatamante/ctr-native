@@ -406,7 +406,13 @@ void UI_VsQuipAssignAll(void)
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800550f4-0x800552a4.
 void UI_VsQuipDrawAll(void)
 {
+	enum
+	{
+		UI_VS_QUIP_FORMAT_BUFFER_SIZE = 0x80
+	};
+
 	char *print;
+	char printBuffer[UI_VS_QUIP_FORMAT_BUFFER_SIZE];
 	s16 *printArr;
 	struct Driver *d;
 
@@ -444,7 +450,7 @@ void UI_VsQuipDrawAll(void)
 		else
 		{
 			// Add two strings together
-			sprintf(0x1f800000,
+			sprintf(printBuffer,
 
 			        // Contains '%s' format:
 			        // Original end-of-race comment
@@ -455,8 +461,7 @@ void UI_VsQuipDrawAll(void)
 			        // for stuff like "hit by Crash Bandicoot" or something
 			        sdata->lngStrings[data.MetaDataCharacters[d->EndOfRaceComment_characterID].name_LNG_long]);
 
-			// Overwrite the stack pointer to print
-			print = 0x1f800000;
+			print = printBuffer;
 		}
 
 		// get current player's pushBuffer

@@ -12,7 +12,7 @@ void LHMatrix_Parent(struct Instance *pDst, struct Instance *pSrc, SVECTOR *tran
 	memcpy(&pDst->matrix, &pSrc->matrix, sizeof(pSrc->matrix));
 	SetRotMatrix(&pDst->matrix);
 	SetTransMatrix(&pDst->matrix);
-	gte_ldv0(transVec);
+	CTR_GteLoadSV0(transVec);
 	gte_rt();
-	gte_stlvnl(&pDst->matrix.t);
+	CTR_GteStoreMAC(pDst->matrix.t);
 }

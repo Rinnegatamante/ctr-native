@@ -6,7 +6,7 @@ struct FrustumCornerOUT
 struct ScratchpadFrustum
 {
 	// 1f800000
-	int pos[3];
+	Vec3 clippedFarPos;
 
 	// 1f80000C
 	struct FrustumCornerOUT fc[4];
@@ -17,6 +17,25 @@ struct ScratchpadFrustum
 	// 1f80002A
 	// -- end --
 };
+
+_Static_assert(sizeof(Vec3) == 0x0c);
+_Static_assert(offsetof(struct ScratchpadFrustum, clippedFarPos) == 0x00);
+_Static_assert(offsetof(struct ScratchpadFrustum, fc) == 0x0c);
+_Static_assert(offsetof(struct ScratchpadFrustum, camPos) == 0x24);
+_Static_assert(offsetof(struct ScratchpadFrustum, camPos) + sizeof(SVec3) == 0x2a);
+
+struct PushBufferSetMatrixVPScratch
+{
+	u8 reserved0[0x3d4];
+
+	MATRIX cameraMatrix;
+	SVec3 rot;
+	u8 reserved1[0x6];
+};
+
+_Static_assert(offsetof(struct PushBufferSetMatrixVPScratch, cameraMatrix) == 0x3d4);
+_Static_assert(offsetof(struct PushBufferSetMatrixVPScratch, rot) == 0x3f4);
+_Static_assert(sizeof(struct PushBufferSetMatrixVPScratch) == CTR_SCRATCHPAD_SIZE);
 
 // Let the compiler figure it out,
 // the bitshifting annoys me
