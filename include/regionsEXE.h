@@ -2904,7 +2904,7 @@ struct sData
 	// 8008bfe8 - JpnTrial
 	// 8008d424 - EurRetail
 	// 80090498 - JpnRetail
-	int PatchMem_Ptr;
+	void *PatchMem_Ptr;
 
 #if BUILD >= UsaRetail
 	// 8008d094 - size of PatchMem
@@ -3337,7 +3337,7 @@ struct sData
 	// 8008c3d0 JpnTrial
 	// 8008d814 EurRetail
 	// 80090884 JpnRetail
-	int ptrToMemcardBuffer1;
+	void *ptrToMemcardBuffer1;
 
 	// 8008b8d0 Sep3
 	// 8008d474 UsaRetail

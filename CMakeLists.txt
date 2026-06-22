@@ -43,7 +43,7 @@ set(GAME_INCLUDES
     ${CMAKE_SOURCE_DIR}/include
 )
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse -Wno-error -Wno-int-conversion -Wno-incompatible-pointer-types -g")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse -Wno-error -Wno-incompatible-pointer-types -g")
 
 # SDL3
 set(SDL_SHARED OFF CACHE BOOL "" FORCE)

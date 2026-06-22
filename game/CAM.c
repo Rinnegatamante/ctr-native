@@ -1532,7 +1532,7 @@ LAB_8001ab04:
 		{
 			struct SpawnType1 *st1 = gGT->level1->ptrSpawnType1;
 			void **pointers = ST1_GETPOINTERS(st1);
-			x = pointers[ST1_CAMERA_PATH];
+			u8 *cameraPath = pointers[ST1_CAMERA_PATH];
 			s32 flyInDone = 0;
 
 			// No camera + No ghosts (battle maps)
@@ -1546,8 +1546,8 @@ LAB_8001ab04:
 			// run fly-in animation
 			else
 			{
-				flyInData.ptrEnd = x + 0x354;
-				flyInData.ptrStart = x;
+				flyInData.ptrEnd = cameraPath + 0x354;
+				flyInData.ptrStart = cameraPath;
 				flyInData.frameCount1 = 0x96;
 				flyInData.frameCount2 = 0x8e;
 

@@ -375,7 +375,7 @@ void MainInit_Drivers(struct GameTracker *gGT)
 		// humanGhost = *humanPlyrDriverModel,
 
 		// then replace with intended P1 model
-		*humanPlyrDriverModel = data.driverModelExtras[0];
+		*humanPlyrDriverModel = (struct Model *)(uintptr_t)data.driverModelExtras[0];
 #endif
 	}
 }

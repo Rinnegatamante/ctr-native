@@ -81,6 +81,6 @@ internal void Platform_RepairResidentPointers(s32 activeMempackIndex)
 	sdata_static.gGT = &sdata_static.gameTracker;
 	sdata_static.gGamepads = &sdata_static.gamepadSystem;
 	sdata_static.PtrMempack = &sdata_static.mempack[activeMempackIndex];
-	sdata_static.ptrToMemcardBuffer1 = (int)&sdata_static.memcardBytes[0];
+	sdata_static.ptrToMemcardBuffer1 = &sdata_static.memcardBytes[0];
 	sdata_static.ptrToMemcardBuffer2 = &sdata_static.memcardBytes[0];
 }

@@ -93,7 +93,7 @@ void RB_Blowup_Init(struct Instance *weaponInst)
 	blowup = explosionTh->object;
 
 	// set explosion instance
-	blowup[1] = explosionInst;
+	blowup[1] = (s32)(uintptr_t)explosionInst;
 
 	// copy position and rotation from weapon to explosion
 	*(int *)&explosionInst->matrix.m[0][0] = *(int *)&weaponInst->matrix.m[0][0];
@@ -132,7 +132,7 @@ void RB_Blowup_Init(struct Instance *weaponInst)
 	shockwaveInst = INSTANCE_Birth3D(gGT->modelPtr[modelID], 0, explosionTh);
 
 	// set shockwave instance
-	blowup[0] = shockwaveInst;
+	blowup[0] = (s32)(uintptr_t)shockwaveInst;
 
 	shockwaveInst->flags |= PIXEL_LOD;
 
