@@ -1,5 +1,18 @@
 #include <common.h>
 
+#if defined(CTR_NATIVE)
+#include <setjmp.h>
+
+struct ThTickNativeContext
+{
+	jmp_buf env;
+	struct Thread *currentThread;
+	struct ThTickNativeContext *prev;
+};
+
+static struct ThTickNativeContext *s_thTickContext;
+#endif
+
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80041dc0-0x80041dfc.
 void PROC_DestroyTracker(struct Thread *t)
@@ -498,11 +511,18 @@ static void ThTick_PushPending(struct Thread **pending, int *count, struct Threa
 	(*count)++;
 }
 
-// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800715e8-0x80071694.
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800715e8-0x80071694 with native SetAndExec bridge.
 void ThTick_RunBucket(struct Thread *thread)
 {
 	struct Thread *pending[THTICK_MAX_PENDING];
 	int count = 0;
+
+#if defined(CTR_NATIVE)
+	struct ThTickNativeContext context;
+	context.currentThread = NULL;
+	context.prev = s_thTickContext;
+	s_thTickContext = &context;
+#endif
 
 	ThTick_PushPending(pending, &count, thread);
 
@@ -522,10 +542,23 @@ void ThTick_RunBucket(struct Thread *thread)
 		}
 
 		if (t->funcThTick != NULL)
+		{
+#if defined(CTR_NATIVE)
+			context.currentThread = t;
+			if (setjmp(context.env) == 0)
+				t->funcThTick(t);
+			t = context.currentThread;
+#else
 			t->funcThTick(t);
+#endif
+		}
 
 		ThTick_PushPending(pending, &count, t->childThread);
 	}
+
+#if defined(CTR_NATIVE)
+	s_thTickContext = context.prev;
+#endif
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80071694-0x800716ec as native-equivalent divergence.
@@ -534,11 +567,19 @@ void ThTick_FastRET(struct Thread *thread)
 	(void)thread;
 }
 
-// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800716ec-0x80071704 as native-equivalent divergence.
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800716ec-0x80071704 with native SetAndExec bridge.
 void ThTick_SetAndExec(struct Thread *thread, void (*funcThTick)(struct Thread *))
 {
 	thread->funcThTick = funcThTick;
 	funcThTick(thread);
+
+#if defined(CTR_NATIVE)
+	// NOTE(aalhendi): Retail restores the ThTick_RunBucket stack from
+	// scratchpad after the replacement tick returns. Native must not resume the
+	// stale caller that requested the tick switch.
+	if (s_thTickContext != NULL && s_thTickContext->currentThread != NULL)
+		longjmp(s_thTickContext->env, 1);
+#endif
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80071704-0x8007170c.
