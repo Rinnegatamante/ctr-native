@@ -99,7 +99,9 @@ internal void NativeRenderer_ClearPresentationBars(void);
 internal void NativeRenderer_SetWireframe(int enable);
 internal void NativeRenderer_BindVertexBuffer(void);
 
+#ifndef __vita__
 global_variable GLuint s_glVertexArray[2];
+#endif
 global_variable GLuint s_glVertexBuffer[2];
 global_variable int s_curVertexBuffer = 0;
 
@@ -202,7 +204,9 @@ int NativeRenderer_InitialiseRender(char *windowName, int width, int height, int
 
 void NativeRenderer_Shutdown(void)
 {
+#ifndef __vita__
 	glDeleteVertexArrays(2, s_glVertexArray);
+#endif
 	glDeleteBuffers(2, s_glVertexBuffer);
 
 	glDeleteFramebuffers(1, &s_glBlitFramebuffer);
@@ -251,8 +255,9 @@ void NativeRenderer_EndScene(void)
 
 	if (g_dbg_wireframeMode)
 		NativeRenderer_SetWireframe(0);
-
+#ifndef __vita__
 	glBindVertexArray(0);
+#endif
 }
 
 //----------------------------------------------------------------------------------------
@@ -919,19 +924,22 @@ int NativeRenderer_InitialisePSX(void)
 		int i;
 
 		glGenBuffers(MAX_NUM_VERTEX_BUFFERS, s_glVertexBuffer);
+#ifndef __vita__
 		glGenVertexArrays(MAX_NUM_VERTEX_BUFFERS, s_glVertexArray);
-
+#endif
 		for (i = 0; i < MAX_NUM_VERTEX_BUFFERS; i++)
 		{
+#ifndef __vita__
 			glBindVertexArray(s_glVertexArray[i]);
-
+#endif
 			glBindBuffer(GL_ARRAY_BUFFER, s_glVertexBuffer[i]);
 #ifndef __vita__
 			glBufferData(GL_ARRAY_BUFFER, sizeof(GrVertex) * MAX_VERTEX_BUFFER_SIZE, NULL, GL_DYNAMIC_DRAW);
 #endif
 		}
-
+#ifndef __vita__
 		glBindVertexArray(0);
+#endif
 	}
 
 	NativeRenderer_ResetDevice();
@@ -1897,7 +1905,11 @@ internal void NativeRenderer_SetWireframe(int enable)
 
 internal void NativeRenderer_BindVertexBuffer(void)
 {
+#ifdef __vita__
+	glBindBuffer(GL_ARRAY_BUFFER, s_glVertexBuffer[s_curVertexBuffer]);
+#else
 	glBindVertexArray(s_glVertexArray[s_curVertexBuffer]);
+#endif
 
 	glEnableVertexAttribArray(a_position);
 	glEnableVertexAttribArray(a_texcoord);
