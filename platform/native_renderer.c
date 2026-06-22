@@ -846,6 +846,11 @@ int NativeRenderer_InitialisePSX(void)
 #ifndef __vita__
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, 0, 0);
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D, 0, 0);
+#else
+			GLuint depthstencil;
+			glGenRenderbuffers(1, &depthstencil);
+			glBindRenderbuffer(GL_RENDERBUFFER, depthstencil);
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, depthstencil);
 #endif
 
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -876,6 +881,11 @@ int NativeRenderer_InitialisePSX(void)
 #ifndef __vita__
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, 0, 0);
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D, 0, 0);
+#else
+			GLuint depthstencil;
+			glGenRenderbuffers(1, &depthstencil);
+			glBindRenderbuffer(GL_RENDERBUFFER, depthstencil);
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, depthstencil);
 #endif
 
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -913,6 +923,11 @@ int NativeRenderer_InitialisePSX(void)
 #ifndef __vita__
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, 0, 0);
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D, 0, 0);
+#else
+			GLuint depthstencil;
+			glGenRenderbuffers(1, &depthstencil);
+			glBindRenderbuffer(GL_RENDERBUFFER, depthstencil);
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, depthstencil);
 #endif
 
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
