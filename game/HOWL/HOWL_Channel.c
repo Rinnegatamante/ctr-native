@@ -261,7 +261,7 @@ struct ChannelStats *Channel_SearchFX_Destroy(int type, int soundID, int flags)
 // param_1 0: keep menu fx, 1: destroy all fx
 // param_2 0: destroy music, 1: keep music
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002ba90-0x8002bbac
-void Channel_DestroyAll_LowLevel(int opt1, int boolKeepMusic, char type)
+void Channel_DestroyAll_LowLevel(int opt1, b32 boolKeepMusic, char type)
 {
 	struct ChannelStats *curr, *backupNext;
 
@@ -300,14 +300,14 @@ void Channel_ParseSongToChannels()
 	struct Song *song;
 	struct SongSeq *seq;
 	struct SongSeq **seqEntry;
-	int boolVolumeChange;
+	b32 boolVolumeChange;
 
 	if (sdata->boolAudioEnabled == 0)
 		return;
 	if (sdata->ptrCseqHeader == 0)
 		return;
 
-	boolVolumeChange = 0;
+	boolVolumeChange = false;
 
 	for (song = &sdata->songPool[0]; song < &sdata->songPool[2]; song++)
 	{
@@ -330,7 +330,7 @@ void Channel_ParseSongToChannels()
 		int volNew = song->vol_New;
 		int volStepRate = song->vol_StepRate;
 		int volStepped;
-		int boolFinalStep;
+		b32 boolFinalStep;
 
 		// === Copy/Paste ===
 		if (volCurr != volNew)
@@ -362,7 +362,7 @@ void Channel_ParseSongToChannels()
 			}
 
 			song->vol_Curr = volStepped;
-			boolVolumeChange = 1;
+			boolVolumeChange = true;
 		}
 
 		for (seqEntry = &song->CseqSequences[0]; seqEntry < &song->CseqSequences[song->numSequences]; seqEntry++)
@@ -394,7 +394,7 @@ void Channel_ParseSongToChannels()
 				}
 
 				seq->vol_Curr = volStepped;
-				boolVolumeChange = 1;
+				boolVolumeChange = true;
 			}
 
 			// if sequence is playing

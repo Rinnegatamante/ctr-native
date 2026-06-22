@@ -162,7 +162,7 @@ void FLARE_ThTick(struct Thread *th)
 	if (depth > 0x3ff)
 		depth = 0x3ff;
 
-	u_long *ot = &pb->ptrOT[depth];
+	uint32_t *ot = &pb->ptrOT[depth];
 	p0->tag = CtrGpu_PackOTTag(CtrGpu_PrimToOTLink24(p1), 0x0c000000);
 	p1->tag = CtrGpu_PackOTTag(CtrGpu_PrimToOTLink24(p2), 0x0c000000);
 	p2->tag = CtrGpu_PackOTTag(CtrGpu_PrimToOTLink24(p3), 0x0c000000);

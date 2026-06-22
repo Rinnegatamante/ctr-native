@@ -72,7 +72,7 @@ void RB_GenericMine_ThTick(struct Thread *t)
 	int numFrames;
 	void (*func)(struct Thread *);
 	int param;
-	int boolPotion;
+	b32 boolPotion;
 
 	gGT = sdata->gGT;
 	inst = t->inst;

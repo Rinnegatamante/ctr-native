@@ -133,7 +133,7 @@ struct Model *MM_Characters_GetModelByName(int *name)
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 overlay 230 0x800adc0c-0x800ae0bc PSX path.
-void MM_Characters_DrawWindows(int boolShowDrivers)
+void MM_Characters_DrawWindows(b32 boolShowDrivers)
 {
 	struct GameTracker *gGT;
 	s16 uVar2;
@@ -624,7 +624,7 @@ void MM_Characters_MenuProc(struct RectMenu *unused)
 
 	struct GameTracker *gGT = sdata->gGT;
 
-	u_long *ot = gGT->backBuffer->otMem.uiOT;
+	uint32_t *ot = gGT->backBuffer->otMem.uiOT;
 
 	for (i = 0; i < 4; i++)
 	{

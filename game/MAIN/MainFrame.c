@@ -28,7 +28,7 @@ static void MainFrame_RegisterGpuLinkRanges(struct GameTracker *gGT)
 #endif
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80034b48-0x80034bbc.
-void MainFrame_TogglePauseAudio(int bool_pause)
+void MainFrame_TogglePauseAudio(b32 bool_pause)
 {
 	if (bool_pause == 0)
 	{
@@ -51,7 +51,7 @@ void MainFrame_TogglePauseAudio(int bool_pause)
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80034bbc-0x80034d54 for the retail path.
 void MainFrame_ResetDB(struct GameTracker *gGT)
 {
-	u_long *puVar3;
+	uint32_t *puVar3;
 	int iVar4;
 	struct DB *db;
 	int otSwapchainDB;
@@ -84,16 +84,16 @@ void MainFrame_ResetDB(struct GameTracker *gGT)
 
 	for (iVar4 = 0; iVar4 < sdata->gGT->numPlyrCurrGame; iVar4++)
 	{
-		gGT->pushBuffer[iVar4].ptrOT = (u_long *)((int)otSwapchainDB + (sdata->gGT->numPlyrCurrGame - iVar4 - 1) * 0x1000 + 0x18);
+		gGT->pushBuffer[iVar4].ptrOT = (uint32_t *)((int)otSwapchainDB + (sdata->gGT->numPlyrCurrGame - iVar4 - 1) * 0x1000 + 0x18);
 	}
 
 	for (iVar4; iVar4 < 4; iVar4++)
 	{
 		// but why?
-		gGT->pushBuffer[iVar4].ptrOT = (u_long *)((int)otSwapchainDB + 3 * 0x1000 + 0x18);
+		gGT->pushBuffer[iVar4].ptrOT = (uint32_t *)((int)otSwapchainDB + 3 * 0x1000 + 0x18);
 	}
 
-	puVar3 = (u_long *)((int)otSwapchainDB + 4);
+	puVar3 = (uint32_t *)((int)otSwapchainDB + 4);
 	gGT->pushBuffer_UI.ptrOT = puVar3;
 	db->otMem.uiOT = puVar3;
 

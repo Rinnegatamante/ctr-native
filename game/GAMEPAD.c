@@ -133,13 +133,13 @@ void GAMEPAD_PollVsync(struct GamepadSystem *gGamepads)
 		// to this gamepad port. 1 for no mtap, 4 for mtap
 		for (char i = 0; i < maxPadsPerPort; i++)
 		{
-			bool unpluggedPort = ((
-			                          // multitap here, and unplugged
-			                          (gGamepads->slotBuffer[port].controllerData == (PAD_ID_MULTITAP << 4)) &&
-			                          (gGamepads->slotBuffer[port].controllers[i].plugged != PLUGGED)) ||
+			b32 unpluggedPort = ((
+			                         // multitap here, and unplugged
+			                         (gGamepads->slotBuffer[port].controllerData == (PAD_ID_MULTITAP << 4)) &&
+			                         (gGamepads->slotBuffer[port].controllers[i].plugged != PLUGGED)) ||
 
-			                      // controller unplugged
-			                      (gGamepads->slotBuffer[port].plugged != PLUGGED));
+			                     // controller unplugged
+			                     (gGamepads->slotBuffer[port].plugged != PLUGGED));
 
 
 			if (unpluggedPort)

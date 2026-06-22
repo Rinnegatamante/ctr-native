@@ -524,7 +524,7 @@ static void DrawTiresReflection_WritePrimitiveCorners(POLY_FT4 *p, int sxy[4])
 
 static void DrawTiresReflection_LinkPrimitive(struct DrawTiresReflectionScratch *scratch, POLY_FT4 *p, int selectedOTSlot)
 {
-	u_long *otSlot;
+	uint32_t *otSlot;
 	int otRangeStart = DrawTiresReflection_ReadS32(scratch, 0x170);
 	int otRangeEnd = DrawTiresReflection_ReadS32(scratch, 0x174);
 
@@ -534,9 +534,9 @@ static void DrawTiresReflection_LinkPrimitive(struct DrawTiresReflectionScratch 
 	if ((otRangeEnd - selectedOTSlot) < 0)
 		selectedOTSlot = otRangeEnd;
 
-	otSlot = (u_long *)(uintptr_t)selectedOTSlot;
+	otSlot = (uint32_t *)(uintptr_t)selectedOTSlot;
 	p->tag = CtrGpu_PackOTTag(*otSlot, 0x09000000);
-	*otSlot = (u_long)CtrGpu_PrimToOTLink24(p);
+	*otSlot = (uint32_t)CtrGpu_PrimToOTLink24(p);
 }
 
 static void DrawTiresReflection_EmitProjectedWheel(struct DrawTiresReflectionScratch *scratch, struct DrawTiresReflectionProjectedWheel *selected,

@@ -984,7 +984,7 @@ UpdateTireColorTimer:
 			}
 
 			if (( // if in front row & 25% chance
-			        (sdata->kartSpawnOrderArray[botDriver->driverID] < 3) && ((RngDeadCoed((u_int *)&sdata->const_0x30215400) & 0xFF) < 0x40)) ||
+			        (sdata->kartSpawnOrderArray[botDriver->driverID] < 3) && ((RngDeadCoed((uint32_t *)&sdata->const_0x30215400) & 0xFF) < 0x40)) ||
 			    (data.characterIDs[botDriver->driverID] == NITROS_OXIDE))
 			{ // start the race with a boost
 				VehFire_Increment(botDriver, 0x2d0, 1, 0x180);
@@ -1010,7 +1010,7 @@ UpdateTireColorTimer:
 				// record that change is requested (boss only)
 				botDriver->botData.botFlags = botFlags | BOT_FLAG_BOSS_PATH_ACTIVE;
 
-				short oldPathID = botDriver->botData.botPath;
+				s16 oldPathID = botDriver->botData.botPath;
 				botDriver->botData.botPath = newPathID;
 
 				LIST_RemoveMember(&sdata->navBotList[oldPathID], &botDriver->botData.item);
@@ -1033,11 +1033,11 @@ UpdateTireColorTimer:
 				if ((botFlags & BOT_FLAG_ESTIMATE_NAV) == 0)
 				{
 					int iVar3 = 1000;
-					short sVar7 = 1000;
+					s16 sVar7 = 1000;
 					struct BotData *botData;
 
 					for (botData = (struct BotData *)LIST_GetFirstItem(&sdata->navBotList[botDriver->botData.botPath]); botData != NULL;
-					     botData = (struct BotData *)LIST_GetNextItem((struct Item *)botData), sVar7 = (short)iVar3)
+					     botData = (struct BotData *)LIST_GetNextItem((struct Item *)botData), sVar7 = (s16)iVar3)
 					{
 						struct Driver *driverFromBotData = (struct Driver *)((char *)botData - offsetof(struct Driver, botData));
 
@@ -1089,7 +1089,7 @@ UpdateTireColorTimer:
 
 							if (changeOpcode < cap)
 							{
-								short oldPathID = botDriver->botData.botPath;
+								s16 oldPathID = botDriver->botData.botPath;
 								botDriver->botData.botPath = newPathID;
 
 								LIST_RemoveMember(&sdata->navBotList[oldPathID], &botDriver->botData.item);
@@ -1167,7 +1167,7 @@ UpdateTireColorTimer:
 			else
 			{
 				int driverRank = botDriver->driverRank; // uVar8
-				bool isInAdvArcadeOrVSCup = false;      // bVar1
+				b32 isInAdvArcadeOrVSCup = false;       // bVar1
 
 				if (((gGT->gameMode1 & ADVENTURE_CUP) != 0) || ((gGT->gameMode2 & CUP_ANY_KIND) != 0))
 				{
@@ -1197,7 +1197,7 @@ UpdateTireColorTimer:
 					}
 				}
 
-				short difficultyStat; // sVar7
+				s16 difficultyStat; // sVar7
 
 				if (bestDriverRank->lapIndex == 0)
 				{
@@ -1382,7 +1382,7 @@ UpdateTireColorTimer:
 				if (botDriver->botData.aiPhysics.speedLinear < velocityAccountingForTerrain)
 				{
 				ApplyTerrainAcceleration:;
-					short accel; // sVar7
+					s16 accel; // sVar7
 					if (botDriver->reserves < 1)
 					{
 						accel = botDriver->const_Accel_ClassStat;
@@ -1453,13 +1453,13 @@ UpdateTireColorTimer:
 				}
 			}
 
-			if ((unsigned char)0x80u < navFrameCurr->rot[3])
+			if ((u8)0x80u < navFrameCurr->rot[3])
 			{
 				velocityAccountingForTerrain = CTR_MipsAddLo(velocityAccountingForTerrain, botDriver->const_SlopeForwardSpeedBonus);
 
 				if (botDriver->botData.aiPhysics.speedLinear < velocityAccountingForTerrain)
 				{
-					unsigned int var = (unsigned int)navFrameCurr->rot[3];
+					u32 var = (u32)navFrameCurr->rot[3];
 					int sinOfAngle = MATH_Sin(CTR_MipsSll(var, 4));
 
 					botDriver->botData.aiPhysics.speedLinear =
@@ -1527,7 +1527,7 @@ UpdateTireColorTimer:
 	botDriver->botData.positionBackup.y =
 	    CTR_MipsAddLo(botDriver->botData.positionBackup.y, CTR_MipsSra(CTR_MipsMulLo(botDriver->botData.aiPhysics.speedY, elapsedMilliseconds), 5));
 
-	short navDist; // sVar7
+	s16 navDist; // sVar7
 
 	if ((botDriver->actionsFlagSet & ACTION_TOUCH_GROUND) == 0)
 	{
@@ -1539,7 +1539,7 @@ UpdateTireColorTimer:
 	}
 
 	int local_3c = 0;
-	char local_30 = 0;
+	b32 useGroundedNavDistance = false;
 	if ((navFrameCurr->specialBits & BOTS_NAV_SPECIAL_RAMP_PHYS) != 0)
 	{
 		local_3c = navFrameCurr->specialBits;
@@ -1582,13 +1582,13 @@ UpdateTireColorTimer:
 
 		botDriver->botData.botFlags &= uVar8;
 
-		short nextNavDist; // sVar7
+		s16 nextNavDist; // sVar7
 
 		// MUST be unsigned,
 		// this makes a range-value check, and makes negatives positive,
 		// so its really checking value between 0x31 and 0x31+0x9e
-		unsigned char compare = navFrameCurr->rot[3] - 0x31;
-		if ((local_30 == 0) && (0x9e < compare))
+		u8 compare = navFrameCurr->rot[3] - 0x31;
+		if (!useGroundedNavDistance && (0x9e < compare))
 		{
 			if ((botDriver->actionsFlagSet & ACTION_TOUCH_GROUND) == 0)
 			{
@@ -1601,7 +1601,7 @@ UpdateTireColorTimer:
 		}
 		else
 		{
-			local_30 = 1;
+			useGroundedNavDistance = true;
 
 			nextNavDist = navFrameCurr->distToNextNavXZ;
 		}
@@ -1631,13 +1631,13 @@ UpdateTireColorTimer:
 	botDriver->actionsFlagSet &= ~(ACTION_ENGINE_ECHO | ACTION_BACK_SKID | ACTION_FRONT_SKID);
 	botDriver->actionsFlagSet |= navActionFlags;
 
-	struct Terrain *terrain = VehAfterColl_GetTerrain(((u_char)navFrameCurr->flags) >> 3);
+	struct Terrain *terrain = VehAfterColl_GetTerrain(((uint8_t)navFrameCurr->flags) >> 3);
 
 	botDriver->terrainMeta1 = terrain;
 
 	if ((navFrameCurr->specialBits & BOTS_NAV_SPECIAL_REFLECTIVE) != 0)
 	{
-		short vertSplit;
+		s16 vertSplit;
 		if ((navFrameCurr->specialBits & BOTS_NAV_SPECIAL_INDEX_MASK) == 0)
 		{
 			vertSplit = gGT->level1->splitLines[0];
@@ -1739,7 +1739,7 @@ UpdateTireColorTimer:
 	{
 		botDriver->botData.botNavFrame = navFrameCurr;
 
-		short botPath = botDriver->botData.botPath;
+		s16 botPath = botDriver->botData.botPath;
 
 		navFrameNext = NAVFRAME_GETNEXTFRAME(navFrameCurr);
 
@@ -1971,7 +1971,7 @@ UpdateTireColorTimer:
 						botDriver->botData.navProgressRemainder =
 						    CTR_MipsSll(CTR_MipsDiv(CTR_MipsMulLo(deltaPosThisFrame, navFrameCurr->distToNextNavXYZ), iVar3), 8);
 					}
-					short sVar7 = botDriver->jump_LandingBoost;
+					s16 sVar7 = botDriver->jump_LandingBoost;
 
 					if (sVar7 < 0x5a1)
 					{
@@ -2099,7 +2099,7 @@ UpdateTireColorTimer:
 	}
 	else
 	{
-		if ((local_30 == 0) && ((botDriver->actionsFlagSet & ACTION_TOUCH_GROUND) != 0))
+		if (!useGroundedNavDistance && ((botDriver->actionsFlagSet & ACTION_TOUCH_GROUND) != 0))
 		{
 			int iVar3 = navFrameCurr->distToNextNavXYZ;
 			if (iVar3 != 0)
@@ -2156,8 +2156,8 @@ UpdateTireColorTimer:
 
 	if ((botDriver->botData.botFlags & BOT_FLAG_DAMAGE_ACTIVE) != 0)
 	{
-		char newKartState; // uVar2
-		short sVar7 = botDriver->botData.aiDamageState;
+		u8 newKartState; // uVar2
+		s16 sVar7 = botDriver->botData.aiDamageState;
 		if (sVar7 == BOTS_DAMAGE_STATE_BLAST)
 		{
 			botDriver->botData.aiPhysics.rotXZ = (s16)CTR_MipsSubLo((u16)botDriver->botData.aiPhysics.rotXZ, 1);
@@ -2228,7 +2228,7 @@ UpdateTireColorTimer:
 							SetTransMatrix(&plantInst->matrix);
 
 							VECTOR v2;
-							long l3;
+							s32 l3;
 
 							RotTrans(&v, &v2, &l3);
 
@@ -2304,8 +2304,8 @@ UpdateTireColorTimer:
 	}
 
 	// MUST be unsigned, same reason as the other -0x31
-	unsigned char cmp1 = navFrameCurr->rot[3] - 0x31;
-	unsigned char cmp2 = navFrameNext->rot[3] - 0x31;
+	u8 cmp1 = navFrameCurr->rot[3] - 0x31;
+	u8 cmp2 = navFrameNext->rot[3] - 0x31;
 
 	if ((0x9e < cmp1) && (0x9e < cmp2))
 	{
@@ -2344,7 +2344,7 @@ UpdateTireColorTimer:
 
 		other_uVar8 = CTR_MipsSubLo(CTR_MipsSll(other_uVar8, 1), botDriver->turnAngleCurr) & 0xfff;
 
-		bool bVar1 = other_uVar8 < 0x21;
+		b32 bVar1 = other_uVar8 < 0x21;
 		if (0x7ff < other_uVar8)
 		{
 			other_uVar8 = CTR_MipsSubLo(other_uVar8, 0x1000);
@@ -2391,7 +2391,7 @@ UpdateTireColorTimer:
 		botDriver->botData.aiPhysics.simpTurnState = sVar7;
 
 		other_uVar8 = CTR_MipsSubLo(botDriver->botData.aiPhysics.simpTurnState, botDriver->wheelRotation) & 0xfff;
-		bool other_bVar1 = other_uVar8 < 0x21;
+		b32 other_bVar1 = other_uVar8 < 0x21;
 
 		if (0x7ff < other_uVar8)
 		{

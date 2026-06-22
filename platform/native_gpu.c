@@ -1060,7 +1060,7 @@ void ParsePrimitivesLinkedList(u32 *p, int singlePrimitive)
 	else
 	{
 		// walk OT_TAG linked list
-		uintptr_t basePacket = (uintptr_t)p;
+		u8 *basePacket = (u8 *)p;
 		while (true)
 		{
 			const int tagLength = getlen(basePacket);
@@ -1069,16 +1069,16 @@ void ParsePrimitivesLinkedList(u32 *p, int singlePrimitive)
 				if (tagLength > 32)
 				{
 					char packetRegion[64];
-					NativeGpu_FormatPointerRegion(packetRegion, sizeof(packetRegion), basePacket);
+					NativeGpu_FormatPointerRegion(packetRegion, sizeof(packetRegion), (uintptr_t)basePacket);
 					NATIVE_GPU_ERROR("got invalid tag length %d, code %d packet=%p region=%s words=%08x %08x %08x %08x\n", tagLength,
-					                 ((P_TAG *)basePacket)->code, (void *)basePacket, packetRegion, NativeGpu_ReadPacketWordForLog(basePacket, 0),
-					                 NativeGpu_ReadPacketWordForLog(basePacket, 1), NativeGpu_ReadPacketWordForLog(basePacket, 2),
-					                 NativeGpu_ReadPacketWordForLog(basePacket, 3));
+					                 ((P_TAG *)basePacket)->code, (void *)basePacket, packetRegion, NativeGpu_ReadPacketWordForLog((uintptr_t)basePacket, 0),
+					                 NativeGpu_ReadPacketWordForLog((uintptr_t)basePacket, 1), NativeGpu_ReadPacketWordForLog((uintptr_t)basePacket, 2),
+					                 NativeGpu_ReadPacketWordForLog((uintptr_t)basePacket, 3));
 					break;
 				}
 
-				uintptr_t currentPacket = basePacket;
-				const uintptr_t endPacket = basePacket + (tagLength + P_LEN) * sizeof(u32);
+				u8 *currentPacket = basePacket;
+				u8 *endPacket = basePacket + (tagLength + P_LEN) * sizeof(u32);
 				int primLength = 0;
 				if (currentPacket < endPacket)
 				{
@@ -1095,11 +1095,11 @@ void ParsePrimitivesLinkedList(u32 *p, int singlePrimitive)
 				if (currentPacket != endPacket)
 				{
 					char packetRegion[64];
-					NativeGpu_FormatPointerRegion(packetRegion, sizeof(packetRegion), basePacket);
+					NativeGpu_FormatPointerRegion(packetRegion, sizeof(packetRegion), (uintptr_t)basePacket);
 					NATIVE_GPU_ERROR("did not output valid primitive or ptag length is not valid (diff=%d packet=%p region=%s words=%08x %08x %08x %08x)\n",
-					                 endPacket - currentPacket, (void *)basePacket, packetRegion, NativeGpu_ReadPacketWordForLog(basePacket, 0),
-					                 NativeGpu_ReadPacketWordForLog(basePacket, 1), NativeGpu_ReadPacketWordForLog(basePacket, 2),
-					                 NativeGpu_ReadPacketWordForLog(basePacket, 3));
+					                 endPacket - currentPacket, (void *)basePacket, packetRegion, NativeGpu_ReadPacketWordForLog((uintptr_t)basePacket, 0),
+					                 NativeGpu_ReadPacketWordForLog((uintptr_t)basePacket, 1), NativeGpu_ReadPacketWordForLog((uintptr_t)basePacket, 2),
+					                 NativeGpu_ReadPacketWordForLog((uintptr_t)basePacket, 3));
 				}
 			}
 
@@ -1109,17 +1109,17 @@ void ParsePrimitivesLinkedList(u32 *p, int singlePrimitive)
 			if (isendprim(basePacket))
 				break;
 
-			uintptr_t nextPacket = (uintptr_t)nextPrim(basePacket);
-			if (!NativeGpu_IsValidOTLink(nextPacket))
+			u8 *nextPacket = nextPrim(basePacket);
+			if (!NativeGpu_IsValidOTLink((uintptr_t)nextPacket))
 			{
 				char packetRegion[64];
 				char nextRegion[64];
-				NativeGpu_FormatPointerRegion(packetRegion, sizeof(packetRegion), basePacket);
-				NativeGpu_FormatPointerRegion(nextRegion, sizeof(nextRegion), nextPacket);
+				NativeGpu_FormatPointerRegion(packetRegion, sizeof(packetRegion), (uintptr_t)basePacket);
+				NativeGpu_FormatPointerRegion(nextRegion, sizeof(nextRegion), (uintptr_t)nextPacket);
 				NATIVE_GPU_ERROR("invalid OT link: packet=%p region=%s addr=%06x next=%p nextRegion=%s len=%d code=%02x words=%08x %08x %08x %08x\n",
 				                 (void *)basePacket, packetRegion, getaddr(basePacket), (void *)nextPacket, nextRegion, getlen(basePacket), getcode(basePacket),
-				                 NativeGpu_ReadPacketWordForLog(basePacket, 0), NativeGpu_ReadPacketWordForLog(basePacket, 1),
-				                 NativeGpu_ReadPacketWordForLog(basePacket, 2), NativeGpu_ReadPacketWordForLog(basePacket, 3));
+				                 NativeGpu_ReadPacketWordForLog((uintptr_t)basePacket, 0), NativeGpu_ReadPacketWordForLog((uintptr_t)basePacket, 1),
+				                 NativeGpu_ReadPacketWordForLog((uintptr_t)basePacket, 2), NativeGpu_ReadPacketWordForLog((uintptr_t)basePacket, 3));
 				break;
 			}
 
@@ -1867,7 +1867,7 @@ int ParsePrimitive(P_TAG *polyTag)
 			rect.w = (s16)(rectSize & 0xffff);
 			rect.h = (s16)(rectSize >> 16);
 
-			LoadImage(&rect, (u_long *)drload->p);
+			LoadImage(&rect, (uint32_t *)drload->p);
 
 			// TODO(aalhendi): Audit whether CTR ever appends additional GPU
 			// commands after a DR_LOAD payload in the same packet.

@@ -61,7 +61,7 @@ static void MM_TrackSelect_Video_DrawNativePreview(RECT *r, int srcX, int srcY)
 {
 	struct GameTracker *gGT = sdata->gGT;
 	u32 *prim = (u32 *)gGT->backBuffer->primMem.cursor;
-	u_long *ot = gGT->pushBuffer_UI.ptrOT;
+	uint32_t *ot = gGT->pushBuffer_UI.ptrOT;
 	u32 oldTag = (u32)*ot;
 	u32 *nextPrim;
 	s16 tile[16] = {
@@ -71,7 +71,7 @@ static void MM_TrackSelect_Video_DrawNativePreview(RECT *r, int srcX, int srcY)
 	// NOTE(aalhendi): Retail copies decoded MDEC output with MoveImage. Native
 	// presents menus from queued primitives, so draw the same VRAM rectangle as
 	// a 16-bit textured quad instead of relying on a CPU-side VRAM copy.
-	*ot = (u_long)CtrGpu_PrimToOTLink24(prim);
+	*ot = (uint32_t)CtrGpu_PrimToOTLink24(prim);
 	nextPrim = DISPLAY_Blur_SubFunc(prim, tile);
 	((POLY_FT4 *)nextPrim - 1)->tag = CtrGpu_PackOTTag(oldTag, 0x09000000);
 	gGT->backBuffer->primMem.cursor = nextPrim;

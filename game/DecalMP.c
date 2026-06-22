@@ -110,7 +110,7 @@ void DecalMP_02(struct GameTracker *gGT)
 
 				if ((entry->pb.ptrOT != NULL) && (entry->pb.renderBucketOTRangeEnd != NULL))
 				{
-					u_long *cameraOT = gGT->pushBuffer[cameraID].ptrOT;
+					uint32_t *cameraOT = gGT->pushBuffer[cameraID].ptrOT;
 					*entry->pb.ptrOT = cameraOT[0x3ff];
 					cameraOT[0x3ff] = CtrGpu_PrimToOTLink24(entry->pb.renderBucketOTRangeEnd);
 				}
@@ -199,7 +199,7 @@ void DecalMP_03(struct GameTracker *gGT)
 
 		poly->tpage = (u16)(((texY & 0x100) >> 4) | ((texX & 0x3ff) >> 6) | 0x100 | ((texY & 0x200) << 2));
 
-		u_long *ot = gGT->pushBuffer[cameraID].ptrOT + (entry->pb.renderBucketOTByteOffset >> 2);
+		uint32_t *ot = gGT->pushBuffer[cameraID].ptrOT + (entry->pb.renderBucketOTByteOffset >> 2);
 		poly->tag = CtrGpu_PackOTTag(*ot, 0x09000000);
 		CtrGpu_LinkPrimToOT(ot, poly);
 		gGT->backBuffer->primMem.cursor = poly + 1;

@@ -11,7 +11,7 @@ void Seal_CheckColl(struct Instance *sealInst, struct Thread *sealTh, int damage
 	struct GameTracker *gGT;
 	struct Instance *hitInst;
 	struct Driver *hitDriver;
-	int boolHurt;
+	b32 boolHurt;
 	char kartStatePrev;
 
 	gGT = sdata->gGT;

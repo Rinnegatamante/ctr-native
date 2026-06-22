@@ -275,7 +275,7 @@ void howl_UnPauseAudio()
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002c8a8-0x8002c918
-void howl_StopAudio(int boolErasePauseBackup, int boolEraseMusic, int boolDestroyAllFX)
+void howl_StopAudio(b32 boolErasePauseBackup, b32 boolEraseMusic, b32 boolDestroyAllFX)
 {
 	if (boolEraseMusic != 0)
 		CseqMusic_StopAll();

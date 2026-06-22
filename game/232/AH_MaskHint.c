@@ -204,7 +204,7 @@ void AH_MaskHint_LerpVol(int param_1)
 force_inline void AH_MaskHint_DrawRepeatPrompt(void)
 {
 	int lngIndex = 0;
-	int boolFound = 0;
+	b32 boolFound = false;
 
 	if (sdata->AkuAkuHintState != 5)
 		return;
@@ -217,7 +217,7 @@ force_inline void AH_MaskHint_DrawRepeatPrompt(void)
 	{
 		if (D232.maskHintID == (ptrLngID[0] - 0x17b) / 2)
 		{
-			boolFound = 1;
+			boolFound = true;
 			break;
 		}
 	}

@@ -22,8 +22,8 @@ void VehPhysGeneral_PhysAngular(struct Thread *thread, struct Driver *driver)
 	int turnResistMax;
 	int turnResistMin;
 	u32 actionsFlagSet;
-	char char_interpLessThanOG;
-	char char_wInterpLessThan0;
+	b32 interpLessThanOriginal;
+	b32 wInterpLessThanZero;
 	s16 forwardDir;
 	int rotCurrW_interp;
 	s8 simpTurnState;
@@ -82,8 +82,8 @@ void VehPhysGeneral_PhysAngular(struct Thread *thread, struct Driver *driver)
 	}
 	else
 	{
-		char_wInterpLessThan0 = rotCurrW_interp < 0;
-		if (char_wInterpLessThan0)
+		wInterpLessThanZero = rotCurrW_interp < 0;
+		if (wInterpLessThanZero)
 		{
 			rotCurrW_interp = CTR_MipsNegLo(rotCurrW_interp);
 			rotCurrW_original = CTR_MipsNegLo(rotCurrW_original);
@@ -94,9 +94,9 @@ void VehPhysGeneral_PhysAngular(struct Thread *thread, struct Driver *driver)
 			    CTR_MipsMulLo(CTR_MipsAddLo(driver->const_TurnInputDelay, CTR_MipsMulLo((s8)driver->turnConst, 100)), terrain->turnResponseScale), 8);
 			rotCurrW_original = CTR_MipsAddLo(rotCurrW_original, rate);
 
-			char_interpLessThanOG = rotCurrW_interp < rotCurrW_original;
+			interpLessThanOriginal = rotCurrW_interp < rotCurrW_original;
 		LAB_8005fee4:
-			if (char_interpLessThanOG)
+			if (interpLessThanOriginal)
 			{
 				rotCurrW_original = rotCurrW_interp;
 			}
@@ -107,11 +107,11 @@ void VehPhysGeneral_PhysAngular(struct Thread *thread, struct Driver *driver)
 			    CTR_MipsMulLo(CTR_MipsAddLo(driver->const_TurnInputDelay, CTR_MipsMulLo((s8)driver->turnConst, 50)), terrain->turnResponseScale), 8);
 			rotCurrW_original = CTR_MipsSubLo(rotCurrW_original, rate);
 
-			char_interpLessThanOG = rotCurrW_original < rotCurrW_interp;
+			interpLessThanOriginal = rotCurrW_original < rotCurrW_interp;
 			goto LAB_8005fee4;
 		}
 		forwardDir = (s16)rotCurrW_original;
-		if (char_wInterpLessThan0)
+		if (wInterpLessThanZero)
 		{
 			forwardDir = (s16)CTR_MipsNegLo(forwardDir);
 		}
@@ -395,7 +395,7 @@ int VehPhysGeneral_LerpQuarterStrength(int current, int desired)
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80060488-0x800605a0.
 int VehPhysGeneral_LerpToForwards(struct Driver *d, int currentAngle, int currentVelocity, int targetAngle)
 {
-	bool mirrored = false;
+	b32 mirrored = false;
 	int desiredVelocity = 0;
 
 	d->turnAngleLerpTarget = 0;
@@ -633,7 +633,7 @@ PROCESS_ACCEL:
 	    (u32)CTR_MipsAddLo(CTR_MipsAddLo(CTR_MipsMulLo(movement.x, movement.x), CTR_MipsMulLo(movement.y, movement.y)), CTR_MipsMulLo(movement.z, movement.z));
 	speedLoss = CTR_MipsSubLo((s32)(VehCalc_FastSqrt(movementLengthSq, 0x10) >> 8), VehPhysGeneral_Jump_Abs(d->baseSpeed));
 
-	bool clampToForwardImpulse = forwardImpulse < speedLoss;
+	b32 clampToForwardImpulse = forwardImpulse < speedLoss;
 	if (speedLoss < 0)
 	{
 		speedLoss = 0;

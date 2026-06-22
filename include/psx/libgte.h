@@ -7,7 +7,7 @@
 #ifndef LIBGTE_H
 #define LIBGTE_H
 
-#include "types.h"
+#include <stdint.h>
 
 typedef struct
 {
@@ -53,18 +53,20 @@ VECTOR *ApplyRotMatrix(SVECTOR *v0, VECTOR *v1);
 VECTOR *ApplyRotMatrixLV(VECTOR *v0, VECTOR *v1);
 SVECTOR *ApplyMatrixSV(MATRIX *m, SVECTOR *v0, SVECTOR *v1);
 VECTOR *ApplyMatrixLV(MATRIX *m, VECTOR *v0, VECTOR *v1);
-extern void RotTrans(SVECTOR *v0, VECTOR *v1, long *flag);
-extern void RotTransSV(SVECTOR *v0, SVECTOR *v1, long *flag);
-extern int RotTransPers(SVECTOR *v0, long *sxy, long *p, long *flag);
-extern int RotTransPers3(SVECTOR *v0, SVECTOR *v1, SVECTOR *v2, long *sxy0, long *sxy1, long *sxy2, long *p, long *flag);
-extern int RotTransPers4(SVECTOR *v0, SVECTOR *v1, SVECTOR *v2, SVECTOR *v3, long *sxy0, long *sxy1, long *sxy2, long *sxy3, long *p, long *flag);
+extern void RotTrans(SVECTOR *v0, VECTOR *v1, int32_t *flag);
+extern void RotTransSV(SVECTOR *v0, SVECTOR *v1, int32_t *flag);
+extern int RotTransPers(SVECTOR *v0, int32_t *sxy, int32_t *p, int32_t *flag);
+extern int RotTransPers3(SVECTOR *v0, SVECTOR *v1, SVECTOR *v2, int32_t *sxy0, int32_t *sxy1, int32_t *sxy2, int32_t *p, int32_t *flag);
+extern int RotTransPers4(SVECTOR *v0, SVECTOR *v1, SVECTOR *v2, SVECTOR *v3, int32_t *sxy0, int32_t *sxy1, int32_t *sxy2, int32_t *sxy3, int32_t *p,
+                         int32_t *flag);
 extern void NormalColor(SVECTOR *v0, CVECTOR *v1);
 extern void NormalColor3(SVECTOR *v0, SVECTOR *v1, SVECTOR *v2, CVECTOR *v3, CVECTOR *v4, CVECTOR *v5);
 extern void NormalColorDpq(SVECTOR *v0, CVECTOR *v1, int p, CVECTOR *v2);
 extern void NormalColorCol(SVECTOR *v0, CVECTOR *v1, CVECTOR *v2);
 extern void NormalColorCol3(SVECTOR *v0, SVECTOR *v1, SVECTOR *v2, CVECTOR *v3, CVECTOR *v4, CVECTOR *v5, CVECTOR *v6);
 extern void LocalLight(SVECTOR *v0, VECTOR *v1);
-extern int RotAverageNclip4(SVECTOR *v0, SVECTOR *v1, SVECTOR *v2, SVECTOR *v3, long *sxy0, long *sxy1, long *sxy2, long *sxy3, long *p, long *otz, long *flag);
+extern int RotAverageNclip4(SVECTOR *v0, SVECTOR *v1, SVECTOR *v2, SVECTOR *v3, int32_t *sxy0, int32_t *sxy1, int32_t *sxy2, int32_t *sxy3, int32_t *p,
+                            int32_t *otz, int32_t *flag);
 extern MATRIX *MulMatrix0(MATRIX *m0, MATRIX *m1, MATRIX *m2);
 extern MATRIX *MulMatrix(MATRIX *m0, MATRIX *m1);
 extern MATRIX *MulMatrix2(MATRIX *m0, MATRIX *m1);

@@ -228,7 +228,7 @@ void AH_Map_HubItems(void *hubPtrs, s16 *param_2)
 	s16 hubID;
 	s16 sVar1;
 	s16 *trophies;
-	bool open;
+	b32 open;
 	int iVar3;
 	u32 bit;
 	int iVar5;

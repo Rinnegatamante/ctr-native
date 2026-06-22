@@ -163,7 +163,7 @@ void AH_WarpPad_ThTick(struct Thread *t)
 {
 	int i;
 	int j;
-	int boolOpen;
+	b32 boolOpen;
 	struct GameTracker *gGT;
 	struct WarpPad *warppadObj;
 	struct Instance *warppadInst;
@@ -206,7 +206,7 @@ void AH_WarpPad_ThTick(struct Thread *t)
 		AH_WP_ADV_CUP = 100,
 	};
 
-	boolOpen = 0;
+	boolOpen = false;
 	gGT = sdata->gGT;
 	warppadObj = t->object;
 	warppadInst = t->inst;
@@ -222,7 +222,7 @@ void AH_WarpPad_ThTick(struct Thread *t)
 		{
 			if (visInstSrc[0] == warppadInst)
 			{
-				boolOpen = 1;
+				boolOpen = true;
 				break;
 			}
 
@@ -235,7 +235,7 @@ void AH_WarpPad_ThTick(struct Thread *t)
 	warppadMatrix = &warppadInst->matrix;
 
 	// make instances visible
-	if (boolOpen == 1)
+	if (boolOpen)
 	{
 		for (i = 0; i < WPIS_NUM_INSTANCES; i++)
 			if (instArr[i] != 0)

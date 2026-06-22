@@ -28,7 +28,7 @@ void CAM_SetDesiredPosRot(struct CameraDC *cDC, const SVec3 *pos, const SVec3 *r
 
 void BOTS_Adv_AdjustDifficulty(void);
 
-int CDSYS_Init(int boolUseDisc);
+int CDSYS_Init(b32 boolUseDisc);
 u32 CDSYS_GetFilePosInt(char *fileString, int *filePos);
 void CDSYS_SetMode_StreamData(void);
 void CDSYS_SetMode_StreamAudio(void);
@@ -70,8 +70,8 @@ void CTR_unknownMaybeThunk3(void *dst, void *src, int byteCount);
 
 void CTR_Box_DrawWirePrims(Point p1, Point p2, Color color, void *ot);
 void CTR_Box_DrawWireBox(RECT *r, const Color *color, void *ot, struct PrimMem *primMem);
-void CTR_Box_DrawClearBox(const RECT *r, const Color *color, int transparency, u_long *ot);
-void CTR_Box_DrawSolidBox(RECT *r, Color color, u_long *ot);
+void CTR_Box_DrawClearBox(const RECT *r, const Color *color, int transparency, uint32_t *ot);
+void CTR_Box_DrawSolidBox(RECT *r, Color color, uint32_t *ot);
 
 // decal
 u32 DecalFont_boolRacingWheel(void);
@@ -79,8 +79,8 @@ void DecalFont_DrawLine(char *str, int posX, int posY, s16 fontType, int flags);
 void DecalFont_DrawLineStrlen(u8 *str, s16 len, int posX, s16 posY, s16 fontType, int flags);
 int DecalFont_DrawMultiLine(char *str, int posX, int posY, int maxPixLen, s16 fontType, int flags);
 void DecalGlobal_Clear(struct GameTracker *gGT);
-void DecalHUD_DrawPolyFT4(struct Icon *icon, s16 posX, s16 posY, struct PrimMem *primMem, u_long *ot, char transparency, s16 scale);
-void DecalHUD_DrawPolyGT4(struct Icon *icon, s16 posX, s16 posY, struct PrimMem *primMem, u_long *ot, u32 color0, u32 color1, u32 color2, u32 color3,
+void DecalHUD_DrawPolyFT4(struct Icon *icon, s16 posX, s16 posY, struct PrimMem *primMem, uint32_t *ot, char transparency, s16 scale);
+void DecalHUD_DrawPolyGT4(struct Icon *icon, s16 posX, s16 posY, struct PrimMem *primMem, uint32_t *ot, u32 color0, u32 color1, u32 color2, u32 color3,
                           char transparency, s16 scale);
 void DecalMP_01(struct GameTracker *gGT);
 void DecalMP_02(struct GameTracker *gGT);
@@ -196,9 +196,9 @@ void cseq_opcode0a(struct SongSeq *seq);
 struct SongSeq *SongPool_FindFreeChannel(void);
 u32 SongPool_CalculateTempo(s16 const60, s16 tpqn, s16 bpm);
 void SongPool_ChangeTempo(struct Song *song, s16 deltaBPM);
-void SongPool_Start(struct Song *song, u16 songID, s16 deltaBPM, int boolLoopAtEnd, struct SongSet *songSet, int songSetActiveBits);
-void SongPool_Volume(struct Song *song, int newVol, int newStep, int boolImm);
-void SongPool_AdvHub1(struct Song *song, int seqID, int vol, int boolImm);
+void SongPool_Start(struct Song *song, u16 songID, s16 deltaBPM, b32 boolLoopAtEnd, struct SongSet *songSet, int songSetActiveBits);
+void SongPool_Volume(struct Song *song, int newVol, int newStep, b32 boolImm);
+void SongPool_AdvHub1(struct Song *song, int seqID, int vol, b32 boolImm);
 void SongPool_AdvHub2(struct Song *song, struct SongSet *songSet, int songSetActiveBits);
 void SongPool_StopCseq(struct SongSeq *seq);
 void SongPool_StopAllCseq(struct Song *song);
@@ -222,7 +222,7 @@ struct ChannelStats *Channel_AllocSlot_AntiSpam(s16 soundID, char boolUseAntiSpa
 struct ChannelStats *Channel_AllocSlot(int flags, struct ChannelAttr *attr);
 struct ChannelStats *Channel_SearchFX_EditAttr(int type, int soundID, int updateFlags, struct ChannelAttr *attr);
 struct ChannelStats *Channel_SearchFX_Destroy(int type, int soundID, int flags);
-void Channel_DestroyAll_LowLevel(int opt1, int boolKeepMusic, char type);
+void Channel_DestroyAll_LowLevel(int opt1, b32 boolKeepMusic, char type);
 void Channel_ParseSongToChannels(void);
 void Channel_UpdateChannels(void);
 void Cutscene_VolumeBackup(void);
@@ -233,7 +233,7 @@ void howl_InitChannelAttr_OtherFX(struct OtherFX *otherFX, struct ChannelAttr *a
 void howl_PauseAudio(void);
 void howl_UnPauseChannel(struct ChannelStats *stats);
 void howl_UnPauseAudio(void);
-void howl_StopAudio(int boolErasePauseBackup, int boolEraseMusic, int boolDestroyAllFX);
+void howl_StopAudio(b32 boolErasePauseBackup, b32 boolEraseMusic, b32 boolDestroyAllFX);
 void Voiceline_PoolInit(void);
 void Voiceline_ClearTimeStamp(void);
 void Voiceline_PoolClear(void);
@@ -300,7 +300,7 @@ void JitPool_Remove(struct JitPool *AP, struct Item *item);
 
 // LevInstDef
 void LevInstDef_UnPack(struct mesh_info *ptr_mesh_info);
-void LevInstDef_RePack(struct mesh_info *ptr_mesh_info, int boolAdvHub);
+void LevInstDef_RePack(struct mesh_info *ptr_mesh_info, b32 boolAdvHub);
 
 struct Instance *LinkedCollide_Hitbox_Desc(struct HitboxDesc *objBoxDesc);
 struct Instance *LinkedCollide_Hitbox(struct Instance *objInst, struct Thread *_objTh, struct Thread *thBucket, struct BoundingBox bbox);
@@ -399,12 +399,12 @@ void MainFrame_ResetDB(struct GameTracker *gGT);
 void MainFrame_InitVideoSTR(u32 boolPlayVideoStr, RECT *r, s16 posX, s16 posY);
 void MainFrame_VisMemFullFrame(struct GameTracker *gGT, struct Level *level);
 void MainFrame_RequestMaskHint(s16 hintId, char interruptWarpPad);
-void MainFrame_TogglePauseAudio(int bool_pause);
+void MainFrame_TogglePauseAudio(b32 bool_pause);
 
 void StateZero(void);
 void startSP(void);
 
-void MainFreeze_ConfigDrawNPC105(s16 startX, s16 startY, s16 radius, int angleStep, s16 angle, char *color, u_long *otMem, struct PrimMem *primMem);
+void MainFreeze_ConfigDrawNPC105(s16 startX, s16 startY, s16 radius, int angleStep, s16 angle, char *color, uint32_t *otMem, struct PrimMem *primMem);
 void MainFreeze_ConfigSetupEntry(void);
 void MainFreeze_SafeAdvDestroy(void);
 void MainFreeze_MenuPtrOptions(struct RectMenu *menu);
@@ -433,6 +433,7 @@ void MainRaceTrack_RequestLoad(s16 levelID);
 
 int MATH_Sin(u32 angle);
 int MATH_Cos(u32 angle);
+s32 MATH_FastSqrt(u32 value, s32 shift);
 void TRIG_AngleSinCos_r19r17r18(u32 angle, s32 *sine, s32 *cosine);
 void TRIG_AngleSinCos_r15r16r17(u32 angle, s32 *sine, s32 *cosine);
 void TRIG_AngleSinCos_r16r17r18_duplicate(u32 angle, u32 *sine, u32 *cosine);
@@ -503,7 +504,7 @@ void RefreshCard_Unknown4(void);
 void SelectProfile_MuteCursors(void);
 void SelectProfile_UnMuteCursors(void);
 void SelectProfile_ThTick(struct Thread *t);
-void SelectProfile_PrintInteger(int value, int posX, int posY, int usePaddedFormat, int color);
+void SelectProfile_PrintInteger(int value, int posX, int posY, b32 usePaddedFormat, int color);
 int SelectProfile_UI_ConvertX(int param_1, int param_2);
 int SelectProfile_UI_ConvertY(int param_1, int param_2);
 void SelectProfile_DrawAdvProfile(struct AdvProgress *adv, int posX, int posY, s16 isHighlighted, s16 slotIndex, u16 menuFlag);
@@ -529,28 +530,29 @@ void MEMPACK_PopState(void);
 void MEMPACK_PopToState(int id);
 
 void RECTMENU_DrawQuip(char *comment, s16 startX, int startY, u32 sizeX, s16 fontType, int textFlag, s16 boxFlag);
-void RECTMENU_DrawInnerRect(RECT *r, int x, u_long *ot);
+void RECTMENU_DrawInnerRect(RECT *r, int x, uint32_t *ot);
 void RECTMENU_DrawSelf(struct RectMenu *menu, int param_2, s16 param_3, s16 width);
-void RECTMENU_DrawPolyGT4(struct Icon *icon, s16 posX, s16 posY, struct PrimMem *primMem, u_long *ot, u32 color0, u32 color1, u32 color2, u32 color3,
+void RECTMENU_DrawPolyGT4(struct Icon *icon, s16 posX, s16 posY, struct PrimMem *primMem, uint32_t *ot, u32 color0, u32 color1, u32 color2, u32 color3,
                           char transparency, s16 scale);
 int RECTMENU_BoolHidden(struct RectMenu *m);
 void RECTMENU_ClearInput(void);
 void RECTMENU_CollectInput(void);
 void RECTMENU_ProcessState(void);
 int RECTMENU_ProcessInput(struct RectMenu *m);
-void RECTMENU_DrawOuterRect_Edge(RECT *r, Color color, u32 param_3, u_long *otMem);
-void RECTMENU_DrawOuterRect_HighLevel(RECT *r, Color color, s16 param_3, u_long *otMem);
-void RECTMENU_DrawOuterRect_LowLevel(RECT *p, s16 xOffset, u16 yOffset, Color color, s16 param_5, u_long *otMem);
+void RECTMENU_DrawOuterRect_Edge(RECT *r, Color color, u32 param_3, uint32_t *otMem);
+void RECTMENU_DrawOuterRect_HighLevel(RECT *r, Color color, s16 param_3, uint32_t *otMem);
+void RECTMENU_DrawOuterRect_LowLevel(RECT *p, s16 xOffset, u16 yOffset, Color color, s16 param_5, uint32_t *otMem);
 u8 *RECTMENU_DrawTime(int milliseconds);
-void RECTMENU_DrawRwdBlueRect_Subset(s16 *pos, int *color, u_long *ot, struct PrimMem *primMem);
-void RECTMENU_DrawRwdBlueRect(RECT *rect, char *metas, u_long *ot, struct PrimMem *primMem);
-void RECTMENU_DrawRwdTriangle(s16 *position, char *color, u_long *otMem, struct PrimMem *primMem);
-void RECTMENU_GetHeight(struct RectMenu *m, s16 *height, int boolCheckSubmenu);
-void RECTMENU_GetWidth(struct RectMenu *m, s16 *width, int boolCheckSubmenu);
+void RECTMENU_DrawRwdBlueRect_Subset(s16 *pos, int *color, uint32_t *ot, struct PrimMem *primMem);
+void RECTMENU_DrawRwdBlueRect(RECT *rect, char *metas, uint32_t *ot, struct PrimMem *primMem);
+void RECTMENU_DrawRwdTriangle(s16 *position, char *color, uint32_t *otMem, struct PrimMem *primMem);
+void RECTMENU_GetHeight(struct RectMenu *m, s16 *height, b32 boolCheckSubmenu);
+void RECTMENU_GetWidth(struct RectMenu *m, s16 *width, b32 boolCheckSubmenu);
 void RECTMENU_Hide(struct RectMenu *m);
 void RECTMENU_Show(struct RectMenu *m);
 
 int MixRNG_Scramble(void);
+int RngDeadCoed(u32 *state);
 
 void MainStats_ClearBattleVS(void);
 void MainStats_RestartRaceCountLoss(void);
@@ -647,7 +649,7 @@ void UI_VsQuipDrawAll(void);
 void UI_VsWaitForPressX(void);
 void UI_RaceStart_IntroText1P(void);
 void UI_DrawRankedDrivers(void);
-void UI_DrawDriverIcon(struct Icon *icon, s16 posX, s16 posY, struct PrimMem *primMem, u_long *ot, char transparency, s16 scale, u32 color);
+void UI_DrawDriverIcon(struct Icon *icon, s16 posX, s16 posY, struct PrimMem *primMem, uint32_t *ot, char transparency, s16 scale, u32 color);
 void UI_RenderFrame_AdvHub(void);
 void UI_RenderFrame_Racing(void);
 void UI_RenderFrame_Wumpa3D_2P3P4P(struct GameTracker *gGT);
@@ -658,7 +660,7 @@ void UI_CupStandings_InputAndDraw(void);
 void UI_SaveLapTime(int numLaps, int lapTime, s16 driverID);
 
 void UI_Map_GetIconPos(s16 *m, int *posX, int *posY);
-void UI_Map_DrawMap(struct Icon *mapTop, struct Icon *mapBottom, s16 posX, s16 posY, struct PrimMem *primMem, u_long *otMem, u32 colorID);
+void UI_Map_DrawMap(struct Icon *mapTop, struct Icon *mapBottom, s16 posX, s16 posY, struct PrimMem *primMem, uint32_t *otMem, u32 colorID);
 
 void UI_Lerp2D_Linear(s16 *ptrPos, s16 startX, s16 startY, s16 endX, s16 endY, int curFrame, s16 endFrame);
 
@@ -683,7 +685,7 @@ void VehEmitter_Sparks_Wall(struct Driver *driver, struct ParticleEmitter *emSet
 void VehEmitter_DriverMain(struct Thread *thread, struct Driver *driver);
 int VehFrameInst_GetStartFrame(int animIndex, int numFrames);
 u32 VehFrameInst_GetNumAnimFrames(struct Instance *inst, int animIndex);
-struct MaskHeadWeapon *VehPickupItem_MaskUseWeapon(struct Driver *driver, int boolPlaySound);
+struct MaskHeadWeapon *VehPickupItem_MaskUseWeapon(struct Driver *driver, b32 boolPlaySound);
 
 void VehPhysGeneral_PhysAngular(struct Thread *t, struct Driver *d);
 
@@ -778,7 +780,7 @@ void VehStuckProc_Tumble_Animate(struct Thread *thread, struct Driver *driver);
 void VehStuckProc_Tumble_Init(struct Thread *thread, struct Driver *driver);
 
 // 230
-void MM_Battle_DrawIcon_Character(struct Icon *icon, int posX, int posY, struct PrimMem *primMem, u_long *ot, char transparency, s16 scale);
+void MM_Battle_DrawIcon_Character(struct Icon *icon, int posX, int posY, struct PrimMem *primMem, uint32_t *ot, char transparency, s16 scale);
 u8 MM_TransitionInOut(struct TransitionMeta *meta, int framesPassed, int numFrames);
 void MM_Title_MenuUpdate(void);
 void MM_Title_SetTrophyDPP(void);
@@ -801,7 +803,7 @@ void MM_Characters_AnimateColors(u8 *colorData, s16 playerID, s16 flag);
 int MM_Characters_GetNextDriver(s16 dpad, char characterID);
 u32 MM_Characters_boolIsInvalid(s16 *globalIconPerPlayer, s16 characterID, s16 player);
 struct Model *MM_Characters_GetModelByName(int *name);
-void MM_Characters_DrawWindows(int boolShowDrivers);
+void MM_Characters_DrawWindows(b32 boolShowDrivers);
 void MM_Characters_SetMenuLayout(void);
 void MM_Characters_BackupIDs(void);
 void MM_Characters_PreventOverlap(void);
@@ -1099,7 +1101,7 @@ void MM_Cheat_SuperTurboPads(void);
 void MM_Cheat_OneLap(void);
 void MM_Cheat_TurboCounter(void);
 
-void UI_Map_DrawMap_ExtraFunc(struct Icon *icon, POLY_FT4 *p, s16 posX, s16 empty, struct PrimMem *primMem, u_long *otMem, u32 transparency);
+void UI_Map_DrawMap_ExtraFunc(struct Icon *icon, POLY_FT4 *p, s16 posX, s16 empty, struct PrimMem *primMem, uint32_t *otMem, u32 transparency);
 
 void VehTalkMask_ThTick(struct Thread *t);
 void PhysLerpRot(struct Driver *driver, int targetRotW);
@@ -1127,8 +1129,8 @@ int LOAD_IsOpen_RacingOrBattle(void);
 void GAMEPROG_NewProfile_InsideAdv(struct AdvProgress *adv);
 int RaceFlag_MoveModels(int frameIndex, int numFrames);
 void MainKillGame_LaunchSpyro2(void);
-void DecalFont_DrawLineOT(char *str, int posX, int posY, s16 fontType, int flags, u_long *ot);
-void DecalHUD_Arrow2D(struct Icon *icon, s16 posX, s16 posY, struct PrimMem *primMem, u_long *otMemPtr, u32 color1, u32 color2, u32 color3, u32 color4,
+void DecalFont_DrawLineOT(char *str, int posX, int posY, s16 fontType, int flags, uint32_t *ot);
+void DecalHUD_Arrow2D(struct Icon *icon, s16 posX, s16 posY, struct PrimMem *primMem, uint32_t *otMemPtr, u32 color1, u32 color2, u32 color3, u32 color4,
                       char transparency, int scale, u16 rot);
 void RaceFlag_SetDrawOrder(int drawOrder);
 int RaceFlag_IsFullyOnScreen(void);
@@ -1186,7 +1188,7 @@ void GAMEPROG_ResetHighScores(struct GameProgress *gameProg);
 void GAMEPROG_NewProfile_OutsideAdv(struct GameProgress *gameProg);
 int LOAD_FindFile(char *filename, CdlFILE *cdlFile);
 int LOAD_HowlHeaderSectors(CdlFILE *cdlFileHWL, void *ptrDestination, int firstSector, int numSector);
-int CDSYS_XASeek(int boolCdControl, int categoryID, int xaID);
+int CDSYS_XASeek(b32 boolCdControl, int categoryID, int xaID);
 void LibraryOfModels_Store(struct GameTracker *gGT, u32 numModels, struct Model **ptrModelArray);
 void LOAD_DramFileCallback(struct LoadQueueSlot *lqs);
 int LOAD_GetBigfileIndex(u32 levelID, int lod, int fileIndexInGroup);
@@ -1206,7 +1208,7 @@ int Particle_BitwiseClampByte(int *value);
 void PROC_DestroyBloodline(struct Thread *t);
 void RECTMENU_DrawFullRect(struct RectMenu *menu, RECT *inner);
 void UI_Map_DrawAdvPlayer(int ptrMap, int *matrix, int unused1, int unused2, s16 param_5, s16 param_6);
-void DecalHUD_DrawWeapon(struct Icon *icon, s16 posX, s16 posY, struct PrimMem *primMem, u_long *ot, char transparency, s16 scale, char rot);
+void DecalHUD_DrawWeapon(struct Icon *icon, s16 posX, s16 posY, struct PrimMem *primMem, uint32_t *ot, char transparency, s16 scale, char rot);
 void DebugFont_DrawNumbers(int index, int screenPosX, int screenPosY);
 void UI_RenderFrame_CrystChall(void);
 void UI_Map_DrawGhosts(int ptrMap, struct Thread *bucket);
@@ -1219,7 +1221,7 @@ void LOAD_VramFileCallback(struct LoadQueueSlot *lqs);
 void VehBirth_NullThread(struct Thread *t);
 void ElimBG_SaveScreenshot_Chunk(u16 *param_1, u16 *param_2, int param_3);
 void ElimBG_ToggleInstance(struct Instance *inst, char boolGameIsPaused);
-void ElimBG_ToggleAllInstances(struct GameTracker *gGT, int boolGameIsPaused);
+void ElimBG_ToggleAllInstances(struct GameTracker *gGT, b32 boolGameIsPaused);
 void INSTANCE_LevDelayedLInBs(struct InstDef *instDef, int numInstances);
 void CAM_ThTick(struct Thread *t);
 void FLARE_ThTick(struct Thread *th);
@@ -1232,7 +1234,7 @@ void LOAD_StringToUpper(char *path);
 // void LHMatrix_Parent(struct Instance* inst, struct Instance* driverInst, SVECTOR* param_3);
 
 // TODO:
-// CTR_Box_DrawWirePrims change void* ot to u_long* ot
+// CTR_Box_DrawWirePrims change void* ot to uint32_t* ot
 
 void MainLoadVLC(void);
 void MainKillGame_StopCTR(void);
@@ -1276,9 +1278,9 @@ struct Scrub *VehAfterColl_GetSurface(u32 scrubId);
 void BOTS_CollideWithOtherAI(struct Driver *robot_1, struct Driver *robot_2);
 void OtherFX_DriverCrashing(u32 boolEcho, u32 volume);
 void VehPhysCrash_ConvertVecToSpeed(struct Driver *d, Vec3 *v);
-int VehPhysCrash_BounceSelf(const SVec3 *normal, const Vec3 *origin, Vec3 *vel, int boolOtherDriver);
+int VehPhysCrash_BounceSelf(const SVec3 *normal, const Vec3 *origin, Vec3 *vel, b32 boolOtherDriver);
 void VehPhysCrash_AI(struct Driver *bot, Vec3 *vel);
-int VehPhysCrash_Attack(struct Driver *driver1, struct Driver *driver2, int canPlayFeedback, int boolPlayBubblePop);
+int VehPhysCrash_Attack(struct Driver *driver1, struct Driver *driver2, b32 canPlayFeedback, b32 boolPlayBubblePop);
 void VehPhysCrash_AnyTwoCars(struct Thread *thread, struct DriverCollisionSearch *search, Vec3 *selfVel);
 void VehPhysForce_ConvertSpeedToVecOut(struct Driver *d, Vec3 *vel);
 void VehPhysForce_CollideDrivers(struct Thread *thread, struct Driver *driver);

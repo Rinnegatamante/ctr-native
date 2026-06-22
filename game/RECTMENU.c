@@ -2,7 +2,7 @@
 
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80044ef8-0x80044f90.
-void RECTMENU_DrawPolyGT4(struct Icon *icon, s16 posX, s16 posY, struct PrimMem *primMem, u_long *ot, u32 color0, u32 color1, u32 color2, u32 color3,
+void RECTMENU_DrawPolyGT4(struct Icon *icon, s16 posX, s16 posY, struct PrimMem *primMem, uint32_t *ot, u32 color0, u32 color1, u32 color2, u32 color3,
                           char transparency, s16 scale)
 {
 	if (!icon)
@@ -13,7 +13,7 @@ void RECTMENU_DrawPolyGT4(struct Icon *icon, s16 posX, s16 posY, struct PrimMem 
 
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80044f90-0x80044ff8.
-void RECTMENU_DrawOuterRect_Edge(RECT *r, Color color, u32 param_3, u_long *otMem)
+void RECTMENU_DrawOuterRect_Edge(RECT *r, Color color, u32 param_3, uint32_t *otMem)
 {
 	param_3 & 0x20 ? CTR_Box_DrawClearBox(r, &color, TRANS_50_DECAL, otMem) : CTR_Box_DrawSolidBox(r, color, otMem);
 }
@@ -58,7 +58,7 @@ u8 *RECTMENU_DrawTime(int milliseconds)
 
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80045134-0x80045254.
-void RECTMENU_DrawRwdBlueRect_Subset(s16 *pos, int *color, u_long *ot, struct PrimMem *primMem)
+void RECTMENU_DrawRwdBlueRect_Subset(s16 *pos, int *color, uint32_t *ot, struct PrimMem *primMem)
 {
 	POLY_G4 *p = (POLY_G4 *)primMem->cursor;
 
@@ -85,7 +85,7 @@ void RECTMENU_DrawRwdBlueRect_Subset(s16 *pos, int *color, u_long *ot, struct Pr
 
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80045254-0x800453e8.
-void RECTMENU_DrawRwdBlueRect(RECT *rect, char *metas, u_long *ot, struct PrimMem *primMem)
+void RECTMENU_DrawRwdBlueRect(RECT *rect, char *metas, uint32_t *ot, struct PrimMem *primMem)
 {
 	s16 pos[4];
 	int gradient[2];
@@ -112,7 +112,7 @@ void RECTMENU_DrawRwdBlueRect(RECT *rect, char *metas, u_long *ot, struct PrimMe
 
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800453e8-0x80045534.
-void RECTMENU_DrawRwdTriangle(s16 *position, char *color, u_long *otMem, struct PrimMem *primMem)
+void RECTMENU_DrawRwdTriangle(s16 *position, char *color, uint32_t *otMem, struct PrimMem *primMem)
 {
 	POLY_G4 *p;
 	void *primmemCurr;
@@ -166,7 +166,7 @@ void RECTMENU_DrawRwdTriangle(s16 *position, char *color, u_long *otMem, struct 
 
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80045534-0x80045650.
-void RECTMENU_DrawOuterRect_LowLevel(RECT *p, s16 xOffset, u16 yOffset, Color color, s16 param_5, u_long *otMem)
+void RECTMENU_DrawOuterRect_LowLevel(RECT *p, s16 xOffset, u16 yOffset, Color color, s16 param_5, uint32_t *otMem)
 {
 	int iVar1;
 	RECT r;
@@ -193,7 +193,7 @@ void RECTMENU_DrawOuterRect_LowLevel(RECT *p, s16 xOffset, u16 yOffset, Color co
 
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80045650-0x8004568c.
-void RECTMENU_DrawOuterRect_HighLevel(RECT *r, Color color, s16 param_3, u_long *otMem)
+void RECTMENU_DrawOuterRect_HighLevel(RECT *r, Color color, s16 param_3, uint32_t *otMem)
 {
 	RECTMENU_DrawOuterRect_LowLevel(r, 3, 2, color, param_3, otMem);
 	return;
@@ -235,7 +235,7 @@ void RECTMENU_DrawQuip(char *comment, s16 startX, int startY, u32 sizeX, s16 fon
 
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800457b0-0x800459ec.
-void RECTMENU_DrawInnerRect(RECT *r, int type, u_long *ot)
+void RECTMENU_DrawInnerRect(RECT *r, int type, uint32_t *ot)
 {
 	int *colorDataNormal;
 	int *colorDataSpecial;
@@ -349,7 +349,7 @@ void RECTMENU_DrawFullRect(struct RectMenu *menu, RECT *inner)
 
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80045b1c-0x80045c50.
-void RECTMENU_GetHeight(struct RectMenu *m, s16 *height, int boolCheckSubmenu)
+void RECTMENU_GetHeight(struct RectMenu *m, s16 *height, b32 boolCheckSubmenu)
 {
 	int lineHeight;
 	struct MenuRow *row;
@@ -420,7 +420,7 @@ void RECTMENU_GetHeight(struct RectMenu *m, s16 *height, int boolCheckSubmenu)
 
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80045c50-0x80045db0.
-void RECTMENU_GetWidth(struct RectMenu *m, s16 *width, int boolCheckSubmenu)
+void RECTMENU_GetWidth(struct RectMenu *m, s16 *width, b32 boolCheckSubmenu)
 {
 	int fontType;
 	struct MenuRow *row;

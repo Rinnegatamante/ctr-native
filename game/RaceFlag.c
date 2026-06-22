@@ -399,7 +399,7 @@ void RaceFlag_DrawLoadingString(void)
 	}
 
 	// pointer to OT mem
-	gGT->pushBuffer_UI.ptrOT = (u_long *)uVar11;
+	gGT->pushBuffer_UI.ptrOT = (uint32_t *)uVar11;
 
 	if (iVar3 < 0x50)
 	{
@@ -465,7 +465,7 @@ void RaceFlag_DrawSelf()
 	int toggle;
 
 	s16 flagPos;
-	u_long *ot;
+	uint32_t *ot;
 	u32 screenlimit;
 	u32 dimensions;
 
@@ -503,7 +503,7 @@ void RaceFlag_DrawSelf()
 SKIP_LOADING_TEXT:
 
 	sdata->RaceFlag_CopyLoadStage = sdata->Loading.stage;
-	ot = (u_long *)RaceFlag_GetOT();
+	ot = (uint32_t *)RaceFlag_GetOT();
 
 	gte_SetRotMatrix(&data.matrixTitleFlag);
 	gte_SetTransMatrix(&data.matrixTitleFlag);

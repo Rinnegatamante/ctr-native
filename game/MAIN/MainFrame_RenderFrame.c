@@ -626,19 +626,19 @@ void RenderBucket_QueueAllInstances(struct GameTracker *gGT)
 	if ((gGT->gameMode1 & RELIC_RACE) != 0)
 		lod |= 4;
 
-	RBI = RenderBucket_QueueLevInstances(&gGT->cameraDC[0], (u_long *)&gGT->backBuffer->otMem, gGT->ptrRenderBucketInstance,
+	RBI = RenderBucket_QueueLevInstances(&gGT->cameraDC[0], (uint32_t *)&gGT->backBuffer->otMem, gGT->ptrRenderBucketInstance,
 	                                     (char *)(u32)(u8)sdata->LOD[lod], // this weird cast is what ghidra does
 	                                     (char)numPlyrCurrGame, gGT->gameMode1 & PAUSE_ALL);
 
-	RBI = RenderBucket_QueueNonLevInstances(gGT->JitPools.instance.taken.first, (u_long *)&gGT->backBuffer->otMem, (void *)RBI,
+	RBI = RenderBucket_QueueNonLevInstances(gGT->JitPools.instance.taken.first, (uint32_t *)&gGT->backBuffer->otMem, (void *)RBI,
 	                                        (char *)(u32)(u8)sdata->LOD[lod], // this weird cast is what ghidra does
 	                                        (char)numPlyrCurrGame, gGT->gameMode1 & PAUSE_ALL);
 
 	// Aug prototype
 #if 0
 		// ptrEnd of otmem is less than ptrCurr otmem
-    if (*(uint *)(*(int *)(PTR_DAT_8008d2ac + 0x10) + 0x98) <
-        *(uint *)(*(int *)(PTR_DAT_8008d2ac + 0x10) + 0x9c)) {
+    if (*(uint32_t *)(*(int *)(PTR_DAT_8008d2ac + 0x10) + 0x98) <
+        *(uint32_t *)(*(int *)(PTR_DAT_8008d2ac + 0x10) + 0x9c)) {
       printf("OTMEM OVERFLOW!\n");
     }
 #endif

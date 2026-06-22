@@ -63,7 +63,7 @@ static int VehPhysCrash_BounceSelf_Div6Shift9(int value)
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8005cf64-0x8005d0d0.
-int VehPhysCrash_BounceSelf(const SVec3 *normal, const Vec3 *origin, Vec3 *vel, int boolOtherDriver)
+int VehPhysCrash_BounceSelf(const SVec3 *normal, const Vec3 *origin, Vec3 *vel, b32 boolOtherDriver)
 {
 	int diffX = CTR_MipsSubLo(vel->x, origin->x);
 	int diffY = CTR_MipsSubLo(vel->y, origin->y);
@@ -143,7 +143,7 @@ static void VehPhysCrash_Attack_SetReason(struct Driver *driver, u8 reason)
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8005d218-0x8005d404.
-int VehPhysCrash_Attack(struct Driver *driver1, struct Driver *driver2, int canPlayFeedback, int boolPlayBubblePop)
+int VehPhysCrash_Attack(struct Driver *driver1, struct Driver *driver2, b32 canPlayFeedback, b32 boolPlayBubblePop)
 {
 	if ((driver1->actionsFlagSet & ACTION_MASK_WEAPON) == 0)
 	{

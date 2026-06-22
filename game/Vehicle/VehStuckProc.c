@@ -543,7 +543,7 @@ void VehStuckProc_PlantEaten_Animate(struct Thread *t, struct Driver *d)
 	struct Instance *inst;
 	SVECTOR plantVector;
 	VECTOR camVec;
-	s32 alStack32[2];
+	s32 gteFlags[2];
 
 	struct GameTracker *gGT = sdata->gGT;
 
@@ -575,10 +575,10 @@ void VehStuckProc_PlantEaten_Animate(struct Thread *t, struct Driver *d)
 		camVec.vx = 0;
 		camVec.vy = 0;
 		camVec.vz = 0;
-		alStack32[0] = 0;
-		alStack32[1] = 0;
+		gteFlags[0] = 0;
+		gteFlags[1] = 0;
 
-		RotTrans(&plantVector, &camVec, (long *)alStack32);
+		RotTrans(&plantVector, &camVec, gteFlags);
 
 		struct PushBuffer *pb = &gGT->pushBuffer[d->driverID];
 
@@ -1314,7 +1314,7 @@ static void VehWarpDust_Project(struct VehWarpDustScratch *scratch, SVECTOR *poi
 static void VehWarpDust_EmitSegment(u32 **primCursor, struct PushBuffer *pb, const struct VehWarpDustProjected *prev, const struct VehWarpDustProjected *curr)
 {
 	struct VehWarpDustPacket *packet = (struct VehWarpDustPacket *)*primCursor;
-	u_long *ot = pb->ptrOT + CTR_MipsSra((s32)curr->depth, 6);
+	uint32_t *ot = pb->ptrOT + CTR_MipsSra((s32)curr->depth, 6);
 
 	packet->drawMode = 0xe1000a20;
 

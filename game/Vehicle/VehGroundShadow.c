@@ -4,7 +4,7 @@
 /// @param dst - destination texture layout
 /// @param iconIndex - icon index to take data from
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8005b6b8-0x8005b720.
-bool VehGroundShadow_Subset1(struct TextureLayout *pDst, int iconIndex)
+b32 VehGroundShadow_Subset1(struct TextureLayout *pDst, int iconIndex)
 {
 	// get pointer to icon
 	struct Icon *pIcon = sdata->gGT->ptrIcons[iconIndex];
@@ -264,7 +264,7 @@ static void VehGroundShadow_WriteUv(POLY_FT4 *poly, const struct TextureLayout *
 	CtrGpu_WritePackedUV(&poly->u3, VehGroundShadow_ReadHalf(tex, 0x0a));
 }
 
-static void VehGroundShadow_EmitQuad(u32 **primCursor, u_long *otBase, const struct TextureLayout *texture, u32 color, u32 sxy[VEH_GROUND_SHADOW_NUM_POINTS],
+static void VehGroundShadow_EmitQuad(u32 **primCursor, uint32_t *otBase, const struct TextureLayout *texture, u32 color, u32 sxy[VEH_GROUND_SHADOW_NUM_POINTS],
                                      s32 depth, s8 depthBias, int quadIndex)
 {
 	static const u8 quadPointIndex[VEH_GROUND_SHADOW_NUM_QUADS][4] = {
@@ -275,7 +275,7 @@ static void VehGroundShadow_EmitQuad(u32 **primCursor, u_long *otBase, const str
 	};
 	POLY_FT4 *poly = (POLY_FT4 *)*primCursor;
 	int depthIndex = (depth >> 8) + depthBias;
-	u_long *ot;
+	uint32_t *ot;
 
 	if (depthIndex < 0)
 		depthIndex = 0;
@@ -345,7 +345,7 @@ void VehGroundShadow_Main(void)
 		s32 camX = pb->matrix_Camera.t[0];
 		s32 camY = pb->matrix_Camera.t[1];
 		s32 camZ = pb->matrix_Camera.t[2];
-		u_long *otBase = pb->ptrOT;
+		uint32_t *otBase = pb->ptrOT;
 		int isLargeGeomScreen;
 
 		CTC2((u32)(s32)pb->rect.w << 15, 24);

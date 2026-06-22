@@ -51,19 +51,19 @@ int MEMCARD_ChecksumLoad(u8 *saveBytes, int len)
 {
 	int byteIndex = sdata->crc16_checkpoint_byteIndex;
 	int byteIndexEnd;
-	int boolFinishThisFrame;
+	b32 boolFinishThisFrame;
 	int crc = sdata->crc16_checkpoint_status;
 
 	if ((sdata->memcardStatusFlags & MEMCARD_STATUS_SYNC_CHECKSUM) == 0)
 	{
 		byteIndexEnd = byteIndex + 0x200;
-		boolFinishThisFrame = 0;
+		boolFinishThisFrame = false;
 
 		if (byteIndexEnd < len - 2)
 			goto RunChecksum;
 	}
 
-	boolFinishThisFrame = 1;
+	boolFinishThisFrame = true;
 	byteIndexEnd = len - 2;
 
 RunChecksum:
@@ -75,7 +75,7 @@ RunChecksum:
 	sdata->crc16_checkpoint_byteIndex = byteIndex;
 	sdata->crc16_checkpoint_status = crc;
 
-	if (boolFinishThisFrame == 0)
+	if (!boolFinishThisFrame)
 		return MC_RETURN_PENDING;
 
 	crc = MEMCARD_CRC16(crc, saveBytes[byteIndex]);

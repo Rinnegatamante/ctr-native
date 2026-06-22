@@ -119,7 +119,7 @@ void RenderWeather(struct PushBuffer *pb, struct PrimMem *primMem, struct RainBu
 	struct RenderWeatherScratch *scratch = CTR_SCRATCHPAD_PTR(struct RenderWeatherScratch, 0x30);
 	struct RenderWeatherTrigPair trig;
 	u32 screenBounds;
-	u_long *ot;
+	uint32_t *ot;
 	s32 currentParticles;
 	u32 particleCount;
 	u32 scrollXY;

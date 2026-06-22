@@ -667,7 +667,7 @@ s32 NativeSTR_UploadNextFrame(s32 dstX, s32 dstY)
 	rect.y = dstY;
 	rect.w = s_str.width;
 	rect.h = s_str.height;
-	LoadImage(&rect, (u_long *)s_str.rgb555);
+	LoadImage(&rect, (uint32_t *)s_str.rgb555);
 	// NOTE(aalhendi): Track-preview STR draws these uploaded pixels as same-pass
 	// textured primitives. Retail LoadImage is GPU-visible immediately; refresh
 	// the host VRAM texture at that boundary.

@@ -7,7 +7,7 @@
 #ifndef LIBGPU_H
 #define LIBGPU_H
 
-#include "types.h"
+#include <stdint.h>
 #ifdef CTR_NATIVE
 #include <string.h>
 #include <platform/native_gpu_links.h>
@@ -103,53 +103,53 @@ extern int (*GPU_printf)(const char *fmt, ...);
 /*
  * Dump Primivie Parameters
  */
-#define dumpRECT16(r)           GPU_printf("(%d,%d)-(%d,%d)\n", (r)->x, (r)->y, (r)->w, (r)->h)
+#define dumpRECT16(r) GPU_printf("(%d,%d)-(%d,%d)\n", (r)->x, (r)->y, (r)->w, (r)->h)
 
-#define dumpWH(p)               GPU_printf("(%d,%d)\n", (p)->w, (p)->h)
-#define dumpXY0(p)              GPU_printf("(%d,%d)\n", (p)->x0, (p)->y0)
-#define dumpUV0(p)              GPU_printf("(%d,%d)\n", (p)->u0, (p)->v0)
+#define dumpWH(p)     GPU_printf("(%d,%d)\n", (p)->w, (p)->h)
+#define dumpXY0(p)    GPU_printf("(%d,%d)\n", (p)->x0, (p)->y0)
+#define dumpUV0(p)    GPU_printf("(%d,%d)\n", (p)->u0, (p)->v0)
 
-#define dumpXY2(p)              GPU_printf("(%d,%d)-(%d,%d)\n", (p)->x0, (p)->y0, (p)->x1, (p)->y1)
+#define dumpXY2(p)    GPU_printf("(%d,%d)-(%d,%d)\n", (p)->x0, (p)->y0, (p)->x1, (p)->y1)
 
-#define dumpXY3(p)              GPU_printf("(%d,%d)-(%d,%d)-(%d,%d)\n", (p)->x0, (p)->y0, (p)->x1, (p)->y1, (p)->x2, (p)->y2)
+#define dumpXY3(p)    GPU_printf("(%d,%d)-(%d,%d)-(%d,%d)\n", (p)->x0, (p)->y0, (p)->x1, (p)->y1, (p)->x2, (p)->y2)
 
-#define dumpUV3(p)              GPU_printf("(%d,%d)-(%d,%d)-(%d,%d)\n", (p)->u0, (p)->v0, (p)->u1, (p)->v1, (p)->u2, (p)->v2)
+#define dumpUV3(p)    GPU_printf("(%d,%d)-(%d,%d)-(%d,%d)\n", (p)->u0, (p)->v0, (p)->u1, (p)->v1, (p)->u2, (p)->v2)
 
-#define dumpXY4(p)              GPU_printf("(%d,%d)-(%d,%d)-(%d,%d)-(%d,%d)\n", (p)->x0, (p)->y0, (p)->x1, (p)->y1, (p)->x2, (p)->y2, (p)->x3, (p)->y3)
+#define dumpXY4(p)    GPU_printf("(%d,%d)-(%d,%d)-(%d,%d)-(%d,%d)\n", (p)->x0, (p)->y0, (p)->x1, (p)->y1, (p)->x2, (p)->y2, (p)->x3, (p)->y3)
 
-#define dumpUV4(p)              GPU_printf("(%d,%d)-(%d,%d)-(%d,%d)-(%d,%d)\n", (p)->u0, (p)->v0, (p)->u1, (p)->v1, (p)->u2, (p)->v2, (p)->u3, (p)->v3)
+#define dumpUV4(p)    GPU_printf("(%d,%d)-(%d,%d)-(%d,%d)-(%d,%d)\n", (p)->u0, (p)->v0, (p)->u1, (p)->v1, (p)->u2, (p)->v2, (p)->u3, (p)->v3)
 
-#define dumpRGB0(p)             GPU_printf("(%3d,%3d,%3d)\n", (p)->r0, (p)->g0, (p)->b0)
+#define dumpRGB0(p)   GPU_printf("(%3d,%3d,%3d)\n", (p)->r0, (p)->g0, (p)->b0)
 
-#define dumpRGB1(p)             GPU_printf("(%3d,%3d,%3d)\n", (p)->r1, (p)->g1, (p)->b1)
+#define dumpRGB1(p)   GPU_printf("(%3d,%3d,%3d)\n", (p)->r1, (p)->g1, (p)->b1)
 
-#define dumpRGB2(p)             GPU_printf("(%3d,%3d,%3d)\n", (p)->r2, (p)->g2, (p)->b2)
+#define dumpRGB2(p)   GPU_printf("(%3d,%3d,%3d)\n", (p)->r2, (p)->g2, (p)->b2)
 
-#define dumpRGB3(p)             GPU_printf("(%3d,%3d,%3d)\n", (p)->r3, (p)->g3, (p)->b3)
+#define dumpRGB3(p)   GPU_printf("(%3d,%3d,%3d)\n", (p)->r3, (p)->g3, (p)->b3)
 
 /*
  * Primitive Handling Macros
  */
 
 #ifdef CTR_NATIVE
-static inline u_int CTR_GPU_ReadTagWord(const void *p)
+static inline uint32_t CTR_GPU_ReadTagWord(const void *p)
 {
-	u_int word;
+	uint32_t word;
 	memcpy(&word, p, sizeof(word));
 	return word;
 }
 
-static inline void CTR_GPU_WriteTagWord(void *p, u_int word)
+static inline void CTR_GPU_WriteTagWord(void *p, uint32_t word)
 {
 	memcpy(p, &word, sizeof(word));
 }
 
-static inline void CTR_GPU_WriteTagCode(void *p, u_char code)
+static inline void CTR_GPU_WriteTagCode(void *p, uint8_t code)
 {
-	((u_char *)p)[7] = code;
+	((uint8_t *)p)[7] = code;
 }
 
-static inline void CTR_GPU_WriteTagAddrToken(void *p, u_int token)
+static inline void CTR_GPU_WriteTagAddrToken(void *p, uint32_t token)
 {
 	CTR_GPU_WriteTagWord((p), (CTR_GPU_ReadTagWord(p) & 0xff000000u) | (token & 0x00ffffffu));
 }
@@ -158,25 +158,25 @@ static inline void CTR_GPU_WriteTagAddrToken(void *p, u_int token)
 #define nextPrim(p)       NativeGpuLinks_ToHostPointer(CTR_GPU_ReadTagWord(p) & 0x00ffffffu)
 
 #define setaddr(p, _addr) CTR_GPU_WriteTagAddrToken((p), NativeGpuLinks_FromHostPointer((const void *)(uintptr_t)(_addr)))
-#define getaddr(p)        (u_int)(CTR_GPU_ReadTagWord(p) & 0x00ffffffu)
+#define getaddr(p)        (uint32_t)(CTR_GPU_ReadTagWord(p) & 0x00ffffffu)
 
-#define setlen(p, _len)   CTR_GPU_WriteTagWord((p), (CTR_GPU_ReadTagWord(p) & 0x00ffffffu) | ((u_int)(u_char)(_len) << 24))
-#define setcode(p, _code) CTR_GPU_WriteTagCode((p), (u_char)(_code))
+#define setlen(p, _len)   CTR_GPU_WriteTagWord((p), (CTR_GPU_ReadTagWord(p) & 0x00ffffffu) | ((uint32_t)(uint8_t)(_len) << 24))
+#define setcode(p, _code) CTR_GPU_WriteTagCode((p), (uint8_t)(_code))
 
-#define getlen(p)         (u_char)(CTR_GPU_ReadTagWord(p) >> 24)
-#define getcode(p)        (u_char)(((u_char *)(p))[7])
+#define getlen(p)         (uint8_t)(CTR_GPU_ReadTagWord(p) >> 24)
+#define getcode(p)        (uint8_t)(((uint8_t *)(p))[7])
 #else
-#define isendprim(p)            ((((P_TAG *)(p))->addr) == 0xffffff)
-#define nextPrim(p)             (void *)(uintptr_t)(((P_TAG *)(p))->addr)
+#define isendprim(p)      ((((P_TAG *)(p))->addr) == 0xffffff)
+#define nextPrim(p)       (void *)(uintptr_t)(((P_TAG *)(p))->addr)
 
-#define setaddr(p, _addr)       (((P_TAG *)(p))->addr = (u_int)((uintptr_t)(_addr) & 0xffffffu))
-#define getaddr(p)              (u_int)(((P_TAG *)(p))->addr)
+#define setaddr(p, _addr) (((P_TAG *)(p))->addr = (uint32_t)((uintptr_t)(_addr) & 0xffffffu))
+#define getaddr(p)        (uint32_t)(((P_TAG *)(p))->addr)
 
-#define setlen(p, _len)         (((P_TAG *)(p))->len = (u_char)(_len))
-#define setcode(p, _code)       (((P_TAG *)(p))->code = (u_char)(_code))
+#define setlen(p, _len)   (((P_TAG *)(p))->len = (uint8_t)(_len))
+#define setcode(p, _code) (((P_TAG *)(p))->code = (uint8_t)(_code))
 
-#define getlen(p)               (u_char)(((P_TAG *)(p))->len)
-#define getcode(p)              (u_char)(((P_TAG *)(p))->code)
+#define getlen(p)         (uint8_t)(((P_TAG *)(p))->len)
+#define getcode(p)        (uint8_t)(((P_TAG *)(p))->code)
 #endif
 
 #ifdef CTR_NATIVE
@@ -186,17 +186,17 @@ static inline void CTR_GPU_WriteTagAddrToken(void *p, u_int token)
 
 #define catPrim(p0, p1)      setaddr((p0), (p1))
 #else
-#define addPrim(ot, p)          setaddr(p, getaddr(ot)), setaddr(ot, p)
+#define addPrim(ot, p)       setaddr(p, getaddr(ot)), setaddr(ot, p)
 
-#define addPrims(ot, p0, p1)    setaddr(p1, getaddr(ot)), setaddr(ot, p0)
+#define addPrims(ot, p0, p1) setaddr(p1, getaddr(ot)), setaddr(ot, p0)
 
-#define catPrim(p0, p1)         setaddr(p0, p1)
+#define catPrim(p0, p1)      setaddr(p0, p1)
 #endif
 
 #ifdef CTR_NATIVE
 #define termPrim(p) CTR_GPU_WriteTagAddrToken((p), NATIVE_GPU_LINK_TERMINATOR)
 #else
-#define termPrim(p)             (((P_TAG *)(p))->addr = 0xffffffu)
+#define termPrim(p) (((P_TAG *)(p))->addr = 0xffffffu)
 #endif
 
 #define setSemiTrans(p, abe)    ((abe) ? setcode(p, getcode(p) | 0x02) : setcode(p, getcode(p) & ~0x02))
@@ -215,25 +215,25 @@ static inline void CTR_GPU_WriteTagAddrToken(void *p, u_int token)
 
 #define _get_mode(dfe, dtd, tpage)       ((0xe1000000) | ((dtd) ? 0x0200 : 0) | ((dfe) ? 0x0400 : 0) | ((tpage) & 0x9ff))
 
-#define setDrawTPage(p, dfe, dtd, tpage) setlen(p, 1), ((u_int *)(p))[1] = _get_mode(dfe, dtd, tpage)
+#define setDrawTPage(p, dfe, dtd, tpage) setlen(p, 1), ((uint32_t *)(p))[1] = _get_mode(dfe, dtd, tpage)
 
 #define _get_tw(tw)                                                                                                                   \
 	(tw ? ((0xe2000000) | ((((tw)->y & 0xff) >> 3) << 15) | ((((tw)->x & 0xff) >> 3) << 10) | (((~((tw)->h - 1) & 0xff) >> 3) << 5) | \
 	       (((~((tw)->w - 1) & 0xff) >> 3)))                                                                                          \
 	    : 0)
 
-#define setTexWindow(p, tw) setlen(p, 2), ((u_int *)(p))[1] = _get_tw(tw), ((u_int *)(p))[2] = 0
+#define setTexWindow(p, tw) setlen(p, 2), ((uint32_t *)(p))[1] = _get_tw(tw), ((uint32_t *)(p))[2] = 0
 
 #define _get_len(rect)      (((RECT16)->w * (rect)->h + 1) / 2 + 4)
 
-#define setDrawLoad(pt, rect)                                                                                                         \
-	(_get_len(RECT16) <= 16) ? ((setlen(pt, _get_len(rect))), ((pt)->code[0] = 0xa0000000), ((pt)->code[1] = *((u_int *)&(rect)->x)), \
-	                            ((pt)->code[2] = *((u_int *)&(rect)->w)), ((pt)->p[_get_len(rect) - 4] = 0x01000000))                 \
+#define setDrawLoad(pt, rect)                                                                                                            \
+	(_get_len(RECT16) <= 16) ? ((setlen(pt, _get_len(rect))), ((pt)->code[0] = 0xa0000000), ((pt)->code[1] = *((uint32_t *)&(rect)->x)), \
+	                            ((pt)->code[2] = *((uint32_t *)&(rect)->w)), ((pt)->p[_get_len(rect) - 4] = 0x01000000))                 \
 	                         : ((setlen(pt, 0)))
 
-#define setDrawStp(p, pbw)                  setlen(p, 2), ((u_int *)p)[1] = 0xe6000000 | (pbw ? 0x01 : 0), ((u_int *)p)[2] = 0
+#define setDrawStp(p, pbw)                  setlen(p, 2), ((uint32_t *)p)[1] = 0xe6000000 | (pbw ? 0x01 : 0), ((uint32_t *)p)[2] = 0
 
-#define setDrawMode(p, dfe, dtd, tpage, tw) setlen(p, 2), ((u_int *)p)[1] = _get_mode(dfe, dtd, tpage), ((u_int *)p)[2] = _get_tw((RECT16 *)tw)
+#define setDrawMode(p, dfe, dtd, tpage, tw) setlen(p, 2), ((uint32_t *)p)[1] = _get_mode(dfe, dtd, tpage), ((uint32_t *)p)[2] = _get_tw((RECT16 *)tw)
 
 
 /*	Primitive 	Lentgh		Code				*/
@@ -278,7 +278,7 @@ typedef struct _RECT16
 	unsigned addr : 24;     \
 	unsigned len : 8;
 
-#define DECLARE_P_ADDR u_int tag;
+#define DECLARE_P_ADDR uint32_t tag;
 
 #define P_LEN          1 // 1 long
 
@@ -294,13 +294,13 @@ typedef struct
 typedef struct
 {
 	DECLARE_P_ADDR_PTAG
-	u_char pad0, pad1, pad2, code;
+	uint8_t pad0, pad1, pad2, code;
 } P_TAG;
 
 typedef struct
 {
 	DECLARE_P_ADDR
-	u_char r0, g0, b0, code;
+	uint8_t r0, g0, b0, code;
 	VERTTYPE x0, y0;
 	VERTTYPE x1, y1;
 	VERTTYPE x2, y2;
@@ -309,7 +309,7 @@ typedef struct
 typedef struct
 {
 	DECLARE_P_ADDR
-	u_char r0, g0, b0, code;
+	uint8_t r0, g0, b0, code;
 	VERTTYPE x0, y0;
 	VERTTYPE x1, y1;
 	VERTTYPE x2, y2;
@@ -319,96 +319,96 @@ typedef struct
 typedef struct
 {
 	DECLARE_P_ADDR
-	u_char r0, g0, b0, code;
+	uint8_t r0, g0, b0, code;
 	VERTTYPE x0, y0;
-	u_char u0, v0;
-	u_short clut;
+	uint8_t u0, v0;
+	uint16_t clut;
 	VERTTYPE x1, y1;
-	u_char u1, v1;
-	u_short tpage;
+	uint8_t u1, v1;
+	uint16_t tpage;
 	VERTTYPE x2, y2;
-	u_char u2, v2;
-	u_short pad1;
+	uint8_t u2, v2;
+	uint16_t pad1;
 } POLY_FT3; /* Flat Textured Triangle */
 
 typedef struct
 {
 	DECLARE_P_ADDR
-	u_char r0, g0, b0, code;
+	uint8_t r0, g0, b0, code;
 	VERTTYPE x0, y0;
-	u_char u0, v0;
-	u_short clut;
+	uint8_t u0, v0;
+	uint16_t clut;
 	VERTTYPE x1, y1;
-	u_char u1, v1;
-	u_short tpage;
+	uint8_t u1, v1;
+	uint16_t tpage;
 	VERTTYPE x2, y2;
-	u_char u2, v2;
-	u_short pad1;
+	uint8_t u2, v2;
+	uint16_t pad1;
 	VERTTYPE x3, y3;
-	u_char u3, v3;
-	u_short pad2;
+	uint8_t u3, v3;
+	uint16_t pad2;
 } POLY_FT4; /* Flat Textured Quadrangle */
 
 typedef struct
 {
 	DECLARE_P_ADDR
-	u_char r0, g0, b0, code;
+	uint8_t r0, g0, b0, code;
 	VERTTYPE x0, y0;
-	u_char r1, g1, b1, pad1;
+	uint8_t r1, g1, b1, pad1;
 	VERTTYPE x1, y1;
-	u_char r2, g2, b2, pad2;
+	uint8_t r2, g2, b2, pad2;
 	VERTTYPE x2, y2;
 } POLY_G3; /* Gouraud Triangle */
 
 typedef struct
 {
 	DECLARE_P_ADDR
-	u_char r0, g0, b0, code;
+	uint8_t r0, g0, b0, code;
 	VERTTYPE x0, y0;
-	u_char r1, g1, b1, pad1;
+	uint8_t r1, g1, b1, pad1;
 	VERTTYPE x1, y1;
-	u_char r2, g2, b2, pad2;
+	uint8_t r2, g2, b2, pad2;
 	VERTTYPE x2, y2;
-	u_char r3, g3, b3, pad3;
+	uint8_t r3, g3, b3, pad3;
 	VERTTYPE x3, y3;
 } POLY_G4; /* Gouraud Quadrangle */
 
 typedef struct
 {
 	DECLARE_P_ADDR
-	u_char r0, g0, b0, code;
+	uint8_t r0, g0, b0, code;
 	VERTTYPE x0, y0;
-	u_char u0, v0;
-	u_short clut;
-	u_char r1, g1, b1, p1;
+	uint8_t u0, v0;
+	uint16_t clut;
+	uint8_t r1, g1, b1, p1;
 	VERTTYPE x1, y1;
-	u_char u1, v1;
-	u_short tpage;
-	u_char r2, g2, b2, p2;
+	uint8_t u1, v1;
+	uint16_t tpage;
+	uint8_t r2, g2, b2, p2;
 	VERTTYPE x2, y2;
-	u_char u2, v2;
-	u_short pad2;
+	uint8_t u2, v2;
+	uint16_t pad2;
 } POLY_GT3; /* Gouraud Textured Triangle */
 
 typedef struct
 {
 	DECLARE_P_ADDR
-	u_char r0, g0, b0, code;
+	uint8_t r0, g0, b0, code;
 	VERTTYPE x0, y0;
-	u_char u0, v0;
-	u_short clut;
-	u_char r1, g1, b1, p1;
+	uint8_t u0, v0;
+	uint16_t clut;
+	uint8_t r1, g1, b1, p1;
 	VERTTYPE x1, y1;
-	u_char u1, v1;
-	u_short tpage;
-	u_char r2, g2, b2, p2;
+	uint8_t u1, v1;
+	uint16_t tpage;
+	uint8_t r2, g2, b2, p2;
 	VERTTYPE x2, y2;
-	u_char u2, v2;
-	u_short pad2;
-	u_char r3, g3, b3, p3; // 10
-	VERTTYPE x3, y3;       // 11
-	u_char u3, v3;
-	u_short pad3;
+	uint8_t u2, v2;
+	uint16_t pad2;
+	uint8_t r3, g3, b3, p3; // 10
+	VERTTYPE x3, y3;        // 11
+	uint8_t u3, v3;
+	uint16_t pad3;
 } POLY_GT4; /* Gouraud Textured Quadrangle */
 
 /*
@@ -417,7 +417,7 @@ typedef struct
 typedef struct
 {
 	DECLARE_P_ADDR
-	u_char r0, g0, b0, code;
+	uint8_t r0, g0, b0, code;
 	VERTTYPE x0, y0;
 	VERTTYPE x1, y1;
 } LINE_F2; /* Unconnected Flat Line */
@@ -425,57 +425,57 @@ typedef struct
 typedef struct
 {
 	DECLARE_P_ADDR
-	u_char r0, g0, b0, code;
+	uint8_t r0, g0, b0, code;
 	VERTTYPE x0, y0;
-	u_char r1, g1, b1, p1;
+	uint8_t r1, g1, b1, p1;
 	VERTTYPE x1, y1;
 } LINE_G2; /* Unconnected Gouraud Line */
 
 typedef struct
 {
 	DECLARE_P_ADDR
-	u_char r0, g0, b0, code;
+	uint8_t r0, g0, b0, code;
 	VERTTYPE x0, y0;
 	VERTTYPE x1, y1;
 	VERTTYPE x2, y2;
-	u_int pad;
+	uint32_t pad;
 } LINE_F3; /* 2 connected Flat Line */
 
 typedef struct
 {
 	DECLARE_P_ADDR
-	u_char r0, g0, b0, code;
+	uint8_t r0, g0, b0, code;
 	VERTTYPE x0, y0;
-	u_char r1, g1, b1, p1;
+	uint8_t r1, g1, b1, p1;
 	VERTTYPE x1, y1;
-	u_char r2, g2, b2, p2;
+	uint8_t r2, g2, b2, p2;
 	VERTTYPE x2, y2;
-	u_int pad;
+	uint32_t pad;
 } LINE_G3; /* 2 connected Gouraud Line */
 
 typedef struct
 {
 	DECLARE_P_ADDR
-	u_char r0, g0, b0, code;
+	uint8_t r0, g0, b0, code;
 	VERTTYPE x0, y0;
 	VERTTYPE x1, y1;
 	VERTTYPE x2, y2;
 	VERTTYPE x3, y3;
-	u_int pad;
+	uint32_t pad;
 } LINE_F4; /* 3 connected Flat Line Quadrangle */
 
 typedef struct
 {
 	DECLARE_P_ADDR
-	u_char r0, g0, b0, code;
+	uint8_t r0, g0, b0, code;
 	VERTTYPE x0, y0;
-	u_char r1, g1, b1, p1;
+	uint8_t r1, g1, b1, p1;
 	VERTTYPE x1, y1;
-	u_char r2, g2, b2, p2;
+	uint8_t r2, g2, b2, p2;
 	VERTTYPE x2, y2;
-	u_char r3, g3, b3, p3;
+	uint8_t r3, g3, b3, p3;
 	VERTTYPE x3, y3;
-	u_int pad;
+	uint32_t pad;
 } LINE_G4; /* 3 connected Gouraud Line */
 
 /*
@@ -484,29 +484,29 @@ typedef struct
 typedef struct
 {
 	DECLARE_P_ADDR
-	u_char r0, g0, b0, code;
+	uint8_t r0, g0, b0, code;
 	VERTTYPE x0, y0;
-	u_char u0, v0;
-	u_short clut;
+	uint8_t u0, v0;
+	uint16_t clut;
 	VERTTYPE w, h;
 } SPRT; /* free size Sprite */
 
 typedef struct
 {
 	DECLARE_P_ADDR
-	u_char r0, g0, b0, code;
+	uint8_t r0, g0, b0, code;
 	VERTTYPE x0, y0;
-	u_char u0, v0;
-	u_short clut;
+	uint8_t u0, v0;
+	uint16_t clut;
 } SPRT_16; /* 16x16 Sprite */
 
 typedef struct
 {
 	DECLARE_P_ADDR
-	u_char r0, g0, b0, code;
+	uint8_t r0, g0, b0, code;
 	VERTTYPE x0, y0;
-	u_char u0, v0;
-	u_short clut;
+	uint8_t u0, v0;
+	uint16_t clut;
 } SPRT_8; /* 8x8 Sprite */
 
 /*
@@ -515,7 +515,7 @@ typedef struct
 typedef struct
 {
 	DECLARE_P_ADDR
-	u_char r0, g0, b0, code;
+	uint8_t r0, g0, b0, code;
 	VERTTYPE x0, y0;
 	VERTTYPE w, h;
 } TILE; /* free size Tile */
@@ -523,21 +523,21 @@ typedef struct
 typedef struct
 {
 	DECLARE_P_ADDR
-	u_char r0, g0, b0, code;
+	uint8_t r0, g0, b0, code;
 	VERTTYPE x0, y0;
 } TILE_16; /* 16x16 Tile */
 
 typedef struct
 {
 	DECLARE_P_ADDR
-	u_char r0, g0, b0, code;
+	uint8_t r0, g0, b0, code;
 	VERTTYPE x0, y0;
 } TILE_8; /* 8x8 Tile */
 
 typedef struct
 {
 	DECLARE_P_ADDR
-	u_char r0, g0, b0, code;
+	uint8_t r0, g0, b0, code;
 	VERTTYPE x0, y0;
 } TILE_1; /* 1x1 Tile */
 
@@ -547,50 +547,50 @@ typedef struct
 typedef struct
 {
 	DECLARE_P_ADDR
-	u_int code[2];
+	uint32_t code[2];
 } DR_MODE; /* Drawing Mode */
 
 typedef struct
 {
 	DECLARE_P_ADDR
-	u_int code[2];
+	uint32_t code[2];
 } DR_TWIN; /* Texture Window */
 
 typedef struct
 {
 	DECLARE_P_ADDR
-	u_int code[2];
+	uint32_t code[2];
 } DR_AREA; /* Drawing Area */
 
 typedef struct
 {
 	DECLARE_P_ADDR
-	u_int code[2];
+	uint32_t code[2];
 } DR_OFFSET; /* Drawing Offset */
 
 typedef struct
 { /* MoveImage */
 	DECLARE_P_ADDR
-	u_int code[5];
+	uint32_t code[5];
 } DR_MOVE;
 
 typedef struct
 { /* LoadImage */
 	DECLARE_P_ADDR
-	u_int code[3];
-	u_int p[13];
+	uint32_t code[3];
+	uint32_t p[13];
 } DR_LOAD;
 
 typedef struct
 {
 	DECLARE_P_ADDR
-	u_int code[1];
+	uint32_t code[1];
 } DR_TPAGE; /* Drawing TPage */
 
 typedef struct
 {
 	DECLARE_P_ADDR
-	u_int code[2];
+	uint32_t code[2];
 } DR_STP; /* Drawing STP */
 
 /*
@@ -600,13 +600,13 @@ typedef struct
 typedef struct
 {
 	DECLARE_P_ADDR
-	u_int code[2];
+	uint32_t code[2];
 } DR_PSYX_TEX;
 
 typedef struct
 {
 	DECLARE_P_ADDR
-	u_int code;
+	uint32_t code;
 	const char *text;
 } DR_PSYX_DBGMARKER;
 
@@ -616,30 +616,30 @@ typedef struct
 typedef struct
 {
 	DECLARE_P_ADDR
-	u_int code[15];
+	uint32_t code[15];
 } DR_ENV; /* Packed Drawing Environment */
 
 typedef struct
 {
-	RECT16 clip;   /* clip area */
-	short ofs[2];  /* drawing offset */
-	RECT16 tw;     /* texture window */
-	u_short tpage; /* texture page */
-	u_char dtd;    /* dither flag (0:off, 1:on) */
-	u_char dfe;    /* flag to draw on display area (0:off 1:on) */
-	u_char drt;
-	u_char isbg;       /* enable to auto-clear */
-	u_char r0, g0, b0; /* initital background color */
-	DR_ENV dr_env;     /* reserved */
+	RECT16 clip;    /* clip area */
+	short ofs[2];   /* drawing offset */
+	RECT16 tw;      /* texture window */
+	uint16_t tpage; /* texture page */
+	uint8_t dtd;    /* dither flag (0:off, 1:on) */
+	uint8_t dfe;    /* flag to draw on display area (0:off 1:on) */
+	uint8_t drt;
+	uint8_t isbg;       /* enable to auto-clear */
+	uint8_t r0, g0, b0; /* initital background color */
+	DR_ENV dr_env;      /* reserved */
 } DRAWENV;
 
 typedef struct
 {
-	RECT16 disp;       /* display area */
-	RECT16 screen;     /* display start point */
-	u_char isinter;    /* interlace 0: off 1: on */
-	u_char isrgb24;    /* RGB24 bit mode */
-	u_char pad0, pad1; /* reserved */
+	RECT16 disp;        /* display area */
+	RECT16 screen;      /* display start point */
+	uint8_t isinter;    /* interlace 0: off 1: on */
+	uint8_t isrgb24;    /* RGB24 bit mode */
+	uint8_t pad0, pad1; /* reserved */
 } DISPENV;
 
 /*
@@ -653,14 +653,14 @@ typedef struct
  */
 typedef struct
 {
-	u_int id;
-	u_char r0, g0, b0, p0; /* Color of vertex 0 */
-	u_char r1, g1, b1, p1; /* Color of vertex 1 */
-	u_char r2, g2, b2, p2; /* Color of vertex 2 */
-	u_char r3, g3, b3, p3; /* Color of vertex 3 */
-	u_short tpage, clut;   /* texture page ID, clut ID */
-	u_char u0, v0, u1, v1; /* texture corner point */
-	u_char u2, v2, u3, v3;
+	uint32_t id;
+	uint8_t r0, g0, b0, p0; /* Color of vertex 0 */
+	uint8_t r1, g1, b1, p1; /* Color of vertex 1 */
+	uint8_t r2, g2, b2, p2; /* Color of vertex 2 */
+	uint8_t r3, g3, b3, p3; /* Color of vertex 3 */
+	uint16_t tpage, clut;   /* texture page ID, clut ID */
+	uint8_t u0, v0, u1, v1; /* texture corner point */
+	uint8_t u2, v2, u3, v3;
 
 	/* independent vertex model */
 	SVECTOR x0, x1, x2, x3; /* 3D corner point */
@@ -670,10 +670,10 @@ typedef struct
 	SVECTOR *v_ofs; /* offset to vertex database */
 	SVECTOR *n_ofs; /* offset to normal database */
 
-	u_short vert0, vert1; /* index of vertex */
-	u_short vert2, vert3;
-	u_short norm0, norm1; /* index of normal */
-	u_short norm2, norm3;
+	uint16_t vert0, vert1; /* index of vertex */
+	uint16_t vert2, vert3;
+	uint16_t norm0, norm1; /* index of normal */
+	uint16_t norm2, norm3;
 
 
 } TMD_PRIM;
@@ -683,11 +683,11 @@ typedef struct
  */
 typedef struct
 {
-	u_int mode;      /* pixel mode */
+	uint32_t mode;   /* pixel mode */
 	RECT16 *cRECT16; /* CLUT RECT16angle on frame buffer */
-	u_int *caddr;    /* CLUT address on main memory */
+	uint32_t *caddr; /* CLUT address on main memory */
 	RECT16 *pRECT16; /* texture image RECT16angle on frame buffer */
-	u_int *paddr;    /* texture image address on main memory */
+	uint32_t *paddr; /* texture image address on main memory */
 } TIM_IMAGE;
 
 #pragma pack(pop)
@@ -717,48 +717,48 @@ extern DRAWENV *PutDrawEnv(DRAWENV *env);
 extern DRAWENV *SetDefDrawEnv(DRAWENV *env, int x, int y, int w, int h);
 extern TIM_IMAGE *ReadTIM(TIM_IMAGE *timimg);
 extern TMD_PRIM *ReadTMD(TMD_PRIM *tmdprim);
-extern int CheckPrim(char *s, u_long *p);
-extern int ClearImage(RECT16 *RECT16, u_char r, u_char g, u_char b);
-extern int ClearImage2(RECT16 *RECT16, u_char r, u_char g, u_char b);
+extern int CheckPrim(char *s, uint32_t *p);
+extern int ClearImage(RECT16 *RECT16, uint8_t r, uint8_t g, uint8_t b);
+extern int ClearImage2(RECT16 *RECT16, uint8_t r, uint8_t g, uint8_t b);
 extern int DrawSync(int mode);
 extern int FntOpen(int x, int y, int w, int h, int isbg, int n);
 extern int GetGraphDebug(void);
-extern int GetTimSize(u_char *sjis);
+extern int GetTimSize(uint8_t *sjis);
 extern int IsEndPrim(void *p);
 extern int KanjiFntOpen(int x, int y, int w, int h, int dx, int dy, int cx, int cy, int isbg, int n);
 extern void KanjiFntClose(void);
-extern int Krom2Tim(u_char *sjis, u_long *taddr, int dx, int dy, int cdx, int cdy, u_int fg, u_int bg);
-extern int LoadImage(RECT16 *rect, u_long *p);
+extern int Krom2Tim(uint8_t *sjis, uint32_t *taddr, int dx, int dy, int cdx, int cdy, uint32_t fg, uint32_t bg);
+extern int LoadImage(RECT16 *rect, uint32_t *p);
 extern int MargePrim(void *p0, void *p1);
 extern int MoveImage(RECT16 *rect, int x, int y);
-extern int OpenTIM(u_long *addr);
-extern int OpenTMD(u_long *tmd, int obj_no);
+extern int OpenTIM(uint32_t *addr);
+extern int OpenTMD(uint32_t *tmd, int obj_no);
 extern int ResetGraph(int mode);
 extern int SetGraphDebug(int level);
-extern int StoreImage(RECT16 *rect, u_long *p);
-extern u_long *ClearOTag(u_long *ot, int n);
-extern u_long *ClearOTagR(u_long *ot, int n);
-extern u_long *FntFlush();
-extern u_long *KanjiFntFlush(int id);
-extern u_int DrawSyncCallback(void (*func)(void));
-extern u_short GetClut(int x, int y);
-extern u_short GetTPage(int tp, int abr, int x, int y);
-extern u_short LoadClut(u_long *clut, int x, int y);
-extern u_short LoadClut2(u_long *clut, int x, int y);
-extern u_short LoadTPage(u_long *pix, int tp, int abr, int x, int y, int w, int h);
+extern int StoreImage(RECT16 *rect, uint32_t *p);
+extern uint32_t *ClearOTag(uint32_t *ot, int n);
+extern uint32_t *ClearOTagR(uint32_t *ot, int n);
+extern uint32_t *FntFlush();
+extern uint32_t *KanjiFntFlush(int id);
+extern uint32_t DrawSyncCallback(void (*func)(void));
+extern uint16_t GetClut(int x, int y);
+extern uint16_t GetTPage(int tp, int abr, int x, int y);
+extern uint16_t LoadClut(uint32_t *clut, int x, int y);
+extern uint16_t LoadClut2(uint32_t *clut, int x, int y);
+extern uint16_t LoadTPage(uint32_t *pix, int tp, int abr, int x, int y, int w, int h);
 extern void *NextPrim(void *p);
 extern void AddPrim(void *ot, void *p);
 extern void AddPrims(void *ot, void *p0, void *p1);
 extern void CatPrim(void *p0, void *p1);
-extern void DrawOTag(u_long *p);
-extern void DrawOTagIO(u_long *p);
-extern void DrawOTagEnv(u_long *p, DRAWENV *env);
+extern void DrawOTag(uint32_t *p);
+extern void DrawOTagIO(uint32_t *p);
+extern void DrawOTagEnv(uint32_t *p, DRAWENV *env);
 extern void DrawPrim(void *p);
-extern void DumpClut(u_short clut);
+extern void DumpClut(uint16_t clut);
 extern void DumpDispEnv(DISPENV *env);
 extern void DumpDrawEnv(DRAWENV *env);
-extern void DumpOTag(u_long *p);
-extern void DumpTPage(u_short tpage);
+extern void DumpOTag(uint32_t *p);
+extern void DumpTPage(uint16_t tpage);
 extern void FntLoad(int x, int y);
 extern void SetDispMask(int mask);
 extern void SetDrawArea(DR_AREA *p, RECT16 *r);
@@ -767,7 +767,7 @@ extern void SetDrawLoad(DR_LOAD *p, RECT16 *RECT16);
 extern void SetDrawMode(DR_MODE *p, int dfe, int dtd, int tpage, RECT16 *tw);
 extern void SetDrawTPage(DR_TPAGE *p, int dfe, int dtd, int tpage);
 extern void SetDrawMove(DR_MOVE *p, RECT16 *RECT16, int x, int y);
-extern void SetDrawOffset(DR_OFFSET *p, u_short *ofs);
+extern void SetDrawOffset(DR_OFFSET *p, uint16_t *ofs);
 extern void SetDrawStp(DR_STP *p, int pbw);
 extern void SetDumpFnt(int id);
 extern void SetLineF2(LINE_F2 *p);
@@ -795,14 +795,14 @@ extern void SetTile1(TILE_1 *p);
 extern void SetTile16(TILE_16 *p);
 extern void SetTile8(TILE_8 *p);
 extern void TermPrim(void *p);
-extern u_long *BreakDraw(void);
-extern void ContinueDraw(u_int *insaddr, u_int *contaddr);
+extern uint32_t *BreakDraw(void);
+extern void ContinueDraw(uint32_t *insaddr, uint32_t *contaddr);
 extern int IsIdleGPU(int max_count);
 extern int GetODE(void);
-extern int LoadImage2(RECT16 *RECT16, u_long *p);
-extern int StoreImage2(RECT16 *RECT16, u_long *p);
+extern int LoadImage2(RECT16 *RECT16, uint32_t *p);
+extern int StoreImage2(RECT16 *RECT16, uint32_t *p);
 extern int MoveImage2(RECT16 *RECT16, int x, int y);
-extern int DrawOTag2(u_int *p);
+extern int DrawOTag2(uint32_t *p);
 extern void GetDrawMode(DR_MODE *p);
 extern void GetTexWindow(DR_TWIN *p);
 extern void GetDrawArea(DR_AREA *p);
@@ -813,7 +813,7 @@ extern void GetDrawEnv2(DR_ENV *p);
  * PSY-X commands
  */
 
-extern void SetPsyXTexture(DR_PSYX_TEX *p, uint grTextureId, int width, int height);
+extern void SetPsyXTexture(DR_PSYX_TEX *p, uint32_t grTextureId, int width, int height);
 extern void SetPsyXDebugMarker(DR_PSYX_DBGMARKER *p, const char *str);
 
 #ifdef _DEBUG

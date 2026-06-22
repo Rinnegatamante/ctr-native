@@ -7,6 +7,8 @@
 #ifndef LIBAPI_H
 #define LIBAPI_H
 
+#include <stdint.h>
+
 #ifndef KERNEL_H
 #include "kernel.h"
 #endif
@@ -18,7 +20,7 @@ extern int ResetRCnt(int spec);
 extern int StartRCnt(int spec);
 extern int StopRCnt(int spec);
 
-extern int OpenEvent(unsigned int desc, int spec, int mode, long (*func)());
+extern int OpenEvent(unsigned int desc, int spec, int mode, int32_t (*func)());
 extern int CloseEvent(unsigned int event);
 extern int WaitEvent(unsigned int event);
 extern int TestEvent(unsigned int event);
@@ -70,12 +72,12 @@ extern void Exception();
 extern void SwEnterCriticalSection();
 extern void SwExitCriticalSection();
 
-extern unsigned long SetSp(unsigned long newsp);
-extern unsigned long GetSp();
-extern unsigned long GetGp();
-extern unsigned long GetCr();
-extern unsigned long GetSr();
-extern unsigned long GetSysSp();
+extern uint32_t SetSp(uint32_t newsp);
+extern uint32_t GetSp();
+extern uint32_t GetGp();
+extern uint32_t GetCr();
+extern uint32_t GetSr();
+extern uint32_t GetSysSp();
 
 extern int SetConf(unsigned int, unsigned int, unsigned int);
 extern void GetConf(unsigned int *, unsigned int *, unsigned int *);

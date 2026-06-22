@@ -19,7 +19,6 @@
 #define ExitCriticalSection()
 #endif
 
-#include "psx/types.h"
 #include "psx/libetc.h"
 #include "psx/libgte.h"
 #include "psx/libgpu.h"

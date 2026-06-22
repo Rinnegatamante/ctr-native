@@ -41,7 +41,7 @@ void SongPool_ChangeTempo(struct Song *song, s16 deltaBPM)
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002a730-0x8002a9d8
-void SongPool_Start(struct Song *song, u16 songID, s16 deltaBPM, int boolLoopAtEnd, struct SongSet *songSet, int songSetActiveBits)
+void SongPool_Start(struct Song *song, u16 songID, s16 deltaBPM, b32 boolLoopAtEnd, struct SongSet *songSet, int songSetActiveBits)
 {
 	int i;
 	int vol;
@@ -175,7 +175,7 @@ void SongPool_Start(struct Song *song, u16 songID, s16 deltaBPM, int boolLoopAtE
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002a9d8-0x8002a9f0
-void SongPool_Volume(struct Song *song, int newVol, int newStep, int boolImm)
+void SongPool_Volume(struct Song *song, int newVol, int newStep, b32 boolImm)
 {
 	// if immediate change request,
 	// without fading volume
@@ -189,7 +189,7 @@ void SongPool_Volume(struct Song *song, int newVol, int newStep, int boolImm)
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002a9f0-0x8002aa44
-void SongPool_AdvHub1(struct Song *song, int seqID, int vol, int boolImm)
+void SongPool_AdvHub1(struct Song *song, int seqID, int vol, b32 boolImm)
 {
 	struct SongSeq *seq;
 

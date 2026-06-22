@@ -124,7 +124,7 @@ void CS_Credits_Init(void)
 	int bitIndex;
 	struct Instance *inst;
 
-	int boolAllGold;
+	b32 boolAllGold;
 	struct GameTracker *gGT;
 	struct AdvProgress *advProg;
 	struct CreditsObj *creditsObj;
@@ -142,7 +142,7 @@ void CS_Credits_Init(void)
 	creditsBSS.DancerThread = 0;
 
 	creditsBSS.boolAllBlue = 1;
-	boolAllGold = 1;
+	boolAllGold = true;
 
 	for (i = 0; i < 0x12; i++)
 	{

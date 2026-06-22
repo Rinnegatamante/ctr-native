@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800abaa8-0x800abaf0.
-void MM_Battle_DrawIcon_Character(struct Icon *icon, int posX, int posY, struct PrimMem *primMem, u_long *ot, char transparency, s16 scale)
+void MM_Battle_DrawIcon_Character(struct Icon *icon, int posX, int posY, struct PrimMem *primMem, uint32_t *ot, char transparency, s16 scale)
 {
 	if (icon == 0)
 		return;
@@ -87,7 +87,7 @@ void MM_Battle_DrawIcon_Weapon(struct Icon *icon, u32 posX, int posY, struct Pri
 		}
 	}
 
-	*(int *)p = CtrGpu_PackOTTag(*(u_long *)ot, 0x9000000);
+	*(int *)p = CtrGpu_PackOTTag(*(uint32_t *)ot, 0x9000000);
 	*(int *)ot = (int)CtrGpu_PrimToOTLink24(p);
 
 	primMem->cursor = p + 1;
@@ -779,7 +779,7 @@ LAB_800b25f0:
 		}
 	}
 
-	u_long *ot = gGT->backBuffer->otMem.uiOT;
+	uint32_t *ot = gGT->backBuffer->otMem.uiOT;
 
 	for (i = 0; i < 4; i++)
 	{
@@ -819,7 +819,7 @@ LAB_800b25f0:
 		local_50.x = tmbattle[4].currX + 0x9c + 0;
 		local_50.y = tmbattle[4].currY + sVar20 + 3;
 
-		CTR_Box_DrawClearBox(&local_50, &sdata->menuRowHighlight_Normal, TRANS_50_DECAL, (u_long *)ot);
+		CTR_Box_DrawClearBox(&local_50, &sdata->menuRowHighlight_Normal, TRANS_50_DECAL, (uint32_t *)ot);
 	}
 
 	local_40.w = 0x140;

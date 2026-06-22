@@ -1,7 +1,6 @@
 #include "platform/native_assets.h"
 
 #include <macros.h>
-#include <psx/types.h>
 
 #include <platform/native_path.h>
 

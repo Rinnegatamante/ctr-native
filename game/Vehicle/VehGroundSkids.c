@@ -51,7 +51,7 @@ void VehGroundSkids_Subset1(u32 *currXY, u32 *prevXY, int depth, struct VehGroun
 	CtrGpu_WritePackedUV(&poly->u3, VehGroundSkids_ReadTexHalf(&icon->texLayout, 0xa));
 
 	struct PushBuffer *pb = scratch->pushBuffer;
-	u_long *ot = pb->ptrOT + ((s32)depth >> 6);
+	uint32_t *ot = pb->ptrOT + ((s32)depth >> 6);
 	CtrGpu_LinkPacket24(ot, &poly->tag, poly, 0x0c000000);
 }
 

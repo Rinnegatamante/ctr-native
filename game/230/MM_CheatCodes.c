@@ -153,7 +153,7 @@ void MM_ParseCheatCodes(void)
 	int i;
 	int j;
 	int tap;
-	int boolPass;
+	b32 boolPass;
 	struct GamepadBuffer *gpad;
 
 	gpad = &sdata->gGamepads->gamepad[0];
@@ -185,7 +185,7 @@ void MM_ParseCheatCodes(void)
 	// loop through all cheats
 	for (j = 0; j < 0x16; j++)
 	{
-		boolPass = 1;
+		boolPass = true;
 
 		// check if buttons match this cheat
 		for (i = 0; i < D230.cheats[j].numButtons; i++)
@@ -193,7 +193,7 @@ void MM_ParseCheatCodes(void)
 			// remember, inputButtons is backward
 			if ((D230.cheatButtonEntry[i] & D230.cheats[j].buttons[D230.cheats[j].numButtons - i - 1]) == 0)
 			{
-				boolPass = 0;
+				boolPass = false;
 				break;
 			}
 		}

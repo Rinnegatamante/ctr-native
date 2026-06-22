@@ -66,7 +66,7 @@ void SelectProfile_ThTick(struct Thread *t)
 
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80047f20-0x80047fb8.
-void SelectProfile_PrintInteger(int value, int posX, int posY, int usePaddedFormat, int color)
+void SelectProfile_PrintInteger(int value, int posX, int posY, b32 usePaddedFormat, int color)
 {
 	char text[64];
 	char *format;
@@ -706,7 +706,7 @@ static void SelectProfile_StartGhostSave(struct RectMenu *menu)
 	gGT->gameModeEnd |= PLAYER_GHOST_BEAT;
 }
 
-static int SelectProfile_GhostRowCount(int *savedCount, int *canChooseEmptySlot)
+static int SelectProfile_GhostRowCount(int *savedCount, b32 *canChooseEmptySlot)
 {
 	int count = sdata->numGhostProfilesSaved;
 
@@ -726,12 +726,12 @@ static int SelectProfile_GhostRowCount(int *savedCount, int *canChooseEmptySlot)
 		if (count > 7)
 		{
 			count = 7;
-			*canChooseEmptySlot = 0;
+			*canChooseEmptySlot = false;
 		}
 	}
 	else
 	{
-		*canChooseEmptySlot = 1;
+		*canChooseEmptySlot = true;
 		count++;
 	}
 
@@ -761,7 +761,7 @@ static int SelectProfile_DisableAdvInputFlags(void)
 	return flags;
 }
 
-static void SelectProfile_DrawGhostRows(struct RectMenu *menu, int rowCount, int savedCount, int canChooseEmptySlot, int color)
+static void SelectProfile_DrawGhostRows(struct RectMenu *menu, int rowCount, int savedCount, b32 canChooseEmptySlot, int color)
 {
 	int i;
 	int lineGap;
@@ -1128,15 +1128,15 @@ static void SelectProfile_DrawMemcardMessage(int screen, int color, int menuFlag
 	RECTMENU_DrawInnerRect((RECT *)&sdata->unk_BeforeTokenMenu[0], menuFlag, sdata->gGT->backBuffer->otMem.uiOT);
 }
 
-static void SelectProfile_DrawAll(struct RectMenu *menu, int rowCount, int savedGhostCount, int canChooseEmptySlot, int color)
+static void SelectProfile_DrawAll(struct RectMenu *menu, int rowCount, int savedGhostCount, b32 canChooseEmptySlot, int color)
 {
-	int canDrawProfiles =
+	b32 canDrawProfiles =
 	    (*SelectProfile_AllProfiles_ActionActive() == 0) &&
 	    ((*(s16 *)&sdata->unk8008d95c != 0) || (*(s16 *)&sdata->unk_memcardRelated_8008d928[0] != 0) || (sdata->mcScreenText == MC_SCREEN_NULL));
 
 	if ((sdata->memcardAction == 0) && SelectProfile_IsGhostMode() &&
 	    ((sdata->mcScreenText == MC_SCREEN_ERROR_NODATA) || (sdata->mcScreenText == MC_SCREEN_WARNING_NOCARD)) && (rowCount != 0))
-		canDrawProfiles = 1;
+		canDrawProfiles = true;
 
 	if (sdata->memcardAction == 1)
 	{
@@ -1148,7 +1148,7 @@ static void SelectProfile_DrawAll(struct RectMenu *menu, int rowCount, int saved
 		}
 
 		if ((sdata->mcScreenText == MC_SCREEN_ERROR_TIMEOUT) && (*SelectProfile_AllProfiles_TimeoutPrompt() != 0))
-			canDrawProfiles = 1;
+			canDrawProfiles = true;
 	}
 
 	SelectProfile_Init(menu->drawStyle);
@@ -1320,10 +1320,10 @@ void SelectProfile_AllProfiles_MenuProc(struct RectMenu *menu)
 {
 	int color = ((menu->drawStyle & 0x10) != 0) ? LIGHT_GREEN : ORANGE;
 	int savedGhostCount = sdata->numGhostProfilesSaved;
-	int canChooseEmptySlot = 0;
+	b32 canChooseEmptySlot = false;
 	int rowCount = SelectProfile_IsGhostMode() ? SelectProfile_GhostRowCount(&savedGhostCount, &canChooseEmptySlot) : 4;
-	int handled = 0;
-	int doSave = 0;
+	b32 handled = false;
+	b32 doSave = false;
 
 	if (sdata->mcScreenText == MC_SCREEN_WARNING_NOCARD)
 		*SelectProfile_AllProfiles_OverwritePrompt() = 0;

@@ -7,7 +7,7 @@
 #ifndef LIBETC_H
 #define LIBETC_H
 
-#include "types.h"
+#include <stdint.h>
 
 extern int PadIdentifier;
 
@@ -39,7 +39,7 @@ extern int PadIdentifier;
 
 #define _PAD(x, y)             ((y) << ((x) << 4))
 
-#define getScratchAddr(offset) ((u_int *)(_scratchData + (offset) * 4))
+#define getScratchAddr(offset) ((uint32_t *)(_scratchData + (offset) * 4))
 
 #define MODE_NTSC              0
 #define MODE_PAL               1
@@ -55,7 +55,7 @@ extern int VSync(int mode);
 extern int VSyncCallback(void (*f)(void));
 extern int GetVideoMode(void);
 extern int SetVideoMode(int mode);
-extern u_int PadRead(int id);
+extern uint32_t PadRead(int id);
 extern void PadStop(void);
 extern void (*vsync_callback)(void);
 

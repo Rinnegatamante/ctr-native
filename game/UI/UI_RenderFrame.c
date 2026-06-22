@@ -16,7 +16,7 @@ void UI_RenderFrame_Racing()
 	struct PushBuffer *pb;
 	u32 partTimeVariable5;
 	struct Icon *iconPtr;
-	u_long *primMemCurr;
+	uint32_t *primMemCurr;
 	char *fmt;
 	int partTimeVariable3;
 	POLY_G4 *TurboCounterBar;
@@ -34,7 +34,7 @@ void UI_RenderFrame_Racing()
 	SVec2 turboCountPos;
 	u16 local_30[2];
 	struct Thread *playerThread;
-	u_long *ptrOT;
+	uint32_t *ptrOT;
 	struct DB *backBuffer;
 	struct Thread *turboThread;
 	struct Turbo *turboThreadObject;
@@ -1081,8 +1081,8 @@ void UI_RenderFrame_Wumpa3D_2P3P4P(struct GameTracker *gGT)
 
 	if (wumpaPushBuffer != NULL)
 	{
-		u_long *textureStart = wumpaPushBuffer->ptrOT;
-		u_long *textureEnd = wumpaPushBuffer->renderBucketOTRangeEnd;
+		uint32_t *textureStart = wumpaPushBuffer->ptrOT;
+		uint32_t *textureEnd = wumpaPushBuffer->renderBucketOTRangeEnd;
 		b32 shouldCycleTexture = (textureStart != NULL) && (textureEnd != NULL);
 
 #ifdef CTR_NATIVE

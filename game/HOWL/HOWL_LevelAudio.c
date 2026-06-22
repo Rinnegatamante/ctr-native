@@ -100,7 +100,7 @@ void Level_SoundLoopSet(int *soundIDCount, u32 soundID, u32 volume)
 void Level_SoundLoopFade(int *fade, u32 soundID, int desiredVolume, int fadeStep)
 {
 	int currentVolume = fade[2];
-	bool clamped;
+	b32 clamped;
 
 	if (currentVolume == desiredVolume)
 		return;
@@ -170,13 +170,13 @@ void Level_AmbientSound(void)
 
 	if (levelID == 6)
 	{
-		bool playDrops = false;
-		bool playLoop = false;
+		b32 playDrops = false;
+		b32 playLoop = false;
 
 		for (int i = 0; i < (u8)gGT->numPlyrCurrGame; i++)
 		{
 			struct Driver *driver = gGT->drivers[i];
-			char terrain = driver->currentTerrain;
+			u8 terrain = driver->currentTerrain;
 			s16 sound = driver->terrainMeta2->sound;
 
 			if ((terrain == 0) || (terrain == 1) || (terrain == 11))
@@ -195,8 +195,8 @@ void Level_AmbientSound(void)
 
 	if (levelID == 8)
 	{
-		bool playFirstLoop = false;
-		bool playSecondLoop = false;
+		b32 playFirstLoop = false;
+		b32 playSecondLoop = false;
 
 		for (int i = 0; i < (u8)gGT->numPlyrCurrGame; i++)
 		{

@@ -635,7 +635,7 @@ void UI_CupStandings_InputAndDraw(void)
 							bitIndex = baseIndex + gGT->cup.cupID;
 							UNLOCK_ADV_BIT(rewardsSet, bitIndex);
 
-							int boolUnlockMap = 1;
+							b32 boolUnlockMap = true;
 							for (i = 0; i < 4; i++)
 							{
 								// if any of four cups on this difficulty was not won
@@ -643,7 +643,7 @@ void UI_CupStandings_InputAndDraw(void)
 								if (CHECK_ADV_BIT(rewardsSet, bitIndex) == 0)
 								{
 									// you dont deserve to unlock a battle map
-									boolUnlockMap = 0;
+									boolUnlockMap = false;
 									break;
 								}
 							}

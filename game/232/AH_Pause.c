@@ -365,7 +365,7 @@ void AH_Pause_Draw(int pageID, int posX)
 
 	Color color;
 	color.self = sdata->battleSetup_Color_UI_1;
-	u_long *ot = gGT->backBuffer->otMem.uiOT;
+	uint32_t *ot = gGT->backBuffer->otMem.uiOT;
 	RECTMENU_DrawOuterRect_Edge(&r, color, 0x20, ot);
 
 	r.x = 0x100 - half;

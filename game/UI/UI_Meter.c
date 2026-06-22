@@ -90,7 +90,7 @@ void UI_JumpMeter_Draw(s16 posX, s16 posY, struct Driver *driver)
 	s16 jumpMeter;
 	struct DB *backDB;
 	int iVar5;
-	u_long *primmemCurr;
+	uint32_t *primmemCurr;
 	POLY_F4 *p;
 	int iVar8;
 	s16 sVar9;
@@ -132,7 +132,7 @@ void UI_JumpMeter_Draw(s16 posX, s16 posY, struct Driver *driver)
 	p = 0;
 
 	// if there is room left for more
-	if (primmemCurr <= (u_long *)backDB->primMem.guardEnd)
+	if (primmemCurr <= (uint32_t *)backDB->primMem.guardEnd)
 	{
 		// add primitives
 		backDB->primMem.cursor = &primmemCurr[6];
@@ -168,7 +168,7 @@ void UI_JumpMeter_Draw(s16 posX, s16 posY, struct Driver *driver)
 		primmemCurr = backDB->primMem.cursor;
 		p = 0;
 
-		if (primmemCurr <= (u_long *)backDB->primMem.guardEnd)
+		if (primmemCurr <= (uint32_t *)backDB->primMem.guardEnd)
 		{
 			backDB->primMem.cursor = &primmemCurr[6];
 			p = (POLY_F4 *)primmemCurr;
@@ -220,7 +220,7 @@ void UI_JumpMeter_Draw(s16 posX, s16 posY, struct Driver *driver)
 			p = 0;
 
 			// If there is room to add more
-			if (primmemCurr <= (u_long *)backDB->primMem.guardEnd)
+			if (primmemCurr <= (uint32_t *)backDB->primMem.guardEnd)
 			{
 				// Add more primitives
 				backDB->primMem.cursor = &primmemCurr[6];

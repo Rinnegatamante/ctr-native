@@ -15,13 +15,13 @@ force_inline u32 CtrGpu_PrimToOTLink24(const void *prim)
 #endif
 }
 
-force_inline u32 CtrGpu_PackOTTag(u_long ot, u32 tag)
+force_inline u32 CtrGpu_PackOTTag(uint32_t ot, u32 tag)
 {
 	return ((u32)ot & 0xffffffu) | tag;
 }
 
 #ifdef CTR_NATIVE
-force_inline b32 CtrGpu_IsCurrentOTRange(const struct DB *db, const u_long *start, const u_long *end)
+force_inline b32 CtrGpu_IsCurrentOTRange(const struct DB *db, const uint32_t *start, const uint32_t *end)
 {
 	uintptr_t rangeStart;
 	uintptr_t rangeEnd;
@@ -49,12 +49,12 @@ force_inline u32 CtrGpu_PackColorCode(u32 color, u32 code)
 	return (color & 0xffffff) | (code << 24);
 }
 
-force_inline void CtrGpu_WriteColorCode(u_char *r, u32 colorCode)
+force_inline void CtrGpu_WriteColorCode(uint8_t *r, u32 colorCode)
 {
-	r[0] = (u_char)colorCode;
-	r[1] = (u_char)(colorCode >> 8);
-	r[2] = (u_char)(colorCode >> 16);
-	r[3] = (u_char)(colorCode >> 24);
+	r[0] = (uint8_t)colorCode;
+	r[1] = (uint8_t)(colorCode >> 8);
+	r[2] = (uint8_t)(colorCode >> 16);
+	r[3] = (uint8_t)(colorCode >> 24);
 }
 
 force_inline void CtrGpu_WritePackedXY(VERTTYPE *x, u32 xy)
@@ -63,18 +63,18 @@ force_inline void CtrGpu_WritePackedXY(VERTTYPE *x, u32 xy)
 	x[1] = (VERTTYPE)(xy >> 16);
 }
 
-force_inline void CtrGpu_WritePackedUV(u_char *u, u16 uv)
+force_inline void CtrGpu_WritePackedUV(uint8_t *u, u16 uv)
 {
-	u[0] = (u_char)uv;
-	u[1] = (u_char)(uv >> 8);
+	u[0] = (uint8_t)uv;
+	u[1] = (uint8_t)(uv >> 8);
 }
 
-force_inline void CtrGpu_WritePackedUVWord(u_char *u, u32 uvTpage)
+force_inline void CtrGpu_WritePackedUVWord(uint8_t *u, u32 uvTpage)
 {
-	u[0] = (u_char)uvTpage;
-	u[1] = (u_char)(uvTpage >> 8);
-	u[2] = (u_char)(uvTpage >> 16);
-	u[3] = (u_char)(uvTpage >> 24);
+	u[0] = (uint8_t)uvTpage;
+	u[1] = (uint8_t)(uvTpage >> 8);
+	u[2] = (uint8_t)(uvTpage >> 16);
+	u[3] = (uint8_t)(uvTpage >> 24);
 }
 
 _Static_assert(sizeof(POLY_FT4) == 0x28);
@@ -118,137 +118,137 @@ _Static_assert(offsetof(struct CtrGpuDrawModePacket, tag) == 0x00);
 _Static_assert(offsetof(struct CtrGpuDrawModePacket, drawMode) == 0x04);
 _Static_assert(offsetof(struct CtrGpuDrawModePacket, terminator) == 0x08);
 
-force_inline void CtrGpu_LinkPacket24(u_long *ot, u32 *packetTag, const void *packet, u32 tag)
+force_inline void CtrGpu_LinkPacket24(uint32_t *ot, u32 *packetTag, const void *packet, u32 tag)
 {
 	*packetTag = CtrGpu_PackOTTag(*ot, tag);
-	*ot = (u_long)CtrGpu_PrimToOTLink24(packet);
+	*ot = (uint32_t)CtrGpu_PrimToOTLink24(packet);
 }
 
-force_inline void CtrGpu_LinkPrimToOT(u_long *ot, const void *prim)
+force_inline void CtrGpu_LinkPrimToOT(uint32_t *ot, const void *prim)
 {
-	*ot = (u_long)CtrGpu_PrimToOTLink24(prim);
+	*ot = (uint32_t)CtrGpu_PrimToOTLink24(prim);
 }
 
-force_inline void addPolyF3(u_long *ot, POLY_F3 *p)
+force_inline void addPolyF3(uint32_t *ot, POLY_F3 *p)
 {
 	p->tag = CtrGpu_PackOTTag(*ot, 0x4000000);
 	CtrGpu_LinkPrimToOT(ot, p);
 	p->code = 0x20;
 }
 
-force_inline void addPolyFT3(u_long *ot, POLY_FT3 *p)
+force_inline void addPolyFT3(uint32_t *ot, POLY_FT3 *p)
 {
 	p->tag = CtrGpu_PackOTTag(*ot, 0x7000000);
 	CtrGpu_LinkPrimToOT(ot, p);
 	p->code = 0x24;
 }
 
-force_inline void addPolyG3(u_long *ot, POLY_G3 *p)
+force_inline void addPolyG3(uint32_t *ot, POLY_G3 *p)
 {
 	p->tag = CtrGpu_PackOTTag(*ot, 0x6000000);
 	CtrGpu_LinkPrimToOT(ot, p);
 	p->code = 0x30;
 }
 
-force_inline void addPolyGT3(u_long *ot, POLY_GT3 *p)
+force_inline void addPolyGT3(uint32_t *ot, POLY_GT3 *p)
 {
 	p->tag = CtrGpu_PackOTTag(*ot, 0x9000000);
 	CtrGpu_LinkPrimToOT(ot, p);
 	p->code = 0x34;
 }
 
-force_inline void addPolyF4(u_long *ot, POLY_F4 *p)
+force_inline void addPolyF4(uint32_t *ot, POLY_F4 *p)
 {
 	p->tag = CtrGpu_PackOTTag(*ot, 0x5000000);
 	CtrGpu_LinkPrimToOT(ot, p);
 	p->code = 0x28;
 }
 
-force_inline void addPolyFT4(u_long *ot, POLY_FT4 *p)
+force_inline void addPolyFT4(uint32_t *ot, POLY_FT4 *p)
 {
 	p->tag = CtrGpu_PackOTTag(*ot, 0x9000000);
 	CtrGpu_LinkPrimToOT(ot, p);
 	p->code = 0x2c;
 }
 
-force_inline void addPolyG4(u_long *ot, POLY_G4 *p)
+force_inline void addPolyG4(uint32_t *ot, POLY_G4 *p)
 {
 	p->tag = CtrGpu_PackOTTag(*ot, 0x8000000);
 	CtrGpu_LinkPrimToOT(ot, p);
 	p->code = 0x38;
 }
 
-force_inline void addPolyGT4(u_long *ot, POLY_GT4 *p)
+force_inline void addPolyGT4(uint32_t *ot, POLY_GT4 *p)
 {
 	p->tag = CtrGpu_PackOTTag(*ot, 0xc000000);
 	CtrGpu_LinkPrimToOT(ot, p);
 	p->code = 0x3c;
 }
 
-force_inline void addSprt8(u_long *ot, SPRT *p)
+force_inline void addSprt8(uint32_t *ot, SPRT *p)
 {
 	p->tag = CtrGpu_PackOTTag(*ot, 0x3000000);
 	CtrGpu_LinkPrimToOT(ot, p);
 	p->code = 0x74;
 }
 
-force_inline void addSprt16(u_long *ot, SPRT *p)
+force_inline void addSprt16(uint32_t *ot, SPRT *p)
 {
 	p->tag = CtrGpu_PackOTTag(*ot, 0x3000000);
 	CtrGpu_LinkPrimToOT(ot, p);
 	p->code = 0x7c;
 }
 
-force_inline void addSprt(u_long *ot, SPRT *p)
+force_inline void addSprt(uint32_t *ot, SPRT *p)
 {
 	p->tag = CtrGpu_PackOTTag(*ot, 0x4000000);
 	CtrGpu_LinkPrimToOT(ot, p);
 	p->code = 0x64;
 }
 
-force_inline void addTile1(u_long *ot, TILE *p)
+force_inline void addTile1(uint32_t *ot, TILE *p)
 {
 	p->tag = CtrGpu_PackOTTag(*ot, 0x2000000);
 	CtrGpu_LinkPrimToOT(ot, p);
 	p->code = 0x68;
 }
 
-force_inline void addTile8(u_long *ot, TILE *p)
+force_inline void addTile8(uint32_t *ot, TILE *p)
 {
 	p->tag = CtrGpu_PackOTTag(*ot, 0x2000000);
 	CtrGpu_LinkPrimToOT(ot, p);
 	p->code = 0x70;
 }
 
-force_inline void addTile16(u_long *ot, TILE *p)
+force_inline void addTile16(uint32_t *ot, TILE *p)
 {
 	p->tag = CtrGpu_PackOTTag(*ot, 0x2000000);
 	CtrGpu_LinkPrimToOT(ot, p);
 	p->code = 0x78;
 }
 
-force_inline void addTile(u_long *ot, TILE *p)
+force_inline void addTile(uint32_t *ot, TILE *p)
 {
 	p->tag = CtrGpu_PackOTTag(*ot, 0x3000000);
 	CtrGpu_LinkPrimToOT(ot, p);
 	p->code = 0x60;
 }
 
-force_inline void addLineF2(u_long *ot, LINE_F2 *p)
+force_inline void addLineF2(uint32_t *ot, LINE_F2 *p)
 {
 	p->tag = CtrGpu_PackOTTag(*ot, 0x3000000);
 	CtrGpu_LinkPrimToOT(ot, p);
 	p->code = 0x40;
 }
 
-force_inline void addLineG2(u_long *ot, LINE_G2 *p)
+force_inline void addLineG2(uint32_t *ot, LINE_G2 *p)
 {
 	p->tag = CtrGpu_PackOTTag(*ot, 0x4000000);
 	CtrGpu_LinkPrimToOT(ot, p);
 	p->code = 0x50;
 }
 
-force_inline void addLineF3(u_long *ot, LINE_F3 *p)
+force_inline void addLineF3(uint32_t *ot, LINE_F3 *p)
 {
 	p->tag = CtrGpu_PackOTTag(*ot, 0x5000000);
 	CtrGpu_LinkPrimToOT(ot, p);
@@ -256,7 +256,7 @@ force_inline void addLineF3(u_long *ot, LINE_F3 *p)
 	p->pad = 0x55555555;
 }
 
-force_inline void addLineG3(u_long *ot, LINE_G3 *p)
+force_inline void addLineG3(uint32_t *ot, LINE_G3 *p)
 {
 	p->tag = CtrGpu_PackOTTag(*ot, 0x7000000);
 	CtrGpu_LinkPrimToOT(ot, p);
@@ -265,7 +265,7 @@ force_inline void addLineG3(u_long *ot, LINE_G3 *p)
 	p->p1, p->p2 = 0;
 }
 
-force_inline void addLineF4(u_long *ot, LINE_F4 *p)
+force_inline void addLineF4(uint32_t *ot, LINE_F4 *p)
 {
 	p->tag = CtrGpu_PackOTTag(*ot, 0x6000000);
 	CtrGpu_LinkPrimToOT(ot, p);
@@ -273,7 +273,7 @@ force_inline void addLineF4(u_long *ot, LINE_F4 *p)
 	p->pad = 0x55555555;
 }
 
-force_inline void addLineG4(u_long *ot, LINE_G4 *p)
+force_inline void addLineG4(uint32_t *ot, LINE_G4 *p)
 {
 	p->tag = CtrGpu_PackOTTag(*ot, 0x9000000);
 	CtrGpu_LinkPrimToOT(ot, p);
@@ -283,7 +283,7 @@ force_inline void addLineG4(u_long *ot, LINE_G4 *p)
 }
 
 #ifndef CTR_NATIVE
-force_inline void addFill(u_long *ot, FILL *p)
+force_inline void addFill(uint32_t *ot, FILL *p)
 {
 	p->tag = CtrGpu_PackOTTag(*ot, 0x3000000);
 	CtrGpu_LinkPrimToOT(ot, p);

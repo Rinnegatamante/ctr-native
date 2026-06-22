@@ -30,17 +30,17 @@ struct OTMem
 	u32 capacityBytes;
 
 	// 0x4
-	u_long *start;
+	uint32_t *start;
 
 	// 0x8
-	u_long *end;
+	uint32_t *end;
 
 	// 0xC
-	u_long *cursor;
+	uint32_t *cursor;
 
 	// 0x10
 	// NOTE(aalhendi): UI ordering-table pointer, also stored in pushBuffer_UI.
-	u_long *uiOT;
+	uint32_t *uiOT;
 };
 
 // 0xA4

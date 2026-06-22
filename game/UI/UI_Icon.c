@@ -41,7 +41,7 @@ void UI_WeaponBG_AnimateShine(void)
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8004e37c-0x8004e660.
-void UI_WeaponBG_DrawShine(struct Icon *icon, s16 posX, s16 posY, struct PrimMem *primMem, u_long *ot, char transparency, s16 angleX, s16 angleY,
+void UI_WeaponBG_DrawShine(struct Icon *icon, s16 posX, s16 posY, struct PrimMem *primMem, uint32_t *ot, char transparency, s16 angleX, s16 angleY,
                            int unusedColor)
 {
 	s16 sVar1;
@@ -169,7 +169,8 @@ void UI_WeaponBG_DrawShine(struct Icon *icon, s16 posX, s16 posY, struct PrimMem
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8004e660-0x8004e8d8.
-void UI_TrackerBG(struct Icon *targetIcon, s16 centerX, s16 centerY, struct PrimMem *primMem, u_long *ot, char transparency, s16 angleX, s16 angleY, int color)
+void UI_TrackerBG(struct Icon *targetIcon, s16 centerX, s16 centerY, struct PrimMem *primMem, uint32_t *ot, char transparency, s16 angleX, s16 angleY,
+                  int color)
 {
 	s16 rightX;
 	s16 bottomY;
@@ -261,7 +262,7 @@ void UI_TrackerBG(struct Icon *targetIcon, s16 centerX, s16 centerY, struct Prim
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8004e8d8-0x8004eaa8.
-void UI_DrawDriverIcon(struct Icon *icon, s16 posX, s16 posY, struct PrimMem *primMem, u_long *ot, char transparency, s16 scale, u32 color)
+void UI_DrawDriverIcon(struct Icon *icon, s16 posX, s16 posY, struct PrimMem *primMem, uint32_t *ot, char transparency, s16 scale, u32 color)
 {
 	PolyFT4 *p = primMem->cursor;
 	const PrimCode primCode = {.poly = {.renderCode = RenderCode_Polygon, .quad = 1, .textured = 1}};

@@ -150,7 +150,7 @@ void ElimBG_ToggleInstance(struct Instance *inst, char boolGameIsPaused)
 
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800248bc-0x80024974.
-void ElimBG_ToggleAllInstances(struct GameTracker *gGT, int boolGameIsPaused)
+void ElimBG_ToggleAllInstances(struct GameTracker *gGT, b32 boolGameIsPaused)
 {
 	struct Level *lev;
 	struct Instance *inst;

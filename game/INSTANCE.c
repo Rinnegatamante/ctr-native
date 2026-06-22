@@ -299,9 +299,9 @@ void INSTANCE_LevInitAll(struct InstDef *levInstDef, int numInst)
 			}
 		}
 
-		int boolArcadeOnly = ((((u32)modelID - PU_FRUIT_CRATE) < 2) || (modelID == PU_WUMPA_FRUIT));
+		b32 boolArcadeOnly = ((((u32)modelID - PU_FRUIT_CRATE) < 2) || (modelID == PU_WUMPA_FRUIT));
 
-		int boolRelicOnly = ((((u32)modelID - STATIC_TIME_CRATE_02) < 2) || (modelID == STATIC_TIME_CRATE_01));
+		b32 boolRelicOnly = ((((u32)modelID - STATIC_TIME_CRATE_02) < 2) || (modelID == STATIC_TIME_CRATE_01));
 
 		if ((gGT->gameMode1 & TIME_TRIAL) != 0)
 		{

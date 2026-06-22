@@ -269,7 +269,7 @@ CdlFILE *CdSearchFile(CdlFILE *loc, char *filename)
 	return loc;
 }
 
-int CdControl(u_char com, u_char *param, u_char *result)
+int CdControl(uint8_t com, uint8_t *param, uint8_t *result)
 {
 	(void)result;
 
@@ -290,7 +290,7 @@ int CdControl(u_char com, u_char *param, u_char *result)
 	return 1;
 }
 
-int CdRead(int sectors, u_long *buf, int mode)
+int CdRead(int sectors, uint32_t *buf, int mode)
 {
 	(void)mode;
 
@@ -302,7 +302,7 @@ int CdRead(int sectors, u_long *buf, int mode)
 	return 1;
 }
 
-int CdReadSync(int mode, u_char *result)
+int CdReadSync(int mode, uint8_t *result)
 {
 	(void)mode;
 	(void)result;

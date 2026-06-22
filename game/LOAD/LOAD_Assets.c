@@ -17,7 +17,7 @@ void LOAD_Robots2P(struct BigHeader *bigfile, int p1, int p2, void (*callback)(s
 {
 	int i;
 	char *robotSet;
-	int boolFoundRepeat = 0;
+	b32 boolFoundRepeat = false;
 
 	// 8 sets, but only check 7 cause
 	// the last is Gem Cups pack (4 bosses)
@@ -25,12 +25,12 @@ void LOAD_Robots2P(struct BigHeader *bigfile, int p1, int p2, void (*callback)(s
 	{
 		robotSet = &data.characterIDs_2P_AIs[4 * i];
 
-		boolFoundRepeat = 0;
+		boolFoundRepeat = false;
 		for (int j = 0; j < 4; j++)
 		{
 			if ((robotSet[j] == p1) || (robotSet[j] == p2))
 			{
-				boolFoundRepeat = 1;
+				boolFoundRepeat = true;
 				break;
 			}
 		}

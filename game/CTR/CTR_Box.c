@@ -69,7 +69,7 @@ void CTR_Box_DrawWireBox(RECT *r, const Color *color, void *ot, struct PrimMem *
 }
 
 // NOTE(aalhendi): PSX path ASM-verified NTSC-U 926 0x8002177c-0x80021894.
-void CTR_Box_DrawClearBox(const RECT *r, const Color *color, int transparency, u_long *ot)
+void CTR_Box_DrawClearBox(const RECT *r, const Color *color, int transparency, uint32_t *ot)
 {
 	typedef struct TPage_PolyF4
 	{
@@ -114,7 +114,7 @@ void CTR_Box_DrawClearBox(const RECT *r, const Color *color, int transparency, u
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80021894-0x80021984.
-void CTR_Box_DrawSolidBox(RECT *r, Color color, u_long *ot)
+void CTR_Box_DrawSolidBox(RECT *r, Color color, uint32_t *ot)
 {
 	PolyF4 *p;
 	GetPrimMem(p);

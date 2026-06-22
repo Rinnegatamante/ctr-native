@@ -5,7 +5,7 @@
 #endif
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8001c360-0x8001c420.
-int CDSYS_Init(int boolUseDisc)
+int CDSYS_Init(b32 boolUseDisc)
 {
 	sdata->boolUseDisc = boolUseDisc;
 
@@ -533,7 +533,7 @@ int CDSYS_XAGetNumTracks(int categoryID)
 
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8001cc18-0x8001cd20.
-int CDSYS_XASeek(int boolCdControl, int categoryID, int xaID)
+int CDSYS_XASeek(b32 boolCdControl, int categoryID, int xaID)
 {
 	CdlLOC loc;
 	int com;

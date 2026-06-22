@@ -893,7 +893,7 @@ struct Level
 	int unk_16C;
 
 	// 0x170
-	int unk_170;
+	void *unk_170;
 
 	// 0x174
 	int numSCVert;

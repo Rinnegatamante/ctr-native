@@ -130,7 +130,7 @@ void DecalFont_DrawLineStrlen(u8 *str, s16 len, int posX, s16 posY, s16 fontType
 #if BUILD == EurRetail
 
 		int numCharacters = 1;
-		int upsideDownCharacter = false;
+		b32 upsideDownCharacter = false;
 
 #endif
 
@@ -524,10 +524,10 @@ void DecalFont_DrawLine(char *str, int posX, int posY, s16 fontType, int flags)
 
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800228c4-0x80022930.
-void DecalFont_DrawLineOT(char *str, int posX, int posY, s16 fontType, int flags, u_long *ot)
+void DecalFont_DrawLineOT(char *str, int posX, int posY, s16 fontType, int flags, uint32_t *ot)
 {
 	struct GameTracker *gGT;
-	u_long *backupOT;
+	uint32_t *backupOT;
 
 	gGT = sdata->gGT;
 
