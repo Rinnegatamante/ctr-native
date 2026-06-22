@@ -926,7 +926,9 @@ int NativeRenderer_InitialisePSX(void)
 			glBindVertexArray(s_glVertexArray[i]);
 
 			glBindBuffer(GL_ARRAY_BUFFER, s_glVertexBuffer[i]);
+#ifndef __vita__
 			glBufferData(GL_ARRAY_BUFFER, sizeof(GrVertex) * MAX_VERTEX_BUFFER_SIZE, NULL, GL_DYNAMIC_DRAW);
+#endif
 		}
 
 		glBindVertexArray(0);
@@ -1922,8 +1924,12 @@ void NativeRenderer_UpdateVertexBuffer(const GrVertex *vertices, int num_vertice
 
 	// assert(num_vertices <= MAX_VERTEX_BUFFER_SIZE);
 	NativeRenderer_BindVertexBuffer();
-
+#ifdef __vita__
+	if (num_vertices)
+		glBufferData(GL_ARRAY_BUFFER, num_vertices * sizeof(GrVertex), vertices, GL_DYNAMIC_DRAW);
+#else
 	glBufferSubData(GL_ARRAY_BUFFER, 0, num_vertices * sizeof(GrVertex), vertices);
+#endif
 	NativePerf_EndScope(NATIVE_PERF_BUCKET_RENDERER_VERTEX_UPLOAD);
 }
 
