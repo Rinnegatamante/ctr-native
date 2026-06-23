@@ -469,18 +469,83 @@ struct RenderBucketDrawContext
 	int waterSplitSide;
 };
 
+enum
+{
+	RENDER_BUCKET_TEX_WORD0_OFFSET = 0,
+	RENDER_BUCKET_TEX_WORD1_OFFSET = offsetof(struct TextureLayout, u1) - offsetof(struct TextureLayout, u0),
+	RENDER_BUCKET_TEX_WORD2_OFFSET = offsetof(struct TextureLayout, u2) - offsetof(struct TextureLayout, u0),
+};
+
+static u32 RenderBucket_ReadPackedWord(const void *src)
+{
+	const u8 *bytes = (const u8 *)src;
+
+	return (u32)bytes[0] | ((u32)bytes[1] << 8) | ((u32)bytes[2] << 16) | ((u32)bytes[3] << 24);
+}
+
+static void RenderBucket_WritePackedWord(void *dst, u32 value)
+{
+	u8 *bytes = (u8 *)dst;
+
+	bytes[0] = (u8)value;
+	bytes[1] = (u8)(value >> 8);
+	bytes[2] = (u8)(value >> 16);
+	bytes[3] = (u8)(value >> 24);
+}
+
+static u32 RenderBucket_ReadMatrixWord(const MATRIX *m, u32 offset)
+{
+	return RenderBucket_ReadPackedWord((const u8 *)m + offset);
+}
+
+static void RenderBucket_WriteMatrixWord(MATRIX *m, u32 offset, u32 value)
+{
+	RenderBucket_WritePackedWord((u8 *)m + offset, value);
+}
+
+static u32 RenderBucket_ReadTextureWord(const struct TextureLayout *tex, u32 offset)
+{
+	return RenderBucket_ReadPackedWord((const u8 *)&tex->u0 + offset);
+}
+
+static uint32_t *RenderBucket_OTSlotAtByteOffset(uint32_t *otBase, int byteOffset)
+{
+	return otBase + ((u32)byteOffset >> 2);
+}
+
+static u8 *RenderBucket_ModelAnimFirstFrameBytes(struct ModelAnim *anim)
+{
+	return (u8 *)anim + sizeof(struct ModelAnim);
+}
+
+static struct ModelFrame *RenderBucket_ModelFrameAtByteOffset(u8 *base, u32 byteOffset)
+{
+	return (struct ModelFrame *)(void *)(base + byteOffset);
+}
+
+static struct Instance *RenderBucket_InstancePlayerBase(struct Instance *inst, int playerIndex)
+{
+	return (struct Instance *)(void *)((u8 *)inst + (playerIndex * sizeof(struct InstDrawPerPlayer)));
+}
+
+static struct InstDrawPerPlayer *RenderBucket_InstancePlayerIdpp(struct Instance *instPlayerBase)
+{
+	return (struct InstDrawPerPlayer *)(void *)((u8 *)instPlayerBase + sizeof(struct Instance));
+}
+
 static int RenderBucket_SignExtendBits(u32 value, int bits)
 {
 	int shift = 32 - bits;
 	return (s32)(value << shift) >> shift;
 }
 
-static int RenderBucket_GetSignedBits(const u32 *vertData, int *bitIndex, int bits)
+static int RenderBucket_GetSignedBits(const u8 *vertData, int *bitIndex, int bits)
 {
 	int const b = *bitIndex >> 5;
 	int const e = 32 - bits;
 	int const s = e - (*bitIndex & 31);
-	u32 const ret = s < 0 ? (vertData[b] << -s) | (vertData[b + 1] >> (s & 31)) : vertData[b] >> s;
+	u32 const word = RenderBucket_ReadPackedWord(vertData + (b * sizeof(u32)));
+	u32 const ret = s < 0 ? (word << -s) | (RenderBucket_ReadPackedWord(vertData + ((b + 1) * sizeof(u32))) >> (s & 31)) : word >> s;
 
 	// NOTE(aalhendi): Source-backs the retail s1/s3 MSB-first bitstream reader
 	// at 0x8006a92c-0x8006aa30. The stream uses little-endian 32-bit loads, then
@@ -691,12 +756,10 @@ static void RenderBucket_StoreViewMatrixForSplit(struct InstDrawPerPlayer *idpp)
 
 static void RenderBucket_LinkPrimRaw(uint32_t *otEntry, void *prim, u32 lenWord)
 {
-	u32 *tag = (u32 *)prim;
-
 	// NOTE(aalhendi): Source-backs DrawInstPrim_Normal's retail OT tag write at
 	// 0x8006ae50-0x8006ae64.
-	*tag = CtrGpu_PackOTTag(*otEntry, lenWord);
-	*(u32 *)otEntry = RenderBucket_OTAddress(prim);
+	RenderBucket_WritePackedWord(prim, CtrGpu_PackOTTag(*otEntry, lenWord));
+	*otEntry = RenderBucket_OTAddress(prim);
 }
 
 static const u32 sRenderBucketDispatchTable8008a428[8] = {
@@ -1057,7 +1120,7 @@ static void RenderBucket_ProjectBoundsUpdate3(struct RenderBucketBounds *bounds,
 
 static u32 RenderBucket_PackedFrameXY(struct ModelFrame *frame, struct ModelFrame *nextFrame)
 {
-	u32 packedXY = *(u32 *)&frame->pos.x;
+	u32 packedXY = RenderBucket_ReadPackedWord(&frame->pos.x);
 	int blendedY;
 	int blendedX;
 
@@ -1270,27 +1333,29 @@ static void RenderBucket_GteLoadRotMatrixWords(u32 m0, u32 m1, u32 m2, u32 m3, u
 
 static void RenderBucket_StoreMatrixWords(MATRIX *m, u32 m0, u32 m1, u32 m2, u32 m3, u32 m4)
 {
-	*(u32 *)&m->m[0][0] = m0;
-	*(u32 *)&m->m[0][2] = m1;
-	*(u32 *)&m->m[1][1] = m2;
-	*(u32 *)&m->m[2][0] = m3;
-	*(u32 *)&m->m[2][2] = m4;
+	RenderBucket_WriteMatrixWord(m, offsetof(MATRIX, m[0][0]), m0);
+	RenderBucket_WriteMatrixWord(m, offsetof(MATRIX, m[0][2]), m1);
+	RenderBucket_WriteMatrixWord(m, offsetof(MATRIX, m[1][1]), m2);
+	RenderBucket_WriteMatrixWord(m, offsetof(MATRIX, m[2][0]), m3);
+	RenderBucket_WriteMatrixWord(m, offsetof(MATRIX, m[2][2]), m4);
 }
 
 static void RenderBucket_LoadMatrixWords(const MATRIX *m, u32 *m0, u32 *m1, u32 *m2, u32 *m3, u32 *m4)
 {
-	*m0 = *(u32 *)&m->m[0][0];
-	*m1 = *(u32 *)&m->m[0][2];
-	*m2 = *(u32 *)&m->m[1][1];
-	*m3 = *(u32 *)&m->m[2][0];
-	*m4 = *(u32 *)&m->m[2][2];
+	*m0 = RenderBucket_ReadMatrixWord(m, offsetof(MATRIX, m[0][0]));
+	*m1 = RenderBucket_ReadMatrixWord(m, offsetof(MATRIX, m[0][2]));
+	*m2 = RenderBucket_ReadMatrixWord(m, offsetof(MATRIX, m[1][1]));
+	*m3 = RenderBucket_ReadMatrixWord(m, offsetof(MATRIX, m[2][0]));
+	*m4 = RenderBucket_ReadMatrixWord(m, offsetof(MATRIX, m[2][2]));
 }
 
 static void RenderBucket_GteLoadLightMatrixWords(const MATRIX *m)
 {
 	// NOTE(aalhendi): ASM-verified helper 0x8006c600 loads the retail
 	// t3/t4/t5/t6/t7 tuple into GTE light matrix registers 8-12.
-	Unknown_8006c600(*(u32 *)&m->m[0][0], *(u32 *)&m->m[0][2], *(u32 *)&m->m[1][1], *(u32 *)&m->m[2][0], *(u32 *)&m->m[2][2]);
+	Unknown_8006c600(RenderBucket_ReadMatrixWord(m, offsetof(MATRIX, m[0][0])), RenderBucket_ReadMatrixWord(m, offsetof(MATRIX, m[0][2])),
+	                 RenderBucket_ReadMatrixWord(m, offsetof(MATRIX, m[1][1])), RenderBucket_ReadMatrixWord(m, offsetof(MATRIX, m[2][0])),
+	                 RenderBucket_ReadMatrixWord(m, offsetof(MATRIX, m[2][2])));
 }
 
 static void RenderBucket_GteScaleMatrixColumns(u32 *m0, u32 *m1, u32 *m2, u32 *m3, u32 *m4)
@@ -1334,17 +1399,17 @@ static void RenderBucket_BuildM3x3(struct Instance *inst, struct ModelHeader *mh
 	// through t3/t4/t5/t6/t7, ModelHeader scale, and helper 0x8006c49c. The
 	// later IDPP store happens after frame selection at 0x80070dfc.
 	// NOTE(aalhendi): Retail treats MATRIX halfwords as packed GTE register words here.
-	m0 = *(u32 *)&inst->matrix.m[0][0];
-	m1 = *(u32 *)&inst->matrix.m[0][2];
-	m2 = *(u32 *)&inst->matrix.m[1][1];
-	m3 = *(u32 *)&inst->matrix.m[2][0];
-	m4 = *(u32 *)&inst->matrix.m[2][2];
+	m0 = RenderBucket_ReadMatrixWord(&inst->matrix, offsetof(MATRIX, m[0][0]));
+	m1 = RenderBucket_ReadMatrixWord(&inst->matrix, offsetof(MATRIX, m[0][2]));
+	m2 = RenderBucket_ReadMatrixWord(&inst->matrix, offsetof(MATRIX, m[1][1]));
+	m3 = RenderBucket_ReadMatrixWord(&inst->matrix, offsetof(MATRIX, m[2][0]));
+	m4 = RenderBucket_ReadMatrixWord(&inst->matrix, offsetof(MATRIX, m[2][2]));
 	RenderBucket_GteLoadRotMatrixWords(m0, m1, m2, m3, m4);
 
 	depthShift = (RenderBucket_MipsSub(viewDepth, 0x1000) < 0) ? 2 : 0;
 	scaleXYShift = 0x12 - depthShift;
 	scaleZShift = 2 - depthShift;
-	packedScaleXY = *(u32 *)&mh->scale.x;
+	packedScaleXY = RenderBucket_ReadPackedWord(&mh->scale.x);
 
 	CTC2((packedScaleXY << 16) >> scaleXYShift, 16);
 	CTC2(0, 17);
@@ -1650,7 +1715,7 @@ static int RenderBucket_AllocateOTRange(struct RenderBucketQueueState *queueStat
 	}
 	else
 	{
-		otSlot = (uint32_t *)((char *)queueState->otBase + byteOffset);
+		otSlot = RenderBucket_OTSlotAtByteOffset(queueState->otBase, byteOffset);
 		prevOtSlotHead = otSlot[0];
 		// NOTE(aalhendi): Retail stores the OT slot before rangeStart[0].
 		otSlot[0] = RenderBucket_OTAddress(rangeEnd);
@@ -1781,7 +1846,7 @@ static void RenderBucket_StoreInstanceAnimWord(struct Instance *inst, int frame)
 {
 	// NOTE(aalhendi): Retail QueueDraw uses `sw` at Instance+0x54, so this
 	// intentionally writes the full animFrame/vertSplit word.
-	*(u32 *)((char *)inst + offsetof(struct Instance, animFrame)) = (u32)frame;
+	RenderBucket_WritePackedWord((u8 *)inst + offsetof(struct Instance, animFrame), (u32)frame);
 }
 
 static void RenderBucket_AdvanceInstanceAnimWord(struct Instance *inst, int gameMode1, int playerIndex, int lastFrame, u32 *queuedFlags)
@@ -1844,7 +1909,7 @@ static struct ModelFrame *RenderBucket_GetFrame(struct Instance *inst, struct Mo
 	int lastFrame;
 	int hasNextFrame;
 	u16 frameSize;
-	char *firstFrame;
+	u8 *firstFrame;
 	struct ModelFrame *currentFrame;
 
 	*nextFrameOut = 0;
@@ -1887,12 +1952,12 @@ static struct ModelFrame *RenderBucket_GetFrame(struct Instance *inst, struct Mo
 	if (RenderBucket_MipsSub(lastFrame, frameIndex) < 0)
 		frameIndex = lastFrame;
 
-	firstFrame = (char *)MODELANIM_GETFRAME(anim);
+	firstFrame = RenderBucket_ModelAnimFirstFrameBytes(anim);
 	frameSize = (u16)anim->frameSize;
-	currentFrame = (struct ModelFrame *)(firstFrame + RenderBucket_MipsMultuLo((u32)frameIndex, frameSize));
+	currentFrame = RenderBucket_ModelFrameAtByteOffset(firstFrame, RenderBucket_MipsMultuLo((u32)frameIndex, frameSize));
 
 	if (hasNextFrame != 0)
-		*nextFrameOut = (struct ModelFrame *)((char *)currentFrame + frameSize);
+		*nextFrameOut = RenderBucket_ModelFrameAtByteOffset((u8 *)currentFrame, frameSize);
 
 	return currentFrame;
 }
@@ -1939,8 +2004,8 @@ static struct RenderBucketEntry *RenderBucket_QueueDraw(struct Instance *inst, s
 #endif
 
 	queuedFlags = inst->flags;
-	instPlayerBase = (struct Instance *)((char *)inst + (playerIndex * sizeof(struct InstDrawPerPlayer)));
-	idpp = INST_GETIDPP(instPlayerBase);
+	instPlayerBase = RenderBucket_InstancePlayerBase(inst, playerIndex);
+	idpp = RenderBucket_InstancePlayerIdpp(instPlayerBase);
 	pb = idpp->pushBuffer;
 
 	if ((queuedFlags & lodMask) == 0)
@@ -2209,7 +2274,7 @@ static int RenderBucket_GetCommandColor(struct RenderBucketDrawContext *ctx, u32
 	if ((s32)(command << 4) < 0)
 		return RenderBucket_ColorCacheScratch()[colorOffset / sizeof(u32)];
 
-	return *(u32 *)((char *)colorLayout + colorOffset);
+	return RenderBucket_ReadPackedWord((const u8 *)colorLayout + colorOffset);
 }
 
 static int RenderBucket_GetIndexedColor(struct RenderBucketDrawContext *ctx, u32 colorOffset, int useScratch)
@@ -2217,7 +2282,7 @@ static int RenderBucket_GetIndexedColor(struct RenderBucketDrawContext *ctx, u32
 	if (useScratch != 0)
 		return RenderBucket_ColorCacheScratch()[colorOffset / sizeof(u32)];
 
-	return *(u32 *)((char *)ctx->idpp->ptrColorLayout + colorOffset);
+	return RenderBucket_ReadPackedWord((const u8 *)ctx->idpp->ptrColorLayout + colorOffset);
 }
 
 static void RenderBucket_ApplyColorOnlyCommand(struct RenderBucketDrawContext *ctx, u32 command)
@@ -2232,7 +2297,7 @@ static void RenderBucket_ApplyColorOnlyCommand(struct RenderBucketDrawContext *c
 	ctx->tempColor[3] = colorB;
 }
 
-static int RenderBucket_ReadDeltaComponentFromStream(const u32 *vertData, int *bitIndex, u8 bits, int temporalBase, int *accum)
+static int RenderBucket_ReadDeltaComponentFromStream(const u8 *vertData, int *bitIndex, u8 bits, int temporalBase, int *accum)
 {
 	int value = RenderBucket_GetSignedBits(vertData, bitIndex, bits + 1);
 
@@ -2250,13 +2315,13 @@ static int RenderBucket_ReadDeltaComponentFromStream(const u32 *vertData, int *b
 
 static int RenderBucket_ReadDeltaComponent(struct RenderBucketDrawContext *ctx, u8 bits, int temporalBase, int *accum)
 {
-	return RenderBucket_ReadDeltaComponentFromStream((u32 *)ctx->vertData, &ctx->bitIndex, bits, temporalBase, accum);
+	return RenderBucket_ReadDeltaComponentFromStream((const u8 *)ctx->vertData, &ctx->bitIndex, bits, temporalBase, accum);
 }
 
 static void RenderBucket_ReadNextFrameDeltaComponent(struct RenderBucketDrawContext *ctx, u8 bits, int temporalBase, int *currAccum, int *nextAccum)
 {
-	RenderBucket_ReadDeltaComponentFromStream((u32 *)ctx->vertData, &ctx->bitIndex, bits, temporalBase, currAccum);
-	RenderBucket_ReadDeltaComponentFromStream((u32 *)ctx->nextVertData, &ctx->nextBitIndex, bits, temporalBase, nextAccum);
+	RenderBucket_ReadDeltaComponentFromStream((const u8 *)ctx->vertData, &ctx->bitIndex, bits, temporalBase, currAccum);
+	RenderBucket_ReadDeltaComponentFromStream((const u8 *)ctx->nextVertData, &ctx->nextBitIndex, bits, temporalBase, nextAccum);
 }
 
 struct RenderBucketUncompressResult RenderBucket_UncompressAnimationFrame(struct RenderBucketDrawContext *ctx, u32 command, u16 stackIndex)
@@ -2704,9 +2769,9 @@ static int RenderBucket_DrawInstPrim_NormalAtOTEntry(struct RenderBucketDrawCont
 	{
 		POLY_G3 *p = ctx->primMem->cursor;
 
-		*(u32 *)&p->r0 = 0x30000000 | (u32)MFC2(20);
-		*(int *)&p->r1 = MFC2(21);
-		*(int *)&p->r2 = MFC2(22);
+		CtrGpu_WriteColorCode(&p->r0, 0x30000000 | (u32)MFC2(20));
+		CtrGpu_WriteColorCode(&p->r1, (u32)MFC2(21));
+		CtrGpu_WriteColorCode(&p->r2, (u32)MFC2(22));
 		CTR_GteStoreSXY3(&p->x0, &p->x1, &p->x2);
 #ifdef CTR_INTERNAL
 		if (CtrTireDebug_ShouldLog(CTR_TIREDBG_RENDERBUCKET_PRIM) != 0)
@@ -2728,15 +2793,15 @@ static int RenderBucket_DrawInstPrim_NormalAtOTEntry(struct RenderBucketDrawCont
 		u32 codeWord;
 
 		p = ctx->primMem->cursor;
-		texWord1 = *(u32 *)&tex->u1;
+		texWord1 = RenderBucket_ReadTextureWord(tex, RENDER_BUCKET_TEX_WORD1_OFFSET);
 		codeWord = ((texWord1 & 0x00600000) == 0x00600000) ? 0x34000000 : 0x36000000;
 
-		*(u32 *)&p->r0 = codeWord | (u32)MFC2(20);
-		*(int *)&p->r1 = MFC2(21);
-		*(int *)&p->r2 = MFC2(22);
-		*(int *)&p->u0 = *(int *)&tex->u0;
-		*(u32 *)&p->u1 = texWord1;
-		*(u32 *)&p->u2 = *(u32 *)&tex->u2;
+		CtrGpu_WriteColorCode(&p->r0, codeWord | (u32)MFC2(20));
+		CtrGpu_WriteColorCode(&p->r1, (u32)MFC2(21));
+		CtrGpu_WriteColorCode(&p->r2, (u32)MFC2(22));
+		CtrGpu_WritePackedUVWord(&p->u0, RenderBucket_ReadTextureWord(tex, RENDER_BUCKET_TEX_WORD0_OFFSET));
+		CtrGpu_WritePackedUVWord(&p->u1, texWord1);
+		CtrGpu_WritePackedUVWord(&p->u2, RenderBucket_ReadTextureWord(tex, RENDER_BUCKET_TEX_WORD2_OFFSET));
 		CTR_GteStoreSXY3(&p->x0, &p->x1, &p->x2);
 #ifdef CTR_INTERNAL
 		if (CtrTireDebug_ShouldLog(CTR_TIREDBG_RENDERBUCKET_PRIM) != 0)
@@ -2836,7 +2901,7 @@ static int RenderBucket_DrawInstPrim_KeyRelicTokenAtRange(struct RenderBucketDra
 	g = RenderBucket_SaturateU8(((litColor >> 8) & 0xff) + add);
 	b = RenderBucket_SaturateU8(((litColor >> 16) & 0xff) + add);
 
-	texWord1 = *(u32 *)&tex->u1;
+	texWord1 = RenderBucket_ReadTextureWord(tex, RENDER_BUCKET_TEX_WORD1_OFFSET);
 	codeWord = 0x24000000;
 	tpageMask = 0x00600000;
 	if (((texWord1 & 0x00600000) == 0) && (signedTest >= 0))
@@ -2845,10 +2910,10 @@ static int RenderBucket_DrawInstPrim_KeyRelicTokenAtRange(struct RenderBucketDra
 		tpageMask = 0x00200000;
 	}
 
-	*(u32 *)&p->r0 = codeWord | (b << 16) | (g << 8) | r;
-	*(u32 *)&p->u0 = *(u32 *)&tex->u0;
-	*(u32 *)&p->u1 = texWord1 | tpageMask;
-	*(u32 *)&p->u2 = *(u32 *)&tex->u2;
+	CtrGpu_WriteColorCode(&p->r0, codeWord | (b << 16) | (g << 8) | r);
+	CtrGpu_WritePackedUVWord(&p->u0, RenderBucket_ReadTextureWord(tex, RENDER_BUCKET_TEX_WORD0_OFFSET));
+	CtrGpu_WritePackedUVWord(&p->u1, texWord1 | tpageMask);
+	CtrGpu_WritePackedUVWord(&p->u2, RenderBucket_ReadTextureWord(tex, RENDER_BUCKET_TEX_WORD2_OFFSET));
 
 	RenderBucket_LinkPrimRaw(otEntry, p, 0x07000000);
 	ctx->primMem->cursor = (char *)p + 0x20;
@@ -2924,13 +2989,13 @@ static int RenderBucket_DrawInstPrim_DepthFadeAtRange(struct RenderBucketDrawCon
 		return -1;
 
 	p = ctx->primMem->cursor;
-	*(u32 *)&p->r0 = 0x36000000 | (color0 & 0x00ffffff);
-	*(u32 *)&p->r1 = color1;
-	*(u32 *)&p->r2 = color2;
+	CtrGpu_WriteColorCode(&p->r0, 0x36000000 | (color0 & 0x00ffffff));
+	CtrGpu_WriteColorCode(&p->r1, color1);
+	CtrGpu_WriteColorCode(&p->r2, color2);
 	CTR_GteStoreSXY3(&p->x0, &p->x1, &p->x2);
-	*(u32 *)&p->u0 = *(u32 *)&tex->u0;
-	*(u32 *)&p->u1 = *(u32 *)&tex->u1;
-	*(u32 *)&p->u2 = *(u32 *)&tex->u2;
+	CtrGpu_WritePackedUVWord(&p->u0, RenderBucket_ReadTextureWord(tex, RENDER_BUCKET_TEX_WORD0_OFFSET));
+	CtrGpu_WritePackedUVWord(&p->u1, RenderBucket_ReadTextureWord(tex, RENDER_BUCKET_TEX_WORD1_OFFSET));
+	CtrGpu_WritePackedUVWord(&p->u2, RenderBucket_ReadTextureWord(tex, RENDER_BUCKET_TEX_WORD2_OFFSET));
 
 	RenderBucket_LinkPrimRaw(otEntry, p, 0x09000000);
 	ctx->primMem->cursor = (char *)p + 0x28;
@@ -3027,7 +3092,7 @@ static int RenderBucket_DrawInstPrim_LitTextureAtRange(struct RenderBucketDrawCo
 	g = RenderBucket_SaturateU8(((litColor >> 8) & 0xff) + add);
 	b = RenderBucket_SaturateU8(((litColor >> 16) & 0xff) + add);
 
-	texWord1 = *(u32 *)&tex->u1;
+	texWord1 = RenderBucket_ReadTextureWord(tex, RENDER_BUCKET_TEX_WORD1_OFFSET);
 	if ((texWord1 & 0x00600000U) != 0)
 	{
 		u32 otSide = RenderBucket_OTAddress(otEntry) << 3;
@@ -3053,11 +3118,11 @@ static int RenderBucket_DrawInstPrim_LitTextureAtRange(struct RenderBucketDrawCo
 	}
 
 	p = ctx->primMem->cursor;
-	*(u32 *)&p->r0 = codeWord | (b << 16) | (g << 8) | r;
+	CtrGpu_WriteColorCode(&p->r0, codeWord | (b << 16) | (g << 8) | r);
 	CTR_GteStoreSXY3(&p->x0, &p->x1, &p->x2);
-	*(u32 *)&p->u0 = *(u32 *)&tex->u0;
-	*(u32 *)&p->u1 = texWord1 | tpageMask;
-	*(u32 *)&p->u2 = *(u32 *)&tex->u2;
+	CtrGpu_WritePackedUVWord(&p->u0, RenderBucket_ReadTextureWord(tex, RENDER_BUCKET_TEX_WORD0_OFFSET));
+	CtrGpu_WritePackedUVWord(&p->u1, texWord1 | tpageMask);
+	CtrGpu_WritePackedUVWord(&p->u2, RenderBucket_ReadTextureWord(tex, RENDER_BUCKET_TEX_WORD2_OFFSET));
 
 	RenderBucket_LinkPrimRaw(otEntry, p, 0x07000000);
 	ctx->primMem->cursor = (char *)p + 0x20;
@@ -3122,17 +3187,17 @@ static int RenderBucket_DrawInstPrim_GhostAtRange(struct RenderBucketDrawContext
 	else
 	{
 		struct RenderBucketGhostTexturedPacket *packet = (struct RenderBucketGhostTexturedPacket *)mask;
-		u32 texWord1 = (*(u32 *)&tex->u1 & ~0x00600000U) | 0x00200000U;
+		u32 texWord1 = (RenderBucket_ReadTextureWord(tex, RENDER_BUCKET_TEX_WORD1_OFFSET) & ~0x00600000U) | 0x00200000U;
 
 		packet->body.color0AndCode = 0x36000000 | (u32)MFC2(20);
 		packet->body.xy0 = (u32)MFC2(12);
-		packet->body.uv0 = *(u32 *)&tex->u0;
+		packet->body.uv0 = RenderBucket_ReadTextureWord(tex, RENDER_BUCKET_TEX_WORD0_OFFSET);
 		packet->body.color1 = (u32)MFC2(21);
 		packet->body.xy1 = (u32)MFC2(13);
 		packet->body.uv1 = texWord1;
 		packet->body.color2 = (u32)MFC2(22);
 		packet->body.xy2 = (u32)MFC2(14);
-		packet->body.uv2 = *(u32 *)&tex->u2;
+		packet->body.uv2 = RenderBucket_ReadTextureWord(tex, RENDER_BUCKET_TEX_WORD2_OFFSET);
 
 		RenderBucket_LinkPrimRaw(otEntry, packet, 0x0f000000);
 		ctx->primMem->cursor = packet + 1;
@@ -3248,9 +3313,9 @@ static int RenderBucket_DrawSplitPrimitiveNormalAtOTEntry(struct RenderBucketDra
 	{
 		POLY_G3 *p = ctx->primMem->cursor;
 
-		*(u32 *)&p->r0 = 0x30000000 | (u32)MFC2(20);
-		*(int *)&p->r1 = MFC2(21);
-		*(int *)&p->r2 = MFC2(22);
+		CtrGpu_WriteColorCode(&p->r0, 0x30000000 | (u32)MFC2(20));
+		CtrGpu_WriteColorCode(&p->r1, (u32)MFC2(21));
+		CtrGpu_WriteColorCode(&p->r2, (u32)MFC2(22));
 		p->x0 = (s16)v0->sxy;
 		p->y0 = (s16)(v0->sxy >> 16);
 		p->x1 = (s16)v1->sxy;
@@ -3263,12 +3328,12 @@ static int RenderBucket_DrawSplitPrimitiveNormalAtOTEntry(struct RenderBucketDra
 	else
 	{
 		POLY_GT3 *p = ctx->primMem->cursor;
-		u32 texWord1 = *(u32 *)&tex->u1;
+		u32 texWord1 = RenderBucket_ReadTextureWord(tex, RENDER_BUCKET_TEX_WORD1_OFFSET);
 		u32 codeWord = ((texWord1 & 0x00600000) == 0x00600000) ? 0x34000000 : 0x36000000;
 
-		*(u32 *)&p->r0 = codeWord | (u32)MFC2(20);
-		*(int *)&p->r1 = MFC2(21);
-		*(int *)&p->r2 = MFC2(22);
+		CtrGpu_WriteColorCode(&p->r0, codeWord | (u32)MFC2(20));
+		CtrGpu_WriteColorCode(&p->r1, (u32)MFC2(21));
+		CtrGpu_WriteColorCode(&p->r2, (u32)MFC2(22));
 		p->x0 = (s16)v0->sxy;
 		p->y0 = (s16)(v0->sxy >> 16);
 		p->u0 = (u8)v0->uv;
@@ -3368,13 +3433,13 @@ static void RenderBucket_WriteSplitFT3(POLY_FT3 *p, const struct RenderBucketSpl
 {
 	p->x0 = (s16)v0->sxy;
 	p->y0 = (s16)(v0->sxy >> 16);
-	*(u32 *)&p->u0 = texWord0;
+	CtrGpu_WritePackedUVWord(&p->u0, texWord0);
 	p->x1 = (s16)v1->sxy;
 	p->y1 = (s16)(v1->sxy >> 16);
-	*(u32 *)&p->u1 = texWord1;
+	CtrGpu_WritePackedUVWord(&p->u1, texWord1);
 	p->x2 = (s16)v2->sxy;
 	p->y2 = (s16)(v2->sxy >> 16);
-	*(u32 *)&p->u2 = texWord2;
+	CtrGpu_WritePackedUVWord(&p->u2, texWord2);
 }
 
 static int RenderBucket_DrawSplitPrimitiveDepthFadeAtRange(struct RenderBucketDrawContext *ctx, u32 command, struct TextureLayout *tex, int activeRange,
@@ -3406,9 +3471,9 @@ static int RenderBucket_DrawSplitPrimitiveDepthFadeAtRange(struct RenderBucketDr
 	// NOTE(aalhendi): Source-backs generated-split use of retail 0x8006b968:
 	// depth-fade still writes GT3, but generated vertices supply SXY/SZ and UV.
 	p = ctx->primMem->cursor;
-	*(u32 *)&p->r0 = 0x36000000 | (color0 & 0x00ffffff);
-	*(u32 *)&p->r1 = color1;
-	*(u32 *)&p->r2 = color2;
+	CtrGpu_WriteColorCode(&p->r0, 0x36000000 | (color0 & 0x00ffffff));
+	CtrGpu_WriteColorCode(&p->r1, color1);
+	CtrGpu_WriteColorCode(&p->r2, color2);
 	p->x0 = (s16)v0->sxy;
 	p->y0 = (s16)(v0->sxy >> 16);
 	p->u0 = (u8)v0->uv;
@@ -3482,9 +3547,10 @@ static int RenderBucket_DrawSplitPrimitiveGhostAtRange(struct RenderBucketDrawCo
 	else
 	{
 		struct RenderBucketGhostTexturedPacket *packet = (struct RenderBucketGhostTexturedPacket *)mask;
-		u32 texWord0 = RenderBucket_TextureWordWithSplitUv(*(u32 *)&tex->u0, v0->uv);
-		u32 texWord1 = RenderBucket_TextureWordWithSplitUv((*(u32 *)&tex->u1 & ~0x00600000U) | 0x00200000U, v1->uv);
-		u32 texWord2 = RenderBucket_TextureWordWithSplitUv(*(u32 *)&tex->u2, v2->uv);
+		u32 texWord0 = RenderBucket_TextureWordWithSplitUv(RenderBucket_ReadTextureWord(tex, RENDER_BUCKET_TEX_WORD0_OFFSET), v0->uv);
+		u32 texWord1 =
+		    RenderBucket_TextureWordWithSplitUv((RenderBucket_ReadTextureWord(tex, RENDER_BUCKET_TEX_WORD1_OFFSET) & ~0x00600000U) | 0x00200000U, v1->uv);
+		u32 texWord2 = RenderBucket_TextureWordWithSplitUv(RenderBucket_ReadTextureWord(tex, RENDER_BUCKET_TEX_WORD2_OFFSET), v2->uv);
 
 		packet->body.color0AndCode = 0x36000000 | (u32)MFC2(20);
 		packet->body.xy0 = v0->sxy;
@@ -3532,9 +3598,9 @@ static int RenderBucket_DrawSplitPrimitiveKeyRelicTokenAtRange(struct RenderBuck
 	if (signedTest < 0)
 		otEntry++;
 
-	texWord0 = RenderBucket_TextureWordWithSplitUv(*(u32 *)&tex->u0, v0->uv);
-	texWord1 = RenderBucket_TextureWordWithSplitUv(*(u32 *)&tex->u1, v1->uv);
-	texWord2 = RenderBucket_TextureWordWithSplitUv(*(u32 *)&tex->u2, v2->uv);
+	texWord0 = RenderBucket_TextureWordWithSplitUv(RenderBucket_ReadTextureWord(tex, RENDER_BUCKET_TEX_WORD0_OFFSET), v0->uv);
+	texWord1 = RenderBucket_TextureWordWithSplitUv(RenderBucket_ReadTextureWord(tex, RENDER_BUCKET_TEX_WORD1_OFFSET), v1->uv);
+	texWord2 = RenderBucket_TextureWordWithSplitUv(RenderBucket_ReadTextureWord(tex, RENDER_BUCKET_TEX_WORD2_OFFSET), v2->uv);
 
 	codeWord = 0x24000000;
 	tpageMask = 0x00600000;
@@ -3547,7 +3613,7 @@ static int RenderBucket_DrawSplitPrimitiveKeyRelicTokenAtRange(struct RenderBuck
 	// NOTE(aalhendi): Source-backs generated-split use of retail 0x8006ae90:
 	// same flat textured writer, with generated SXY/UV and generated color.
 	p = ctx->primMem->cursor;
-	*(u32 *)&p->r0 = codeWord | RenderBucket_LightFlatTextureColor(v0->color, signedTest);
+	CtrGpu_WriteColorCode(&p->r0, codeWord | RenderBucket_LightFlatTextureColor(v0->color, signedTest));
 	RenderBucket_WriteSplitFT3(p, v0, v1, v2, texWord0, texWord1 | tpageMask, texWord2);
 
 	RenderBucket_LinkPrimRaw(otEntry, p, 0x07000000);
@@ -3584,9 +3650,9 @@ static int RenderBucket_DrawSplitPrimitiveLitTextureAtRange(struct RenderBucketD
 	if (signedTest < 0)
 		otEntry++;
 
-	texWord0 = RenderBucket_TextureWordWithSplitUv(*(u32 *)&tex->u0, v0->uv);
-	texWord1 = RenderBucket_TextureWordWithSplitUv(*(u32 *)&tex->u1, v1->uv);
-	texWord2 = RenderBucket_TextureWordWithSplitUv(*(u32 *)&tex->u2, v2->uv);
+	texWord0 = RenderBucket_TextureWordWithSplitUv(RenderBucket_ReadTextureWord(tex, RENDER_BUCKET_TEX_WORD0_OFFSET), v0->uv);
+	texWord1 = RenderBucket_TextureWordWithSplitUv(RenderBucket_ReadTextureWord(tex, RENDER_BUCKET_TEX_WORD1_OFFSET), v1->uv);
+	texWord2 = RenderBucket_TextureWordWithSplitUv(RenderBucket_ReadTextureWord(tex, RENDER_BUCKET_TEX_WORD2_OFFSET), v2->uv);
 
 	if ((texWord1 & 0x00600000U) != 0)
 	{
@@ -3612,7 +3678,7 @@ static int RenderBucket_DrawSplitPrimitiveLitTextureAtRange(struct RenderBucketD
 	// NOTE(aalhendi): Source-backs generated-split use of retail 0x8006c778:
 	// same side-dependent flat textured writer with generated SXY/UV/color.
 	p = ctx->primMem->cursor;
-	*(u32 *)&p->r0 = codeWord | RenderBucket_LightFlatTextureColor(v0->color, signedTest);
+	CtrGpu_WriteColorCode(&p->r0, codeWord | RenderBucket_LightFlatTextureColor(v0->color, signedTest));
 	RenderBucket_WriteSplitFT3(p, v0, v1, v2, texWord0, texWord1 | tpageMask, texWord2);
 
 	RenderBucket_LinkPrimRaw(otEntry, p, 0x07000000);
@@ -4700,7 +4766,7 @@ static int RenderBucket_RunInstanceSetupCallback(struct RenderBucketDrawContext 
 	case RB_RETAIL_INST_SETUP_LIGHT_COLOR:
 		CTC2((s8)ctx->inst->unk53, 16);
 		CTC2((u16)ctx->inst->reflectionRGBA, 17);
-		CTC2(*(u32 *)&ctx->idpp->halfVector.x, 19);
+		CTC2(RenderBucket_ReadPackedWord(&ctx->idpp->halfVector.x), 19);
 		CTC2((u16)ctx->idpp->halfVector.z, 20);
 		RenderBucket_SetFarColorFromInstance(ctx->inst);
 		return 1;
@@ -4816,7 +4882,7 @@ static int RenderBucket_PrepareDrawContext(struct RenderBucketDrawContext *ctx, 
 	if (inst->model == 0)
 		return 0;
 
-	idpp = INST_GETIDPP(instPlayerBase);
+	idpp = RenderBucket_InstancePlayerIdpp(instPlayerBase);
 	pb = idpp->pushBuffer;
 	if (pb == 0)
 		return 0;
