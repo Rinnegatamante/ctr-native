@@ -7,36 +7,43 @@
 #ifndef LIBGTE_H
 #define LIBGTE_H
 
-#include <stdint.h>
+#include <macros.h>
 
 typedef struct
 {
-	short m[3][3]; /* 3x3 rotation matrix */
-	int t[3];      /* transfer vector */
+	s16 m[3][3]; /* 3x3 rotation matrix */
+	s32 t[3];    /* transfer vector */
 } MATRIX;
 
 typedef struct
 { /* int  word type 3D vector */
-	int vx, vy;
-	int vz, pad;
+	s32 vx, vy;
+	s32 vz, pad;
 } VECTOR;
 
 typedef struct
 { /* short word type 3D vector */
-	short vx, vy;
-	short vz, pad;
+	s16 vx, vy;
+	s16 vz, pad;
 } SVECTOR;
 
 typedef struct
 { /* color type vector */
-	unsigned char r, g, b, cd;
+	u8 r, g, b, cd;
 } CVECTOR;
 
 typedef struct
 { /* 2D short vector */
-	short vx, vy;
+	s16 vx, vy;
 } DVECTOR;
 
+CTR_STATIC_ASSERT(sizeof(MATRIX) == 0x20);
+CTR_STATIC_ASSERT(offsetof(MATRIX, m[0][0]) == 0x0);
+CTR_STATIC_ASSERT(offsetof(MATRIX, t[0]) == 0x14);
+CTR_STATIC_ASSERT(sizeof(VECTOR) == 0x10);
+CTR_STATIC_ASSERT(sizeof(SVECTOR) == 0x8);
+CTR_STATIC_ASSERT(sizeof(CVECTOR) == 0x4);
+CTR_STATIC_ASSERT(sizeof(DVECTOR) == 0x4);
 
 extern void InitGeom();
 extern void SetGeomOffset(int ofx, int ofy);
@@ -53,20 +60,18 @@ VECTOR *ApplyRotMatrix(SVECTOR *v0, VECTOR *v1);
 VECTOR *ApplyRotMatrixLV(VECTOR *v0, VECTOR *v1);
 SVECTOR *ApplyMatrixSV(MATRIX *m, SVECTOR *v0, SVECTOR *v1);
 VECTOR *ApplyMatrixLV(MATRIX *m, VECTOR *v0, VECTOR *v1);
-extern void RotTrans(SVECTOR *v0, VECTOR *v1, int32_t *flag);
-extern void RotTransSV(SVECTOR *v0, SVECTOR *v1, int32_t *flag);
-extern int RotTransPers(SVECTOR *v0, int32_t *sxy, int32_t *p, int32_t *flag);
-extern int RotTransPers3(SVECTOR *v0, SVECTOR *v1, SVECTOR *v2, int32_t *sxy0, int32_t *sxy1, int32_t *sxy2, int32_t *p, int32_t *flag);
-extern int RotTransPers4(SVECTOR *v0, SVECTOR *v1, SVECTOR *v2, SVECTOR *v3, int32_t *sxy0, int32_t *sxy1, int32_t *sxy2, int32_t *sxy3, int32_t *p,
-                         int32_t *flag);
+extern void RotTrans(SVECTOR *v0, VECTOR *v1, s32 *flag);
+extern void RotTransSV(SVECTOR *v0, SVECTOR *v1, s32 *flag);
+extern int RotTransPers(SVECTOR *v0, s32 *sxy, s32 *p, s32 *flag);
+extern int RotTransPers3(SVECTOR *v0, SVECTOR *v1, SVECTOR *v2, s32 *sxy0, s32 *sxy1, s32 *sxy2, s32 *p, s32 *flag);
+extern int RotTransPers4(SVECTOR *v0, SVECTOR *v1, SVECTOR *v2, SVECTOR *v3, s32 *sxy0, s32 *sxy1, s32 *sxy2, s32 *sxy3, s32 *p, s32 *flag);
 extern void NormalColor(SVECTOR *v0, CVECTOR *v1);
 extern void NormalColor3(SVECTOR *v0, SVECTOR *v1, SVECTOR *v2, CVECTOR *v3, CVECTOR *v4, CVECTOR *v5);
 extern void NormalColorDpq(SVECTOR *v0, CVECTOR *v1, int p, CVECTOR *v2);
 extern void NormalColorCol(SVECTOR *v0, CVECTOR *v1, CVECTOR *v2);
 extern void NormalColorCol3(SVECTOR *v0, SVECTOR *v1, SVECTOR *v2, CVECTOR *v3, CVECTOR *v4, CVECTOR *v5, CVECTOR *v6);
 extern void LocalLight(SVECTOR *v0, VECTOR *v1);
-extern int RotAverageNclip4(SVECTOR *v0, SVECTOR *v1, SVECTOR *v2, SVECTOR *v3, int32_t *sxy0, int32_t *sxy1, int32_t *sxy2, int32_t *sxy3, int32_t *p,
-                            int32_t *otz, int32_t *flag);
+extern int RotAverageNclip4(SVECTOR *v0, SVECTOR *v1, SVECTOR *v2, SVECTOR *v3, s32 *sxy0, s32 *sxy1, s32 *sxy2, s32 *sxy3, s32 *p, s32 *otz, s32 *flag);
 extern MATRIX *MulMatrix0(MATRIX *m0, MATRIX *m1, MATRIX *m2);
 extern MATRIX *MulMatrix(MATRIX *m0, MATRIX *m1);
 extern MATRIX *MulMatrix2(MATRIX *m0, MATRIX *m1);

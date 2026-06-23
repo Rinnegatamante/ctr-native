@@ -50,13 +50,13 @@ typedef enum LoadStage : s32
 	LOAD_TEN_STAGES_0 = 0, // begin TenStages pipeline
 } LoadStage;
 
-_Static_assert(sizeof(LoadStage) == 0x4);
-_Static_assert(LOAD_VLC == -6);
-_Static_assert(LOAD_RESTART == -5);
-_Static_assert(LOAD_REQUESTED == -4);
-_Static_assert(LOAD_FINISHED == -2);
-_Static_assert(LOAD_IDLE == -1);
-_Static_assert(LOAD_TEN_STAGES_0 == 0);
+CTR_STATIC_ASSERT(sizeof(LoadStage) == 0x4);
+CTR_STATIC_ASSERT(LOAD_VLC == -6);
+CTR_STATIC_ASSERT(LOAD_RESTART == -5);
+CTR_STATIC_ASSERT(LOAD_REQUESTED == -4);
+CTR_STATIC_ASSERT(LOAD_FINISHED == -2);
+CTR_STATIC_ASSERT(LOAD_IDLE == -1);
+CTR_STATIC_ASSERT(LOAD_TEN_STAGES_0 == 0);
 
 typedef enum MainMenuState : s16
 {
@@ -171,14 +171,14 @@ struct MainRenderLevelGeometryScratch
 	s32 fullDynamicFadeDepthStart;
 };
 
-_Static_assert(offsetof(struct MainRenderLevelGeometryScratch, depthScale) == 0x14);
-_Static_assert(offsetof(struct MainRenderLevelGeometryScratch, bspLodDistanceThreshold) == 0x18);
-_Static_assert(offsetof(struct MainRenderLevelGeometryScratch, textureLodDepthThreshold0) == 0x1c);
-_Static_assert(offsetof(struct MainRenderLevelGeometryScratch, textureLodDepthThreshold1) == 0x20);
-_Static_assert(offsetof(struct MainRenderLevelGeometryScratch, topLevelNearDepthThreshold) == 0x24);
-_Static_assert(offsetof(struct MainRenderLevelGeometryScratch, recursiveNearDepthThreshold) == 0x28);
-_Static_assert(offsetof(struct MainRenderLevelGeometryScratch, fullDynamicFadeDepthStart) == 0x2c);
-_Static_assert(sizeof(struct MainRenderLevelGeometryScratch) == 0x30);
+CTR_STATIC_ASSERT(offsetof(struct MainRenderLevelGeometryScratch, depthScale) == 0x14);
+CTR_STATIC_ASSERT(offsetof(struct MainRenderLevelGeometryScratch, bspLodDistanceThreshold) == 0x18);
+CTR_STATIC_ASSERT(offsetof(struct MainRenderLevelGeometryScratch, textureLodDepthThreshold0) == 0x1c);
+CTR_STATIC_ASSERT(offsetof(struct MainRenderLevelGeometryScratch, textureLodDepthThreshold1) == 0x20);
+CTR_STATIC_ASSERT(offsetof(struct MainRenderLevelGeometryScratch, topLevelNearDepthThreshold) == 0x24);
+CTR_STATIC_ASSERT(offsetof(struct MainRenderLevelGeometryScratch, recursiveNearDepthThreshold) == 0x28);
+CTR_STATIC_ASSERT(offsetof(struct MainRenderLevelGeometryScratch, fullDynamicFadeDepthStart) == 0x2c);
+CTR_STATIC_ASSERT(sizeof(struct MainRenderLevelGeometryScratch) == 0x30);
 
 // real ND name
 struct GameTracker
@@ -1390,12 +1390,12 @@ struct GameTracker
 
 #ifndef CTR_NATIVE
 #if BUILD == SepReview
-_Static_assert(sizeof(struct GameTracker) == 0x24F8);
+CTR_STATIC_ASSERT(sizeof(struct GameTracker) == 0x24F8);
 #elif BUILD == UsaRetail
-_Static_assert(sizeof(struct GameTracker) == 0x2584);
+CTR_STATIC_ASSERT(sizeof(struct GameTracker) == 0x2584);
 #elif BUILD == JpnTrial
-_Static_assert(sizeof(struct GameTracker) == 0x258C);
+CTR_STATIC_ASSERT(sizeof(struct GameTracker) == 0x258C);
 #elif BUILD >= EurRetail
-_Static_assert(sizeof(struct GameTracker) == 0x2594);
+CTR_STATIC_ASSERT(sizeof(struct GameTracker) == 0x2594);
 #endif
 #endif

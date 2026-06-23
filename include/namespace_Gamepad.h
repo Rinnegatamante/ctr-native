@@ -143,8 +143,8 @@ struct __attribute__((packed)) MultitapPacket
 	// 34 bytes
 };
 
-_Static_assert(sizeof(struct ControllerPacket) == 8);
-_Static_assert(sizeof(struct MultitapPacket) == 34);
+CTR_STATIC_ASSERT(sizeof(struct ControllerPacket) == 8);
+CTR_STATIC_ASSERT(sizeof(struct MultitapPacket) == 34);
 
 struct GamepadBuffer
 {
@@ -333,12 +333,12 @@ struct RacingWheelData
 	s16 range;
 };
 
-_Static_assert(sizeof(struct GamepadBuffer) == 0x50);
+CTR_STATIC_ASSERT(sizeof(struct GamepadBuffer) == 0x50);
 #if BUILD <= SepReview
-_Static_assert(sizeof(struct GamepadSystem) == 0x2D4);
+CTR_STATIC_ASSERT(sizeof(struct GamepadSystem) == 0x2D4);
 #elif BUILD < EurRetail
-_Static_assert(sizeof(struct GamepadSystem) == 0x31C);
+CTR_STATIC_ASSERT(sizeof(struct GamepadSystem) == 0x31C);
 #else
-_Static_assert(sizeof(struct GamepadSystem) == 0x320);
+CTR_STATIC_ASSERT(sizeof(struct GamepadSystem) == 0x320);
 #endif
-_Static_assert(sizeof(struct RacingWheelData) == 6);
+CTR_STATIC_ASSERT(sizeof(struct RacingWheelData) == 6);

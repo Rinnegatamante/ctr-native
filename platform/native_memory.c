@@ -34,7 +34,7 @@ union NativeScratchpadStorage
 	u32 words[CTR_SCRATCHPAD_SIZE / sizeof(u32)];
 };
 
-_Static_assert(sizeof(union NativeScratchpadStorage) == CTR_SCRATCHPAD_SIZE);
+CTR_STATIC_ASSERT(sizeof(union NativeScratchpadStorage) == CTR_SCRATCHPAD_SIZE);
 
 global_variable char s_mempackMemory[CTR_NATIVE_MEMPACK_BUFFER_SIZE];
 global_variable struct PlatformMempackArena s_mempackArena;

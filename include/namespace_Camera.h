@@ -13,8 +13,8 @@ struct CameraCollisionScratch
 	};
 };
 
-_Static_assert(offsetof(struct CameraCollisionScratch, terrainHeightFloor) == 0x01e);
-_Static_assert(sizeof(struct CameraCollisionScratch) == 0x20c);
+CTR_STATIC_ASSERT(offsetof(struct CameraCollisionScratch, terrainHeightFloor) == 0x01e);
+CTR_STATIC_ASSERT(sizeof(struct CameraCollisionScratch) == 0x20c);
 
 struct CameraAngleAxisScratchCamera
 {
@@ -26,12 +26,12 @@ struct CameraAngleAxisScratchCamera
 	Vec3 dir;      // +0x40 (abs 0x354) written by CAM_LookAtPosition
 };
 
-_Static_assert(offsetof(struct CameraAngleAxisScratchCamera, rot) == 0x00);
-_Static_assert(offsetof(struct CameraAngleAxisScratchCamera, posCopy) == 0x08);
-_Static_assert(offsetof(struct CameraAngleAxisScratchCamera, matrix) == 0x14);
-_Static_assert(offsetof(struct CameraAngleAxisScratchCamera, pos) == 0x34);
-_Static_assert(offsetof(struct CameraAngleAxisScratchCamera, dir) == 0x40);
-_Static_assert(sizeof(struct CameraAngleAxisScratchCamera) == 0x4c);
+CTR_STATIC_ASSERT(offsetof(struct CameraAngleAxisScratchCamera, rot) == 0x00);
+CTR_STATIC_ASSERT(offsetof(struct CameraAngleAxisScratchCamera, posCopy) == 0x08);
+CTR_STATIC_ASSERT(offsetof(struct CameraAngleAxisScratchCamera, matrix) == 0x14);
+CTR_STATIC_ASSERT(offsetof(struct CameraAngleAxisScratchCamera, pos) == 0x34);
+CTR_STATIC_ASSERT(offsetof(struct CameraAngleAxisScratchCamera, dir) == 0x40);
+CTR_STATIC_ASSERT(sizeof(struct CameraAngleAxisScratchCamera) == 0x4c);
 
 struct CameraScratch
 {
@@ -52,14 +52,14 @@ struct CameraScratch
 	Vec3 delta; // +0x4C (abs 0x360)
 };
 
-_Static_assert(offsetof(struct CameraScratch, angleAxis) == 0x00);
-_Static_assert(offsetof(struct CameraScratch, angleAxis.rot) == 0x00);
-_Static_assert(offsetof(struct CameraScratch, angleAxis.posCopy) == 0x08);
-_Static_assert(offsetof(struct CameraScratch, angleAxis.matrix) == 0x14);
-_Static_assert(offsetof(struct CameraScratch, angleAxis.pos) == 0x34);
-_Static_assert(offsetof(struct CameraScratch, angleAxis.dir) == 0x40);
-_Static_assert(offsetof(struct CameraScratch, delta) == 0x4C);
-_Static_assert(sizeof(struct CameraScratch) == 0x58);
+CTR_STATIC_ASSERT(offsetof(struct CameraScratch, angleAxis) == 0x00);
+CTR_STATIC_ASSERT(offsetof(struct CameraScratch, angleAxis.rot) == 0x00);
+CTR_STATIC_ASSERT(offsetof(struct CameraScratch, angleAxis.posCopy) == 0x08);
+CTR_STATIC_ASSERT(offsetof(struct CameraScratch, angleAxis.matrix) == 0x14);
+CTR_STATIC_ASSERT(offsetof(struct CameraScratch, angleAxis.pos) == 0x34);
+CTR_STATIC_ASSERT(offsetof(struct CameraScratch, angleAxis.dir) == 0x40);
+CTR_STATIC_ASSERT(offsetof(struct CameraScratch, delta) == 0x4C);
+CTR_STATIC_ASSERT(sizeof(struct CameraScratch) == 0x58);
 
 struct CameraAngleAxisScratch
 {
@@ -67,10 +67,10 @@ struct CameraAngleAxisScratch
 	struct CameraAngleAxisScratchCamera camera;
 };
 
-_Static_assert(offsetof(struct CameraAngleAxisScratch, collision) == 0x0);
-_Static_assert(offsetof(struct CameraAngleAxisScratch, collision.terrainHeightFloor) == 0x01e);
-_Static_assert(offsetof(struct CameraAngleAxisScratch, camera) == 0x20c);
-_Static_assert(sizeof(struct CameraAngleAxisScratch) == 0x258);
+CTR_STATIC_ASSERT(offsetof(struct CameraAngleAxisScratch, collision) == 0x0);
+CTR_STATIC_ASSERT(offsetof(struct CameraAngleAxisScratch, collision.terrainHeightFloor) == 0x01e);
+CTR_STATIC_ASSERT(offsetof(struct CameraAngleAxisScratch, camera) == 0x20c);
+CTR_STATIC_ASSERT(sizeof(struct CameraAngleAxisScratch) == 0x258);
 
 struct CameraScratchWork
 {
@@ -101,14 +101,14 @@ struct CameraScratchWork
 	SVec3 trackPathLookaheadPos;
 };
 
-_Static_assert(offsetof(struct CameraScratchWork, collision) == 0x0);
-_Static_assert(offsetof(struct CameraScratchWork, collision.terrainHeightFloor) == 0x01e);
-_Static_assert(offsetof(struct CameraScratchWork, angleAxis) == 0x0);
-_Static_assert(offsetof(struct CameraScratchWork, camera) == 0x20c);
-_Static_assert(offsetof(struct CameraScratchWork, camera.angleAxis) == 0x20c);
-_Static_assert(offsetof(struct CameraScratchWork, sideOffset) == 0x27c);
-_Static_assert(offsetof(struct CameraScratchWork, trackPathPos) == 0x288);
-_Static_assert(offsetof(struct CameraScratchWork, trackPathLookaheadPos) == 0x290);
+CTR_STATIC_ASSERT(offsetof(struct CameraScratchWork, collision) == 0x0);
+CTR_STATIC_ASSERT(offsetof(struct CameraScratchWork, collision.terrainHeightFloor) == 0x01e);
+CTR_STATIC_ASSERT(offsetof(struct CameraScratchWork, angleAxis) == 0x0);
+CTR_STATIC_ASSERT(offsetof(struct CameraScratchWork, camera) == 0x20c);
+CTR_STATIC_ASSERT(offsetof(struct CameraScratchWork, camera.angleAxis) == 0x20c);
+CTR_STATIC_ASSERT(offsetof(struct CameraScratchWork, sideOffset) == 0x27c);
+CTR_STATIC_ASSERT(offsetof(struct CameraScratchWork, trackPathPos) == 0x288);
+CTR_STATIC_ASSERT(offsetof(struct CameraScratchWork, trackPathLookaheadPos) == 0x290);
 
 struct ZoomData
 {
@@ -375,58 +375,58 @@ struct CameraDC
 	// 0xDC bytes large in usaRetail
 };
 
-_Static_assert(sizeof(struct ZoomData) == 0x12);
-_Static_assert(sizeof(CameraFlags) == 0x4);
-_Static_assert(CAMERA_FLAG_RESET_RAIN_POS == 0x1);
-_Static_assert(CAMERA_FLAG_BATTLE_END_OF_RACE == 0x4);
-_Static_assert(CAMERA_FLAG_DIRECTION_CHANGED == 0x8);
-_Static_assert(CAMERA_FLAG_MASK_GRAB == 0x10);
-_Static_assert(CAMERA_FLAG_ARCADE_END_OF_RACE_REQUESTED == 0x20);
-_Static_assert(CAMERA_FLAG_TRACK_PATH_FACE_DRIVER == 0x40);
-_Static_assert(CAMERA_FLAG_FIRE_SPEED_ZOOM == 0x80);
-_Static_assert(CAMERA_FLAG_TRACK_PATH_ALT_BRANCH == 0x100);
-_Static_assert(CAMERA_FLAG_TRANSITION_AWAY == 0x200);
-_Static_assert(CAMERA_FLAG_TRANSITION_BACK == 0x400);
-_Static_assert(CAMERA_FLAG_TRANSITION_HOLD == 0x800);
-_Static_assert(CAMERA_FLAG_ARCADE_END_OF_RACE_ACTIVE == 0x1000);
-_Static_assert(CAMERA_FLAG_FROZEN == 0x8000);
-_Static_assert(CAMERA_FLAG_REVERSE == 0x10000);
-_Static_assert(sizeof(struct CameraFireSpeedZoom) == 0x8);
-_Static_assert(offsetof(struct CameraFireSpeedZoom, distanceOffset) == 0x0);
-_Static_assert(offsetof(struct CameraFireSpeedZoom, timer) == 0x4);
-_Static_assert(sizeof(struct CameraHeightSmoothing) == 0x6);
-_Static_assert(offsetof(struct CameraHeightSmoothing, startOffset) == 0x0);
-_Static_assert(offsetof(struct CameraHeightSmoothing, framesRemaining) == 0x2);
-_Static_assert(offsetof(struct CameraHeightSmoothing, currentOffset) == 0x4);
-_Static_assert(offsetof(struct CameraDC, damagePitchOffset) == 0x1a);
-_Static_assert(offsetof(struct CameraDC, quadBlockSearchHit) == 0x3c);
-_Static_assert(offsetof(struct CameraDC, pushBufferPosCorrection) == 0x4c);
-_Static_assert(offsetof(struct CameraDC, cameraPos) == 0x58);
-_Static_assert(offsetof(struct CameraDC, lookAtPos) == 0x64);
-_Static_assert(offsetof(struct CameraDC, flags) == 0x70);
-_Static_assert(sizeof(((struct CameraDC *)0)->flags) == 0x4);
-_Static_assert(offsetof(struct CameraDC, driverOffset_CamEyePos) == 0x74);
-_Static_assert(offsetof(struct CameraDC, angleAxisLerpRatio) == 0x7a);
-_Static_assert(offsetof(struct CameraDC, driverOffset_CamLookAtPos) == 0x7c);
-_Static_assert(offsetof(struct CameraDC, unk82) == 0x82);
-_Static_assert(offsetof(struct CameraDC, botFlagsPrevFrame) == 0x84);
-_Static_assert(offsetof(struct CameraDC, trackPathNode) == 0x88);
-_Static_assert(offsetof(struct CameraDC, transitionBlend) == 0x8c);
-_Static_assert(offsetof(struct CameraDC, transitionFrame) == 0x8e);
-_Static_assert(offsetof(struct CameraDC, spin360Angle) == 0x90);
-_Static_assert(offsetof(struct CameraDC, zoomToggleState) == 0x92);
-_Static_assert(offsetof(struct CameraDC, trackPathProgress) == 0x94);
-_Static_assert(offsetof(struct CameraDC, maskGrabHeightOffset) == 0x98);
-_Static_assert(offsetof(struct CameraDC, transitionFrameCount) == 0x9e);
-_Static_assert(offsetof(struct CameraDC, eorModeData) == 0xb0);
-_Static_assert(offsetof(struct CameraDC, eorModeData.trackPathSpeed) == 0xb0);
-_Static_assert(offsetof(struct CameraDC, eorModeData.pointPath.endPos) == 0xb0);
-_Static_assert(offsetof(struct CameraDC, eorModeData.pointPath.speed) == 0xb6);
-_Static_assert(sizeof(((struct CameraDC *)0)->eorModeData) == 0x8);
-_Static_assert(offsetof(struct CameraDC, fireSpeedZoom) == 0xb8);
-_Static_assert(offsetof(struct CameraDC, heightSmoothing) == 0xc0);
+CTR_STATIC_ASSERT(sizeof(struct ZoomData) == 0x12);
+CTR_STATIC_ASSERT(sizeof(CameraFlags) == 0x4);
+CTR_STATIC_ASSERT(CAMERA_FLAG_RESET_RAIN_POS == 0x1);
+CTR_STATIC_ASSERT(CAMERA_FLAG_BATTLE_END_OF_RACE == 0x4);
+CTR_STATIC_ASSERT(CAMERA_FLAG_DIRECTION_CHANGED == 0x8);
+CTR_STATIC_ASSERT(CAMERA_FLAG_MASK_GRAB == 0x10);
+CTR_STATIC_ASSERT(CAMERA_FLAG_ARCADE_END_OF_RACE_REQUESTED == 0x20);
+CTR_STATIC_ASSERT(CAMERA_FLAG_TRACK_PATH_FACE_DRIVER == 0x40);
+CTR_STATIC_ASSERT(CAMERA_FLAG_FIRE_SPEED_ZOOM == 0x80);
+CTR_STATIC_ASSERT(CAMERA_FLAG_TRACK_PATH_ALT_BRANCH == 0x100);
+CTR_STATIC_ASSERT(CAMERA_FLAG_TRANSITION_AWAY == 0x200);
+CTR_STATIC_ASSERT(CAMERA_FLAG_TRANSITION_BACK == 0x400);
+CTR_STATIC_ASSERT(CAMERA_FLAG_TRANSITION_HOLD == 0x800);
+CTR_STATIC_ASSERT(CAMERA_FLAG_ARCADE_END_OF_RACE_ACTIVE == 0x1000);
+CTR_STATIC_ASSERT(CAMERA_FLAG_FROZEN == 0x8000);
+CTR_STATIC_ASSERT(CAMERA_FLAG_REVERSE == 0x10000);
+CTR_STATIC_ASSERT(sizeof(struct CameraFireSpeedZoom) == 0x8);
+CTR_STATIC_ASSERT(offsetof(struct CameraFireSpeedZoom, distanceOffset) == 0x0);
+CTR_STATIC_ASSERT(offsetof(struct CameraFireSpeedZoom, timer) == 0x4);
+CTR_STATIC_ASSERT(sizeof(struct CameraHeightSmoothing) == 0x6);
+CTR_STATIC_ASSERT(offsetof(struct CameraHeightSmoothing, startOffset) == 0x0);
+CTR_STATIC_ASSERT(offsetof(struct CameraHeightSmoothing, framesRemaining) == 0x2);
+CTR_STATIC_ASSERT(offsetof(struct CameraHeightSmoothing, currentOffset) == 0x4);
+CTR_STATIC_ASSERT(offsetof(struct CameraDC, damagePitchOffset) == 0x1a);
+CTR_STATIC_ASSERT(offsetof(struct CameraDC, quadBlockSearchHit) == 0x3c);
+CTR_STATIC_ASSERT(offsetof(struct CameraDC, pushBufferPosCorrection) == 0x4c);
+CTR_STATIC_ASSERT(offsetof(struct CameraDC, cameraPos) == 0x58);
+CTR_STATIC_ASSERT(offsetof(struct CameraDC, lookAtPos) == 0x64);
+CTR_STATIC_ASSERT(offsetof(struct CameraDC, flags) == 0x70);
+CTR_STATIC_ASSERT(sizeof(((struct CameraDC *)0)->flags) == 0x4);
+CTR_STATIC_ASSERT(offsetof(struct CameraDC, driverOffset_CamEyePos) == 0x74);
+CTR_STATIC_ASSERT(offsetof(struct CameraDC, angleAxisLerpRatio) == 0x7a);
+CTR_STATIC_ASSERT(offsetof(struct CameraDC, driverOffset_CamLookAtPos) == 0x7c);
+CTR_STATIC_ASSERT(offsetof(struct CameraDC, unk82) == 0x82);
+CTR_STATIC_ASSERT(offsetof(struct CameraDC, botFlagsPrevFrame) == 0x84);
+CTR_STATIC_ASSERT(offsetof(struct CameraDC, trackPathNode) == 0x88);
+CTR_STATIC_ASSERT(offsetof(struct CameraDC, transitionBlend) == 0x8c);
+CTR_STATIC_ASSERT(offsetof(struct CameraDC, transitionFrame) == 0x8e);
+CTR_STATIC_ASSERT(offsetof(struct CameraDC, spin360Angle) == 0x90);
+CTR_STATIC_ASSERT(offsetof(struct CameraDC, zoomToggleState) == 0x92);
+CTR_STATIC_ASSERT(offsetof(struct CameraDC, trackPathProgress) == 0x94);
+CTR_STATIC_ASSERT(offsetof(struct CameraDC, maskGrabHeightOffset) == 0x98);
+CTR_STATIC_ASSERT(offsetof(struct CameraDC, transitionFrameCount) == 0x9e);
+CTR_STATIC_ASSERT(offsetof(struct CameraDC, eorModeData) == 0xb0);
+CTR_STATIC_ASSERT(offsetof(struct CameraDC, eorModeData.trackPathSpeed) == 0xb0);
+CTR_STATIC_ASSERT(offsetof(struct CameraDC, eorModeData.pointPath.endPos) == 0xb0);
+CTR_STATIC_ASSERT(offsetof(struct CameraDC, eorModeData.pointPath.speed) == 0xb6);
+CTR_STATIC_ASSERT(sizeof(((struct CameraDC *)0)->eorModeData) == 0x8);
+CTR_STATIC_ASSERT(offsetof(struct CameraDC, fireSpeedZoom) == 0xb8);
+CTR_STATIC_ASSERT(offsetof(struct CameraDC, heightSmoothing) == 0xc0);
 #if BUILD >= UsaRetail
-_Static_assert(sizeof(struct CameraDC) == 0xDC);
+CTR_STATIC_ASSERT(sizeof(struct CameraDC) == 0xDC);
 #else
-_Static_assert(sizeof(struct CameraDC) == 0xC8);
+CTR_STATIC_ASSERT(sizeof(struct CameraDC) == 0xC8);
 #endif

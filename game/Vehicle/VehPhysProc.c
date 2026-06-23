@@ -12,7 +12,7 @@ enum
 	                                  ACTION_REVERSE_STEER_RIGHT,
 };
 
-_Static_assert(VEH_PHYS_PROC_ACTION_CARRY_MASK == 0x7f1f83d5);
+CTR_STATIC_ASSERT(VEH_PHYS_PROC_ACTION_CARRY_MASK == 0x7f1f83d5);
 
 static void VehPhysProc_Driving_DecrementTimer(s16 *timer, int elapsed)
 {

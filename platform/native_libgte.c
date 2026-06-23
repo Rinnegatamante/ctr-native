@@ -128,12 +128,12 @@ void PopMatrix()
 	}
 }
 
-void RotTrans(SVECTOR *v0, VECTOR *v1, int32_t *flag)
+void RotTrans(SVECTOR *v0, VECTOR *v1, s32 *flag)
 {
 	gte_RotTrans(v0, v1, flag);
 }
 
-void RotTransSV(SVECTOR *v0, SVECTOR *v1, int32_t *flag)
+void RotTransSV(SVECTOR *v0, SVECTOR *v1, s32 *flag)
 {
 	CTR_GteLoadSV0(v0);
 	gte_rt();
@@ -141,7 +141,7 @@ void RotTransSV(SVECTOR *v0, SVECTOR *v1, int32_t *flag)
 	gte_stflg(flag);
 }
 
-int RotTransPers(SVECTOR *v0, int32_t *sxy, int32_t *p, int32_t *flag)
+int RotTransPers(SVECTOR *v0, s32 *sxy, s32 *p, s32 *flag)
 {
 	int sz;
 	gte_RotTransPers(v0, sxy, p, flag, &sz);
@@ -149,7 +149,7 @@ int RotTransPers(SVECTOR *v0, int32_t *sxy, int32_t *p, int32_t *flag)
 	return sz;
 }
 
-int RotTransPers3(SVECTOR *v0, SVECTOR *v1, SVECTOR *v2, int32_t *sxy0, int32_t *sxy1, int32_t *sxy2, int32_t *p, int32_t *flag)
+int RotTransPers3(SVECTOR *v0, SVECTOR *v1, SVECTOR *v2, s32 *sxy0, s32 *sxy1, s32 *sxy2, s32 *p, s32 *flag)
 {
 	int sz;
 	gte_RotTransPers3(v0, v1, v2, sxy0, sxy1, sxy2, p, flag, &sz);
@@ -157,7 +157,7 @@ int RotTransPers3(SVECTOR *v0, SVECTOR *v1, SVECTOR *v2, int32_t *sxy0, int32_t 
 	return sz;
 }
 
-int RotTransPers4(SVECTOR *v0, SVECTOR *v1, SVECTOR *v2, SVECTOR *v3, int32_t *sxy0, int32_t *sxy1, int32_t *sxy2, int32_t *sxy3, int32_t *p, int32_t *flag)
+int RotTransPers4(SVECTOR *v0, SVECTOR *v1, SVECTOR *v2, SVECTOR *v3, s32 *sxy0, s32 *sxy1, s32 *sxy2, s32 *sxy3, s32 *p, s32 *flag)
 {
 	int _flag;
 	int sz;
@@ -236,8 +236,7 @@ void LocalLight(SVECTOR *v0, VECTOR *v1)
 	gte_LocalLight(v0, v1);
 }
 
-int RotAverageNclip4(SVECTOR *v0, SVECTOR *v1, SVECTOR *v2, SVECTOR *v3, int32_t *sxy0, int32_t *sxy1, int32_t *sxy2, int32_t *sxy3, int32_t *p, int32_t *otz,
-                     int32_t *flag)
+int RotAverageNclip4(SVECTOR *v0, SVECTOR *v1, SVECTOR *v2, SVECTOR *v3, s32 *sxy0, s32 *sxy1, s32 *sxy2, s32 *sxy3, s32 *p, s32 *otz, s32 *flag)
 {
 	CTR_GteLoadSV3(v0, v1, v2);
 	gte_rtpt();

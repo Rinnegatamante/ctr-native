@@ -34,7 +34,6 @@
 #include "platform/native_savestate.h"
 
 #ifndef __GNUC__
-#define _Static_assert(x)
 #define __attribute__(x)
 #endif
 

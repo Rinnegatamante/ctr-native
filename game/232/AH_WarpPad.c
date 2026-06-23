@@ -43,10 +43,10 @@ s16 *AH_WarpPad_GetSpawnPosRot(s16 *posData)
 	return &instDef->rot.x;
 }
 
-_Static_assert(sizeof(struct WarpPad) == 0x78);
-_Static_assert(offsetof(struct WarpPad, lightDirGem) == 0x50);
-_Static_assert(offsetof(struct WarpPad, digit10s) == 0x68);
-_Static_assert(offsetof(struct WarpPad, levelID) == 0x6c);
+CTR_STATIC_ASSERT(sizeof(struct WarpPad) == 0x78);
+CTR_STATIC_ASSERT(offsetof(struct WarpPad, lightDirGem) == 0x50);
+CTR_STATIC_ASSERT(offsetof(struct WarpPad, digit10s) == 0x68);
+CTR_STATIC_ASSERT(offsetof(struct WarpPad, levelID) == 0x6c);
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800abbdc-0x800abd80.
 void AH_WarpPad_AllWarppadNum()

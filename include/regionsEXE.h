@@ -14,8 +14,8 @@ struct MatrixND
 	int t[3];
 };
 
-_Static_assert(sizeof(struct MatrixND) == 0x20);
-_Static_assert(MATRIX_ND_BAKED_MATRIX_OFFSET == offsetof(struct MatrixND, m[1][1]));
+CTR_STATIC_ASSERT(sizeof(struct MatrixND) == 0x20);
+CTR_STATIC_ASSERT(MATRIX_ND_BAKED_MATRIX_OFFSET == offsetof(struct MatrixND, m[1][1]));
 
 typedef union DriverModelExtraSlot
 {
@@ -23,9 +23,9 @@ typedef union DriverModelExtraSlot
 	struct Model *model;
 } DriverModelExtraSlot;
 
-_Static_assert(sizeof(DriverModelExtraSlot) == sizeof(void *));
-_Static_assert(offsetof(DriverModelExtraSlot, fileBase) == 0x0);
-_Static_assert(offsetof(DriverModelExtraSlot, model) == 0x0);
+CTR_STATIC_ASSERT(sizeof(DriverModelExtraSlot) == sizeof(void *));
+CTR_STATIC_ASSERT(offsetof(DriverModelExtraSlot, fileBase) == 0x0);
+CTR_STATIC_ASSERT(offsetof(DriverModelExtraSlot, model) == 0x0);
 
 typedef enum ScrubFlags : u32
 {
@@ -2719,8 +2719,8 @@ struct Data
 	// 8008cf6b -- end of Data
 };
 
-_Static_assert(offsetof(struct Data, podiumModel_firstPlace) == offsetof(struct Data, driverModelExtras) + sizeof(((struct Data *)0)->driverModelExtras));
-_Static_assert(offsetof(struct Data, currSlot) == offsetof(struct Data, driverModelExtras) + 11 * sizeof(void *));
+CTR_STATIC_ASSERT(offsetof(struct Data, podiumModel_firstPlace) == offsetof(struct Data, driverModelExtras) + sizeof(((struct Data *)0)->driverModelExtras));
+CTR_STATIC_ASSERT(offsetof(struct Data, currSlot) == offsetof(struct Data, driverModelExtras) + 11 * sizeof(void *));
 
 // 0x8008D218 -- Early June? PizzaHut USA
 // 0x8008b3d0 -- SepReview
@@ -5131,55 +5131,55 @@ struct sData *sdata = &sdata_static;
 // SP
 // 801ff800 - 80200000
 
-_Static_assert(sizeof(struct Terrain) == 0x40);
-_Static_assert(offsetof(struct Terrain, speedMultiplier) == 0x8);
-_Static_assert(offsetof(struct Terrain, slowUntilSpeed) == 0xc);
-_Static_assert(offsetof(struct Terrain, counterSteerRatio) == 0x10);
-_Static_assert(offsetof(struct Terrain, turnLeanScale) == 0x14);
-_Static_assert(offsetof(struct Terrain, groundFrictionScale) == 0x20);
-_Static_assert(offsetof(struct Terrain, turnAngleScale) == 0x24);
-_Static_assert(offsetof(struct Terrain, turnResponseScale) == 0x28);
-_Static_assert(offsetof(struct Terrain, skidSound) == 0x30);
-_Static_assert(offsetof(struct Terrain, botSpeedFlags) == 0x36);
-_Static_assert(offsetof(struct Terrain, botTargetSpeedScale) == 0x38);
-_Static_assert(offsetof(struct Terrain, botAccelerationScale) == 0x3a);
-_Static_assert(offsetof(struct Terrain, botFrictionScale) == 0x3c);
-_Static_assert(offsetof(struct Terrain, padding_0x3e) == 0x3e);
-_Static_assert(sizeof(((struct Terrain *)0)->botSpeedFlags) == 0x2);
-_Static_assert(sizeof(((struct Terrain *)0)->botTargetSpeedScale) == 0x2);
-_Static_assert(sizeof(((struct Terrain *)0)->botAccelerationScale) == 0x2);
-_Static_assert(sizeof(((struct Terrain *)0)->botFrictionScale) == 0x2);
-_Static_assert(sizeof(struct Scrub) == 0x10);
-_Static_assert(sizeof(ScrubFlags) == 0x4);
-_Static_assert(sizeof(TerrainFlags) == 0x4);
-_Static_assert(sizeof(TerrainBotFlags) == 0x2);
-_Static_assert(TERRAIN_FLAG_RAISE_GROUND_OFFSET == 0x1);
-_Static_assert(TERRAIN_FLAG_ACCEL_WHILE_REVERSE_SLIDING == 0x4);
-_Static_assert(TERRAIN_FLAG_FORCE_SKIDMARKS == 0x8);
-_Static_assert(TERRAIN_FLAG_SKIP_TURN_ASSIST == 0x10);
-_Static_assert(TERRAIN_FLAG_ONESHOT_GROUND_SOUND == 0x20);
-_Static_assert(TERRAIN_FLAG_LANDING_SPARKS == 0x40);
-_Static_assert(TERRAIN_FLAG_MUD_PHYSICS == 0x80);
-_Static_assert(TERRAIN_FLAG_SIDESLIP_FRICTION == 0x100);
-_Static_assert(TERRAIN_BOT_FLAG_DECEL_TO_TARGET_SPEED == 0x80);
-_Static_assert(SCRUB_FLAG_APPLY_IMPACT == 0x1);
-_Static_assert(SCRUB_FLAG_SLAM_ON_HARD_IMPACT == 0x2);
-_Static_assert(SCRUB_FLAG_SKIP_WALL_RUB_TIMER == 0x4);
-_Static_assert(SCRUB_FLAG_KEEP_RESERVES == 0x8);
-_Static_assert(offsetof(struct Scrub, flags) == 0x4);
-_Static_assert(offsetof(struct Scrub, speedLimit) == 0x8);
-_Static_assert(offsetof(struct Scrub, impactAngle) == 0xC);
-_Static_assert(sizeof(struct MetaDataLEV) == 0x18);
-_Static_assert(sizeof(struct MetaDataMODEL) == 0xC);
+CTR_STATIC_ASSERT(sizeof(struct Terrain) == 0x40);
+CTR_STATIC_ASSERT(offsetof(struct Terrain, speedMultiplier) == 0x8);
+CTR_STATIC_ASSERT(offsetof(struct Terrain, slowUntilSpeed) == 0xc);
+CTR_STATIC_ASSERT(offsetof(struct Terrain, counterSteerRatio) == 0x10);
+CTR_STATIC_ASSERT(offsetof(struct Terrain, turnLeanScale) == 0x14);
+CTR_STATIC_ASSERT(offsetof(struct Terrain, groundFrictionScale) == 0x20);
+CTR_STATIC_ASSERT(offsetof(struct Terrain, turnAngleScale) == 0x24);
+CTR_STATIC_ASSERT(offsetof(struct Terrain, turnResponseScale) == 0x28);
+CTR_STATIC_ASSERT(offsetof(struct Terrain, skidSound) == 0x30);
+CTR_STATIC_ASSERT(offsetof(struct Terrain, botSpeedFlags) == 0x36);
+CTR_STATIC_ASSERT(offsetof(struct Terrain, botTargetSpeedScale) == 0x38);
+CTR_STATIC_ASSERT(offsetof(struct Terrain, botAccelerationScale) == 0x3a);
+CTR_STATIC_ASSERT(offsetof(struct Terrain, botFrictionScale) == 0x3c);
+CTR_STATIC_ASSERT(offsetof(struct Terrain, padding_0x3e) == 0x3e);
+CTR_STATIC_ASSERT(sizeof(((struct Terrain *)0)->botSpeedFlags) == 0x2);
+CTR_STATIC_ASSERT(sizeof(((struct Terrain *)0)->botTargetSpeedScale) == 0x2);
+CTR_STATIC_ASSERT(sizeof(((struct Terrain *)0)->botAccelerationScale) == 0x2);
+CTR_STATIC_ASSERT(sizeof(((struct Terrain *)0)->botFrictionScale) == 0x2);
+CTR_STATIC_ASSERT(sizeof(struct Scrub) == 0x10);
+CTR_STATIC_ASSERT(sizeof(ScrubFlags) == 0x4);
+CTR_STATIC_ASSERT(sizeof(TerrainFlags) == 0x4);
+CTR_STATIC_ASSERT(sizeof(TerrainBotFlags) == 0x2);
+CTR_STATIC_ASSERT(TERRAIN_FLAG_RAISE_GROUND_OFFSET == 0x1);
+CTR_STATIC_ASSERT(TERRAIN_FLAG_ACCEL_WHILE_REVERSE_SLIDING == 0x4);
+CTR_STATIC_ASSERT(TERRAIN_FLAG_FORCE_SKIDMARKS == 0x8);
+CTR_STATIC_ASSERT(TERRAIN_FLAG_SKIP_TURN_ASSIST == 0x10);
+CTR_STATIC_ASSERT(TERRAIN_FLAG_ONESHOT_GROUND_SOUND == 0x20);
+CTR_STATIC_ASSERT(TERRAIN_FLAG_LANDING_SPARKS == 0x40);
+CTR_STATIC_ASSERT(TERRAIN_FLAG_MUD_PHYSICS == 0x80);
+CTR_STATIC_ASSERT(TERRAIN_FLAG_SIDESLIP_FRICTION == 0x100);
+CTR_STATIC_ASSERT(TERRAIN_BOT_FLAG_DECEL_TO_TARGET_SPEED == 0x80);
+CTR_STATIC_ASSERT(SCRUB_FLAG_APPLY_IMPACT == 0x1);
+CTR_STATIC_ASSERT(SCRUB_FLAG_SLAM_ON_HARD_IMPACT == 0x2);
+CTR_STATIC_ASSERT(SCRUB_FLAG_SKIP_WALL_RUB_TIMER == 0x4);
+CTR_STATIC_ASSERT(SCRUB_FLAG_KEEP_RESERVES == 0x8);
+CTR_STATIC_ASSERT(offsetof(struct Scrub, flags) == 0x4);
+CTR_STATIC_ASSERT(offsetof(struct Scrub, speedLimit) == 0x8);
+CTR_STATIC_ASSERT(offsetof(struct Scrub, impactAngle) == 0xC);
+CTR_STATIC_ASSERT(sizeof(struct MetaDataLEV) == 0x18);
+CTR_STATIC_ASSERT(sizeof(struct MetaDataMODEL) == 0xC);
 
 #if BUILD == UsaRetail
-#define OFFSETOF_SDATA(ELEMENT) ((u32) & (((struct sData *)0x8008cf6c)->ELEMENT))
-#define OFFSETOF_DATA(ELEMENT)  ((u32) & (((struct Data *)0x800809a0)->ELEMENT))
+#define OFFSETOF_SDATA(ELEMENT) ((u32)0x8008cf6c + OFFSETOF(struct sData, ELEMENT))
+#define OFFSETOF_DATA(ELEMENT)  ((u32)0x800809a0 + OFFSETOF(struct Data, ELEMENT))
 
-_Static_assert(OFFSETOF_DATA(rowsQuit[0]) == 0x800841BC);
-_Static_assert(OFFSETOF_DATA(menuQuit) == 0x800841D0);
-_Static_assert(OFFSETOF_SDATA(botCrashNavRot) == 0x8008D9EC);
-_Static_assert(OFFSETOF_SDATA(vehicleCollisionImpactStrength) == 0x8008D9F4);
-_Static_assert(OFFSETOF_SDATA(talkMaskXASamplePeak) == 0x8008D9F8);
-_Static_assert(OFFSETOF_SDATA(talkMaskMaxMouthFrame) == 0x8008D9FC);
+CTR_STATIC_ASSERT(OFFSETOF_DATA(rowsQuit[0]) == 0x800841BC);
+CTR_STATIC_ASSERT(OFFSETOF_DATA(menuQuit) == 0x800841D0);
+CTR_STATIC_ASSERT(OFFSETOF_SDATA(botCrashNavRot) == 0x8008D9EC);
+CTR_STATIC_ASSERT(OFFSETOF_SDATA(vehicleCollisionImpactStrength) == 0x8008D9F4);
+CTR_STATIC_ASSERT(OFFSETOF_SDATA(talkMaskXASamplePeak) == 0x8008D9F8);
+CTR_STATIC_ASSERT(OFFSETOF_SDATA(talkMaskMaxMouthFrame) == 0x8008D9FC);
 #endif

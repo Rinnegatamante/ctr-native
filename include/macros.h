@@ -9,6 +9,11 @@
 #include <stdint.h>
 #endif
 
+#define CTR_STATIC_ASSERT_JOIN2(a, b) a##b
+#define CTR_STATIC_ASSERT_JOIN(a, b)  CTR_STATIC_ASSERT_JOIN2(a, b)
+// TODO(aalhendi): something nicer than __LINE__? Maybe __COUNTER__. Look into compilers
+#define CTR_STATIC_ASSERT(expr)       extern int CTR_STATIC_ASSERT_JOIN(ctr_static_assert_, __LINE__)[(expr) ? 1 : -1]
+
 typedef uint64_t u64;
 typedef int64_t s64;
 typedef uint32_t u32;
