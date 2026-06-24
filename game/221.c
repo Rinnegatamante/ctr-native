@@ -1,5 +1,9 @@
 #include <common.h>
 
+#if defined(CTR_NATIVE)
+#include <platform/native_log.h>
+#endif
+
 enum CrystalChallengeEndMenuConstants
 {
 	CC_FLY_IN_FRAMES = 0x14,
@@ -7,6 +11,7 @@ enum CrystalChallengeEndMenuConstants
 	CC_TOKEN_GROW_LIMIT = 0x2001,
 	CC_TOKEN_GROW_STEP = 0x200,
 	CC_CONFIRM_BUTTON_MASK = BTN_CROSS_one | BTN_CIRCLE,
+	CC_UNMODELED_REWARD_OFFSET = -0x400000, // NOTE(aalhendi): see CC_EndEvent_LogUnmodeledRewardOffset
 };
 
 global_variable const s16 s_battleTrackPurpleTokenOffset[LAB_BASEMENT - NITRO_COURT + 1] = {
@@ -20,6 +25,34 @@ global_variable const s16 s_battleTrackPurpleTokenOffset[LAB_BASEMENT - NITRO_CO
 };
 
 extern struct RectMenu menu221;
+
+#if defined(CTR_NATIVE)
+static void CC_EndEvent_LogUnmodeledRewardOffset(const s32 levelID)
+{
+	static u64 s_loggedLevelMask[2];
+	static b32 s_loggedOutOfRangeLevel;
+
+	if (levelID >= 0 && levelID < 128)
+	{
+		const u64 levelBit = (u64)1 << (levelID & 0x3f);
+		u64 *levelMask = &s_loggedLevelMask[levelID >> 6];
+
+		if ((*levelMask & levelBit) != 0)
+			return;
+
+		*levelMask |= levelBit;
+	}
+	else
+	{
+		if (s_loggedOutOfRangeLevel)
+			return;
+
+		s_loggedOutOfRangeLevel = true;
+	}
+
+	Platform_LogWarn("[CTR 221] unmodeled CC reward residue: levelID=%d\n", levelID);
+}
+#endif
 
 static s32 CC_EndEvent_GetRewardOffset(struct GameTracker *gGT)
 {
@@ -51,6 +84,16 @@ static s32 CC_EndEvent_GetRewardOffset(struct GameTracker *gGT)
 		// scratchpad base 0x1f800000, so this reads as zero.
 		return 0;
 	}
+
+#if defined(CTR_NATIVE)
+	if (levelID < NITRO_COURT || levelID > LAB_BASEMENT)
+	{
+		// NOTE(aalhendi): Retail would keep reading the adjacent stack halfwords.
+		// Native only models audited residue producers. We just log unmodeled UB
+		CC_EndEvent_LogUnmodeledRewardOffset(levelID);
+		return CC_UNMODELED_REWARD_OFFSET;
+	}
+#endif
 
 	return s_battleTrackPurpleTokenOffset[levelID - NITRO_COURT];
 }
