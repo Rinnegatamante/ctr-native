@@ -29,7 +29,9 @@ force_inline b32 CtrGpu_IsCurrentOTRange(const struct DB *db, const uint32_t *st
 	uintptr_t otCursor;
 
 	if ((db == NULL) || (start == NULL) || (end == NULL))
+	{
 		return false;
+	}
 
 	rangeStart = (uintptr_t)start;
 	rangeEnd = (uintptr_t)end;
@@ -37,7 +39,9 @@ force_inline b32 CtrGpu_IsCurrentOTRange(const struct DB *db, const uint32_t *st
 	otCursor = (uintptr_t)db->otMem.cursor;
 
 	if (rangeEnd < rangeStart)
+	{
 		return false;
+	}
 
 	return (rangeStart >= otStart) && (rangeEnd < otCursor);
 }
@@ -77,34 +81,34 @@ force_inline void CtrGpu_WritePackedUVWord(uint8_t *u, u32 uvTpage)
 	u[3] = (uint8_t)(uvTpage >> 24);
 }
 
-_Static_assert(sizeof(POLY_FT4) == 0x28);
-_Static_assert(offsetof(POLY_FT4, tag) == 0x00);
-_Static_assert(offsetof(POLY_FT4, r0) == 0x04);
-_Static_assert(offsetof(POLY_FT4, code) == 0x07);
-_Static_assert(offsetof(POLY_FT4, x0) == 0x08);
-_Static_assert(offsetof(POLY_FT4, u0) == 0x0C);
-_Static_assert(offsetof(POLY_FT4, x1) == 0x10);
-_Static_assert(offsetof(POLY_FT4, u1) == 0x14);
-_Static_assert(offsetof(POLY_FT4, x2) == 0x18);
-_Static_assert(offsetof(POLY_FT4, u2) == 0x1C);
-_Static_assert(offsetof(POLY_FT4, x3) == 0x20);
-_Static_assert(offsetof(POLY_FT4, u3) == 0x24);
+CTR_STATIC_ASSERT(sizeof(POLY_FT4) == 0x28);
+CTR_STATIC_ASSERT(offsetof(POLY_FT4, tag) == 0x00);
+CTR_STATIC_ASSERT(offsetof(POLY_FT4, r0) == 0x04);
+CTR_STATIC_ASSERT(offsetof(POLY_FT4, code) == 0x07);
+CTR_STATIC_ASSERT(offsetof(POLY_FT4, x0) == 0x08);
+CTR_STATIC_ASSERT(offsetof(POLY_FT4, u0) == 0x0C);
+CTR_STATIC_ASSERT(offsetof(POLY_FT4, x1) == 0x10);
+CTR_STATIC_ASSERT(offsetof(POLY_FT4, u1) == 0x14);
+CTR_STATIC_ASSERT(offsetof(POLY_FT4, x2) == 0x18);
+CTR_STATIC_ASSERT(offsetof(POLY_FT4, u2) == 0x1C);
+CTR_STATIC_ASSERT(offsetof(POLY_FT4, x3) == 0x20);
+CTR_STATIC_ASSERT(offsetof(POLY_FT4, u3) == 0x24);
 
-_Static_assert(sizeof(POLY_GT4) == 0x34);
-_Static_assert(offsetof(POLY_GT4, tag) == 0x00);
-_Static_assert(offsetof(POLY_GT4, r0) == 0x04);
-_Static_assert(offsetof(POLY_GT4, code) == 0x07);
-_Static_assert(offsetof(POLY_GT4, x0) == 0x08);
-_Static_assert(offsetof(POLY_GT4, u0) == 0x0C);
-_Static_assert(offsetof(POLY_GT4, r1) == 0x10);
-_Static_assert(offsetof(POLY_GT4, x1) == 0x14);
-_Static_assert(offsetof(POLY_GT4, u1) == 0x18);
-_Static_assert(offsetof(POLY_GT4, r2) == 0x1C);
-_Static_assert(offsetof(POLY_GT4, x2) == 0x20);
-_Static_assert(offsetof(POLY_GT4, u2) == 0x24);
-_Static_assert(offsetof(POLY_GT4, r3) == 0x28);
-_Static_assert(offsetof(POLY_GT4, x3) == 0x2C);
-_Static_assert(offsetof(POLY_GT4, u3) == 0x30);
+CTR_STATIC_ASSERT(sizeof(POLY_GT4) == 0x34);
+CTR_STATIC_ASSERT(offsetof(POLY_GT4, tag) == 0x00);
+CTR_STATIC_ASSERT(offsetof(POLY_GT4, r0) == 0x04);
+CTR_STATIC_ASSERT(offsetof(POLY_GT4, code) == 0x07);
+CTR_STATIC_ASSERT(offsetof(POLY_GT4, x0) == 0x08);
+CTR_STATIC_ASSERT(offsetof(POLY_GT4, u0) == 0x0C);
+CTR_STATIC_ASSERT(offsetof(POLY_GT4, r1) == 0x10);
+CTR_STATIC_ASSERT(offsetof(POLY_GT4, x1) == 0x14);
+CTR_STATIC_ASSERT(offsetof(POLY_GT4, u1) == 0x18);
+CTR_STATIC_ASSERT(offsetof(POLY_GT4, r2) == 0x1C);
+CTR_STATIC_ASSERT(offsetof(POLY_GT4, x2) == 0x20);
+CTR_STATIC_ASSERT(offsetof(POLY_GT4, u2) == 0x24);
+CTR_STATIC_ASSERT(offsetof(POLY_GT4, r3) == 0x28);
+CTR_STATIC_ASSERT(offsetof(POLY_GT4, x3) == 0x2C);
+CTR_STATIC_ASSERT(offsetof(POLY_GT4, u3) == 0x30);
 
 struct CtrGpuDrawModePacket
 {
@@ -113,10 +117,10 @@ struct CtrGpuDrawModePacket
 	u32 terminator;
 };
 
-_Static_assert(sizeof(struct CtrGpuDrawModePacket) == 0x0C);
-_Static_assert(offsetof(struct CtrGpuDrawModePacket, tag) == 0x00);
-_Static_assert(offsetof(struct CtrGpuDrawModePacket, drawMode) == 0x04);
-_Static_assert(offsetof(struct CtrGpuDrawModePacket, terminator) == 0x08);
+CTR_STATIC_ASSERT(sizeof(struct CtrGpuDrawModePacket) == 0x0C);
+CTR_STATIC_ASSERT(offsetof(struct CtrGpuDrawModePacket, tag) == 0x00);
+CTR_STATIC_ASSERT(offsetof(struct CtrGpuDrawModePacket, drawMode) == 0x04);
+CTR_STATIC_ASSERT(offsetof(struct CtrGpuDrawModePacket, terminator) == 0x08);
 
 force_inline void CtrGpu_LinkPacket24(uint32_t *ot, u32 *packetTag, const void *packet, u32 tag)
 {
@@ -308,7 +312,7 @@ force_inline void addFill(uint32_t *ot, FILL *p)
 // clear blending mode bits of the texpage using AND, then set them using OR
 // then set image to use semi-transparent mode using the setSemiTrans macro
 // (which enables the 2 bit on the primitive's code field)
-#define setTransparency(p, transparency)                p->tpage = p->tpage & 0xff9f | (transparency - 1) << 5, p->code |= 2
+#define setTransparency(p, transparency)                p->tpage = (p->tpage & 0xff9f) | ((transparency - 1) << 5), p->code |= 2
 
 // version of psn00bsdk's setColor macro that simultaneously accepts 4 colors
 #define setColor4(p, rgb0, rgb1, rgb2, rgb3)                                                                                         \

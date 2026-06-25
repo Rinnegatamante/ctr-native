@@ -6,7 +6,9 @@ void RECTMENU_DrawPolyGT4(struct Icon *icon, s16 posX, s16 posY, struct PrimMem 
                           char transparency, s16 scale)
 {
 	if (!icon)
+	{
 		return;
+	}
 
 	DecalHUD_DrawPolyGT4(icon, posX, posY, primMem, ot, color0, color1, color2, color3, transparency, scale);
 }
@@ -44,11 +46,11 @@ u8 *RECTMENU_DrawTime(int milliseconds)
 	    // Minute:Seconds:Milliseconds
 	    RECTMENU_TIME_FORMAT,
 
-	    milliseconds / 0xe100,              // minutes
-	    (milliseconds / 0x2580) % 6,        // seconds / 10
-	    (milliseconds / 0x3c0) % 10,        // seconds
-	    ((milliseconds * 10) / 0x3c0) % 10, // milliseconds / 10
-	    ((milliseconds * 100) / 0x3c0) % 10 // milliseconds
+	    CTR_PRINTF_PSX_LONG(milliseconds / 0xe100),              // minutes
+	    CTR_PRINTF_PSX_LONG((milliseconds / 0x2580) % 6),        // seconds / 10
+	    CTR_PRINTF_PSX_LONG((milliseconds / 0x3c0) % 10),        // seconds
+	    CTR_PRINTF_PSX_LONG(((milliseconds * 10) / 0x3c0) % 10), // milliseconds / 10
+	    CTR_PRINTF_PSX_LONG(((milliseconds * 100) / 0x3c0) % 10) // milliseconds
 	);
 
 	return (u8 *)str;
@@ -917,7 +919,9 @@ void RECTMENU_ProcessState()
 
 	// unused
 	if (sdata->framesRemainingInMenu != 0)
+	{
 		sdata->framesRemainingInMenu--;
+	}
 
 	// if you want to change the Menu
 	if (currMenu != 0)

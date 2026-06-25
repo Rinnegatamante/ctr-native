@@ -3,8 +3,8 @@
 static void OVR233_ResetGarage(void);
 static void OVR233_ResetCreditsBSS(void);
 
-_Static_assert(sizeof(struct OverlayRDATA_233) == 0xbd90);
-_Static_assert(sizeof(void *) == 4);
+CTR_STATIC_ASSERT(sizeof(struct OverlayRDATA_233) == 0xbd90);
+CTR_STATIC_ASSERT(sizeof(void *) == 4);
 
 struct OverlayDATA_233 D233;
 
@@ -145,7 +145,9 @@ char *CS_OVR233_TranslateRetailOpcodePointer(char *opCodeAt)
 	{
 		const struct Ovr233RetailPointerRange *range = &ranges[i];
 		if ((ptr >= range->retailStart) && (ptr < range->retailEnd))
+		{
 			return range->nativeStart + (ptr - range->retailStart);
+		}
 	}
 
 	return opCodeAt;

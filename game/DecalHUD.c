@@ -5,7 +5,9 @@
 void DecalHUD_DrawPolyFT4(struct Icon *icon, s16 posX, s16 posY, struct PrimMem *primMem, uint32_t *ot, char transparency, s16 scale)
 {
 	if (!icon)
+	{
 		return;
+	}
 
 	POLY_FT4 *p = (POLY_FT4 *)primMem->cursor;
 	addPolyFT4(ot, p);
@@ -35,7 +37,9 @@ void DecalHUD_DrawWeapon(struct Icon *icon, s16 posX, s16 posY, struct PrimMem *
 {
 #if BUILD > SepReview
 	if (!icon)
+	{
 		return;
+	}
 #endif
 
 	POLY_FT4 *p = (POLY_FT4 *)primMem->cursor;
@@ -96,7 +100,9 @@ void DecalHUD_DrawPolyGT4(struct Icon *icon, s16 posX, s16 posY, struct PrimMem 
 {
 #if BUILD > SepReview
 	if (!icon)
+	{
 		return;
+	}
 #endif
 
 	// setInt32RGB4 needs to go before addPolyGT4
@@ -165,11 +171,11 @@ void DecalHUD_Arrow2D(struct Icon *icon, s16 posX, s16 posY, struct PrimMem *pri
 
 		// set top right corner UVs and texpage of primitive, and alter the blending mode bits of the texpage from 11 (Mode 3, which is no blending) to 00 (Mode
 		// 0, equivalent to regular 50% opacity)
-		*(int *)&p->u1 = topRightCornerAndPageXY & 0xff9fffff | ((u32)transparency - 1) * 0x200000;
+		*(int *)&p->u1 = (topRightCornerAndPageXY & 0xff9fffff) | (((u32)transparency - 1) * 0x200000);
 	}
 
 	// set top left vertex color, and code in 7th byte of prim
-	*(int *)&p->r0 = color1 & 0xffffff | code;
+	*(int *)&p->r0 = (color1 & 0xffffff) | code;
 
 	posX = posX & 0xffff;
 	*(int *)&p->u0 = topLeftCornerAndPaletteXY;
@@ -189,7 +195,9 @@ void DecalHUD_Arrow2D(struct Icon *icon, s16 posX, s16 posY, struct PrimMem *pri
 	{
 		iVar10 = (int)sVar8;
 		if ((rot & 0x800) == 0)
+		{
 			goto LAB_800232d8;
+		}
 		iVar12 = -iVar13;
 	}
 	else
@@ -211,17 +219,18 @@ LAB_800232d8:
 	iVar6 = iVar12 * iVar10 >> 0xc;
 	iVar12 = posY + (iVar12 * iVar13 >> 0xc);
 
-	*(int *)&p->x0 = posX + (-bitshiftTopRightCorner * iVar13 >> 0xc) + iVar6 & 0xffff | (iVar12 - (-bitshiftTopRightCorner * iVar10 >> 0xc)) * 0x10000;
+	*(int *)&p->x0 = ((posX + (-bitshiftTopRightCorner * iVar13 >> 0xc) + iVar6) & 0xffff) | ((iVar12 - (-bitshiftTopRightCorner * iVar10 >> 0xc)) * 0x10000);
 
 	iVar7 = bitshiftPosY * iVar10 >> 0xc;
 
 	*(int *)&p->x1 =
-	    posX + ((bitshiftTopRightCorner + 1) * iVar13 >> 0xc) + iVar6 & 0xffff | (iVar12 - ((bitshiftTopRightCorner + 1) * iVar10 >> 0xc)) * 0x10000;
+	    ((posX + ((bitshiftTopRightCorner + 1) * iVar13 >> 0xc) + iVar6) & 0xffff) | ((iVar12 - ((bitshiftTopRightCorner + 1) * iVar10 >> 0xc)) * 0x10000);
 
 	posY = posY + (bitshiftPosY * iVar13 >> 0xc);
 
-	*(int *)&p->x2 = posX + (-bitshiftTopRightCorner * iVar13 >> 0xc) + iVar7 & 0xffff | (posY - (-bitshiftTopRightCorner * iVar10 >> 0xc)) * 0x10000;
-	*(int *)&p->x3 = posX + ((bitshiftTopRightCorner + 1) * iVar13 >> 0xc) + iVar7 & 0xffff | (posY - ((bitshiftTopRightCorner + 1) * iVar10 >> 0xc)) * 0x10000;
+	*(int *)&p->x2 = ((posX + (-bitshiftTopRightCorner * iVar13 >> 0xc) + iVar7) & 0xffff) | ((posY - (-bitshiftTopRightCorner * iVar10 >> 0xc)) * 0x10000);
+	*(int *)&p->x3 =
+	    ((posX + ((bitshiftTopRightCorner + 1) * iVar13 >> 0xc) + iVar7) & 0xffff) | ((posY - ((bitshiftTopRightCorner + 1) * iVar10 >> 0xc)) * 0x10000);
 
 	*(int *)&p->r1 = color2;
 	*(int *)&p->r2 = color3;

@@ -246,7 +246,7 @@ void RB_FlameJet_Particles(struct Instance *inst, struct FlameJet *fjObj)
 		particle1->axis[2].velocity = (s16)fjObj->dirZ;
 
 		result = RngDeadCoed((u32 *)&gGT->deadcoed_struct);
-		result = MATH_Sin(gGT->timer * 0x100 + (result >> 0x18) & 0xfff);
+		result = MATH_Sin((gGT->timer * 0x100 + (result >> 0x18)) & 0xfff);
 		particle1->axis[1].accel = result >> 4;
 
 		particle1->unk1A = 0x1e00;
@@ -261,12 +261,16 @@ void RB_FlameJet_Particles(struct Instance *inst, struct FlameJet *fjObj)
 
 	// heat particle is 1P only
 	if (gGT->numPlyrCurrGame > 1)
+	{
 		return;
+	}
 
 #if defined(CTR_NATIVE)
 	// NOTE(aalhendi): Retail would read PS1 null-space if the fire particle allocation failed.
 	if (particle1 == NULL)
+	{
 		return;
+	}
 #endif
 
 	particle2 = Particle_Init(0, (struct IconGroup *)gGT->ptrSparkle, &emSet_fjHeat[0]);
@@ -378,17 +382,21 @@ void RB_FlameJet_ThTick(struct Thread *t)
 	else if (fjObj->cycleTimer == 0x2d)
 	{
 		if (fjObj->audioPtr != 0)
+		{
 			OtherFX_RecycleMute(&fjObj->audioPtr);
+		}
 	}
 
 	// repeat cycle every 105 (3.5s)
 	else if (fjObj->cycleTimer > 0x69)
+	{
 		fjObj->cycleTimer = 0;
+	}
 
 EndFjThTick:
 
 	fjObj->cycleTimer++;
-	Vector_SpecLightNoSpin3D(fjInst, &fjInst->instDef->rot.x, &fjLightDir);
+	Vector_SpecLightNoSpin3D(fjInst, &fjInst->instDef->rot, &fjLightDir);
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b6938-0x800b6d58.
@@ -406,7 +414,9 @@ void RB_FlameJet_LInB(struct Instance *inst)
 	inst->flags |= (DRAW_TRANSPARENT | USE_SPECULAR_LIGHT);
 
 	if (inst->thread != 0)
+	{
 		return;
+	}
 
 	t = PROC_BirthWithObject(
 	    // creation flags
@@ -418,7 +428,9 @@ void RB_FlameJet_LInB(struct Instance *inst)
 	);
 
 	if (t == 0)
+	{
 		return;
+	}
 	inst->thread = t;
 	t->inst = inst;
 

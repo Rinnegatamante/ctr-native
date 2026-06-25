@@ -38,7 +38,9 @@ void UI_DrawNumWumpa(s16 posX, s16 posY, struct Driver *d)
 		{
 			iconID = currWumpa10s;
 			if (i > 0)
+			{
 				iconID = currWumpa + currWumpa10s * -10;
+			}
 
 			struct Icon **iconPtrArray = ICONGROUP_GETICONS(gGT->iconGroup[5]);
 
@@ -77,7 +79,7 @@ void UI_DrawNumTimebox(s16 posX, s16 posY, struct Driver *d)
 	numCratesOwned = d->numTimeCrates;
 	numCratesTotal = gGT->timeCratesInLEV;
 
-	sprintf(&string[0], "%2.02d/%ld", numCratesOwned, numCratesTotal);
+	sprintf(&string[0], "%2.02d/%ld", numCratesOwned, CTR_PRINTF_PSX_LONG(numCratesTotal));
 
 	DecalFont_DrawLine(&string[0], posX + 0x21, posY - 0xe, FONT_BIG, ORANGE);
 }
@@ -94,7 +96,9 @@ void UI_DrawNumRelic(s16 posX, s16 posY)
 	gGT = sdata->gGT;
 	num = gGT->currAdvProfile.numRelics;
 	if ((gGT->gameMode2 & 0x1000000) != 0)
+	{
 		num--;
+	}
 
 	sprintf(&string[0], &sdata->s_longInt[0], num);
 	DecalFont_DrawLine(&string[0], posX + 0xD, posY, FONT_BIG, ORANGE);
@@ -112,7 +116,9 @@ void UI_DrawNumKey(s16 posX, s16 posY)
 	gGT = sdata->gGT;
 	num = gGT->currAdvProfile.numKeys;
 	if ((gGT->gameMode2 & 0x2000000) != 0)
+	{
 		num--;
+	}
 
 	sprintf(&string[0], &sdata->s_longInt[0], num);
 	DecalFont_DrawLine(&string[0], posX + 0xD, posY, FONT_BIG, ORANGE);
@@ -130,7 +136,9 @@ void UI_DrawNumTrophy(s16 posX, s16 posY)
 	gGT = sdata->gGT;
 	num = gGT->currAdvProfile.numTrophies;
 	if ((gGT->gameMode2 & 0x4000000) != 0)
+	{
 		num--;
+	}
 
 	sprintf(&string[0], &sdata->s_longInt[0], num);
 	DecalFont_DrawLine(&string[0], posX + 0xD, posY, FONT_BIG, ORANGE);
@@ -150,7 +158,7 @@ void UI_DrawNumCrystal(s16 posX, s16 posY, struct Driver *d)
 	numCrystalsOwned = d->numCrystals;
 	numCrystalsTotal = gGT->numCrystalsInLEV;
 
-	sprintf(&string[0], "%2.02d/%ld", numCrystalsOwned, numCrystalsTotal);
+	sprintf(&string[0], "%2.02d/%ld", numCrystalsOwned, CTR_PRINTF_PSX_LONG(numCrystalsTotal));
 
 	DecalFont_DrawLine(&string[0], posX + 0xD, posY, FONT_BIG, ORANGE);
 }

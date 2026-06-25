@@ -10,32 +10,42 @@ int LOAD_HowlHeaderSectors(CdlFILE *cdlFileHWL, void *ptrDestination, int firstS
 	// Return error, if reading out-of-bounds after the end of KART HWL
 	int sizeOver = ((firstSector + numSector) * 0x800 - cdlFileHWL->size);
 	if (sizeOver >= 0x800)
+	{
 		return 0;
+	}
 
 	CdIntToPos(CdPosToInt(&cdlFileHWL->pos) + firstSector, &loc);
 
 	char buf[8];
-	CdControl(CdlSetloc, &loc, buf);
+	CdControl(CdlSetloc, (u8 *)&loc, buf);
 
 	if (CdRead(numSector, ptrDestination, 0x80) == 0)
+	{
 		return 0;
+	}
 
 	if (CdReadSync(0, 0) != 0)
+	{
 		return 0;
+	}
 
 	return 1;
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8003254c-0x80032594.
-void LOAD_HowlCallback(CdlIntrResult result, u8 *unk)
+void LOAD_HowlCallback(u8 result, u8 *unk)
 {
 	// disable callback
 	CdReadCallback(0);
 
 	if (result == CdlComplete)
+	{
 		sdata->howlChainState = 0;
+	}
 	else
+	{
 		sdata->howlChainState = -1;
+	}
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80032594-0x8003266c
@@ -44,7 +54,9 @@ int LOAD_HowlSectorChainStart(CdlFILE *cdlFileHWL, void *ptrDestination, int fir
 	CdlLOC loc;
 
 	if (numSector == 0)
+	{
 		return 1;
+	}
 
 	// backup, so chain can use it later
 	sdata->howlChainParams[0] = (int)cdlFileHWL;
@@ -57,12 +69,14 @@ int LOAD_HowlSectorChainStart(CdlFILE *cdlFileHWL, void *ptrDestination, int fir
 	// Return error, if reading out-of-bounds after the end of KART HWL
 	int sizeOver = ((firstSector + numSector) * 0x800 - cdlFileHWL->size);
 	if (sizeOver >= 0x800)
+	{
 		return 0;
+	}
 
 	CdIntToPos(CdPosToInt(&cdlFileHWL->pos) + firstSector, &loc);
 
 	char buf[8];
-	CdControl(CdlSetloc, &loc, buf);
+	CdControl(CdlSetloc, (u8 *)&loc, buf);
 
 	sdata->howlChainState = 1;
 

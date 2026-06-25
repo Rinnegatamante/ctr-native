@@ -64,15 +64,24 @@ static void MM_TrackSelect_Video_DrawNativePreview(RECT *r, int srcX, int srcY)
 	uint32_t *ot = gGT->pushBuffer_UI.ptrOT;
 	u32 oldTag = (u32)*ot;
 	u32 *nextPrim;
-	s16 tile[16] = {
-	    (s16)srcX, (s16)srcY, 0xaa, 0x47, (s16)(r->x + 3), (s16)(r->y + 2), 0xaa, 0x47,
+	struct DisplayBlurTile tile[2] = {
+	    {
+	        .srcX = (s16)srcX,
+	        .srcY = (s16)srcY,
+	        .srcW = 0xaa,
+	        .srcH = 0x47,
+	        .dstX = (s16)(r->x + 3),
+	        .dstY = (s16)(r->y + 2),
+	        .dstW = 0xaa,
+	        .dstH = 0x47,
+	    },
 	};
 
 	// NOTE(aalhendi): Retail copies decoded MDEC output with MoveImage. Native
 	// presents menus from queued primitives, so draw the same VRAM rectangle as
 	// a 16-bit textured quad instead of relying on a CPU-side VRAM copy.
 	*ot = (uint32_t)CtrGpu_PrimToOTLink24(prim);
-	nextPrim = DISPLAY_Blur_SubFunc(prim, tile);
+	nextPrim = DISPLAY_Blur_SubFunc(prim, &tile[0]);
 	((POLY_FT4 *)nextPrim - 1)->tag = CtrGpu_PackOTTag(oldTag, 0x09000000);
 	gGT->backBuffer->primMem.cursor = nextPrim;
 }
@@ -108,7 +117,9 @@ void MM_TrackSelect_Video_Draw(RECT *r, struct MainMenu_LevelRow *selectMenu, in
 		if ((D230.trackSel_videoStateCurr == 2) && (D230.trackSel_videoStatePrev == 1))
 		{
 			if (NativeSTR_StartTrackPreview(videoID, selectMenu->videoLength) != 0)
+			{
 				D230.trackSel_video_boolAllocated = D230.trackSel_videoStatePrev;
+			}
 		}
 
 		if (((D230.trackSel_videoStatePrev == 3) || (D230.trackSel_videoStateCurr == 3)) || (D230.trackSel_videoStateCurr == 2))
@@ -123,10 +134,14 @@ void MM_TrackSelect_Video_Draw(RECT *r, struct MainMenu_LevelRow *selectMenu, in
 			uploaded = NativeSTR_UploadNextFrame(srcX, srcY);
 
 			if ((uploaded == 1) && (D230.trackSel_videoStateCurr == 2))
+			{
 				D230.trackSel_videoStateCurr = 3;
+			}
 
 			if (D230.trackSel_videoStateCurr == 3)
+			{
 				MM_TrackSelect_Video_DrawNativePreview(r, srcX + 3, srcY + 2);
+			}
 		}
 	}
 #else
@@ -254,13 +269,19 @@ char MM_TrackSelect_boolTrackOpen(struct MainMenu_LevelRow *menuSelect)
 	s16 flag = menuSelect->unlock;
 
 	if (flag == -1)
+	{
 		return true;
+	}
 
 	if (flag == -2)
+	{
 		return sdata->gGT->numPlyrNextGame == 1;
+	}
 
 	if (flag < 0)
+	{
 		return false;
+	}
 
 	return (sdata->gameProgress.unlocks[flag >> 5] >> (flag & 0x1f)) & 1;
 }
@@ -483,8 +504,10 @@ void MM_TrackSelect_MenuProc(struct RectMenu *menu)
 
 					// if index is negative
 					if (currTrack < 0)
+					{
 						// set to the last track
 						currTrack = numTracks - 1;
+					}
 
 				} while (!MM_TrackSelect_boolTrackOpen(&selectMenu[currTrack]));
 
@@ -505,8 +528,10 @@ void MM_TrackSelect_MenuProc(struct RectMenu *menu)
 
 					// if you go beyond max number of tracks
 					if (currTrack >= numTracks)
+					{
 						// set to the first trrack
 						currTrack = 0;
+					}
 
 				} while (!MM_TrackSelect_boolTrackOpen(&selectMenu[currTrack]));
 
@@ -826,7 +851,9 @@ void MM_TrackSelect_MenuProc(struct RectMenu *menu)
 			p.y = D230.transitionMeta_trackSel[1].currY + 0x3a;
 
 			if (-1 < selectMenu[menu->rowSelected].mapTextureID)
+			{
 				p.y = D230.transitionMeta_trackSel[1].currY + 5;
+			}
 
 			// _D230.trackSel_boolOpenLapBox is the boolean to show
 			// the selection menu for number of laps:

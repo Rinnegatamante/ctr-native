@@ -70,7 +70,6 @@ DIR *__wrap_opendir(const char *fname) {
 #endif
 
 #ifndef __GNUC__
-#define _Static_assert(x)
 #define __attribute__(x)
 #endif
 
@@ -174,7 +173,7 @@ static int NativeConsole_ShouldPauseOnError(void)
 #endif
 }
 
-static int NativeConsole_Return(int result)
+static s32 NativeConsole_Return(const u32 result)
 {
 	if ((result != 0) && NativeConsole_ShouldPauseOnError())
 	{
@@ -188,7 +187,7 @@ static int NativeConsole_Return(int result)
 		}
 	}
 
-	return result;
+	return (s32)result;
 }
 
 // TODO(aalhendi): just make an argparser?
@@ -260,11 +259,15 @@ int main(int argc, char *argv[])
 	}
 
 	if (!NativeAssets_Validate())
+	{
 		return NativeConsole_Return(1);
+	}
 
 #if defined(CTR_INTERNAL)
 	if (NativeReplayScheduler_PrepareReportFromArgs(argc, argv) != 0)
+	{
 		return NativeConsole_Return(1);
+	}
 #endif
 
 #ifdef USE_16BY9
@@ -302,7 +305,7 @@ int main(int argc, char *argv[])
 	(void)argv;
 #endif
 
-	int result = CTR_Main();
+	const int result = CTR_Main();
 
 	Platform_Shutdown();
 	return NativeConsole_Return(result);

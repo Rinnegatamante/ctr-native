@@ -9,7 +9,7 @@ u32 MEMCARD_CRC16(u32 crc, int nextByte)
 	for (i = 7; i >= 0; i--)
 	{
 		bitCheck = crc << 1;
-		crc = bitCheck | nextByte >> i & 1;
+		crc = bitCheck | ((nextByte >> i) & 1);
 
 		if ((bitCheck & 0x10000) != 0)
 		{
@@ -60,7 +60,9 @@ int MEMCARD_ChecksumLoad(u8 *saveBytes, int len)
 		boolFinishThisFrame = false;
 
 		if (byteIndexEnd < len - 2)
+		{
 			goto RunChecksum;
+		}
 	}
 
 	boolFinishThisFrame = true;
@@ -76,7 +78,9 @@ RunChecksum:
 	sdata->crc16_checkpoint_status = crc;
 
 	if (!boolFinishThisFrame)
+	{
 		return MC_RETURN_PENDING;
+	}
 
 	crc = MEMCARD_CRC16(crc, saveBytes[byteIndex]);
 	crc = MEMCARD_CRC16(crc, saveBytes[byteIndex + 1]);

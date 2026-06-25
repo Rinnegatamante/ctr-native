@@ -23,14 +23,16 @@ struct RenderListsScratchRecord
 	struct BoundingBox box;
 };
 
-_Static_assert(sizeof(struct RenderListsScratchRecord) == 0x10);
+CTR_STATIC_ASSERT(sizeof(struct RenderListsScratchRecord) == 0x10);
 
 static int RenderLists_IsVisible(const int *visLeafList, BspChildId childID)
 {
 	u32 rawChildID = (u16)childID;
 
 	if (visLeafList == 0)
+	{
 		return 1;
+	}
 
 	return ((s32)visLeafList[(rawChildID >> 5) & 0x1ff] << (rawChildID & 0x1f)) < 0;
 }
@@ -52,7 +54,9 @@ static void RenderLists_SelectBoxCorner(const struct BoundingBox *box, int corne
 static void RenderLists_Load1P2PGteState(struct PushBuffer *pb)
 {
 	if (pb == 0)
+	{
 		return;
+	}
 
 	// NOTE(aalhendi): Retail 0x8006fecc loads RT/TR/OFX/OFY/H once before traversal; frustum helpers only touch the light-matrix/RBK controls.
 	gte_SetRotMatrix(&pb->matrix_ViewProj);
@@ -61,14 +65,14 @@ static void RenderLists_Load1P2PGteState(struct PushBuffer *pb)
 	gte_SetGeomScreen(pb->distanceToScreen_PREV);
 }
 
-static int RenderLists_FrustumRejectsCorner(s16 *plane, const s16 *point)
+static int RenderLists_FrustumRejectsCorner(const struct PushBufferFrustumPlane *plane, const s16 *point)
 {
 	// NOTE(aalhendi): Retail 0x80070290 tests the selected BSP corner with llv0bk and rejects when IR1 is positive.
 	MTC2(CTR_PackS16Pair(point[0], point[1]), 0);
 	MTC2((u32)(s32)point[2], 1);
-	CTC2(*(u32 *)&plane[0], 8);
-	CTC2(*(u32 *)&plane[2], 9);
-	CTC2((u32)(s32)(-2 * plane[3]), 13);
+	CTC2(CTR_PackS16Pair(plane->normal.x, plane->normal.y), 8);
+	CTC2(CTR_PackS16Pair(plane->normal.z, plane->halfDistance), 9);
+	CTC2((u32)(s32)(-2 * plane->halfDistance), 13);
 	doCOP2(0x04a2012);
 
 	return MFC2_S(9) > 0;
@@ -77,19 +81,23 @@ static int RenderLists_FrustumRejectsCorner(s16 *plane, const s16 *point)
 static int RenderLists_BoxPassesFrustum(struct PushBuffer *pb, const struct BoundingBox *box)
 {
 	s16 point[3];
-	s16 *plane;
+	const struct PushBufferFrustumPlane *plane;
 
 	if (pb == 0)
+	{
 		return 1;
+	}
 
 	for (int planeIndex = 0; planeIndex < 4; planeIndex++)
 	{
 		// NOTE(aalhendi): Retail tests planes in 1,3,0,2 order; each test is independent, so native preserves the plane/corner pairing in a simple loop.
-		plane = (s16 *)&pb->frustumData[planeIndex * 8];
+		plane = &pb->frustumPlanes[planeIndex];
 		RenderLists_SelectBoxCorner(box, pb->RenderListJmpIndex[planeIndex] & 7, point);
 
 		if (RenderLists_FrustumRejectsCorner(plane, point))
+		{
 			return 0;
+		}
 	}
 
 	return 1;
@@ -101,7 +109,9 @@ static int RenderLists_ProjectDistance(struct PushBuffer *pb, const struct Bound
 	int distance;
 
 	if (pb == 0)
+	{
 		return 0;
+	}
 
 	RenderLists_SelectBoxCorner(box, pb->RenderListJmpIndex[5] & 7, point);
 
@@ -115,22 +125,34 @@ static int RenderLists_ProjectDistance(struct PushBuffer *pb, const struct Bound
 static int RenderLists_Select1P2PSlot(const struct BSP *bsp, struct PushBuffer *pb, int lodDistanceThreshold)
 {
 	if ((bsp->flag & BSP_LEAF_FLAG_WATER) != 0)
+	{
 		return RENDER_LIST_SLOT_WATER;
+	}
 
 	if ((bsp->flag & BSP_RENDER_LEAF_FLAG_DYNAMIC_SUBDIV) != 0)
+	{
 		return RENDER_LIST_SLOT_DYNAMIC_SUBDIV;
+	}
 
 	if (RenderLists_ProjectDistance(pb, &bsp->box) > lodDistanceThreshold)
+	{
 		return RENDER_LIST_SLOT_FULL_DYNAMIC;
+	}
 
 	if ((bsp->flag & BSP_RENDER_LEAF_FLAG_4X4) != 0)
+	{
 		return RENDER_LIST_SLOT_4X4;
+	}
 
 	if ((bsp->flag & BSP_RENDER_LEAF_FLAG_4X1) != 0)
+	{
 		return RENDER_LIST_SLOT_4X1;
+	}
 
 	if ((bsp->flag & BSP_RENDER_LEAF_FLAG_4X2) != 0)
+	{
 		return RENDER_LIST_SLOT_4X2;
+	}
 
 	return RENDER_LIST_SLOT_DYNAMIC_SUBDIV;
 }
@@ -138,7 +160,9 @@ static int RenderLists_Select1P2PSlot(const struct BSP *bsp, struct PushBuffer *
 static struct VisMemBspListNode **RenderLists_Get1P2PHead(void *LevRenderList, int slotIndex)
 {
 	if (slotIndex == RENDER_LIST_SLOT_FULL_DYNAMIC)
+	{
 		return (struct VisMemBspListNode **)((char *)LevRenderList + 0x28);
+	}
 
 	return (struct VisMemBspListNode **)((char *)LevRenderList + slotIndex * 8 + 4);
 }
@@ -146,13 +170,19 @@ static struct VisMemBspListNode **RenderLists_Get1P2PHead(void *LevRenderList, i
 static int RenderLists_Select3P4PSlot(const struct BSP *bsp)
 {
 	if ((bsp->flag & BSP_LEAF_FLAG_WATER) != 0)
+	{
 		return 2;
+	}
 
 	if ((bsp->flag & BSP_RENDER_LEAF_FLAG_DYNAMIC_SUBDIV) != 0)
+	{
 		return 3;
+	}
 
 	if ((bsp->flag & BSP_RENDER_LEAF_FLAG_4X4) != 0)
+	{
 		return 0;
+	}
 
 	return 1;
 }
@@ -175,17 +205,25 @@ static void RenderLists_PushChild(struct BSP *bspRoot, const int *visLeafList, s
 	struct RenderListsScratchRecord *record;
 
 	if (childID < 0)
+	{
 		return;
+	}
 
 	if (!RenderLists_IsVisible(visLeafList, childID))
+	{
 		return;
+	}
 
 	child = &bspRoot[((u16)childID) & BSP_CHILD_ID_INDEX_MASK];
 	if (!RenderLists_BoxOverlapsPushBuffer(&child->box, &pb->bbox))
+	{
 		return;
+	}
 
 	if (*stack >= stackEnd)
+	{
 		return;
+	}
 
 	record = *stack;
 	record->childID = childID;
@@ -205,7 +243,9 @@ static int RenderLists_Walk1P2P(struct BSP *bspRoot, const int *visLeafList, str
 	int count = 0;
 
 	if (bspRoot == 0 || pb == 0)
+	{
 		return 0;
+	}
 
 	if ((bspRoot->flag & BSP_NODE_FLAG_LEAF) != 0)
 	{
@@ -232,7 +272,9 @@ static int RenderLists_Walk1P2P(struct BSP *bspRoot, const int *visLeafList, str
 			}
 
 			if (!RenderLists_BoxPassesFrustum(pb, &record.box))
+			{
 				continue;
+			}
 
 			int slotIndex = RenderLists_Select1P2PSlot(bsp, pb, lodDistanceThreshold);
 			RenderLists_LinkBsp(bspRoot, bsp, RenderLists_Get1P2PHead(LevRenderList, slotIndex), bspList);
@@ -255,7 +297,9 @@ static int RenderLists_Walk3P4P(struct BSP *bspRoot, const int *visLeafList, str
 	int count = 0;
 
 	if (bspRoot == 0 || pb == 0)
+	{
 		return 0;
+	}
 
 	if ((bspRoot->flag & BSP_NODE_FLAG_LEAF) != 0)
 	{
@@ -283,7 +327,9 @@ static int RenderLists_Walk3P4P(struct BSP *bspRoot, const int *visLeafList, str
 			}
 
 			if (!RenderLists_BoxPassesFrustum(pb, &record.box))
+			{
 				continue;
+			}
 
 			int slotIndex = RenderLists_Select3P4PSlot(bsp);
 			struct VisMemBspListNode **head = (struct VisMemBspListNode **)((char *)LevRenderList + slotIndex * 8 + 4);
@@ -309,7 +355,9 @@ void RenderLists_PreInit()
 	u32 *scratchJumpTable = CTR_SCRATCHPAD_PTR(u32, RENDER_LISTS_CORNER_JUMP_TABLE_OFFSET);
 
 	for (int i = 0; i < 8; i++)
+	{
 		scratchJumpTable[i] = renderListJumpTable[i];
+	}
 }
 
 int RenderLists_Init1P2P(struct BSP *bspRoot, int *visLeafList, struct PushBuffer *pb, u32 LevRenderList, void *bspList, char numPlyr)

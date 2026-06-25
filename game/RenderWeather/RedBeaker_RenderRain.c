@@ -10,12 +10,12 @@ struct RedBeakerRng
 	s32 z;
 };
 
-_Static_assert(sizeof(LINE_G2) == 0x14);
-_Static_assert(offsetof(LINE_G2, tag) == 0x00);
-_Static_assert(offsetof(LINE_G2, r0) == 0x04);
-_Static_assert(offsetof(LINE_G2, x0) == 0x08);
-_Static_assert(offsetof(LINE_G2, r1) == 0x0C);
-_Static_assert(offsetof(LINE_G2, x1) == 0x10);
+CTR_STATIC_ASSERT(sizeof(LINE_G2) == 0x14);
+CTR_STATIC_ASSERT(offsetof(LINE_G2, tag) == 0x00);
+CTR_STATIC_ASSERT(offsetof(LINE_G2, r0) == 0x04);
+CTR_STATIC_ASSERT(offsetof(LINE_G2, x0) == 0x08);
+CTR_STATIC_ASSERT(offsetof(LINE_G2, r1) == 0x0C);
+CTR_STATIC_ASSERT(offsetof(LINE_G2, x1) == 0x10);
 
 static u32 RedBeaker_ReadWord(const void *base, int offset)
 {
@@ -64,12 +64,16 @@ static int RedBeaker_IsVisible(u32 gteFlag, u32 sxy0, u32 sxy1, u32 screenBounds
 	u32 bounds;
 
 	if ((s32)(gteFlag << 14) < 0)
+	{
 		return 0;
+	}
 
 	overlap = sxy0 & sxy1;
 	bounds = ~((sxy0 - screenBounds) | (sxy1 - screenBounds)) | overlap;
 	if ((s32)bounds < 0)
+	{
 		return 0;
+	}
 
 	return (s32)(bounds << 16) >= 0;
 }
@@ -149,7 +153,9 @@ static void RedBeaker_RenderPass(u32 **primCursor, uint32_t *ot, u32 color, u32 
 				sxy1 = MFC2(13);
 
 				if (RedBeaker_IsVisible(gteFlag, sxy0, sxy1, screenBounds))
+				{
 					RedBeaker_EmitLine(primCursor, ot, color);
+				}
 			}
 		}
 
@@ -167,9 +173,9 @@ struct RedBeakerRainScratch
 	u32 colorBottom;
 };
 
-_Static_assert(offsetof(struct RedBeakerRainScratch, centerXY) == 0x00);
-_Static_assert(offsetof(struct RedBeakerRainScratch, colorTop) == 0x18);
-_Static_assert(offsetof(struct RedBeakerRainScratch, colorBottom) == 0x1C);
+CTR_STATIC_ASSERT(offsetof(struct RedBeakerRainScratch, centerXY) == 0x00);
+CTR_STATIC_ASSERT(offsetof(struct RedBeakerRainScratch, colorTop) == 0x18);
+CTR_STATIC_ASSERT(offsetof(struct RedBeakerRainScratch, colorBottom) == 0x1C);
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8006dc30-0x8006e26c
 void RedBeaker_RenderRain(struct PushBuffer *pb, struct PrimMem *primMem, struct JitPool *rain, char numPlyr, int gameMode1)
@@ -227,7 +233,9 @@ void RedBeaker_RenderRain(struct PushBuffer *pb, struct PrimMem *primMem, struct
 			uint32_t *ot;
 
 			if (rainLocal->cloudInst == NULL)
+			{
 				continue;
+			}
 
 			scrollXY = RedBeaker_ReadWord(rainLocal, 0x0c);
 			scrollZ = RedBeaker_ReadS16(rainLocal, 0x10);
@@ -249,7 +257,9 @@ void RedBeaker_RenderRain(struct PushBuffer *pb, struct PrimMem *primMem, struct
 			CTC2((u32)cloudZ, 7);
 
 			if (cloudZ < 0 || cloudZ >= 0xc00)
+			{
 				continue;
+			}
 
 			if (cloudZ < 0x400)
 			{
@@ -266,12 +276,18 @@ void RedBeaker_RenderRain(struct PushBuffer *pb, struct PrimMem *primMem, struct
 
 			otOffset = ((cloudZ >> 7) + RedBeaker_ReadS8(instBase, 0x50) - 6);
 			if (otOffset < 0)
+			{
 				otOffset = 0;
+			}
 			else
+			{
 				otOffset <<= 2;
+			}
 
 			if (otOffset >= 0x1000)
+			{
 				otOffset = 0xffc;
+			}
 
 			ot = (uint32_t *)(void *)((char *)otBase + otOffset);
 

@@ -13,9 +13,9 @@ struct DrawSkyScratch
 	u32 baseCountOffset;
 };
 
-_Static_assert(sizeof(struct DrawSkyScratch) == 0x8);
-_Static_assert(offsetof(struct DrawSkyScratch, baseFaceOffset) == 0x0);
-_Static_assert(offsetof(struct DrawSkyScratch, baseCountOffset) == 0x4);
+CTR_STATIC_ASSERT(sizeof(struct DrawSkyScratch) == 0x8);
+CTR_STATIC_ASSERT(offsetof(struct DrawSkyScratch, baseFaceOffset) == 0x0);
+CTR_STATIC_ASSERT(offsetof(struct DrawSkyScratch, baseCountOffset) == 0x4);
 
 static u32 DrawSky_ReadWord(const void *base, int offset)
 {
@@ -28,12 +28,16 @@ static int DrawSky_IsVisible(u32 gteFlag, u32 sxy0, u32 sxy1, u32 sxy2, u32 scre
 	u32 bounds;
 
 	if (((gteFlag << 13) >> 29) != 0)
+	{
 		return 0;
+	}
 
 	overlap = sxy0 & sxy1 & sxy2;
 	bounds = ~((sxy0 - screenBounds) | (sxy1 - screenBounds) | (sxy2 - screenBounds)) | overlap;
 	if ((s32)bounds < 0)
+	{
 		return 0;
+	}
 
 	return (s32)(bounds << 16) >= 0;
 }
@@ -80,7 +84,9 @@ static u32 *DrawSky_Piece(struct Skybox *skybox, struct DrawSkyContext *ctx, int
 	const struct SkyboxFace *face = skybox->ptrFaces[faceIndex];
 
 	if (numFaces == 0)
+	{
 		return prim;
+	}
 
 	for (u32 i = 0; i < numFaces; i++, face++)
 	{
@@ -99,7 +105,9 @@ static u32 *DrawSky_Piece(struct Skybox *skybox, struct DrawSkyContext *ctx, int
 		sxy2 = MFC2(14);
 
 		if (DrawSky_IsVisible(gteFlag, sxy0, sxy1, sxy2, ctx->screenBounds))
+		{
 			DrawSky_EmitPrimitive(&prim, ot);
+		}
 	}
 
 	return prim;

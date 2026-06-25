@@ -48,9 +48,13 @@ void UI_JumpMeter_Update(struct Driver *d)
 			{
 				int param = 0;
 				if (d->jumpMeter >= 960)
+				{
 					param = 0x80;
+				}
 				if (d->jumpMeter >= 1440)
+				{
 					param = 0x100;
+				}
 
 				// add one second reserves
 				VehFire_Increment(d, 960, POWER_SLIDE_HANG_TIME, param);
@@ -109,7 +113,7 @@ void UI_JumpMeter_Draw(s16 posX, s16 posY, struct Driver *driver)
 
 	iVar5 = ((int)driver->jumpMeter / 0x3c0) * 0x10000 >> 0x10;
 	whateverThisIs = (int)driver->jumpMeter + iVar5 * -0x3c0;
-	iVar10 = ((whateverThisIs / 6 + (whateverThisIs >> 0x1f) >> 4) - (whateverThisIs >> 0x1f)) * 0x10000 >> 0x10;
+	iVar10 = (((whateverThisIs / 6 + (whateverThisIs >> 0x1f)) >> 4) - (whateverThisIs >> 0x1f)) * 0x10000 >> 0x10;
 	iVar11 = (int)posX;
 	iVar8 = (int)posY + numbersYOffset + 2;
 

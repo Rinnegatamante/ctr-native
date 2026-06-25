@@ -117,7 +117,9 @@ internal int NativeRenderer_InitialiseGLContext(char *windowName, int fullscreen
 	SDL_WindowFlags windowFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
 
 	if (fullscreen)
+	{
 		windowFlags |= SDL_WINDOW_FULLSCREEN;
+	}
 
 	g_window = SDL_CreateWindow(windowName, g_windowWidth, g_windowHeight, windowFlags);
 
@@ -139,7 +141,9 @@ internal int NativeRenderer_InitialiseGLContext(char *windowName, int fullscreen
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, profile);
 
 		if (SDL_GL_CreateContext(g_window))
+		{
 			break;
+		}
 
 		minor_version--;
 
@@ -160,8 +164,11 @@ internal int NativeRenderer_InitialiseGLExt(void)
 	GLenum err = gladLoadGL();
 
 	if (err == 0)
+	{
 		return 0;
+	}
 #endif
+
 	const char *rend = (const char *)glGetString(GL_RENDERER);
 	const char *vendor = (const char *)glGetString(GL_VENDOR);
 	NATIVE_RENDERER_LOG("*Video adapter: %s by %s\n", rend, vendor);
@@ -254,7 +261,10 @@ void NativeRenderer_EndScene(void)
 	s_framebufferNeedsUpdate = 1;
 
 	if (g_dbg_wireframeMode)
+	{
 		NativeRenderer_SetWireframe(0);
+	}
+
 #ifndef __vita__
 	glBindVertexArray(0);
 #endif
@@ -290,7 +300,9 @@ internal void NativeRenderer_SetPresentationAspect(int width, int height)
 	const int divisor = NativeRenderer_GCD(width, height);
 
 	if ((width <= 0) || (height <= 0) || (divisor <= 0))
+	{
 		return;
+	}
 
 	s_presentAspectW = width / divisor;
 	s_presentAspectH = height / divisor;
@@ -320,9 +332,13 @@ internal void NativeRenderer_UpdatePresentationViewport(void)
 	}
 
 	if (viewportW < 1)
+	{
 		viewportW = 1;
+	}
 	if (viewportH < 1)
+	{
 		viewportH = 1;
+	}
 
 	s_presentViewport.w = viewportW;
 	s_presentViewport.h = viewportH;
@@ -333,7 +349,9 @@ internal void NativeRenderer_UpdatePresentationViewport(void)
 internal void NativeRenderer_ClearHostRect(int x, int y, int width, int height)
 {
 	if ((width <= 0) || (height <= 0))
+	{
 		return;
+	}
 
 	glScissor(x, y, width, height);
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -348,10 +366,14 @@ internal void NativeRenderer_ClearPresentationBars(void)
 	const int viewportTop = s_presentViewport.y + s_presentViewport.h;
 
 	if ((g_windowWidth <= 0) || (g_windowHeight <= 0))
+	{
 		return;
+	}
 
 	if ((s_presentViewport.x == 0) && (s_presentViewport.y == 0) && (s_presentViewport.w == g_windowWidth) && (s_presentViewport.h == g_windowHeight))
+	{
 		return;
+	}
 
 	glGetIntegerv(GL_SCISSOR_BOX, previousScissorBox);
 	glGetFloatv(GL_COLOR_CLEAR_VALUE, previousClearColor);
@@ -596,7 +618,9 @@ internal int NativeRenderer_Shader_CheckShaderStatus(GLuint shader)
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &result);
 
 	if (result == GL_TRUE)
+	{
 		return 1;
+	}
 
 	glGetShaderInfoLog(shader, sizeof(info), NULL, info);
 	if (info[0] && strlen(info) > 8)
@@ -616,7 +640,9 @@ internal int NativeRenderer_Shader_CheckProgramStatus(GLuint program)
 	glGetProgramiv(program, GL_LINK_STATUS, &result);
 
 	if (result == GL_TRUE)
+	{
 		return 1;
+	}
 
 	glGetProgramInfoLog(program, sizeof(info), NULL, info);
 	if (info[0] && strlen(info) > 8)
@@ -684,7 +710,9 @@ internal ShaderID NativeRenderer_Shader_Compile(const char *source, bool isPsxSh
 		glCompileShader(vertexShader);
 
 		if (NativeRenderer_Shader_CheckShaderStatus(vertexShader) == 0)
+		{
 			NATIVE_RENDERER_ERROR("Failed to compile Vertex Shader!\n");
+		}
 
 		glAttachShader(program, vertexShader);
 		glDeleteShader(vertexShader);
@@ -696,7 +724,9 @@ internal ShaderID NativeRenderer_Shader_Compile(const char *source, bool isPsxSh
 		glCompileShader(fragmentShader);
 
 		if (NativeRenderer_Shader_CheckShaderStatus(fragmentShader) == 0)
+		{
 			NATIVE_RENDERER_ERROR("Failed to compile Fragment Shader!\n");
+		}
 
 		glAttachShader(program, fragmentShader);
 		glDeleteShader(fragmentShader);
@@ -709,7 +739,9 @@ internal ShaderID NativeRenderer_Shader_Compile(const char *source, bool isPsxSh
 
 	glLinkProgram(program);
 	if (NativeRenderer_Shader_CheckProgramStatus(program) == 0)
+	{
 		NATIVE_RENDERER_ERROR("Failed to link Shader!\n");
+	}
 
 	GLint textureSampler = 0;
 	GLint lutSampler = 1;
@@ -996,7 +1028,9 @@ void NativeRenderer_SetupClipMode(const RECT16 *rect, const DISPENV *displayEnv,
 		// Collapsed areas clip all pixels; GL scissor rejects negative sizes.
 		NativeRenderer_SetScissorState(enable != 0);
 		if (enable)
+		{
 			glScissor(0, 0, 0, 0);
+		}
 		return;
 	}
 
@@ -1007,7 +1041,9 @@ void NativeRenderer_SetupClipMode(const RECT16 *rect, const DISPENV *displayEnv,
 	NativeRenderer_SetScissorState(scissorOn);
 
 	if (!scissorOn)
+	{
 		return;
+	}
 
 	const float emuScreenAspect = 1.0f;
 
@@ -1114,11 +1150,17 @@ void NativeRenderer_SetTexture(TextureID texture, TexFormat texFormat)
 	}
 
 	if (texLoc >= 0)
+	{
 		glUniform1i(texLoc, 0);
+	}
 	if (lutLoc >= 0)
+	{
 		glUniform1i(lutLoc, 1);
+	}
 	if (u_bilinearFilterLoc >= 0)
+	{
 		glUniform1i(u_bilinearFilterLoc, g_cfg_bilinearFiltering);
+	}
 	NativeRenderer_SetPSXTextureSemiTransPass(0);
 
 	if (s_lastBoundTexture == texture)
@@ -1140,7 +1182,9 @@ void NativeRenderer_SetTexture(TextureID texture, TexFormat texFormat)
 void NativeRenderer_SetOverrideTextureSize(int width, int height)
 {
 	if (u_texelSizeLoc == -1)
+	{
 		return;
+	}
 
 	float vec[] = {1.0f / (float)width, 1.0f / (float)height};
 	glUniform2fv(u_texelSizeLoc, 1, vec);
@@ -1149,25 +1193,33 @@ void NativeRenderer_SetOverrideTextureSize(int width, int height)
 void NativeRenderer_SetPSXTextureSemiTransPass(int pass)
 {
 	if (u_psxSemiTransPassLoc >= 0)
+	{
 		glUniform1i(u_psxSemiTransPassLoc, pass);
+	}
 }
 
 void NativeRenderer_SetPSXTextureOutputSTP(int enabled)
 {
 	if (u_psxTextureOutputStpLoc >= 0)
+	{
 		glUniform1i(u_psxTextureOutputStpLoc, enabled);
+	}
 }
 
 void NativeRenderer_SetPSXDrawMaskSet(int maskSet)
 {
 	if (u_psxDrawMaskSetLoc >= 0)
+	{
 		glUniform1i(u_psxDrawMaskSetLoc, maskSet);
+	}
 }
 
 internal void NativeRenderer_DestroyTexture(TextureID texture)
 {
 	if (texture == -1)
+	{
 		return;
+	}
 
 	glDeleteTextures(1, &texture);
 }
@@ -1191,10 +1243,14 @@ void NativeRenderer_ClearVRAM(int x, int y, int w, int h, u8 r, u8 g, u8 b)
 	const u16 color = NativeRenderer_PackRGB24ToPSX15(r, g, b);
 
 	if (x + w > VRAM_WIDTH)
+	{
 		w = VRAM_WIDTH - x;
+	}
 
 	if (y + h > VRAM_HEIGHT)
+	{
 		h = VRAM_HEIGHT - y;
+	}
 
 	// clear VRAM region with given color
 	for (int i = 0; i < h; i++)
@@ -1202,7 +1258,9 @@ void NativeRenderer_ClearVRAM(int x, int y, int w, int h, u8 r, u8 g, u8 b)
 		u16 *tmp = dst;
 
 		for (int j = 0; j < w; j++)
+		{
 			*tmp++ = color;
+		}
 
 		dst += VRAM_WIDTH;
 	}
@@ -1211,7 +1269,9 @@ void NativeRenderer_ClearVRAM(int x, int y, int w, int h, u8 r, u8 g, u8 b)
 void NativeRenderer_Clear(int x, int y, int w, int h, u8 r, u8 g, u8 b)
 {
 	if ((w <= 0) || (h <= 0) || (g_windowWidth <= 0) || (g_windowHeight <= 0))
+	{
 		return;
+	}
 
 	int displayX = activeDispEnv.disp.x;
 	int displayY = activeDispEnv.disp.y;
@@ -1227,7 +1287,9 @@ void NativeRenderer_Clear(int x, int y, int w, int h, u8 r, u8 g, u8 b)
 	}
 
 	if ((displayW <= 0) || (displayH <= 0))
+	{
 		return;
+	}
 
 	const int clearRight = x + w;
 	const int clearBottom = y + h;
@@ -1240,7 +1302,9 @@ void NativeRenderer_Clear(int x, int y, int w, int h, u8 r, u8 g, u8 b)
 	const int overlapBottom = clearBottom < displayBottom ? clearBottom : displayBottom;
 
 	if ((overlapRight <= overlapX) || (overlapBottom <= overlapY))
+	{
 		return;
+	}
 
 	const int relX = overlapX - displayX;
 	const int relY = overlapY - displayY;
@@ -1255,7 +1319,9 @@ void NativeRenderer_Clear(int x, int y, int w, int h, u8 r, u8 g, u8 b)
 	const int scissorH = scissorBottom - scissorTop;
 
 	if ((scissorW <= 0) || (scissorH <= 0))
+	{
 		return;
+	}
 
 	GLint previousScissorBox[4];
 	const GLboolean previousScissorEnabled = glIsEnabled(GL_SCISSOR_TEST);
@@ -1287,7 +1353,9 @@ void NativeRenderer_SaveVRAM(const char *outputFileName, int x, int y, int width
 
 	FILE *fp = fopen(outputFileName, "wb");
 	if (fp == NULL)
+	{
 		return;
+	}
 
 	u8 TGAheader[12] = {0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 	u8 header[6];
@@ -1346,7 +1414,9 @@ internal void NativeRenderer_CopyRGBAFramebufferToVRAM(u32 *src, int x, int y, i
 		u16 *fb_ptr = fb + (h * py / h) * w;
 
 		for (int fx = 0; fx < w; fx++)
+		{
 			ptr[fx] = fb_ptr[w * fx / w];
+		}
 
 		ptr += VRAM_WIDTH;
 	}
@@ -1354,14 +1424,18 @@ internal void NativeRenderer_CopyRGBAFramebufferToVRAM(u32 *src, int x, int y, i
 	free(fb);
 
 	if (update_vram)
+	{
 		s_vramNeedsUpdate = 1;
+	}
 }
 
 void NativeRenderer_ReadFramebufferDataToVRAM(void)
 {
 	int x, y, w, h;
 	if (!s_framebufferNeedsUpdate)
+	{
 		return;
+	}
 
 	s_framebufferNeedsUpdate = 0;
 
@@ -1371,7 +1445,9 @@ void NativeRenderer_ReadFramebufferDataToVRAM(void)
 	h = s_previousFramebuffer.h;
 
 	if (w <= 0 || h <= 0)
+	{
 		return;
+	}
 
 	u32 *pixels = (u32 *)malloc((size_t)w * (size_t)h * sizeof(u32));
 	if (pixels != NULL)
@@ -1410,7 +1486,9 @@ internal int NativeRenderer_RectEquals(const RECT16 *a, const RECT16 *b)
 internal void NativeRenderer_FlushOffscreenToVRAM(void)
 {
 	if (s_previousOffscreen.w <= 0 || s_previousOffscreen.h <= 0)
+	{
 		return;
+	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, s_glVramFramebuffer);
 
@@ -1433,7 +1511,9 @@ internal void NativeRenderer_FlushOffscreenToVRAM(void)
 	{
 		u32 *pixels = (u32 *)malloc((size_t)s_previousOffscreen.w * (size_t)s_previousOffscreen.h * sizeof(u32));
 		if (pixels == NULL)
+		{
 			return;
+		}
 
 		glBindTexture(GL_TEXTURE_2D, s_offscreenRenderTexture);
 #ifndef __vita__
@@ -1452,12 +1532,18 @@ internal void NativeRenderer_FlushOffscreenToVRAM(void)
 internal void NativeRenderer_SetScissorState(int enable)
 {
 	if (s_previousScissorState == enable)
+	{
 		return;
+	}
 
 	if (s_previousScissorState)
+	{
 		glDisable(GL_SCISSOR_TEST);
+	}
 	else
+	{
 		glEnable(GL_SCISSOR_TEST);
+	}
 	s_previousScissorState = enable;
 }
 
@@ -1479,12 +1565,16 @@ void NativeRenderer_SetOffscreenState(const RECT16 *offscreenRect, const DISPENV
 	}
 
 	if (enable && s_previousOffscreenState && sameOffscreenRect)
+	{
 		return;
+	}
 
 	if (enable)
 	{
 		if (s_previousOffscreenState)
+		{
 			NativeRenderer_FlushOffscreenToVRAM();
+		}
 
 		s_previousOffscreenState = 1;
 
@@ -1508,7 +1598,9 @@ void NativeRenderer_SetOffscreenState(const RECT16 *offscreenRect, const DISPENV
 	else
 	{
 		if (!s_previousOffscreenState)
+		{
 			return;
+		}
 
 		s_previousOffscreenState = 0;
 
@@ -1644,7 +1736,9 @@ int NativeRenderer_GetVRAMStateSize(void)
 int NativeRenderer_CaptureVRAMState(void *dst, int dstSize)
 {
 	if ((dst == NULL) || (dstSize < (int)sizeof(vram)))
+	{
 		return 0;
+	}
 
 	// NOTE(aalhendi): Save-states own the CPU-side PSX VRAM mirror, not GL
 	// textures. Pull pending framebuffer copies into the mirror first.
@@ -1658,7 +1752,9 @@ int NativeRenderer_RestoreVRAMState(const void *src, int srcSize)
 	local_persist const RECT16 zeroRect = {0, 0, 0, 0};
 
 	if ((src == NULL) || (srcSize < (int)sizeof(vram)))
+	{
 		return 0;
+	}
 
 	SDL_memcpy(vram, src, sizeof(vram));
 	// NOTE(aalhendi): Restored VRAM is authoritative PSX state. Host GL caches
@@ -1676,7 +1772,9 @@ int NativeRenderer_RestoreVRAMState(const void *src, int srcSize)
 void NativeRenderer_UpdateVRAM(void)
 {
 	if (!s_vramNeedsUpdate)
+	{
 		return;
+	}
 
 	NativePerf_BeginScope(NATIVE_PERF_BUCKET_RENDERER_UPDATE_VRAM);
 	s_vramNeedsUpdate = 0;
@@ -1765,16 +1863,24 @@ void NativeRenderer_PresentVRAMRect(int displayX, int displayY, int displayW, in
 	local_persist u8 *rgba = NULL;
 
 	if (displayW <= 0 || displayH <= 0)
+	{
 		return;
+	}
 
 	if (rgba == NULL)
+	{
 		rgba = (u8 *)malloc(maxChunkBytes);
+	}
 
 	if (rgba == NULL)
+	{
 		return;
+	}
 
 	if (displayTexture == (TextureID)-1)
+	{
 		displayTexture = NativeRenderer_CreateRGBATexture(maxChunkW, maxChunkH, NULL);
+	}
 
 	NativeRenderer_SetViewPort(s_presentViewport.x, s_presentViewport.y, s_presentViewport.w, s_presentViewport.h);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -1827,7 +1933,9 @@ void NativeRenderer_SwapWindow(void)
 internal void NativeRenderer_EnableDepth(int enable)
 {
 	if (s_previousDepthMode == enable)
+	{
 		return;
+	}
 
 	s_previousDepthMode = enable;
 
@@ -1837,7 +1945,9 @@ internal void NativeRenderer_EnableDepth(int enable)
 void NativeRenderer_SetStencilMode(int drawPrim)
 {
 	if (s_previousStencilMode == drawPrim)
+	{
 		return;
+	}
 
 	s_previousStencilMode = drawPrim;
 
@@ -1856,23 +1966,11 @@ void NativeRenderer_SetStencilMode(int drawPrim)
 void NativeRenderer_SetBlendMode(BlendMode blendMode)
 {
 	if (s_previousBlendMode == blendMode)
-		return;
-
-	if (blendMode == BM_NONE)
 	{
-		if (s_previousBlendMode != BM_NONE)
-		{
-#ifndef __vita__
-			glBlendColor(1.f, 1.f, 1.f, 1.f);
-#endif
-			glDisable(GL_BLEND);
-		}
-
-		s_previousBlendMode = blendMode;
-		NativeRenderer_EnableDepth(1);
 		return;
 	}
-	else
+
+	if (blendMode != BM_NONE)
 	{
 		if (s_previousBlendMode == BM_NONE)
 		{
@@ -1882,14 +1980,22 @@ void NativeRenderer_SetBlendMode(BlendMode blendMode)
 			glEnable(GL_BLEND);
 		}
 
-		s_previousBlendMode = blendMode;
 		NativeRenderer_EnableDepth(0);
 	}
 
-	glBlendEquationSeparate(blendMode == BM_SUBTRACT ? GL_FUNC_REVERSE_SUBTRACT : GL_FUNC_ADD, GL_FUNC_ADD);
 	switch (blendMode)
 	{
+	case BM_NONE:
+		if (s_previousBlendMode != BM_NONE)
+		{
+			glBlendColor(1.f, 1.f, 1.f, 1.f);
+			glDisable(GL_BLEND);
+		}
+
+		NativeRenderer_EnableDepth(1);
+		break;
 	case BM_AVERAGE:
+		glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
 #ifdef __vita__
 		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
 #else
@@ -1898,10 +2004,15 @@ void NativeRenderer_SetBlendMode(BlendMode blendMode)
 #endif
 		break;
 	case BM_ADD:
+		glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+		glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ZERO);
+		break;
 	case BM_SUBTRACT:
+		glBlendEquationSeparate(GL_FUNC_REVERSE_SUBTRACT, GL_FUNC_ADD);
 		glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ZERO);
 		break;
 	case BM_ADD_QUATER_SOURCE:
+		glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
 #ifdef __vita__
 		glBlendFuncSeparate(GL_SRC_COLOR, GL_ONE, GL_ONE, GL_ZERO);
 #else
@@ -1976,7 +2087,9 @@ void NativeRenderer_PushDebugLabel(const char *label)
 {
 #ifndef __vita__
 	if (!GLAD_GL_KHR_debug)
+	{
 		return;
+	}
 	glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0x8000, strlen(label), label);
 #endif
 }
@@ -1985,7 +2098,9 @@ void NativeRenderer_PopDebugLabel(void)
 {
 #ifndef __vita__
 	if (!GLAD_GL_KHR_debug)
+	{
 		return;
+	}
 	glPopDebugGroup();
 #endif
 }

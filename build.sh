@@ -11,7 +11,7 @@ if ! command -v gcc &>/dev/null; then
     exit 1
 fi
 
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release "-DCMAKE_POLICY_VERSION_MINIMUM=3.5" -DCMAKE_C_FLAGS="-msse"
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release "-DCMAKE_POLICY_VERSION_MINIMUM=3.5" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_C_FLAGS="-msse"
 cmake --build build -j"$(nproc)"
 
 echo ""

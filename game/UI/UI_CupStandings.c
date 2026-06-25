@@ -16,7 +16,9 @@ void UI_CupStandings_FinalizeCupRanks(void)
 
 	numDrivers = (u8)gGT->numPlyrCurrGame + (u8)gGT->numBotsNextGame;
 	if (numDrivers >= 5)
+	{
 		numDrivers = 4;
+	}
 
 	tiedTopCount = 0;
 	if (1 < numDrivers)
@@ -26,7 +28,9 @@ void UI_CupStandings_FinalizeCupRanks(void)
 		for (int i = 1; i < numDrivers; i++)
 		{
 			if (gGT->cup.points[data.cupPositionPerPlayer[i]] != topScore)
+			{
 				break;
+			}
 
 			tiedTopCount++;
 		}
@@ -70,7 +74,9 @@ void UI_CupStandings_UpdateCupRanks(void)
 
 	numDrivers = (u8)gGT->numPlyrCurrGame + (u8)gGT->numBotsNextGame;
 	if (numDrivers == 0)
+	{
 		return;
+	}
 
 	for (int rankSlot = 0; rankSlot < numDrivers; rankSlot++)
 	{
@@ -81,7 +87,9 @@ void UI_CupStandings_UpdateCupRanks(void)
 				bestScore = (u16)gGT->cup.points[driverIndex];
 
 				if ((s16)bestIndex != -1)
+				{
 					assignedMask &= ~(1 << bestIndex);
+				}
 
 				bestIndex = driverIndex;
 				assignedMask |= 1 << driverIndex;
@@ -137,7 +145,9 @@ void UI_CupStandings_InputAndDraw(void)
 		}
 
 		if (!RaceFlag_IsFullyOnScreen())
+		{
 			return;
+		}
 
 		// Assume FullyOnScreen
 		RaceFlag_SetCanDraw(1);
@@ -237,7 +247,7 @@ void UI_CupStandings_InputAndDraw(void)
 	        sdata->lngStrings[LNG_TRACK],
 
 	        // Track Index (0, 1, 2, 3) + 1
-	        gGT->cup.trackIndex + 1);
+	        CTR_PRINTF_PSX_LONG(gGT->cup.trackIndex + 1));
 
 	DecalFont_DrawLine(text, local_58[0], local_58[1] + 0x11, 2, 0xffff8000);
 
@@ -380,9 +390,13 @@ void UI_CupStandings_InputAndDraw(void)
 			if (i < 4)
 			{
 				if (gGT->numBotsNextGame == 0)
+				{
 					iVar12 = gGT->numPlyrCurrGame - (i + 1);
+				}
 				else
+				{
 					iVar12 = points[i];
+				}
 			}
 
 			*(int *)&text[0] = '+' + (('0' + iVar12) << 8);
@@ -477,7 +491,9 @@ void UI_CupStandings_InputAndDraw(void)
 		if (uVar8 == 0)
 		{
 			if (numDrivers > 4)
+			{
 				numDrivers = 4;
+			}
 
 			for (i = 0; i < numDrivers; i++)
 			{
@@ -535,7 +551,9 @@ void UI_CupStandings_InputAndDraw(void)
 			else
 			{
 				if ((gGT->gameMode2 & 0x10) != 0)
+				{
 					UI_CupStandings_FinalizeCupRanks();
+				}
 
 				gGT->cup.trackIndex = 0;
 
@@ -597,7 +615,9 @@ void UI_CupStandings_InputAndDraw(void)
 					else
 					{
 						if (sdata->advProgress.timesLostCupRace[i] < 10)
+						{
 							sdata->advProgress.timesLostCupRace[i]++;
+						}
 					}
 				}
 
@@ -609,14 +629,16 @@ void UI_CupStandings_InputAndDraw(void)
 					// then you still get completion credit
 
 					// If Player 1 or Player 2 won the cup
-					if (((gGT->drivers[0]->driverRank) == 0) || (((gGT->drivers[1]->driverRank) == 0)) &&
+					if ((gGT->drivers[0]->driverRank == 0) || ((gGT->drivers[1]->driverRank == 0) &&
 
-					                                                // If you're in Arcade Mode
-					                                                ((gGT->gameMode1 & ARCADE_MODE) != 0))
+					                                           // If you're in Arcade Mode
+					                                           ((gGT->gameMode1 & ARCADE_MODE) != 0)))
 					{
 						int difficulty = (gGT->arcadeDifficulty / 0x50) - 1;
 						if (difficulty > 2)
+						{
 							difficulty = 2;
+						}
 
 						u32 *rewardsSet = &sdata->gameProgress.unlockFlags;
 

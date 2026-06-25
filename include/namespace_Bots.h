@@ -83,5 +83,5 @@ struct NavHeader
 
 #define NAVFRAME_GETNEXTFRAME(x) (((struct NavFrame *)x) + 1)
 
-_Static_assert(sizeof(struct NavFrame) == 0x14);
-_Static_assert(sizeof(struct NavHeader) == 0x4c);
+CTR_STATIC_ASSERT(sizeof(struct NavFrame) == 0x14);
+CTR_STATIC_ASSERT(sizeof(struct NavHeader) == 0x4c);

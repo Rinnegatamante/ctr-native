@@ -25,7 +25,11 @@ enum
 	XA_PLAYING = 3,
 	XA_FADING = 4,
 };
-typedef int XAState;
+typedef s32 XAState;
+
+CTR_STATIC_ASSERT(sizeof(XAState) == 0x4);
+CTR_STATIC_ASSERT(XA_IDLE == 0);
+CTR_STATIC_ASSERT(XA_FADING == 4);
 
 struct XNF
 {
@@ -85,4 +89,4 @@ struct AudioMeta
 	char *name;
 };
 
-_Static_assert(sizeof(struct AudioMeta) == 8);
+CTR_STATIC_ASSERT(sizeof(struct AudioMeta) == 8);

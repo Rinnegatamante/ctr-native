@@ -10,6 +10,10 @@ enum
 };
 typedef u8 GhostOpcode;
 
+CTR_STATIC_ASSERT(sizeof(GhostOpcode) == 0x1);
+CTR_STATIC_ASSERT(GHOST_OP_POSITION == 0x80);
+CTR_STATIC_ASSERT(GHOST_OP_IDLE == 0x84);
+
 static const u8 GHOST_SIZE_POSITION = 11;
 static const u8 GHOST_SIZE_ANIMATION = 3;
 static const u8 GHOST_SIZE_BOOST = 6;
@@ -24,8 +28,10 @@ internal s16 Ghost_LerpRot12(s16 curr, s16 next, u16 t)
 {
 	s32 delta = ((s32)next - (s32)curr) & 0xFFF;
 	if (delta > 0x7FF)
+	{
 		delta -= 0x1000;
-	return curr + ((delta * t) >> 0xC) & 0xFFF;
+	}
+	return (curr + ((delta * t) >> 0xC)) & 0xFFF;
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80026ed8-0x80027838.
@@ -43,7 +49,9 @@ void GhostReplay_ThTick(struct Thread *t)
 	{
 		s32 color = 0xFFFF8004;
 		if (sdata->ghostOverflowTextTimer & 1)
+		{
 			color = 0xFFFF8003;
+		}
 
 		DecalFont_DrawLine(sdata->lngStrings[LNG_GHOST_DATA_OVERFLOW], 0x100, 0x28, 2, color);
 		DecalFont_DrawLine(sdata->lngStrings[LNG_CAN_NOT_SAVE_GHOST_DATA], 0x100, 0x32, 2, color);
@@ -61,7 +69,9 @@ void GhostReplay_ThTick(struct Thread *t)
 	{
 		d->reserves -= gGT->elapsedTimeMS;
 		if (d->reserves < 0)
+		{
 			d->reserves = 0;
+		}
 	}
 
 	if ((gGT->trafficLightsTimer < 1) && (d->ghostBoolStarted == 0))
@@ -176,7 +186,9 @@ void GhostReplay_ThTick(struct Thread *t)
 			else
 			{
 				for (s32 i = 0; i < 3; ++i)
+				{
 					tmpPos.v[i] += (s16)((s8)packetPtr[i]) * 8;
+				}
 				packet->pos = tmpPos;
 
 				packet->rot.x = 0;
@@ -254,7 +266,9 @@ void GhostReplay_ThTick(struct Thread *t)
 	while (tape->packetID < packetIdx)
 	{
 		if (tape->ptrEnd <= (void *)buffer)
+		{
 			break;
+		}
 
 		u8 opcode = buffer[0];
 
@@ -282,9 +296,13 @@ void GhostReplay_ThTick(struct Thread *t)
 				if (buffer[2] != 0)
 				{
 					if (buffer[2] < maxFrame)
+					{
 						inst->animFrame = buffer[2];
+					}
 					else
+					{
 						inst->animFrame = maxFrame;
+					}
 				}
 				else if (maxFrame > 0)
 				{
@@ -310,7 +328,9 @@ void GhostReplay_ThTick(struct Thread *t)
 			case GHOST_OP_INSTANCE:
 				inst->flags &= ~SPLIT_LINE;
 				if (buffer[1] != 0)
+				{
 					inst->flags |= SPLIT_LINE;
+				}
 				buffer += GHOST_SIZE_INSTANCE;
 				break;
 
@@ -323,7 +343,9 @@ void GhostReplay_ThTick(struct Thread *t)
 	}
 
 	if (gGT->trafficLightsTimer < 1)
+	{
 		tape->timeElapsedInRace += gGT->elapsedTimeMS;
+	}
 }
 
 
@@ -337,7 +359,9 @@ void GhostReplay_Init1(void)
 
 	// only continue if you're in time trial, not main menu, and not cutscene
 	if ((gGT->gameMode1 & 0x20022000) != 0x20000)
+	{
 		return;
+	}
 
 	struct GhostHeader *gh = MEMPACK_AllocMem(0x3e00);
 	char *recordBuffer = GHOSTHEADER_GETRECORDBUFFER(gh);
@@ -374,7 +398,9 @@ void GhostReplay_Init1(void)
 		tape->ptrEnd = &recordBuffer[gh->size];
 
 		if (i == 1)
+		{
 			gGT->timeToBeatInTimeTrial_ForCurrentEvent = gh->timeElapsedInRace;
+		}
 	}
 
 	for (s32 i = 0; i < 2; i++)
@@ -403,7 +429,9 @@ void GhostReplay_Init1(void)
 			ghostDriver->wakeInst = wakeInst;
 
 			if (wakeInst != 0)
+			{
 				wakeInst->flags |= HIDE_MODEL | ANIM_LOOP;
+			}
 		}
 
 		inst->depthBiasSecondary = 0xc;
@@ -429,26 +457,36 @@ void GhostReplay_Init2(void)
 	{
 		struct Driver *driver = thread->object;
 		if (driver == NULL)
+		{
 			continue;
+		}
 
 		struct GhostTape *tape = driver->ghostTape;
 		if (tape->ptrEnd == tape->ptrStart)
+		{
 			continue;
+		}
 
 		s32 ghostID = driver->ghostID;
 		if (ghostID == 0)
 		{
 			if (sdata->boolReplayHumanGhost == 0)
+			{
 				continue;
+			}
 		}
 		else
 		{
 			if (ghostID != 1)
+			{
 				continue;
+			}
 
 			s32 timeTrialFlags = sdata->gameProgress.highScoreTracks[gGT->levelID].timeTrialFlags;
 			if ((timeTrialFlags & TT_NTROPY_OPEN) == 0)
+			{
 				continue;
+			}
 		}
 
 		tape->timeElapsedInRace = 0;
@@ -467,7 +505,9 @@ void GhostReplay_Init2(void)
 		{
 			s32 timeTrialFlags = sdata->gameProgress.highScoreTracks[gGT->levelID].timeTrialFlags;
 			if ((timeTrialFlags & TT_NTROPY_BEATEN) != 0)
+			{
 				characterIndex = ghostID + 2;
+			}
 		}
 
 		s32 characterID = data.characterIDs[characterIndex];

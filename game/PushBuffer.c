@@ -83,7 +83,9 @@ void PushBuffer_Init(struct PushBuffer *pb, int id, int total)
 	}
 
 	if ((total < 3) || (total > 4))
+	{
 		return;
+	}
 
 	if (id == 0)
 	{
@@ -169,7 +171,9 @@ void PushBuffer_SetDrawEnv_DecalMP(void *ot, struct DB *backBuffer, RECT *viewpo
 	// 24-bit OT tokens back to host pointers, so stale DecalMP range metadata
 	// must not splice a DR_ENV packet into unrelated current-frame memory.
 	if (!CtrGpu_IsCurrentOTRange(backBuffer, ot, ot))
+	{
 		return;
+	}
 #endif
 
 	// Copy DrawEnv from gGT->backBuffer
@@ -177,7 +181,9 @@ void PushBuffer_SetDrawEnv_DecalMP(void *ot, struct DB *backBuffer, RECT *viewpo
 	int *src = (int *)&backBuffer->drawEnv;
 
 	for (u32 i = 0; i < sizeof(DRAWENV) / 4; i++)
+	{
 		dst[i] = src[i];
+	}
 
 	// Now modify DrawEnv...
 
@@ -214,7 +220,9 @@ void PushBuffer_SetDrawEnv_DecalMP(void *ot, struct DB *backBuffer, RECT *viewpo
 	}
 
 	if (prim == NULL)
+	{
 		return;
+	}
 
 	// ofs[X]
 	newDrawEnv.ofs[0] = offsetX;
@@ -239,7 +247,9 @@ void PushBuffer_SetDrawEnv_Normal(void *ot, struct PushBuffer *pb, struct DB *ba
 	int *src = (int *)&backBuffer->drawEnv;
 
 	for (u32 i = 0; i < sizeof(DRAWENV) / 4; i++)
+	{
 		dst[i] = src[i];
+	}
 
 	// always?
 	if (copyDrawEnvNULL == 0)
@@ -347,10 +357,10 @@ void PushBuffer_SetMatrixVP(struct PushBuffer *pb)
 	*(s16 *)((int)&pb->matrix_Camera + 0x10) = sVar7;
 
 	// transpose the camera matrix
-	view0 = uVar3 & 0xffff | uVar4 & 0xffff0000;
-	view4 = uVar6 & 0xffff | uVar3 & 0xffff0000;
-	view8 = uVar5 & 0xffff | uVar6 & 0xffff0000;
-	viewC = uVar4 & 0xffff | uVar5 & 0xffff0000;
+	view0 = (uVar3 & 0xffff) | (uVar4 & 0xffff0000);
+	view4 = (uVar6 & 0xffff) | (uVar3 & 0xffff0000);
+	view8 = (uVar5 & 0xffff) | (uVar6 & 0xffff0000);
+	viewC = (uVar4 & 0xffff) | (uVar5 & 0xffff0000);
 
 	// CameraTranspose, for lightning during Driver Warping effect
 	*(int *)((int)&pb->matrix_CameraTranspose + 0x0) = view0;
@@ -463,16 +473,16 @@ static s32 PushBuffer_SetFrustumPlane_Abs(s32 value)
 	return (value < 0) ? -value : value;
 }
 
-int PushBuffer_SetFrustumPlane(s16 *frustumData, struct FrustumCornerOUT *fc1, s16 *camPos, struct FrustumCornerOUT *fc2)
+int PushBuffer_SetFrustumPlane(struct PushBufferFrustumPlane *frustumPlane, struct FrustumCornerOUT *fc1, const SVec3 *camPos, struct FrustumCornerOUT *fc2)
 {
 	int leadingZeroBits;
 	int temp;
 	s32 normalX;
 	s32 normalY;
 	s32 normalZ;
-	int cameraPosX = camPos[0];
-	int cameraPosY = camPos[1];
-	int cameraPosZ = camPos[2];
+	int cameraPosX = camPos->x;
+	int cameraPosY = camPos->y;
+	int cameraPosZ = camPos->z;
 
 	PushBuffer_SetFrustumPlane_LoadAxisVector(fc2->pos.x - cameraPosX, fc2->pos.y - cameraPosY, fc2->pos.z - cameraPosZ);
 	PushBuffer_SetFrustumPlane_LoadIRVector(fc1->pos.x - cameraPosX, fc1->pos.y - cameraPosY, fc1->pos.z - cameraPosZ);
@@ -487,11 +497,15 @@ int PushBuffer_SetFrustumPlane(s16 *frustumData, struct FrustumCornerOUT *fc1, s
 
 	temp = PushBuffer_SetFrustumPlane_ReadLeadingZeroes((u32)PushBuffer_SetFrustumPlane_Abs(normalY));
 	if (temp < leadingZeroBits)
+	{
 		leadingZeroBits = temp;
+	}
 
 	temp = PushBuffer_SetFrustumPlane_ReadLeadingZeroes((u32)PushBuffer_SetFrustumPlane_Abs(normalZ));
 	if (temp < leadingZeroBits)
+	{
 		leadingZeroBits = temp;
+	}
 
 	if (leadingZeroBits < 0x12)
 	{
@@ -511,16 +525,20 @@ int PushBuffer_SetFrustumPlane(s16 *frustumData, struct FrustumCornerOUT *fc1, s
 
 	int planeD = (normalX * cameraPosX + normalY * cameraPosY + normalZ * cameraPosZ) >> 13;
 
-	frustumData[0] = (s16)normalX;
-	frustumData[1] = (s16)normalY;
-	frustumData[2] = (s16)normalZ;
-	frustumData[3] = (s16)planeD;
+	frustumPlane->normal.x = (s16)normalX;
+	frustumPlane->normal.y = (s16)normalY;
+	frustumPlane->normal.z = (s16)normalZ;
+	frustumPlane->halfDistance = (s16)planeD;
 
 	u32 planeType = (u32)normalX >> 31;
 	if (normalY < 0)
+	{
 		planeType |= 2;
+	}
 	if (normalZ < 0)
+	{
 		planeType |= 4;
+	}
 
 	return planeType;
 }
@@ -749,18 +767,30 @@ void PushBuffer_UpdateFrustum(struct PushBuffer *pb)
 		// === Set 6 Min/Max X,Y,Z variables ===
 
 		if (min_X > spf->clippedFarPos.x)
+		{
 			min_X = spf->clippedFarPos.x;
+		}
 		if (min_Y > spf->clippedFarPos.y)
+		{
 			min_Y = spf->clippedFarPos.y;
+		}
 		if (min_Z > spf->clippedFarPos.z)
+		{
 			min_Z = spf->clippedFarPos.z;
+		}
 
 		if (max_X < spf->clippedFarPos.x)
+		{
 			max_X = spf->clippedFarPos.x;
+		}
 		if (max_Y < spf->clippedFarPos.y)
+		{
 			max_Y = spf->clippedFarPos.y;
+		}
 		if (max_Z < spf->clippedFarPos.z)
+		{
 			max_Z = spf->clippedFarPos.z;
+		}
 
 		// next corner to write
 		fcOUT--;
@@ -780,16 +810,16 @@ void PushBuffer_UpdateFrustum(struct PushBuffer *pb)
 	spf->camPos.z = cameraPosZ;
 
 	// PushBuffer_SetFrustumPlane (x4)
-	val_Y = PushBuffer_SetFrustumPlane(&pb->frustumData[0], &spf->fc[0], &spf->camPos.x, &spf->fc[1]);
+	val_Y = PushBuffer_SetFrustumPlane(&pb->frustumPlanes[0], &spf->fc[0], &spf->camPos, &spf->fc[1]);
 	pb->RenderListJmpIndex[0] = ~val_Y & 7;
 
-	val_Y = PushBuffer_SetFrustumPlane(&pb->frustumData[0x8], &spf->fc[1], &spf->camPos.x, &spf->fc[3]);
+	val_Y = PushBuffer_SetFrustumPlane(&pb->frustumPlanes[1], &spf->fc[1], &spf->camPos, &spf->fc[3]);
 	pb->RenderListJmpIndex[1] = ~val_Y & 7;
 
-	val_Y = PushBuffer_SetFrustumPlane(&pb->frustumData[0x10], &spf->fc[3], &spf->camPos.x, &spf->fc[2]);
+	val_Y = PushBuffer_SetFrustumPlane(&pb->frustumPlanes[2], &spf->fc[3], &spf->camPos, &spf->fc[2]);
 	pb->RenderListJmpIndex[2] = ~val_Y & 7;
 
-	val_Y = PushBuffer_SetFrustumPlane(&pb->frustumData[0x18], &spf->fc[2], &spf->camPos.x, &spf->fc[0]);
+	val_Y = PushBuffer_SetFrustumPlane(&pb->frustumPlanes[3], &spf->fc[2], &spf->camPos, &spf->fc[0]);
 	pb->RenderListJmpIndex[3] = ~val_Y & 7;
 
 	PushBuffer_UpdateFrustum_LoadV0(0, 0x1000);
@@ -800,9 +830,9 @@ void PushBuffer_UpdateFrustum(struct PushBuffer *pb)
 	int retZ;
 	PushBuffer_UpdateFrustum_ReadMAC(&retX, &retY, &retZ);
 
-	*(s16 *)&pb->frustumData[0x20] = -retX;
-	*(s16 *)&pb->frustumData[0x22] = -retY;
-	*(s16 *)&pb->frustumData[0x24] = -retZ;
+	pb->frustumPlanes[4].normal.x = -retX;
+	pb->frustumPlanes[4].normal.y = -retY;
+	pb->frustumPlanes[4].normal.z = -retZ;
 
 
 	int distToScreen = pb->distanceToScreen_PREV;
@@ -813,7 +843,7 @@ void PushBuffer_UpdateFrustum(struct PushBuffer *pb)
 		iVar9 = distToScreen + 3;
 	}
 
-	*(s16 *)&pb->frustumData[0x26] = (s16)(-(cameraPosX * retX + cameraPosY * retY + cameraPosZ * retZ) >> 0xd) - (s16)(iVar9 >> 2);
+	pb->frustumPlanes[4].halfDistance = (s16)(-(cameraPosX * retX + cameraPosY * retY + cameraPosZ * retZ) >> 0xd) - (s16)(iVar9 >> 2);
 
 	// Negation Flags
 	int flags = (u32)retX >> 0x1f;

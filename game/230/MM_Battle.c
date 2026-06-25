@@ -4,7 +4,9 @@
 void MM_Battle_DrawIcon_Character(struct Icon *icon, int posX, int posY, struct PrimMem *primMem, uint32_t *ot, char transparency, s16 scale)
 {
 	if (icon == 0)
+	{
 		return;
+	}
 	DecalHUD_DrawPolyFT4(icon, posX, posY, primMem, ot, transparency, scale);
 }
 
@@ -18,7 +20,9 @@ void MM_Battle_CloseSubMenu(struct RectMenu *menu)
 void MM_Battle_DrawIcon_Weapon(struct Icon *icon, u32 posX, int posY, struct PrimMem *primMem, u32 *ot, char transparency, s16 param_7, u16 param_8, u32 *color)
 {
 	if (!icon)
+	{
 		return;
+	}
 
 	POLY_FT4 *p = (POLY_FT4 *)primMem->cursor;
 
@@ -225,9 +229,13 @@ void MM_Battle_MenuProc(struct RectMenu *unused)
 	for (int i = 0; i < 4; i++)
 	{
 		if ((gGT->battleSetup.teamFlags & (1 << i)) == 0)
+		{
 			gGT->battleSetup.pointsPerTeam[i] = -500;
+		}
 		else
+		{
 			gGT->battleSetup.pointsPerTeam[i] = 0;
+		}
 	}
 
 	// Related to Battle mode
@@ -486,7 +494,9 @@ void MM_Battle_MenuProc(struct RectMenu *unused)
 						else
 						{
 							if ((D230.menuBattleType.rowSelected == 2) && (sdata->battleSetupRowHighlighted == 10))
+							{
 								goto LAB_800b1d7c;
+							}
 						}
 					}
 				}
@@ -710,7 +720,9 @@ void MM_Battle_MenuProc(struct RectMenu *unused)
 			goto LAB_800b25f0;
 		}
 		if (D230.menuBattleType.rowSelected != 0)
+		{
 			goto LAB_800b25f0;
+		}
 		box = &D230.menuBattleLengthPoints;
 	}
 
@@ -934,7 +946,7 @@ LAB_800b25f0:
 		j = (u32)local_40.y + 2 + j * 0x20;
 
 		// If the icon is bowling bomb or missile on the 2nd row
-		if ((i - 7U & 0xffff) < 2)
+		if (((i - 7U) & 0xffff) < 2)
 		{
 			// draw the "3" over the icons
 			DecalFont_DrawLine(&R230.s_3[0], iVar13, j, 2, uVar17);

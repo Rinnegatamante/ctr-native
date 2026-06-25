@@ -1,16 +1,3 @@
-#if defined(CTR_NATIVE)
-typedef enum _CdlIntrResult
-{
-	_CdlNoIntr = 0,
-	_CdlDataReady = 1,
-	_CdlComplete = 2,
-	_CdlAcknowledge = 3,
-	_CdlDataEnd = 4,
-	_CdlDiskError = 5
-} CdlIntrResult;
-#endif
-// typedef void (*CdlCB)(CdlIntrResult, u8*);
-
 // Retail overlay address labels; declared as functions to preserve existing address-taking call sites.
 void OVR_Region1(void);
 void OVR_Region2(void);
@@ -33,8 +20,8 @@ u32 CDSYS_GetFilePosInt(char *fileString, int *filePos);
 void CDSYS_SetMode_StreamData(void);
 void CDSYS_SetMode_StreamAudio(void);
 int CDSYS_SetXAToLang(int lang);
-void CDSYS_XaCallbackCdSync(CdlIntrResult result, u8 *unk);  //+unk to adhere to *CdlCB
-void CDSYS_XaCallbackCdReady(CdlIntrResult result, u8 *unk); //+unk to adhere to *CdlCB
+void CDSYS_XaCallbackCdSync(u8 result, u8 *unk);  //+unk to adhere to *CdlCB
+void CDSYS_XaCallbackCdReady(u8 result, u8 *unk); //+unk to adhere to *CdlCB
 void CDSYS_SpuCallbackIRQ(void);
 void CDSYS_SpuCallbackTransfer(void);
 void CDSYS_SpuEnableIRQ(void);
@@ -334,7 +321,7 @@ void OVR233_RebuildInitMatrixTable(void);
 void OVR233_ResetRuntimeState(void);
 void OVR233_InitData(void);
 #endif
-void LOAD_ReadFileASyncCallback(CdlIntrResult result, u8 *unk);
+void LOAD_ReadFileASyncCallback(u8 result, u8 *unk);
 
 // same hack as AppendQueue, see notes there
 #define LOAD_ReadFile(a, b, c, d) LOAD_ReadFile_ex(a, b, c, d, &data.currSlot.size_UNUSED, NULL)
@@ -349,7 +336,7 @@ void *LOAD_XnfFile(char *filename, void *ptrDestination, int *size);
 int LOAD_TenStages(struct GameTracker *gGT, int loadingStage, struct BigHeader *bigfile);
 void LOAD_LevelFile(int levelID);
 
-void LOAD_HowlCallback(CdlIntrResult result, u8 *unk);
+void LOAD_HowlCallback(u8 result, u8 *unk);
 int LOAD_HowlSectorChainStart(CdlFILE *cdlFileHWL, void *ptrDestination, int firstSector,
                               int numSector); // 2nd param might be `struct SampleBlockHeader*`
 int LOAD_HowlSectorChainEnd(void);
@@ -1025,7 +1012,8 @@ void AH_MaskHint_Update(void);
 struct Particle *Particle_Init(u32 param_1, struct IconGroup *ig, struct ParticleEmitter *emSet);
 void Particle_FuncPtr_PotionShatter(struct Particle *p);
 void Particle_FuncPtr_ExhaustUnderwater(struct Particle *p);
-void Vector_SpecLightSpin3D(struct Instance *inst, s16 *rot, const SVec3 *lightDir);
+void Vector_SpecLightSpin3D(struct Instance *inst, const SVec3 *rot, const SVec3 *lightDir);
+void Vector_SpecLightNoSpin3D(struct Instance *inst, const SVec3 *rot, const SVec3 *lightDir);
 
 // 233
 void CS_Garage_ZoomOut(char zoomState);
@@ -1049,7 +1037,7 @@ void CS_Thread_MoveOnPath(struct Thread *t);
 void CS_Thread_Particles(struct Thread *t);
 void CS_Thread_InterpolateFramesMS(struct Thread *t);
 void CS_Thread_ThTick(struct Thread *t);
-struct Thread *CS_Thread_Init(s16 modelID, const char *name, s16 *param_3, s16 param_4, struct Thread *parent);
+struct Thread *CS_Thread_Init(s16 modelID, const char *name, struct CsThreadInitData *initData, s16 param_4, struct Thread *parent);
 void CS_Podium_Prize_ThDestroy(struct Thread *t);
 void CS_Podium_Prize_Spin(struct Instance *inst, s16 *prize);
 void CS_Podium_Prize_ThTick1(struct Thread *th);
@@ -1179,7 +1167,7 @@ int LOAD_GetAdvPackIndex(void);
 void CAM_ProcessTransition(SVec3 *currPos, SVec3 *currRot, SVec3 *startPos, SVec3 *startRot, SVec3 *endPos, SVec3 *endRot, s32 frame);
 void CAM_LookAtPosition(struct CameraScratchWork *scratchWork, Vec3 *positions, SVec3 *desiredPos, SVec3 *desiredRot);
 void CAM_FollowDriver_Spin360(struct CameraDC *cDC, struct CameraScratchWork *scratchWork, struct Driver *d, SVec3 *desiredPos, SVec3 *desiredRot);
-void CAM_FollowDriver_AngleAxis(struct CameraDC *cDC, struct Driver *d, struct CameraScratchWork *scratchWork, SVec3 *pushBufferPos, SVec3 *pushBufferRot);
+void CAM_FollowDriver_AngleAxis(struct CameraDC *cDC, struct Driver *d, struct CameraAngleAxisScratch *scratchWork, SVec3 *pushBufferPos, SVec3 *pushBufferRot);
 int MainDB_GetClipSize(u32 levelID, int numPlyrCurrGame);
 void MainFreeze_ConfigDrawArrows(s16 offsetX, s16 offsetY, char *str);
 void CAM_StartOfRace(struct CameraDC *cDC);

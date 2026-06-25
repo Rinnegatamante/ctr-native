@@ -60,7 +60,7 @@ void MM_Video_KickCD(CdlLOC *location)
 	{
 	case 0:
 		// 2 = CdlSetloc
-		iVar1 = CdControl(2, V230.ptrCdLoc, 0);
+		iVar1 = CdControl(2, (u8 *)V230.ptrCdLoc, 0);
 		if (iVar1 == 0)
 			return;
 

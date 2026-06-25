@@ -4,6 +4,12 @@
 
 #include <platform/native_path.h>
 
+#if defined(_WIN32)
+#include <platform/native_win32.h>
+#else
+#include <dirent.h>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -30,40 +36,516 @@ struct NativeAssetsByteBuffer
 	int size;
 };
 
+struct NativeAssetIndexEntry
+{
+	char *key;
+	char *path;
+};
+
 global_variable char s_nativeAssetsBaseDir[NATIVE_ASSETS_PATH_MAX] = ".";
 global_variable char s_nativeAssetsDir[NATIVE_ASSETS_PATH_MAX] = NATIVE_ASSETS_DIR_NAME;
 global_variable int s_nativeAssetsInitialized;
+global_variable struct NativeAssetIndexEntry *s_nativeAssetIndex;
+global_variable int s_nativeAssetIndexCount;
+global_variable int s_nativeAssetIndexCapacity;
+global_variable int s_nativeAssetIndexBuilt;
 
-internal int NativeAssets_FileExists(const char *path)
+internal u8 NativeAssets_ToLowerAscii(u8 byte)
 {
-	FILE *file = fopen(path, "rb");
+	if ((byte >= 'A') && (byte <= 'Z'))
+	{
+		byte = (u8)(byte + ('a' - 'A'));
+	}
 
-	if (file == NULL)
+	return byte;
+}
+
+internal int NativeAssets_Str8EqualsIgnoreCase(NativeStr8 left, NativeStr8 right)
+{
+	size_t i;
+
+	if (left.len != right.len)
+	{
 		return 0;
+	}
+
+	for (i = 0; i < left.len; i++)
+	{
+		if (NativeAssets_ToLowerAscii(left.ptr[i]) != NativeAssets_ToLowerAscii(right.ptr[i]))
+		{
+			return 0;
+		}
+	}
+
+	return 1;
+}
+
+internal int NativeAssets_FileExistsHost(const char *path)
+{
+	FILE *file;
+
+	if (path == NULL)
+	{
+		return 0;
+	}
+
+	file = fopen(path, "rb");
+	if (file == NULL)
+	{
+		return 0;
+	}
 
 	fclose(file);
 	return 1;
 }
 
-internal int NativeAssets_BaseHasRequiredFile(NativeStr8 baseDir)
+internal int NativeAssets_DirectoryExistsHost(const char *path)
 {
-	char path[NATIVE_ASSETS_PATH_MAX];
+#if defined(_WIN32)
+	DWORD attributes;
 
-	if (!NativePath_Join(path, sizeof(path), baseDir, NATIVE_STR8_LIT(NATIVE_ASSETS_DIR_NAME "/" NATIVE_ASSETS_BIGFILE_PATH)))
+	if (path == NULL)
 		return 0;
 
-	return NativeAssets_FileExists(path);
+	attributes = GetFileAttributesA(path);
+	return (attributes != INVALID_FILE_ATTRIBUTES) && ((attributes & FILE_ATTRIBUTE_DIRECTORY) != 0);
+#else
+	DIR *dir = opendir(path);
+
+	if (dir == NULL)
+	{
+		return 0;
+	}
+
+	closedir(dir);
+	return 1;
+#endif
+}
+
+internal int NativeAssets_FindHostChildCaseInsensitive(NativeStr8 parent, NativeStr8 child, char *dst, size_t dstSize)
+{
+	char parentPath[NATIVE_ASSETS_PATH_MAX];
+	char match[NATIVE_ASSETS_PATH_MAX];
+
+	if (!NativePath_NormalizeSlashes(parentPath, sizeof(parentPath), parent))
+	{
+		return 0;
+	}
+
+#if defined(_WIN32)
+	{
+		char searchPath[NATIVE_ASSETS_PATH_MAX];
+		WIN32_FIND_DATAA findData;
+		HANDLE findHandle;
+
+		if (!NativePath_Join(searchPath, sizeof(searchPath), NativeStr8_FromCString(parentPath), NATIVE_STR8_LIT("*")))
+			return 0;
+
+		findHandle = FindFirstFileA(searchPath, &findData);
+		if (findHandle == INVALID_HANDLE_VALUE)
+			return 0;
+
+		match[0] = '\0';
+		do
+		{
+			NativeStr8 entryName = NativeStr8_FromCString(findData.cFileName);
+
+			if (NativeStr8_Equals(entryName, child))
+			{
+				if (!NativeStr8_CopyToCString(match, sizeof(match), entryName))
+				{
+					FindClose(findHandle);
+					return 0;
+				}
+
+				break;
+			}
+
+			if ((match[0] == '\0') && NativeAssets_Str8EqualsIgnoreCase(entryName, child))
+			{
+				if (!NativeStr8_CopyToCString(match, sizeof(match), entryName))
+				{
+					FindClose(findHandle);
+					return 0;
+				}
+			}
+		} while (FindNextFileA(findHandle, &findData) != 0);
+
+		FindClose(findHandle);
+	}
+#else
+	DIR *dir;
+	struct dirent *entry;
+
+	dir = opendir(parentPath);
+	if (dir == NULL)
+	{
+		return 0;
+	}
+
+	match[0] = '\0';
+	while ((entry = readdir(dir)) != NULL)
+	{
+		NativeStr8 entryName = NativeStr8_FromCString(entry->d_name);
+
+		if (NativeStr8_Equals(entryName, child))
+		{
+			if (!NativeStr8_CopyToCString(match, sizeof(match), entryName))
+			{
+				closedir(dir);
+				return 0;
+			}
+
+			break;
+		}
+
+		if ((match[0] == '\0') && NativeAssets_Str8EqualsIgnoreCase(entryName, child))
+		{
+			if (!NativeStr8_CopyToCString(match, sizeof(match), entryName))
+			{
+				closedir(dir);
+				return 0;
+			}
+		}
+	}
+
+	closedir(dir);
+#endif
+
+	if (match[0] == '\0')
+	{
+		return 0;
+	}
+
+	return NativePath_Join(dst, dstSize, NativeStr8_FromCString(parentPath), NativeStr8_FromCString(match));
+}
+
+internal int NativeAssets_FindAssetsDir(NativeStr8 baseDir, char *dst, size_t dstSize)
+{
+	if (!NativePath_Join(dst, dstSize, baseDir, NATIVE_STR8_LIT(NATIVE_ASSETS_DIR_NAME)))
+	{
+		return 0;
+	}
+
+	if (NativeAssets_DirectoryExistsHost(dst))
+	{
+		return 1;
+	}
+
+	return NativeAssets_FindHostChildCaseInsensitive(baseDir, NATIVE_STR8_LIT(NATIVE_ASSETS_DIR_NAME), dst, dstSize);
+}
+
+internal char *NativeAssets_CopyCString(const char *src)
+{
+	size_t size;
+	char *copy;
+
+	if (src == NULL)
+	{
+		return NULL;
+	}
+
+	size = strlen(src) + 1u;
+	copy = (char *)malloc(size);
+	if (copy == NULL)
+	{
+		return NULL;
+	}
+
+	memcpy(copy, src, size);
+	return copy;
+}
+
+internal void NativeAssets_ClearIndex(void)
+{
+	int i;
+
+	for (i = 0; i < s_nativeAssetIndexCount; i++)
+	{
+		free(s_nativeAssetIndex[i].key);
+		free(s_nativeAssetIndex[i].path);
+	}
+
+	free(s_nativeAssetIndex);
+	s_nativeAssetIndex = NULL;
+	s_nativeAssetIndexCount = 0;
+	s_nativeAssetIndexCapacity = 0;
+	s_nativeAssetIndexBuilt = 0;
+}
+
+internal int NativeAssets_IndexReserve(int needed)
+{
+	struct NativeAssetIndexEntry *entries;
+	int newCapacity;
+
+	if (needed <= s_nativeAssetIndexCapacity)
+	{
+		return 1;
+	}
+
+	newCapacity = (s_nativeAssetIndexCapacity == 0) ? 256 : s_nativeAssetIndexCapacity * 2;
+	while (newCapacity < needed)
+	{
+		newCapacity *= 2;
+	}
+
+	entries = (struct NativeAssetIndexEntry *)realloc(s_nativeAssetIndex, (size_t)newCapacity * sizeof(*s_nativeAssetIndex));
+	if (entries == NULL)
+	{
+		return 0;
+	}
+
+	s_nativeAssetIndex = entries;
+	s_nativeAssetIndexCapacity = newCapacity;
+	return 1;
+}
+
+internal int NativeAssets_NormalizeRelativeKey(NativeStr8 relativePath, char *dst, size_t dstSize)
+{
+	size_t i;
+
+	relativePath = NativePath_SkipLeadingSeparators(relativePath);
+	if ((dst == NULL) || (dstSize == 0) || (relativePath.len >= dstSize))
+	{
+		return 0;
+	}
+
+	for (i = 0; i < relativePath.len; i++)
+	{
+		u8 byte = relativePath.ptr[i];
+		dst[i] = (char)(NativePath_IsSeparator(byte) ? '/' : NativeAssets_ToLowerAscii(byte));
+	}
+
+	dst[relativePath.len] = '\0';
+	return 1;
+}
+
+internal const char *NativeAssets_FindIndexedPath(NativeStr8 relativePath)
+{
+	char key[NATIVE_ASSETS_PATH_MAX];
+	int i;
+
+	if (!NativeAssets_NormalizeRelativeKey(relativePath, key, sizeof(key)))
+	{
+		return NULL;
+	}
+
+	for (i = 0; i < s_nativeAssetIndexCount; i++)
+	{
+		if (strcmp(s_nativeAssetIndex[i].key, key) == 0)
+		{
+			return s_nativeAssetIndex[i].path;
+		}
+	}
+
+	return NULL;
+}
+
+internal int NativeAssets_IndexAdd(NativeStr8 relativePath, const char *hostPath)
+{
+	char key[NATIVE_ASSETS_PATH_MAX];
+	char *keyCopy;
+	char *pathCopy;
+
+	if (!NativeAssets_NormalizeRelativeKey(relativePath, key, sizeof(key)))
+	{
+		return 0;
+	}
+
+	if (!NativeAssets_IndexReserve(s_nativeAssetIndexCount + 1))
+	{
+		return 0;
+	}
+
+	keyCopy = NativeAssets_CopyCString(key);
+	pathCopy = NativeAssets_CopyCString(hostPath);
+	if ((keyCopy == NULL) || (pathCopy == NULL))
+	{
+		free(keyCopy);
+		free(pathCopy);
+		return 0;
+	}
+
+	s_nativeAssetIndex[s_nativeAssetIndexCount].key = keyCopy;
+	s_nativeAssetIndex[s_nativeAssetIndexCount].path = pathCopy;
+	s_nativeAssetIndexCount++;
+	return 1;
+}
+
+internal void NativeAssets_IndexScanDir(const char *dirPath, NativeStr8 relativeDir, int depth)
+{
+	if (depth > 16)
+	{
+		return;
+	}
+
+#if defined(_WIN32)
+	{
+		char searchPath[NATIVE_ASSETS_PATH_MAX];
+		WIN32_FIND_DATAA findData;
+		HANDLE findHandle;
+
+		if (!NativePath_Join(searchPath, sizeof(searchPath), NativeStr8_FromCString(dirPath), NATIVE_STR8_LIT("*")))
+			return;
+
+		findHandle = FindFirstFileA(searchPath, &findData);
+		if (findHandle == INVALID_HANDLE_VALUE)
+			return;
+
+		do
+		{
+			NativeStr8 entryName = NativeStr8_FromCString(findData.cFileName);
+			char childPath[NATIVE_ASSETS_PATH_MAX];
+			char relativePath[NATIVE_ASSETS_PATH_MAX];
+
+			if (NativeStr8_Equals(entryName, NATIVE_STR8_LIT(".")) || NativeStr8_Equals(entryName, NATIVE_STR8_LIT("..")))
+				continue;
+
+			if (!NativePath_Join(childPath, sizeof(childPath), NativeStr8_FromCString(dirPath), entryName))
+				continue;
+
+			if (relativeDir.len == 0)
+			{
+				if (!NativePath_NormalizeSlashes(relativePath, sizeof(relativePath), entryName))
+					continue;
+			}
+			else
+			{
+				if (!NativePath_Join(relativePath, sizeof(relativePath), relativeDir, entryName))
+					continue;
+			}
+
+			if ((findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0)
+			{
+				NativeAssets_IndexScanDir(childPath, NativeStr8_FromCString(relativePath), depth + 1);
+				continue;
+			}
+
+			if (NativeAssets_FileExistsHost(childPath))
+				NativeAssets_IndexAdd(NativeStr8_FromCString(relativePath), childPath);
+		} while (FindNextFileA(findHandle, &findData) != 0);
+
+		FindClose(findHandle);
+	}
+#else
+	DIR *dir;
+	struct dirent *entry;
+
+	dir = opendir(dirPath);
+	if (dir == NULL)
+	{
+		return;
+	}
+
+	while ((entry = readdir(dir)) != NULL)
+	{
+		NativeStr8 entryName = NativeStr8_FromCString(entry->d_name);
+		char childPath[NATIVE_ASSETS_PATH_MAX];
+		char relativePath[NATIVE_ASSETS_PATH_MAX];
+		DIR *childDir;
+
+		if (NativeStr8_Equals(entryName, NATIVE_STR8_LIT(".")) || NativeStr8_Equals(entryName, NATIVE_STR8_LIT("..")))
+		{
+			continue;
+		}
+
+		if (!NativePath_Join(childPath, sizeof(childPath), NativeStr8_FromCString(dirPath), entryName))
+		{
+			continue;
+		}
+
+		if (relativeDir.len == 0)
+		{
+			if (!NativePath_NormalizeSlashes(relativePath, sizeof(relativePath), entryName))
+			{
+				continue;
+			}
+		}
+		else
+		{
+			if (!NativePath_Join(relativePath, sizeof(relativePath), relativeDir, entryName))
+			{
+				continue;
+			}
+		}
+
+		childDir = opendir(childPath);
+		if (childDir != NULL)
+		{
+			closedir(childDir);
+			NativeAssets_IndexScanDir(childPath, NativeStr8_FromCString(relativePath), depth + 1);
+			continue;
+		}
+
+		if (NativeAssets_FileExistsHost(childPath))
+		{
+			NativeAssets_IndexAdd(NativeStr8_FromCString(relativePath), childPath);
+		}
+	}
+
+	closedir(dir);
+#endif
+}
+
+internal void NativeAssets_BuildIndex(void)
+{
+	if (s_nativeAssetIndexBuilt)
+	{
+		return;
+	}
+
+	s_nativeAssetIndexBuilt = 1;
+
+	NativeAssets_IndexScanDir(s_nativeAssetsDir, (NativeStr8){0}, 0);
+}
+
+internal int NativeAssets_BaseHasRequiredFile(NativeStr8 baseDir)
+{
+	char assetsDir[NATIVE_ASSETS_PATH_MAX];
+	char path[NATIVE_ASSETS_PATH_MAX];
+
+	if (!NativeAssets_FindAssetsDir(baseDir, assetsDir, sizeof(assetsDir)))
+	{
+		return 0;
+	}
+
+	if (NativeAssets_FindHostChildCaseInsensitive(NativeStr8_FromCString(assetsDir), NATIVE_STR8_LIT(NATIVE_ASSETS_BIGFILE_PATH), path, sizeof(path)))
+	{
+		return NativeAssets_FileExistsHost(path);
+	}
+
+	if (!NativePath_Join(path, sizeof(path), NativeStr8_FromCString(assetsDir), NATIVE_STR8_LIT(NATIVE_ASSETS_BIGFILE_PATH)))
+	{
+		return 0;
+	}
+
+	return NativeAssets_FileExistsHost(path);
 }
 
 internal int NativeAssets_SetBaseDir(NativeStr8 baseDir)
 {
+	char assetsDir[NATIVE_ASSETS_PATH_MAX];
+
 	baseDir = NativePath_TrimTrailingSeparators(baseDir);
 	if (!NativePath_NormalizeSlashes(s_nativeAssetsBaseDir, sizeof(s_nativeAssetsBaseDir), baseDir))
+	{
 		return 0;
+	}
 
-	if (!NativePath_Join(s_nativeAssetsDir, sizeof(s_nativeAssetsDir), NativeStr8_FromCString(s_nativeAssetsBaseDir), NATIVE_STR8_LIT(NATIVE_ASSETS_DIR_NAME)))
+	if (!NativeAssets_FindAssetsDir(NativeStr8_FromCString(s_nativeAssetsBaseDir), assetsDir, sizeof(assetsDir)))
+	{
+		if (!NativePath_Join(assetsDir, sizeof(assetsDir), NativeStr8_FromCString(s_nativeAssetsBaseDir), NATIVE_STR8_LIT(NATIVE_ASSETS_DIR_NAME)))
+		{
+			return 0;
+		}
+	}
+
+	if (!NativePath_NormalizeSlashes(s_nativeAssetsDir, sizeof(s_nativeAssetsDir), NativeStr8_FromCString(assetsDir)))
+	{
 		return 0;
+	}
 
+	NativeAssets_ClearIndex();
 	s_nativeAssetsInitialized = 1;
 	return 1;
 }
@@ -74,19 +556,25 @@ int NativeAssets_Init(const char *executableBasePath)
 	NativeStr8 exeDir;
 
 	if ((executableBasePath == NULL) || (executableBasePath[0] == '\0'))
+	{
 		executableBasePath = ".";
+	}
 
 	exeDir = NativePath_TrimTrailingSeparators(NativeStr8_FromCString(executableBasePath));
 
 	if (NativeAssets_BaseHasRequiredFile(exeDir))
+	{
 		return NativeAssets_SetBaseDir(exeDir);
+	}
 
 	if (NativePath_Parent(parentDir, sizeof(parentDir), exeDir))
 	{
 		NativeStr8 parent = NativeStr8_FromCString(parentDir);
 
 		if (NativeAssets_BaseHasRequiredFile(parent))
+		{
 			return NativeAssets_SetBaseDir(parent);
+		}
 	}
 
 	return NativeAssets_SetBaseDir(exeDir);
@@ -105,7 +593,9 @@ const char *NativeAssets_GetAssetDir(void)
 int NativeAssets_BuildPathStr8(NativeStr8 relativePath, char *dst, size_t dstSize)
 {
 	if (!s_nativeAssetsInitialized && !NativeAssets_Init("."))
+	{
 		return 0;
+	}
 
 	return NativePath_Join(dst, dstSize, NativeStr8_FromCString(s_nativeAssetsDir), relativePath);
 }
@@ -115,12 +605,61 @@ int NativeAssets_BuildPath(const char *relativePath, char *dst, size_t dstSize)
 	return NativeAssets_BuildPathStr8(NativeStr8_FromCString(relativePath), dst, dstSize);
 }
 
+int NativeAssets_ResolvePathStr8(NativeStr8 relativePath, char *dst, size_t dstSize)
+{
+	char path[NATIVE_ASSETS_PATH_MAX];
+	const char *indexedPath;
+
+	if (!NativeAssets_BuildPathStr8(relativePath, path, sizeof(path)))
+	{
+		return 0;
+	}
+
+	if (NativeAssets_FileExistsHost(path))
+	{
+		return NativePath_NormalizeSlashes(dst, dstSize, NativeStr8_FromCString(path));
+	}
+
+	NativeAssets_BuildIndex();
+	indexedPath = NativeAssets_FindIndexedPath(relativePath);
+	if (indexedPath == NULL)
+	{
+		return 0;
+	}
+
+	return NativePath_NormalizeSlashes(dst, dstSize, NativeStr8_FromCString(indexedPath));
+}
+
+int NativeAssets_ResolvePath(const char *relativePath, char *dst, size_t dstSize)
+{
+	return NativeAssets_ResolvePathStr8(NativeStr8_FromCString(relativePath), dst, dstSize);
+}
+
 FILE *NativeAssets_OpenStr8(NativeStr8 relativePath, const char *mode)
 {
 	char path[NATIVE_ASSETS_PATH_MAX];
+	FILE *file;
 
-	if (!NativeAssets_BuildPathStr8(relativePath, path, sizeof(path)))
+	if ((mode == NULL) || !NativeAssets_BuildPathStr8(relativePath, path, sizeof(path)))
+	{
 		return NULL;
+	}
+
+	file = fopen(path, mode);
+	if (file != NULL)
+	{
+		return file;
+	}
+
+	if (mode[0] != 'r')
+	{
+		return NULL;
+	}
+
+	if (!NativeAssets_ResolvePathStr8(relativePath, path, sizeof(path)))
+	{
+		return NULL;
+	}
 
 	return fopen(path, mode);
 }
@@ -150,7 +689,9 @@ internal int NativeAssets_ReadFileBytes(const char *path, struct NativeAssetsByt
 
 	file = NativeAssets_Open(path, "rb");
 	if (file == NULL)
+	{
 		return 0;
+	}
 
 	if (fseek(file, 0, SEEK_END) != 0)
 	{
@@ -220,8 +761,10 @@ internal int NativeAssets_CheckRequiredFile(const char *path)
 		return 0;
 	}
 
-	if (NativeAssets_FileExists(assetPath))
+	if (NativeAssets_ResolvePath(path, assetPath, sizeof(assetPath)))
+	{
 		return 1;
+	}
 
 	fprintf(stderr, "[CTR Native] missing asset: %s\n", assetPath);
 	return 0;
@@ -246,7 +789,9 @@ internal int NativeAssets_ValidateXA(void)
 	memset(required, 0, sizeof(required));
 
 	if (!NativeAssets_ReadFileBytes(NATIVE_ASSETS_XNF_PATH, &xnf))
+	{
 		return 0;
+	}
 
 	if ((xnf.size < NATIVE_ASSETS_XA_HEADER_SIZE) || (NativeAssets_ReadLE32(&xnf.data[0]) != 0x464e4958) || (NativeAssets_ReadLE32(&xnf.data[4]) != 102) ||
 	    (NativeAssets_ReadLE32(&xnf.data[8]) != NATIVE_ASSETS_XA_TYPE_COUNT))
@@ -301,7 +846,9 @@ internal int NativeAssets_ValidateXA(void)
 			int written;
 
 			if (!required[categoryID][fileNumber])
+			{
 				continue;
+			}
 
 			written = snprintf(relativePath, sizeof(relativePath), "%s/S%02u.XA", xaDirs[categoryID], (unsigned int)fileNumber);
 			if ((written <= 0) || ((size_t)written >= sizeof(relativePath)) || !NativeAssets_BuildPath(relativePath, path, sizeof(path)))
@@ -311,7 +858,7 @@ internal int NativeAssets_ValidateXA(void)
 				continue;
 			}
 
-			if (!NativeAssets_FileExists(path))
+			if (!NativeAssets_ResolvePath(relativePath, path, sizeof(path)))
 			{
 				fprintf(stderr, "[CTR Native] missing XA asset: %s\n", path);
 				missing++;

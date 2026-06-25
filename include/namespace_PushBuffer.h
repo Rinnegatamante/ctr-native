@@ -3,6 +3,16 @@ struct FrustumCornerOUT
 	SVec3 pos;
 };
 
+struct PushBufferFrustumPlane
+{
+	SVec3 normal;
+	s16 halfDistance;
+};
+
+CTR_STATIC_ASSERT(sizeof(struct PushBufferFrustumPlane) == 0x8);
+CTR_STATIC_ASSERT(offsetof(struct PushBufferFrustumPlane, normal) == 0x0);
+CTR_STATIC_ASSERT(offsetof(struct PushBufferFrustumPlane, halfDistance) == 0x6);
+
 struct ScratchpadFrustum
 {
 	// 1f800000
@@ -18,11 +28,11 @@ struct ScratchpadFrustum
 	// -- end --
 };
 
-_Static_assert(sizeof(Vec3) == 0x0c);
-_Static_assert(offsetof(struct ScratchpadFrustum, clippedFarPos) == 0x00);
-_Static_assert(offsetof(struct ScratchpadFrustum, fc) == 0x0c);
-_Static_assert(offsetof(struct ScratchpadFrustum, camPos) == 0x24);
-_Static_assert(offsetof(struct ScratchpadFrustum, camPos) + sizeof(SVec3) == 0x2a);
+CTR_STATIC_ASSERT(sizeof(Vec3) == 0x0c);
+CTR_STATIC_ASSERT(offsetof(struct ScratchpadFrustum, clippedFarPos) == 0x00);
+CTR_STATIC_ASSERT(offsetof(struct ScratchpadFrustum, fc) == 0x0c);
+CTR_STATIC_ASSERT(offsetof(struct ScratchpadFrustum, camPos) == 0x24);
+CTR_STATIC_ASSERT(offsetof(struct ScratchpadFrustum, camPos) + sizeof(SVec3) == 0x2a);
 
 struct PushBufferSetMatrixVPScratch
 {
@@ -33,9 +43,9 @@ struct PushBufferSetMatrixVPScratch
 	u8 reserved1[0x6];
 };
 
-_Static_assert(offsetof(struct PushBufferSetMatrixVPScratch, cameraMatrix) == 0x3d4);
-_Static_assert(offsetof(struct PushBufferSetMatrixVPScratch, rot) == 0x3f4);
-_Static_assert(sizeof(struct PushBufferSetMatrixVPScratch) == CTR_SCRATCHPAD_SIZE);
+CTR_STATIC_ASSERT(offsetof(struct PushBufferSetMatrixVPScratch, cameraMatrix) == 0x3d4);
+CTR_STATIC_ASSERT(offsetof(struct PushBufferSetMatrixVPScratch, rot) == 0x3f4);
+CTR_STATIC_ASSERT(sizeof(struct PushBufferSetMatrixVPScratch) == CTR_SCRATCHPAD_SIZE);
 
 // Let the compiler figure it out,
 // the bitshifting annoys me
@@ -116,7 +126,7 @@ struct PushBuffer
 	// 0xC0 - plane4
 
 	// 0xA8
-	char frustumData[0x28];
+	struct PushBufferFrustumPlane frustumPlanes[5];
 
 	// 0xD0
 	int RenderListJmpIndex[6];
@@ -151,15 +161,18 @@ struct PushBuffer
 	// 0x110 - end of struct
 };
 
-_Static_assert(sizeof(struct PushBuffer) == 0x110);
-_Static_assert(offsetof(struct PushBuffer, distanceToScreen_PREV) == 0x18);
-_Static_assert(offsetof(struct PushBuffer, rect) == 0x1c);
-_Static_assert(offsetof(RECT, w) == 0x4);
-_Static_assert(offsetof(RECT, h) == 0x6);
-_Static_assert(offsetof(struct PushBuffer, matrix_ViewProj) == 0x28);
-_Static_assert(offsetof(struct PushBuffer, matrix_Camera) == 0x68);
-_Static_assert(offsetof(struct PushBuffer, ptrOT) == 0xf4);
-_Static_assert(offsetof(struct PushBuffer, renderBucketOTRangeEnd) == 0xf8);
-_Static_assert(offsetof(struct PushBuffer, renderBucketOTByteOffset) == 0xfc);
-_Static_assert(offsetof(struct PushBuffer, renderBucketScreenPos) == 0x100);
-_Static_assert(offsetof(struct PushBuffer, renderBucketScreenSize) == 0x104);
+CTR_STATIC_ASSERT(sizeof(struct PushBuffer) == 0x110);
+CTR_STATIC_ASSERT(offsetof(struct PushBuffer, distanceToScreen_PREV) == 0x18);
+CTR_STATIC_ASSERT(offsetof(struct PushBuffer, rect) == 0x1c);
+CTR_STATIC_ASSERT(offsetof(RECT, w) == 0x4);
+CTR_STATIC_ASSERT(offsetof(RECT, h) == 0x6);
+CTR_STATIC_ASSERT(offsetof(struct PushBuffer, matrix_ViewProj) == 0x28);
+CTR_STATIC_ASSERT(offsetof(struct PushBuffer, matrix_Camera) == 0x68);
+CTR_STATIC_ASSERT(offsetof(struct PushBuffer, frustumPlanes) == 0xa8);
+CTR_STATIC_ASSERT(offsetof(struct PushBuffer, RenderListJmpIndex) == 0xd0);
+CTR_STATIC_ASSERT(offsetof(struct PushBuffer, bbox) == 0xe8);
+CTR_STATIC_ASSERT(offsetof(struct PushBuffer, ptrOT) == 0xf4);
+CTR_STATIC_ASSERT(offsetof(struct PushBuffer, renderBucketOTRangeEnd) == 0xf8);
+CTR_STATIC_ASSERT(offsetof(struct PushBuffer, renderBucketOTByteOffset) == 0xfc);
+CTR_STATIC_ASSERT(offsetof(struct PushBuffer, renderBucketScreenPos) == 0x100);
+CTR_STATIC_ASSERT(offsetof(struct PushBuffer, renderBucketScreenSize) == 0x104);

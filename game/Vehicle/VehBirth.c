@@ -3,16 +3,22 @@
 static int VehBirth_IsDoor5InstDef(struct InstDef *instDef)
 {
 	if (instDef->modelID != STATIC_DOOR)
+	{
 		return 0;
+	}
 
 	if ((instDef->name[0] != 'd') || (instDef->name[1] != 'o') || (instDef->name[2] != 'o') || (instDef->name[3] != 'r') || (instDef->name[4] != '#') ||
 	    (instDef->name[5] != '5'))
+	{
 		return 0;
+	}
 
 	for (int i = 6; i < 0x10; i++)
 	{
 		if (instDef->name[i] != '\0')
+		{
 			return 0;
+		}
 	}
 
 	return 1;
@@ -25,7 +31,9 @@ static struct InstDef *VehBirth_FindDoor5(struct Level *level)
 	for (int i = 0; i < (int)level->numInstances; i++, instDef++)
 	{
 		if (VehBirth_IsDoor5InstDef(instDef))
+		{
 			return instDef;
+		}
 	}
 
 	return NULL;
@@ -34,18 +42,24 @@ static struct InstDef *VehBirth_FindDoor5(struct Level *level)
 static int VehBirth_ShouldSpawnOutsideBoss(struct GameTracker *gGT)
 {
 	if (gGT->podiumRewardID != STATIC_TROPHY)
+	{
 		return 0;
+	}
 
 	for (int i = 0, base = (gGT->levelID - N_SANITY_BEACH) * 4; i < 4; i++)
 	{
 		int trackID = data.advHubTrackIDs[base + i];
 
 		if (CHECK_ADV_BIT(sdata->advProgress.rewards, trackID + ADV_REWARD_FIRST_TROPHY) == 0)
+		{
 			return 0;
+		}
 	}
 
 	if (CHECK_ADV_BIT(sdata->advProgress.rewards, gGT->levelID - N_SANITY_BEACH + ADV_REWARD_FIRST_BOSS_KEY) != 0)
+	{
 		return 0;
+	}
 
 	return 1;
 }
@@ -88,8 +102,10 @@ static void VehBirth_SetStartlinePosition(struct Driver *d, struct Level *level,
 		d->distanceToFinish_checkpoint = 0;
 	}
 	else
+	{
 #endif
 		d->distanceToFinish_checkpoint = level->ptr_restart_points[0].distToFinish << 3;
+	}
 	VehBirth_SetBottomFromPos(posBottom, &level->DriverSpawn[spawnIndex].pos);
 }
 
@@ -126,7 +142,9 @@ void VehBirth_TeleportSelf(struct Driver *d, u8 spawnFlag, int spawnPosY)
 	int spawnOutsideBoss = 0;
 
 	if ((level1 == NULL) || (level1->ptr_mesh_info == NULL))
+	{
 		return;
+	}
 
 	dInst = d->instSelf;
 
@@ -134,7 +152,9 @@ void VehBirth_TeleportSelf(struct Driver *d, u8 spawnFlag, int spawnPosY)
 	sps->Union.QuadBlockColl.quadFlagsIgnored = 0;
 	sps->Union.QuadBlockColl.searchFlags = 0;
 	if (gGT->numPlyrCurrGame < 3)
+	{
 		sps->Union.QuadBlockColl.searchFlags = COLL_SEARCH_HIGH_LOD;
+	}
 	sps->ptr_mesh_info = level1->ptr_mesh_info;
 
 	gGT->gameMode2 &= ~VEH_FREEZE_DOOR;
@@ -149,12 +169,18 @@ void VehBirth_TeleportSelf(struct Driver *d, u8 spawnFlag, int spawnPosY)
 	else
 	{
 		if ((gGT->podiumRewardID == STATIC_KEY) && (gGT->currAdvProfile.numKeys == 1))
+		{
 			doorInst = VehBirth_FindDoor5(level1);
+		}
 		else
+		{
 			spawnOutsideBoss = VehBirth_ShouldSpawnOutsideBoss(gGT);
+		}
 
 		if (spawnAtBoss != 0)
+		{
 			spawnOutsideBoss = 1;
+		}
 
 		if (doorInst != NULL)
 		{
@@ -232,7 +258,9 @@ void VehBirth_TeleportSelf(struct Driver *d, u8 spawnFlag, int spawnPosY)
 		else if (spawnOutsideBoss != 0)
 		{
 			if (advSpawn == NULL)
+			{
 				advSpawn = VehBirth_SpawnType2PosRot(level1);
+			}
 
 			u16 rotY = (advSpawn[1].rot.y + 0x400) & 0xfff;
 
@@ -260,7 +288,9 @@ void VehBirth_TeleportSelf(struct Driver *d, u8 spawnFlag, int spawnPosY)
 		else if (gGT->podiumRewardID != NOFUNC)
 		{
 			if (advSpawn == NULL)
+			{
 				advSpawn = VehBirth_SpawnType2PosRot(level1);
+			}
 
 			d->rotCurr.y = advSpawn[0].rot.y & 0xfff;
 		}
@@ -304,7 +334,9 @@ void VehBirth_TeleportSelf(struct Driver *d, u8 spawnFlag, int spawnPosY)
 	d->rotPrev.z = d->rotCurr.z;
 
 	if ((doorInst != NULL) && ((spawnFlag & 1) != 0))
+	{
 		d->speed = 0xa00;
+	}
 
 	// set animation to zero
 	dInst->animIndex = 0;
@@ -319,12 +351,16 @@ void VehBirth_TeleportSelf(struct Driver *d, u8 spawnFlag, int spawnPosY)
 	d->actionsFlagSet &= ~(ACTION_AIRBORNE | ACTION_HIGH_JUMP);
 
 	if ((spawnFlag & 2) == 0)
+	{
 		return;
+	}
 
 	if (dInst->thread->modelIndex == DYNAMIC_PLAYER)
 	{
 		for (int i = 0; i < 0xd; i++)
+		{
 			d->funcPtrs[i] = NULL;
+		}
 
 		CAM_StartOfRace(&gGT->cameraDC[d->driverID]);
 
@@ -342,7 +378,9 @@ void VehBirth_TeleportSelf(struct Driver *d, u8 spawnFlag, int spawnPosY)
 	d->actionsFlagSet &= ~(ACTION_RACE_FINISHED | ACTION_BOT);
 
 	if ((gGT->gameMode2 & CHEAT_WUMPA) != 0)
+	{
 		d->numWumpas = 99;
+	}
 
 	d->numHeldItems = 0;
 	d->PickupLetterHUD.numCollected = 0;
@@ -352,15 +390,23 @@ void VehBirth_TeleportSelf(struct Driver *d, u8 spawnFlag, int spawnPosY)
 	char weaponId = 0xf;
 	u32 gameMode2 = gGT->gameMode2;
 	if ((gameMode2 & CHEAT_MASK) != 0)
+	{
 		weaponId = 7;
+	}
 	else if ((gameMode2 & CHEAT_TURBO) != 0)
+	{
 		weaponId = 0;
+	}
 	else if ((gameMode2 & CHEAT_BOMBS) != 0)
+	{
 		weaponId = 1;
+	}
 	d->heldItemID = weaponId;
 
 	if (weaponId != 0xf)
+	{
 		d->numHeldItems = 9;
+	}
 
 	if (
 	    // If Permanent Invisibility Cheat is Enabled
@@ -377,7 +423,9 @@ void VehBirth_TeleportSelf(struct Driver *d, u8 spawnFlag, int spawnPosY)
 	}
 
 	if ((gameMode2 & CHEAT_ENGINE) != 0)
+	{
 		d->superEngineTimer = 0x2d00;
+	}
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80058898-0x80058948.
@@ -394,7 +442,9 @@ void VehBirth_TeleportAll(struct GameTracker *gGT, u32 spawnFlags)
 		d = gGT->drivers[i];
 
 		if (d == NULL)
+		{
 			continue;
+		}
 
 		if (d->instSelf->thread->modelIndex == DYNAMIC_ROBOT_CAR)
 		{
@@ -414,7 +464,7 @@ enum
 	VEH_EXTRA_DRIVER_MODEL_COUNT = 3,
 };
 
-_Static_assert(sizeof(((struct Model *)0)->name) == VEH_MODEL_NAME_WORD_COUNT * sizeof(u32));
+CTR_STATIC_ASSERT(sizeof(((struct Model *)0)->name) == VEH_MODEL_NAME_WORD_COUNT * sizeof(u32));
 
 internal u32 VehBirth_ReadModelNameWord(const char *name, int wordIndex)
 {
@@ -428,7 +478,9 @@ internal b32 VehBirth_ModelNameEquals(const struct Model *model, const char *nam
 	for (int wordIndex = 0; wordIndex < VEH_MODEL_NAME_WORD_COUNT; wordIndex++)
 	{
 		if (VehBirth_ReadModelNameWord(model->name, wordIndex) != VehBirth_ReadModelNameWord(name, wordIndex))
+		{
 			return false;
+		}
 	}
 
 	return true;
@@ -443,11 +495,9 @@ struct Model *VehBirth_GetModelByName(char *searchName)
 
 	// array to character models loaded,
 	// maximum of 4, used in VS mode
-	models = (struct Model **)&data.driverModelExtras[0];
-
 	for (i = 0; i < VEH_EXTRA_DRIVER_MODEL_COUNT; i++)
 	{
-		m = models[i];
+		m = data.driverModelExtras[i].model;
 
 		if ((m != NULL) && VehBirth_ModelNameEquals(m, searchName))
 		{
@@ -627,7 +677,9 @@ void VehBirth_NonGhost(struct Thread *t, int index)
 		d->wakeInst = inst;
 
 		if (inst != 0)
+		{
 			inst->flags |= HIDE_MODEL | ANIM_LOOP;
+		}
 
 		// sep 3
 		// else
@@ -642,7 +694,9 @@ void VehBirth_NonGhost(struct Thread *t, int index)
 
 	inst = t->inst;
 	if (index < gGT->numPlyrCurrGame)
+	{
 		inst->flags |= OWNER_PUSHBUFFER_GATE;
+	}
 
 	d->driverID = index;
 	d->instSelf = inst;

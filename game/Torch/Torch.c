@@ -118,32 +118,32 @@ struct TorchScratch
 	struct TorchRingScratch rings[3];
 };
 
-_Static_assert(sizeof(struct TorchRingScratch) == 0x24);
-_Static_assert(TORCH_POINT_CENTER == 0x00);
-_Static_assert(TORCH_POINT_TOP == 0x04);
-_Static_assert(TORCH_POINT_TOP_RIGHT == 0x08);
-_Static_assert(TORCH_POINT_RIGHT == 0x0c);
-_Static_assert(TORCH_POINT_BOTTOM_RIGHT == 0x10);
-_Static_assert(TORCH_POINT_BOTTOM == 0x14);
-_Static_assert(TORCH_POINT_BOTTOM_LEFT == 0x18);
-_Static_assert(TORCH_POINT_LEFT == 0x1c);
-_Static_assert(TORCH_POINT_TOP_LEFT == 0x20);
-_Static_assert(offsetof(struct TorchScratch, firstParticlePtr32) == 0x30);
-_Static_assert(offsetof(struct TorchScratch, swapchainIndex) == 0x38);
-_Static_assert(offsetof(struct TorchScratch, color) == 0x44);
-_Static_assert(offsetof(struct TorchScratch, screenWFP) == 0x48);
-_Static_assert(offsetof(struct TorchScratch, screenHFP) == 0x4c);
-_Static_assert(offsetof(struct TorchScratch, rectX) == 0x50);
-_Static_assert(offsetof(struct TorchScratch, rectYWithSwapchain) == 0x52);
-_Static_assert(offsetof(struct TorchScratch, maxX) == 0x54);
-_Static_assert(offsetof(struct TorchScratch, maxY) == 0x56);
-_Static_assert(offsetof(struct TorchScratch, tileUBase) == 0x58);
-_Static_assert(offsetof(struct TorchScratch, uv0) == 0x5c);
-_Static_assert(offsetof(struct TorchScratch, uv1) == 0x60);
-_Static_assert(offsetof(struct TorchScratch, uv23) == 0x64);
-_Static_assert(offsetof(struct TorchScratch, rings) == TORCH_RING0_SCRATCH_OFFSET);
-_Static_assert(offsetof(struct TorchScratch, rings[1]) == TORCH_RING1_SCRATCH_OFFSET);
-_Static_assert(offsetof(struct TorchScratch, rings[2]) == TORCH_RING2_SCRATCH_OFFSET);
+CTR_STATIC_ASSERT(sizeof(struct TorchRingScratch) == 0x24);
+CTR_STATIC_ASSERT(TORCH_POINT_CENTER == 0x00);
+CTR_STATIC_ASSERT(TORCH_POINT_TOP == 0x04);
+CTR_STATIC_ASSERT(TORCH_POINT_TOP_RIGHT == 0x08);
+CTR_STATIC_ASSERT(TORCH_POINT_RIGHT == 0x0c);
+CTR_STATIC_ASSERT(TORCH_POINT_BOTTOM_RIGHT == 0x10);
+CTR_STATIC_ASSERT(TORCH_POINT_BOTTOM == 0x14);
+CTR_STATIC_ASSERT(TORCH_POINT_BOTTOM_LEFT == 0x18);
+CTR_STATIC_ASSERT(TORCH_POINT_LEFT == 0x1c);
+CTR_STATIC_ASSERT(TORCH_POINT_TOP_LEFT == 0x20);
+CTR_STATIC_ASSERT(offsetof(struct TorchScratch, firstParticlePtr32) == 0x30);
+CTR_STATIC_ASSERT(offsetof(struct TorchScratch, swapchainIndex) == 0x38);
+CTR_STATIC_ASSERT(offsetof(struct TorchScratch, color) == 0x44);
+CTR_STATIC_ASSERT(offsetof(struct TorchScratch, screenWFP) == 0x48);
+CTR_STATIC_ASSERT(offsetof(struct TorchScratch, screenHFP) == 0x4c);
+CTR_STATIC_ASSERT(offsetof(struct TorchScratch, rectX) == 0x50);
+CTR_STATIC_ASSERT(offsetof(struct TorchScratch, rectYWithSwapchain) == 0x52);
+CTR_STATIC_ASSERT(offsetof(struct TorchScratch, maxX) == 0x54);
+CTR_STATIC_ASSERT(offsetof(struct TorchScratch, maxY) == 0x56);
+CTR_STATIC_ASSERT(offsetof(struct TorchScratch, tileUBase) == 0x58);
+CTR_STATIC_ASSERT(offsetof(struct TorchScratch, uv0) == 0x5c);
+CTR_STATIC_ASSERT(offsetof(struct TorchScratch, uv1) == 0x60);
+CTR_STATIC_ASSERT(offsetof(struct TorchScratch, uv23) == 0x64);
+CTR_STATIC_ASSERT(offsetof(struct TorchScratch, rings) == TORCH_RING0_SCRATCH_OFFSET);
+CTR_STATIC_ASSERT(offsetof(struct TorchScratch, rings[1]) == TORCH_RING1_SCRATCH_OFFSET);
+CTR_STATIC_ASSERT(offsetof(struct TorchScratch, rings[2]) == TORCH_RING2_SCRATCH_OFFSET);
 
 static u32 Torch_ReadWord(const void *base, int offset)
 {
@@ -242,10 +242,14 @@ static void Torch_LoadRadiusVectors(u32 radius)
 static s32 Torch_ClampSignedCoord(s32 value, u16 max)
 {
 	if (value < 0)
+	{
 		return 0;
+	}
 
 	if ((s32)(value - (s32)max) >= 0)
+	{
 		return max;
+	}
 
 	return value;
 }
@@ -255,7 +259,9 @@ static u16 Torch_ClampPackedCoord(u16 coord, u16 max)
 	u32 value = coord;
 
 	if ((s32)(value - max) >= 0)
+	{
 		value = max;
+	}
 
 	return (u16)value;
 }
@@ -452,13 +458,17 @@ static int Torch_IsCardVisible(const struct TorchCardRegs *regs, u32 screenSize)
 	u32 bounds;
 
 	if ((((s32)regs->top >> 16) - 0x18) <= 0)
+	{
 		return 0;
+	}
 
 	bounds = ~((regs->left - screenSize) | (regs->right - screenSize) | (regs->top - screenSize) | (regs->bottom - screenSize)) |
 	         (regs->left & regs->right & regs->top & regs->bottom);
 
 	if ((s32)bounds < 0)
+	{
 		return 0;
+	}
 
 	return (s32)(bounds << 16) >= 0;
 }
@@ -616,9 +626,13 @@ void Torch_Main(void *particleList_heatWarp, struct PushBuffer *pb, struct PrimM
 
 							otIndex = (viewZ >> 6) + Torch_ReadS8(particle, 0x18);
 							if (otIndex < 0)
+							{
 								otIndex = 0;
+							}
 							else if ((otIndex - 0x400) >= 0)
+							{
 								otIndex = 0x3ff;
+							}
 
 							ot = (uint32_t *)(void *)((char *)otBase + (otIndex << 2));
 							sxy0 = MFC2(12);
@@ -633,11 +647,15 @@ void Torch_Main(void *particleList_heatWarp, struct PushBuffer *pb, struct PrimM
 				particlesLeft--;
 				particle = particle->next;
 				if (particlesLeft < 1)
+				{
 					goto done;
+				}
 			}
 
 			if (playerPassesLeft <= 0)
+			{
 				break;
+			}
 
 			playerPassesLeft--;
 			pb++;

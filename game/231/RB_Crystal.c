@@ -81,7 +81,7 @@ void RB_Crystal_ThTick(struct Thread *t)
 	                           ((sine << 4) >> 0xc) +        // sine (bounce up/down)
 	                           0x30;                         // airborne bump
 
-	Vector_SpecLightSpin3D(crystalInst, &crystalObj->rot.x, &crystalLightDir);
+	Vector_SpecLightSpin3D(crystalInst, &crystalObj->rot, &crystalLightDir);
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b4e7c-0x800b4f48.
@@ -104,7 +104,9 @@ int RB_Crystal_LInC(struct Instance *crystalInst, struct Thread *driverTh, struc
 
 		crystalInst->thread = crystalTh;
 		if (crystalTh == NULL)
+		{
 			return 0;
+		}
 
 		crystalTh->inst = crystalInst;
 		crystalTh->funcThCollide = (void (*)(struct Thread *))RB_Crystal_ThCollide;
@@ -112,10 +114,14 @@ int RB_Crystal_LInC(struct Instance *crystalInst, struct Thread *driverTh, struc
 	}
 
 	if ((crystalTh == NULL) || (crystalTh->funcThCollide == NULL))
+	{
 		return 0;
+	}
 
 	if (crystalInst->scale.x == 0)
+	{
 		return 0;
+	}
 
 	return ((CrystalCollideFunc)crystalTh->funcThCollide)(crystalTh, driverTh, crystalTh->funcThCollide, sps);
 }
@@ -139,7 +145,9 @@ void RB_Crystal_LInB(struct Instance *inst)
 
 		inst->thread = t;
 		if (t == 0)
+		{
 			return;
+		}
 
 		crystalObj = ((struct Crystal *)t->object);
 		t->inst = inst;

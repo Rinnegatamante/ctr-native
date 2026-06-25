@@ -1,5 +1,8 @@
 #include "../platform.h"
 #include "ctr_scratchpad.h"
+#if defined(CTR_INTERNAL)
+#include "platform/native_checkpoint.h"
+#endif
 
 #include <macros.h>
 
@@ -31,7 +34,7 @@ union NativeScratchpadStorage
 	u32 words[CTR_SCRATCHPAD_SIZE / sizeof(u32)];
 };
 
-_Static_assert(sizeof(union NativeScratchpadStorage) == CTR_SCRATCHPAD_SIZE);
+CTR_STATIC_ASSERT(sizeof(union NativeScratchpadStorage) == CTR_SCRATCHPAD_SIZE);
 
 global_variable char s_mempackMemory[CTR_NATIVE_MEMPACK_BUFFER_SIZE];
 global_variable struct PlatformMempackArena s_mempackArena;
@@ -59,6 +62,9 @@ const struct PlatformMempackArena *Platform_InitMempackArena(void)
 {
 	memset(s_mempackMemory, 0, sizeof(s_mempackMemory));
 	Platform_ConfigureMempackArena();
+#if defined(CTR_INTERNAL)
+	NativeCheckpoint_OnMempackArenaReset();
+#endif
 
 	return &s_mempackArena;
 }
@@ -71,7 +77,9 @@ const struct PlatformMempackArena *Platform_GetMempackArena(void)
 internal void Platform_RepairResidentPointers(s32 activeMempackIndex)
 {
 	if ((activeMempackIndex < 0) || (activeMempackIndex >= 4))
+	{
 		activeMempackIndex = 0;
+	}
 
 	// NOTE(aalhendi): Native keeps retail-shaped global data, but pointer aliases
 	// must target this process's static storage. This also moves GCC's

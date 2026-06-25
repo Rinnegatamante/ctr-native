@@ -7,13 +7,17 @@ void LOAD_GlobalModelPtrs_MPK()
 
 	for (int i = 0; i < 3; i++)
 	{
-		struct Model *m = (struct Model *)data.driverModelExtras[i];
+		struct Model *m = data.driverModelExtras[i].model;
 
 		if (m == NULL)
+		{
 			continue;
+		}
 
 		if (m->id == -1)
+		{
 			continue;
+		}
 
 		gGT->modelPtr[m->id] = m;
 	}
@@ -33,7 +37,9 @@ void LOAD_HubSwapPtrs(struct GameTracker *gGT)
 
 	// if no secondary lev exists, quit
 	if (gGT->level2 == 0)
+	{
 		return;
+	}
 
 	oldLev1 = gGT->level1;
 	oldVisMem1 = gGT->visMem1;

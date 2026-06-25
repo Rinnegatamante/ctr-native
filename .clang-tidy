@@ -1,0 +1,48 @@
+---
+# NOTE(aalhendi): Use CMake for the compiler warning policy.
+# This file is for portable static-analysis checks that add signal beyond the compiler.
+Checks: >
+  -*,
+  clang-diagnostic-*,
+  clang-analyzer-core.*,
+  clang-analyzer-deadcode.*,
+  clang-analyzer-unix.*,
+  bugprone-macro-repeated-side-effects,
+  bugprone-misplaced-widening-cast,
+  bugprone-sizeof-expression,
+  bugprone-suspicious-memset-usage,
+  readability-braces-around-statements
+
+WarningsAsErrors: ''
+
+# TODO(aalhendi): regex... can do this better
+HeaderFilterRegex: '(^|.*/)(game|include|platform)/|(^|.*/)(main\.c|ctr_native\.h|platform\.h)$'
+ExcludeHeaderFilterRegex: '(^|.*/)externals/'
+
+FormatStyle: file
+
+# TODO(aalhendi): Revisit these once the warning baseline is smaller. They are likely useful, too noisy atm
+#
+#   bugprone-branch-clone,
+#   bugprone-integer-division,
+#   bugprone-macro-parentheses,
+#   bugprone-reserved-identifier,
+#   bugprone-suspicious-enum-usage,
+#   bugprone-swapped-arguments,
+#   bugprone-too-small-loop-variable,
+#   bugprone-undefined-memory-manipulation,
+#   cert-err34-c,
+#   cert-flp30-c,
+#   cert-str34-c,
+#   readability-misleading-indentation,
+#   readability-misplaced-array-index,
+#
+# TODO(aalhendi): Consider broader families only after focused triage:
+#
+#   bugprone-*,
+#   cert-*,
+#   misc-*,
+#   performance-*,
+#   portability-*
+#
+...

@@ -137,7 +137,6 @@ main.c (entrypoint)
 
 - `CTR_NATIVE` is defined for native host/platform-specific code
 - The default build uses 32-bit mode while remaining PSX address-shaped data and host-pointer contracts are audited. GPU primitive links are bridged through 24-bit native tokens; see `docs/MEMORY_MODEL.md`.
-- Struct field widths match PSX hardware layouts. Enums that back struct fields use GCC/Clang fixed-underlying syntax (`typedef enum Name : s16`, `: u8`, etc.) so `sizeof` matches the retail field width without relying on default enum size.
 
 ## Roadmap
 

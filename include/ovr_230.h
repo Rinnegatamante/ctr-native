@@ -8,6 +8,10 @@ enum
 };
 typedef s32 ScrapbookState;
 
+CTR_STATIC_ASSERT(sizeof(ScrapbookState) == 0x4);
+CTR_STATIC_ASSERT(SCRAP_INIT == 0);
+CTR_STATIC_ASSERT(SCRAP_EXIT == 4);
+
 enum TransitionState
 {
 	ENTERING_MENU,
@@ -1144,9 +1148,9 @@ extern struct OVR_230_VideoBSS V230;
 
 
 #if BUILD >= EurRetail
-_Static_assert(sizeof(struct MainMenu_LevelRow) == 0x14);
+CTR_STATIC_ASSERT(sizeof(struct MainMenu_LevelRow) == 0x14);
 #else
-_Static_assert(sizeof(struct MainMenu_LevelRow) == 0x10);
+CTR_STATIC_ASSERT(sizeof(struct MainMenu_LevelRow) == 0x10);
 #endif
-_Static_assert(sizeof(struct CharacterSelectMeta) == 0xC);
-_Static_assert(sizeof(struct TransitionMeta) == 0xA);
+CTR_STATIC_ASSERT(sizeof(struct CharacterSelectMeta) == 0xC);
+CTR_STATIC_ASSERT(sizeof(struct TransitionMeta) == 0xA);

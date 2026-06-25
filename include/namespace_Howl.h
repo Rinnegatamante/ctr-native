@@ -27,6 +27,10 @@ enum
 };
 typedef s16 AudioState;
 
+CTR_STATIC_ASSERT(sizeof(AudioState) == 0x2);
+CTR_STATIC_ASSERT(AUDIO_NONE == 0);
+CTR_STATIC_ASSERT(AUDIO_RACE_END == 16);
+
 // Global song indices into howl_songOffsets[].
 enum HowlSong
 {
@@ -513,8 +517,8 @@ enum VoiceType_XAGAME2
 }
 #endif
 
-_Static_assert(sizeof(SpuReverbAttr) == 0x14);
-_Static_assert(sizeof(struct ChannelAttr) == 0x10);
-_Static_assert(sizeof(struct ChannelStats) == 0x20);
-_Static_assert(sizeof(struct SongSeq) == 0x1C);
-_Static_assert(sizeof(struct Song) == 0x7C);
+CTR_STATIC_ASSERT(sizeof(SpuReverbAttr) == 0x14);
+CTR_STATIC_ASSERT(sizeof(struct ChannelAttr) == 0x10);
+CTR_STATIC_ASSERT(sizeof(struct ChannelStats) == 0x20);
+CTR_STATIC_ASSERT(sizeof(struct SongSeq) == 0x1C);
+CTR_STATIC_ASSERT(sizeof(struct Song) == 0x7C);

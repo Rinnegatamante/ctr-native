@@ -17,18 +17,18 @@ struct RenderWeatherScratch
 	u32 centerZ;
 };
 
-_Static_assert(sizeof(struct RenderWeatherScratch) == 0x10);
-_Static_assert(offsetof(struct RenderWeatherScratch, colorTop) == 0x00);
-_Static_assert(offsetof(struct RenderWeatherScratch, colorBottom) == 0x04);
-_Static_assert(offsetof(struct RenderWeatherScratch, packedCenterXY) == 0x08);
-_Static_assert(offsetof(struct RenderWeatherScratch, centerZ) == 0x0C);
+CTR_STATIC_ASSERT(sizeof(struct RenderWeatherScratch) == 0x10);
+CTR_STATIC_ASSERT(offsetof(struct RenderWeatherScratch, colorTop) == 0x00);
+CTR_STATIC_ASSERT(offsetof(struct RenderWeatherScratch, colorBottom) == 0x04);
+CTR_STATIC_ASSERT(offsetof(struct RenderWeatherScratch, packedCenterXY) == 0x08);
+CTR_STATIC_ASSERT(offsetof(struct RenderWeatherScratch, centerZ) == 0x0C);
 
-_Static_assert(sizeof(LINE_G2) == 0x14);
-_Static_assert(offsetof(LINE_G2, tag) == 0x00);
-_Static_assert(offsetof(LINE_G2, r0) == 0x04);
-_Static_assert(offsetof(LINE_G2, x0) == 0x08);
-_Static_assert(offsetof(LINE_G2, r1) == 0x0C);
-_Static_assert(offsetof(LINE_G2, x1) == 0x10);
+CTR_STATIC_ASSERT(sizeof(LINE_G2) == 0x14);
+CTR_STATIC_ASSERT(offsetof(LINE_G2, tag) == 0x00);
+CTR_STATIC_ASSERT(offsetof(LINE_G2, r0) == 0x04);
+CTR_STATIC_ASSERT(offsetof(LINE_G2, x0) == 0x08);
+CTR_STATIC_ASSERT(offsetof(LINE_G2, r1) == 0x0C);
+CTR_STATIC_ASSERT(offsetof(LINE_G2, x1) == 0x10);
 
 static u32 RenderWeather_ReadWord(const void *base, int offset)
 {
@@ -61,9 +61,13 @@ static struct RenderWeatherTrigPair RenderWeather_TrigAngleSinCos(int angle)
 		pair.cos = (s16)packed;
 
 		if ((angle & 0x800) != 0)
+		{
 			pair.sin = -pair.sin;
+		}
 		else
+		{
 			pair.cos = -pair.cos;
+		}
 	}
 
 	return pair;
@@ -98,12 +102,16 @@ static int RenderWeather_IsVisible(u32 gteFlag, u32 sxy0, u32 sxy1, u32 screenBo
 	u32 bounds;
 
 	if ((s32)(gteFlag << 14) < 0)
+	{
 		return 0;
+	}
 
 	overlap = sxy0 & sxy1;
 	bounds = ~((sxy0 - screenBounds) | (sxy1 - screenBounds)) | overlap;
 	if ((s32)bounds < 0)
+	{
 		return 0;
+	}
 
 	return (s32)(bounds << 16) >= 0;
 }
@@ -186,13 +194,17 @@ void RenderWeather(struct PushBuffer *pb, struct PrimMem *primMem, struct RainBu
 			{
 				currentParticles -= vanishRate;
 				if (diff + vanishRate > 0)
+				{
 					currentParticles = maxParticles;
+				}
 			}
 			else
 			{
 				currentParticles += vanishRate;
 				if (diff - vanishRate < 0)
+				{
 					currentParticles = maxParticles;
+				}
 			}
 
 			rainBuffer->numParticles_curr = currentParticles;

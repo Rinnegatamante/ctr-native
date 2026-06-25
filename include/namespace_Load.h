@@ -192,4 +192,4 @@ struct LoadQueueSlot
 	void (*callbackFuncPtr)(struct LoadQueueSlot *);
 };
 
-_Static_assert(sizeof(struct LoadQueueSlot) == 0x18);
+CTR_STATIC_ASSERT(sizeof(struct LoadQueueSlot) == 0x18);

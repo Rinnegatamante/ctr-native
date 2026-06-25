@@ -203,7 +203,7 @@ void VehTurbo_ThTick(struct Thread *turboThread)
 	// STATIC_TURBO_EFFECT5
 	// STATIC_TURBO_EFFECT6
 	// STATIC_TURBO_EFFECT7
-	turbo->inst->model = gGT->modelPtr[((int)turbo->fireAnimIndex + 3U & 7) + STATIC_TURBO_EFFECT];
+	turbo->inst->model = gGT->modelPtr[(((int)turbo->fireAnimIndex + 3U) & 7) + STATIC_TURBO_EFFECT];
 
 	turbo->fireAnimIndex++;
 
@@ -285,7 +285,9 @@ void VehTurbo_ThTick(struct Thread *turboThread)
 		{
 			// if fully transparent, skip lines
 			if (0xfff < instance->alphaScale)
+			{
 				goto LAB_80069b50;
+			}
 
 			if (turbo->fireDisappearCountdown == '\0')
 			{
@@ -304,7 +306,9 @@ void VehTurbo_ThTick(struct Thread *turboThread)
 		{
 			// if scale is big, skip lines
 			if (0xfff < instance->alphaScale)
+			{
 				goto LAB_80069b50;
+			}
 		}
 	}
 

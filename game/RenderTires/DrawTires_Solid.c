@@ -37,49 +37,49 @@ struct DrawTiresSolidScratch
 	int otRangeEnd;
 };
 
-_Static_assert(offsetof(struct DrawTiresSolidScratch, numPlyr) == 0x30);
-_Static_assert(offsetof(struct DrawTiresSolidScratch, playerCounter) == 0x34);
-_Static_assert(offsetof(struct DrawTiresSolidScratch, wheelSprites) == 0x38);
-_Static_assert(offsetof(struct DrawTiresSolidScratch, tireColor) == 0x3c);
-_Static_assert(offsetof(struct DrawTiresSolidScratch, otRangeNormal) == 0x40);
-_Static_assert(offsetof(struct DrawTiresSolidScratch, otRangeSecondary) == 0x44);
-_Static_assert(offsetof(struct DrawTiresSolidScratch, wheelSize) == 0x48);
-_Static_assert(offsetof(struct DrawTiresSolidScratch, vertSplit) == 0x4c);
-_Static_assert(offsetof(struct DrawTiresSolidScratch, splitCameraY) == 0x50);
-_Static_assert(offsetof(struct DrawTiresSolidScratch, lodThreshold) == 0x54);
-_Static_assert(offsetof(struct DrawTiresSolidScratch, wheelLocalPairA) == 0x58);
-_Static_assert(offsetof(struct DrawTiresSolidScratch, wheelLocalPairB) == 0x68);
-_Static_assert(offsetof(struct DrawTiresSolidScratch, wheelLocalPairC) == 0x78);
-_Static_assert(offsetof(struct DrawTiresSolidScratch, wheelLocalPairD) == 0x88);
-_Static_assert(offsetof(struct DrawTiresSolidScratch, viewNormalVectors) == 0x98);
-_Static_assert(offsetof(struct DrawTiresSolidScratch, transformedRimVectors) == 0xb8);
-_Static_assert(offsetof(struct DrawTiresSolidScratch, tireAxisA) == 0xd8);
-_Static_assert(offsetof(struct DrawTiresSolidScratch, tireAxisB) == 0xf8);
-_Static_assert(offsetof(struct DrawTiresSolidScratch, projectedSxy) == 0x118);
-_Static_assert(offsetof(struct DrawTiresSolidScratch, cornerDepthBias) == 0x128);
-_Static_assert(offsetof(struct DrawTiresSolidScratch, jumpTable) == 0x130);
-_Static_assert(offsetof(struct DrawTiresSolidScratch, instFlags) == 0x160);
-_Static_assert(offsetof(struct DrawTiresSolidScratch, depthOffsetStartBytes) == 0x16c);
-_Static_assert(offsetof(struct DrawTiresSolidScratch, depthOffsetEndBytes) == 0x16e);
-_Static_assert(offsetof(struct DrawTiresSolidScratch, otRangeStart) == 0x170);
-_Static_assert(offsetof(struct DrawTiresSolidScratch, otRangeEnd) == 0x174);
-_Static_assert(sizeof(POLY_FT4) == 0x28);
-_Static_assert(offsetof(POLY_FT4, r0) == 0x4);
-_Static_assert(offsetof(POLY_FT4, x0) == 0x8);
-_Static_assert(offsetof(POLY_FT4, u0) == 0xc);
-_Static_assert(offsetof(POLY_FT4, x3) == 0x20);
-_Static_assert(sizeof(struct Instance) == 0x74);
-_Static_assert(offsetof(struct Instance, scale) == 0x1c);
-_Static_assert(offsetof(struct Instance, matrix) == 0x30);
-_Static_assert(offsetof(struct Instance, vertSplit) == 0x56);
-_Static_assert(sizeof(struct InstDrawPerPlayer) == 0x88);
-_Static_assert(offsetof(struct InstDrawPerPlayer, pushBuffer) == 0x0);
-_Static_assert(offsetof(struct InstDrawPerPlayer, m3x3) == 0x24);
-_Static_assert(offsetof(struct InstDrawPerPlayer, instFlags) == 0x44);
-_Static_assert(offsetof(struct InstDrawPerPlayer, lodIndex) == 0x64);
-_Static_assert(offsetof(struct InstDrawPerPlayer, depthOffset) == 0x68);
-_Static_assert(offsetof(struct InstDrawPerPlayer, otRangeNormal) == 0x70);
-_Static_assert(offsetof(struct InstDrawPerPlayer, otRangeSecondary) == 0x74);
+CTR_STATIC_ASSERT(offsetof(struct DrawTiresSolidScratch, numPlyr) == 0x30);
+CTR_STATIC_ASSERT(offsetof(struct DrawTiresSolidScratch, playerCounter) == 0x34);
+CTR_STATIC_ASSERT(offsetof(struct DrawTiresSolidScratch, wheelSprites) == 0x38);
+CTR_STATIC_ASSERT(offsetof(struct DrawTiresSolidScratch, tireColor) == 0x3c);
+CTR_STATIC_ASSERT(offsetof(struct DrawTiresSolidScratch, otRangeNormal) == 0x40);
+CTR_STATIC_ASSERT(offsetof(struct DrawTiresSolidScratch, otRangeSecondary) == 0x44);
+CTR_STATIC_ASSERT(offsetof(struct DrawTiresSolidScratch, wheelSize) == 0x48);
+CTR_STATIC_ASSERT(offsetof(struct DrawTiresSolidScratch, vertSplit) == 0x4c);
+CTR_STATIC_ASSERT(offsetof(struct DrawTiresSolidScratch, splitCameraY) == 0x50);
+CTR_STATIC_ASSERT(offsetof(struct DrawTiresSolidScratch, lodThreshold) == 0x54);
+CTR_STATIC_ASSERT(offsetof(struct DrawTiresSolidScratch, wheelLocalPairA) == 0x58);
+CTR_STATIC_ASSERT(offsetof(struct DrawTiresSolidScratch, wheelLocalPairB) == 0x68);
+CTR_STATIC_ASSERT(offsetof(struct DrawTiresSolidScratch, wheelLocalPairC) == 0x78);
+CTR_STATIC_ASSERT(offsetof(struct DrawTiresSolidScratch, wheelLocalPairD) == 0x88);
+CTR_STATIC_ASSERT(offsetof(struct DrawTiresSolidScratch, viewNormalVectors) == 0x98);
+CTR_STATIC_ASSERT(offsetof(struct DrawTiresSolidScratch, transformedRimVectors) == 0xb8);
+CTR_STATIC_ASSERT(offsetof(struct DrawTiresSolidScratch, tireAxisA) == 0xd8);
+CTR_STATIC_ASSERT(offsetof(struct DrawTiresSolidScratch, tireAxisB) == 0xf8);
+CTR_STATIC_ASSERT(offsetof(struct DrawTiresSolidScratch, projectedSxy) == 0x118);
+CTR_STATIC_ASSERT(offsetof(struct DrawTiresSolidScratch, cornerDepthBias) == 0x128);
+CTR_STATIC_ASSERT(offsetof(struct DrawTiresSolidScratch, jumpTable) == 0x130);
+CTR_STATIC_ASSERT(offsetof(struct DrawTiresSolidScratch, instFlags) == 0x160);
+CTR_STATIC_ASSERT(offsetof(struct DrawTiresSolidScratch, depthOffsetStartBytes) == 0x16c);
+CTR_STATIC_ASSERT(offsetof(struct DrawTiresSolidScratch, depthOffsetEndBytes) == 0x16e);
+CTR_STATIC_ASSERT(offsetof(struct DrawTiresSolidScratch, otRangeStart) == 0x170);
+CTR_STATIC_ASSERT(offsetof(struct DrawTiresSolidScratch, otRangeEnd) == 0x174);
+CTR_STATIC_ASSERT(sizeof(POLY_FT4) == 0x28);
+CTR_STATIC_ASSERT(offsetof(POLY_FT4, r0) == 0x4);
+CTR_STATIC_ASSERT(offsetof(POLY_FT4, x0) == 0x8);
+CTR_STATIC_ASSERT(offsetof(POLY_FT4, u0) == 0xc);
+CTR_STATIC_ASSERT(offsetof(POLY_FT4, x3) == 0x20);
+CTR_STATIC_ASSERT(sizeof(struct Instance) == 0x74);
+CTR_STATIC_ASSERT(offsetof(struct Instance, scale) == 0x1c);
+CTR_STATIC_ASSERT(offsetof(struct Instance, matrix) == 0x30);
+CTR_STATIC_ASSERT(offsetof(struct Instance, vertSplit) == 0x56);
+CTR_STATIC_ASSERT(sizeof(struct InstDrawPerPlayer) == 0x88);
+CTR_STATIC_ASSERT(offsetof(struct InstDrawPerPlayer, pushBuffer) == 0x0);
+CTR_STATIC_ASSERT(offsetof(struct InstDrawPerPlayer, m3x3) == 0x24);
+CTR_STATIC_ASSERT(offsetof(struct InstDrawPerPlayer, instFlags) == 0x44);
+CTR_STATIC_ASSERT(offsetof(struct InstDrawPerPlayer, lodIndex) == 0x64);
+CTR_STATIC_ASSERT(offsetof(struct InstDrawPerPlayer, depthOffset) == 0x68);
+CTR_STATIC_ASSERT(offsetof(struct InstDrawPerPlayer, otRangeNormal) == 0x70);
+CTR_STATIC_ASSERT(offsetof(struct InstDrawPerPlayer, otRangeSecondary) == 0x74);
 
 static const u32 sDrawTiresSolidJumpTable[8] = {
     0x8006ed7c, 0x8006ed98, 0x8006edb4, 0x8006edcc, 0x8006ede4, 0x8006ee00, 0x8006ee1c, 0x8006ee3c,
@@ -202,7 +202,9 @@ s32 Unknown_8006ef98(s32 radicand)
 
 	// NOTE(aalhendi): Retail input is s5 and output is s6.
 	if (radicand == 0)
+	{
 		return 0;
+	}
 
 	bitCount = DrawTiresSolid_CountLeadingSignBits(radicand) & 0x1e;
 	work = ((u32)radicand) << bitCount;
@@ -464,10 +466,14 @@ static int DrawTiresSolid_SelectSpriteIndex(int angleValue)
 	int tableIndex = angleValue >> 5;
 
 	if (angleValue < 0)
+	{
 		tableIndex = -tableIndex;
+	}
 
 	if ((tableIndex - 0x80) > 0)
+	{
 		tableIndex = 0x80;
+	}
 
 	return sDrawTiresSpriteIndexTable[tableIndex];
 }
@@ -490,7 +496,9 @@ static struct DrawTiresSolidProjectedWheel DrawTiresSolid_SelectProjectedWheel(s
 	gte_avsz4_b();
 
 	if (splitDelta >= 0)
+	{
 		selectedOT = DrawTiresSolid_ReadS32(scratch, 0x44);
+	}
 
 	MTC2(DrawTiresSolid_ReadS32(scratch, outputBase + 0x98), 0);
 	MTC2(DrawTiresSolid_ReadS32(scratch, outputBase + 0x9c), 1);
@@ -507,7 +515,9 @@ static struct DrawTiresSolidProjectedWheel DrawTiresSolid_SelectProjectedWheel(s
 	angleValue = MFC2_S(9);
 	spriteIndex = DrawTiresSolid_SelectSpriteIndex(angleValue);
 	if (angleValue < 0)
+	{
 		selected.jumpIndex += 4;
+	}
 
 	selected.wheelSprite = scratch->wheelSprites[spriteIndex];
 
@@ -608,10 +618,14 @@ static void DrawTiresSolid_LinkPrimitive(struct DrawTiresSolidScratch *scratch, 
 	int otRangeEnd = DrawTiresSolid_ReadS32(scratch, 0x174);
 
 	if ((otRangeStart - selectedOTSlot) > 0)
+	{
 		selectedOTSlot = otRangeStart;
+	}
 
 	if ((otRangeEnd - selectedOTSlot) < 0)
+	{
 		selectedOTSlot = otRangeEnd;
+	}
 
 	otSlot = (uint32_t *)(uintptr_t)selectedOTSlot;
 	p->tag = CtrGpu_PackOTTag(*otSlot, 0x09000000);
@@ -628,7 +642,9 @@ static int DrawTiresSolid_EmitProjectedWheel(struct DrawTiresSolidScratch *scrat
 	*(u32 *)&p->r0 = scratch->tireColor;
 
 	if (selected->wheelSprite == 0)
+	{
 		return 1;
+	}
 
 	DrawTiresSolid_CopyIconUV(p, selected->wheelSprite);
 
@@ -642,10 +658,14 @@ static int DrawTiresSolid_EmitProjectedWheel(struct DrawTiresSolidScratch *scrat
 #endif
 
 	if (DrawTiresSolid_ApplyCornerOrder(scratch, selected->jumpIndex, &selectedOTSlot, sxy) == 0)
+	{
 		return 1;
+	}
 
 	if (DrawTiresSolid_ReadS32(scratch, 0x44) == selected->selectedOT && (scratch->instFlags & 0x4000) != 0)
+	{
 		return 0;
+	}
 
 	DrawTiresSolid_WritePrimitiveCorners(p, sxy);
 	DrawTiresSolid_LinkPrimitive(scratch, p, selectedOTSlot);
@@ -681,7 +701,9 @@ static int DrawTiresSolid_ProjectWheelQuads(struct DrawTiresSolidScratch *scratc
 		projectedWheel = DrawTiresSolid_SelectProjectedWheel(scratch, centerOffset, outputBase, wheelIndex);
 
 		if (DrawTiresSolid_EmitProjectedWheel(scratch, &projectedWheel, primMem, primCount) == 0)
+		{
 			return 0;
+		}
 	}
 
 	return 1;
@@ -701,19 +723,27 @@ static int DrawTiresSolid_StagePlayer(struct DrawTiresSolidScratch *scratch, str
 	scratch->instFlags = flags;
 
 	if ((flags & DRAW_SUCCESSFUL) == 0)
+	{
 		return 0;
+	}
 
 	if ((flags & HIDE_MODEL) != 0)
+	{
 		return 0;
+	}
 
 	if ((idpp->lodIndex - scratch->lodThreshold) > 0)
+	{
 		return 0;
+	}
 
 	scratch->wheelSprites = driver->wheelSprites;
 	scratch->tireColor = ((flags & PUSHBUFFER_EXISTS) != 0) ? 0x2e808080 : driver->tireColor;
 
 	if (pb == 0)
+	{
 		return 0;
+	}
 
 #ifdef CTR_INTERNAL
 	if (CtrTireDebug_ShouldLog(CTR_TIREDBG_SOLID_STAGE) != 0)
@@ -755,7 +785,9 @@ void DrawTires_Solid(struct Thread *thread, struct PrimMem *primMem, char numPly
 	// offset-checked stack state and explicit helpers; PSX backfeed must restore
 	// the retail scratchpad/register entry protocol.
 	if (primMem == 0)
+	{
 		return;
+	}
 
 	primCount = primMem->primitiveCount;
 	DrawTiresSolid_InitScratch(&scratch, numPlyr);
@@ -766,12 +798,16 @@ void DrawTires_Solid(struct Thread *thread, struct PrimMem *primMem, char numPly
 		struct Instance *inst = currThread->inst;
 
 		if (driver == 0 || inst == 0)
+		{
 			continue;
+		}
 
 		for (int playerIndex = 0; playerIndex < (int)(u8)numPlyr; playerIndex++)
 		{
 			if (DrawTiresSolid_StagePlayer(&scratch, driver, inst, playerIndex, primMem, &primCount) == 0)
+			{
 				continue;
+			}
 		}
 	}
 

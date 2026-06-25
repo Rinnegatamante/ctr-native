@@ -1,15 +1,16 @@
 cmake_minimum_required(VERSION 3.20)
 project(CTR-Native C)
+include(CheckCCompilerFlag)
 
 set(CMAKE_C_STANDARD 99)
-set(CTR_NATIVE_VERSION "0.1.0-beta.5")
+set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_C_EXTENSIONS ON)
+set(CTR_NATIVE_VERSION "0.1.0-beta.6")
 
 if(NOT CMAKE_C_COMPILER_TARGET MATCHES "i.86" AND NOT CMAKE_SYSTEM_PROCESSOR MATCHES "i.86")
     set(CMAKE_C_FLAGS "-m32 ${CMAKE_C_FLAGS}")
     set(CMAKE_EXE_LINKER_FLAGS "-m32 ${CMAKE_EXE_LINKER_FLAGS}")
 endif()
-
-set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc ${CMAKE_EXE_LINKER_FLAGS}")
 
 set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE NEVER)
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY NEVER)
@@ -39,11 +40,21 @@ else()
     set(CTR_NATIVE_BUILD_ID "${CTR_NATIVE_GIT_HASH}-dirty-${CTR_NATIVE_BUILD_TIMESTAMP}")
 endif()
 
-set(GAME_INCLUDES
-    ${CMAKE_SOURCE_DIR}/include
-)
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse -Wno-error -g")
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse -Wno-error -Wno-incompatible-pointer-types -g")
+function(ctr_native_add_label_warning_if_supported target warning flag_check)
+    set(saved_required_flags "${CMAKE_REQUIRED_FLAGS}")
+    if(CMAKE_C_COMPILER_ID MATCHES "Clang")
+        set(CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS} -Werror=unknown-warning-option")
+    endif()
+
+    check_c_compiler_flag("${warning}" "${flag_check}")
+    set(CMAKE_REQUIRED_FLAGS "${saved_required_flags}")
+
+    if(${flag_check})
+        target_compile_options(${target} PRIVATE "${warning}")
+    endif()
+endfunction()
 
 # SDL3
 set(SDL_SHARED OFF CACHE BOOL "" FORCE)
@@ -69,7 +80,7 @@ add_subdirectory(externals/SDL)
 
 # CTR Native
 add_executable(ctr_native main.c)
-target_include_directories(ctr_native PRIVATE ${GAME_INCLUDES})
+target_include_directories(ctr_native PRIVATE ${CMAKE_SOURCE_DIR}/include)
 target_compile_definitions(ctr_native PRIVATE
     CTR_NATIVE
     BUILD=926
@@ -78,9 +89,16 @@ target_compile_definitions(ctr_native PRIVATE
     CTR_NATIVE_BUILD_ID=\"${CTR_NATIVE_BUILD_ID}\"
 )
 target_compile_options(ctr_native PRIVATE -O2)
+if(CMAKE_C_COMPILER_ID MATCHES "Clang|GNU")
+    target_compile_options(ctr_native PRIVATE -Wenum-conversion -Wenum-compare -Wswitch-enum -Wformat -Wparentheses)
+endif()
+if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
+    ctr_native_add_label_warning_if_supported(ctr_native -Wfree-labels CTR_HAS_WFREE_LABELS)
+elseif(CMAKE_C_COMPILER_ID MATCHES "Clang")
+    ctr_native_add_label_warning_if_supported(ctr_native -Wc23-extensions CTR_HAS_WC23_EXTENSIONS)
+endif()
 target_link_libraries(ctr_native SDL3::SDL3)
+target_link_options(ctr_native PRIVATE -static-libgcc)
 if(WIN32)
-    target_link_options(ctr_native PRIVATE -static -static-libgcc -Wl,--image-base,0x400000 -Wl,--disable-dynamicbase -Wl,--disable-reloc-section)
-else()
-    target_link_options(ctr_native PRIVATE -static-libgcc -Wl,--image-base,0x400000 -no-pie -Wl,--allow-multiple-definition)
+    target_link_options(ctr_native PRIVATE -static)
 endif()

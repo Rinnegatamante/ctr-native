@@ -10,7 +10,9 @@ int RB_CtrLetter_ThCollide(struct Thread *letterTh, struct Thread *driverTh, voi
 	struct PushBuffer *pb;
 
 	if (sps->Input1.modelID != DYNAMIC_PLAYER)
+	{
 		return 0;
+	}
 
 	letterInst = letterTh->inst;
 	driver = driverTh->object;
@@ -50,7 +52,9 @@ int RB_CtrLetter_LInC(struct Instance *letterInst, struct Thread *driverTh, stru
 
 		letterInst->thread = letterTh;
 		if (letterTh == NULL)
+		{
 			return 0;
+		}
 
 		letterTh->inst = letterInst;
 		letterTh->funcThCollide = (void (*)(struct Thread *))RB_CtrLetter_ThCollide;
@@ -58,10 +62,14 @@ int RB_CtrLetter_LInC(struct Instance *letterInst, struct Thread *driverTh, stru
 	}
 
 	if ((letterTh == NULL) || (letterTh->funcThCollide == NULL))
+	{
 		return 0;
+	}
 
 	if (letterInst->scale.x == 0)
+	{
 		return 0;
+	}
 
 	return ((CtrLetterCollideFunc)letterTh->funcThCollide)(letterTh, driverTh, letterTh->funcThCollide, sps);
 }
@@ -83,7 +91,7 @@ void RB_CtrLetter_ThTick(struct Thread *t)
 	letterObj->rot.y += 0x40;
 	ConvertRotToMatrix(&letterInst->matrix, &letterObj->rot);
 
-	Vector_SpecLightSpin3D(letterInst, &letterObj->rot.x, &letterLightDir);
+	Vector_SpecLightSpin3D(letterInst, &letterObj->rot, &letterLightDir);
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b5334-0x800b53e0.
@@ -106,7 +114,9 @@ void RB_CtrLetter_LInB(struct Instance *inst)
 
 		inst->thread = t;
 		if (t == 0)
+		{
 			return;
+		}
 
 		t->funcThCollide = (void (*)(struct Thread *))RB_CtrLetter_ThCollide;
 		t->inst = inst;

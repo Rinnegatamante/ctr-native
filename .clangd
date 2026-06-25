@@ -1,13 +1,11 @@
 CompileFlags:
+  CompilationDatabase: build
   Add:
-    - -std=c99
+    - -std=gnu99
     - -m32
+    - -msse
     - -DCTR_NATIVE
-    - -DUSE_EXTENDED_PRIM_POINTERS=0
-    - -DUSE_PCDRV
     - -DCTR_INTERNAL
+    - -DBUILD=926
     - -Iinclude
-    - -Iexternals/PsyCross/include
-    - -Iexternals/PsyCross
     - -Iexternals/SDL/include
-    - -Iexternals/openal-soft/include

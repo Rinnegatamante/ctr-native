@@ -3550,9 +3550,9 @@ struct Data
                     0x00,
                 },
 
-            .driverModelExtras[0] = 0,
-            .driverModelExtras[1] = 0,
-            .driverModelExtras[2] = 0,
+            .driverModelExtras[0].fileBase = 0,
+            .driverModelExtras[1].fileBase = 0,
+            .driverModelExtras[2].fileBase = 0,
 
             .podiumModel_firstPlace = 0,
             .podiumModel_secondPlace = 0,

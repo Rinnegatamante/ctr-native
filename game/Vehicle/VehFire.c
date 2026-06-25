@@ -112,11 +112,17 @@ void VehFire_Increment(struct Driver *driver, int reserves, u32 type, int fireLe
 	kartState = driver->kartState;
 
 	if (kartState == KS_SPINNING)
+	{
 		return;
+	}
 	if (kartState == KS_MASK_GRABBED)
+	{
 		return;
+	}
 	if (kartState == KS_BLASTED)
+	{
 		return;
+	}
 
 	// Clear the turbo input latch and mark an outside turbo.
 	driver->actionsFlagSet = (driver->actionsFlagSet & ~ACTION_TURBO_INPUT_LATCH) | ACTION_NEW_BOOST;
@@ -187,9 +193,13 @@ void VehFire_Increment(struct Driver *driver, int reserves, u32 type, int fireLe
 			// 	- powerslide: two frames (quick death)
 			//	- all others: -1 frames (255 = 'no' death)
 			if (type & 2)
+			{
 				count = 2;
+			}
 			else
+			{
 				count = -1;
+			}
 			turboObj->fireDisappearCountdown = count;
 
 			// player of any kind
@@ -328,7 +338,9 @@ void VehFire_Increment(struct Driver *driver, int reserves, u32 type, int fireLe
 			// modify, cap, and save the size of the fire
 			newFireSize = CTR_MipsAddLo(CTR_MipsSra(fireLevel, 6), 5);
 			if (newFireSize > 8)
+			{
 				newFireSize = 8;
+			}
 			turboObj->fireSize = (s16)newFireSize;
 		}
 	}

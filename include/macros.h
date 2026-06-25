@@ -9,6 +9,11 @@
 #include <stdint.h>
 #endif
 
+#define CTR_STATIC_ASSERT_JOIN2(a, b) a##b
+#define CTR_STATIC_ASSERT_JOIN(a, b)  CTR_STATIC_ASSERT_JOIN2(a, b)
+// TODO(aalhendi): something nicer than __LINE__? Maybe __COUNTER__. Look into compilers
+#define CTR_STATIC_ASSERT(expr)       extern int CTR_STATIC_ASSERT_JOIN(ctr_static_assert_, __LINE__)[(expr) ? 1 : -1]
+
 typedef uint64_t u64;
 typedef int64_t s64;
 typedef uint32_t u32;
@@ -87,6 +92,10 @@ typedef double f64;
 #else
 #define CTR_PRINTF_FORMAT(fmtArg, firstVararg)
 #endif
+
+// Retail format strings use PsyQ `%ld` for 32-bit values. Keep call sites on
+// project-width types while satisfying host printf varargs for the literal.
+#define CTR_PRINTF_PSX_LONG(value) ((long)(s32)(value))
 
 #define RGBtoBGR(color)            ((color & 0xFF0000) >> 16) | (color & 0xFF00) | ((color & 0xFF) << 16)
 

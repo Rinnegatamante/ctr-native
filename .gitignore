@@ -15,6 +15,7 @@ compile_commands.json
 .venv/
 .cache/
 .vs/
+.idea/
 *.swp
 *~
 *.log

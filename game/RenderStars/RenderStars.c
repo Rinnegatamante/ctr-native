@@ -1,9 +1,9 @@
 #include <common.h>
 
-_Static_assert(sizeof(TILE_1) == 0x0C);
-_Static_assert(offsetof(TILE_1, tag) == 0x00);
-_Static_assert(offsetof(TILE_1, r0) == 0x04);
-_Static_assert(offsetof(TILE_1, x0) == 0x08);
+CTR_STATIC_ASSERT(sizeof(TILE_1) == 0x0C);
+CTR_STATIC_ASSERT(offsetof(TILE_1, tag) == 0x00);
+CTR_STATIC_ASSERT(offsetof(TILE_1, r0) == 0x04);
+CTR_STATIC_ASSERT(offsetof(TILE_1, x0) == 0x08);
 
 static s32 RenderStars_MulLowShift(s32 value, s32 scale)
 {
@@ -40,11 +40,15 @@ static int RenderStars_IsVisible(u32 gteFlag, u32 sxy)
 	s32 bounds;
 
 	if (clip < 0)
+	{
 		return 0;
+	}
 
 	bounds = (s32) ~((sxy - 0x00d90200) | sxy);
 	if (bounds < 0)
+	{
 		return 0;
+	}
 
 	return ((s32)((u32)bounds << 16) >= 0);
 }
@@ -120,7 +124,9 @@ void RenderStars(struct PushBuffer *pb, struct PrimMem *primMem, struct Stars *s
 
 			absX = starX;
 			if (absX < 0)
+			{
 				absX = -absX;
+			}
 
 			absY = starY;
 			if (absY < 0)
@@ -134,7 +140,9 @@ void RenderStars(struct PushBuffer *pb, struct PrimMem *primMem, struct Stars *s
 
 			absZ = starZ;
 			if (absZ < 0)
+			{
 				absZ = -absZ;
+			}
 
 			if (absX - absY <= 0)
 			{

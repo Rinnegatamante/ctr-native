@@ -15,7 +15,9 @@ void CS_DestroyPodium_StartDriving(void)
 	while (t != NULL)
 	{
 		if (t->funcThDestroy != CS_Podium_Prize_ThDestroy)
+		{
 			t->flags |= THREAD_FLAG_DEAD;
+		}
 
 		t = t->siblingThread;
 	}
@@ -50,7 +52,9 @@ void CS_DestroyPodium_StartDriving(void)
 void CS_Podium_Stand_ThTick(struct Thread *t)
 {
 	if (D233.isCutsceneOver != 0)
+	{
 		t->flags |= THREAD_FLAG_DEAD;
+	}
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b0248-0x800b0300
@@ -60,7 +64,9 @@ void CS_Podium_Stand_Init(s16 *podiumData)
 
 	// if the instance was built
 	if (inst == NULL)
+	{
 		return;
+	}
 
 	// set funcThDestroy to remove instance from instance pool
 	inst->thread->funcThDestroy = PROC_DestroyInstance;
@@ -76,7 +82,7 @@ void CS_Podium_Stand_Init(s16 *podiumData)
 	podiumData[13] = podiumData[9];
 	podiumData[14] = podiumData[10];
 
-	ConvertRotToMatrix(&inst->matrix, &podiumData[12]);
+	ConvertRotToMatrix(&inst->matrix, (const SVec3 *)&podiumData[12]);
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800af7c0-0x800af994
@@ -90,22 +96,29 @@ void CS_Podium_Prize_Spin(struct Instance *inst, s16 *prize)
 	SVec3 lightDir;
 
 	prize[5] += 100;
-	ConvertRotToMatrix(&inst->matrix, &prize[4]);
+	const SVec3 *prizeRot = (const SVec3 *)&prize[4];
+	ConvertRotToMatrix(&inst->matrix, prizeRot);
 
 	gGS = sdata->gGamepads;
 
 	if ((inst->flags & USE_SPECULAR_LIGHT) == 0)
+	{
 		return;
+	}
 
 	prevAngle = prize[0x10];
 	prize[0x10] = prevAngle + 0x3f;
 
 	if ((gGS->gamepad[1].buttonsHeldCurrFrame & BTN_L1) != 0)
+	{
 		prize[0x10] = prevAngle;
+	}
 
 	ratio = (prize[0x10] & 0xfff) - 0x800;
 	if (ratio < 0)
+	{
 		ratio = -ratio;
+	}
 
 	angle = prize[0xc] + (((prize[0xe] - prize[0xc]) * ratio) >> 11);
 
@@ -133,7 +146,9 @@ void CS_Podium_Prize_Spin(struct Instance *inst, s16 *prize)
 
 		ratio = (prize[0x10] & 0xfff) - 0x800;
 		if (ratio < 0)
+		{
 			ratio = -ratio;
+		}
 
 		angle = prize[0xd] + (((prize[0xf] - prize[0xd]) * ratio) >> 11);
 
@@ -160,7 +175,7 @@ void CS_Podium_Prize_Spin(struct Instance *inst, s16 *prize)
 		lightDir.z = (sine1 * sine2) >> 12;
 	}
 
-	Vector_SpecLightSpin3D(inst, &prize[4], &lightDir);
+	Vector_SpecLightSpin3D(inst, prizeRot, &lightDir);
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800af994-0x800afbc8
@@ -185,19 +200,25 @@ void CS_Podium_Prize_ThTick3(struct Thread *th)
 
 		x = (prize[8] + xInterp / frameMax - 0x100) * -inst->matrix.t[2];
 		if (x < 0)
+		{
 			x += 0xff;
+		}
 
 		inst->matrix.t[0] = x >> 8;
 
 		y = (prize[9] + yInterp / frameMax - 0x6c) * inst->matrix.t[2];
 		if (y < 0)
+		{
 			y += 0xff;
+		}
 
 		inst->matrix.t[1] = y >> 8;
 
 		scale = inst->scale.x - 0x4b0;
 		if (scale < 0x1001)
+		{
 			scale = 0x1000;
+		}
 
 		inst->scale.x = scale;
 		inst->scale.y = scale;
@@ -213,22 +234,38 @@ void CS_Podium_Prize_ThTick3(struct Thread *th)
 		s16 hintID = 0;
 
 		if ((rewards & ADV_REWARD_HINT_MAP_INFORMATION_MASK) == 0)
+		{
 			hintID = ADV_MASK_HINT_ID_MAP_INFORMATION;
+		}
 		else if ((rewards & ADV_REWARD_HINT_WUMPA_FRUIT_MASK) == 0)
+		{
 			hintID = ADV_MASK_HINT_ID_WUMPA_FRUIT;
+		}
 		else if ((rewards & ADV_REWARD_HINT_TNT_MASK) == 0)
+		{
 			hintID = ADV_MASK_HINT_ID_TNT;
+		}
 		else if ((rewards & ADV_REWARD_HINT_HANG_TIME_TURBO_MASK) == 0)
+		{
 			hintID = ADV_MASK_HINT_ID_HANG_TIME_TURBO;
+		}
 		else if ((rewards & ADV_REWARD_HINT_POWER_SLIDE_MASK) == 0)
+		{
 			hintID = ADV_MASK_HINT_ID_POWER_SLIDE;
+		}
 		else if ((rewards & ADV_REWARD_HINT_TURBO_BOOST_MASK) == 0)
+		{
 			hintID = ADV_MASK_HINT_ID_TURBO_BOOST;
+		}
 		else if ((rewards & ADV_REWARD_HINT_BRAKE_SLIDE_MASK) == 0)
+		{
 			hintID = ADV_MASK_HINT_ID_BRAKE_SLIDE;
+		}
 
 		if (hintID != 0)
+		{
 			MainFrame_RequestMaskHint(hintID, 0);
+		}
 	}
 
 	gGT = sdata->gGT;
@@ -308,7 +345,9 @@ void CS_Podium_Prize_ThTick1(struct Thread *th)
 	if (D233.PodiumInitUnk3 != 0)
 	{
 		if (th->modelIndex != STATIC_BIG1)
+		{
 			inst->flags &= ~HIDE_MODEL;
+		}
 
 		prize[0x12] = VehCalc_InterpBySpeed(prize[0x12], 0x14, 0);
 		prize[0x11] = VehCalc_InterpBySpeed(prize[0x11], 1, 0);
@@ -377,7 +416,9 @@ void CS_Podium_Prize_Init(u32 prizeModel, const char *prizeName, s16 *posOnScree
 	if (inst == NULL)
 	{
 		if (D233.cutsceneState < CS_WAIT_INPUT)
+		{
 			D233.cutsceneState = CS_WAIT_INPUT;
+		}
 
 		gGT->gameMode2 &= ~VEH_FREEZE_PODIUM;
 		return;
@@ -449,9 +490,13 @@ void CS_Podium_Prize_Init(u32 prizeModel, const char *prizeName, s16 *posOnScree
 			bitIndex = gGT->prevLEV + ADV_REWARD_FIRST_GOLD_RELIC;
 
 			if (CHECK_ADV_BIT(sdata->advProgress.rewards, bitIndex) == 0)
+			{
 				relicColor = 0x20a5ff0;
+			}
 			else
+			{
 				relicColor = 0xd8d2090;
+			}
 		}
 		else
 		{
@@ -511,7 +556,7 @@ void CS_Podium_FullScene_Init(void)
 	struct Instance *driverInstSelf;
 	struct Thread *victoryCamThread;
 	u32 podiumMusic;
-	struct CsThreadInitData InitData;
+	struct CsThreadInitData InitData = {0};
 
 	struct SpawnPosRot *posRot;
 
@@ -574,7 +619,7 @@ void CS_Podium_FullScene_Init(void)
 	InitData.rot.z = posRot->rot.z;
 
 	// convert 3 rotation shorts into rotation matrix
-	ConvertRotToMatrix((MATRIX *)&InitData.local_30, &InitData.rot);
+	ConvertRotToMatrix((MATRIX *)&InitData.local_30, &InitData.rot.vec);
 	// Move position of trophy girl
 	gte_SetLightMatrix(&InitData.local_30);
 
@@ -589,7 +634,7 @@ void CS_Podium_FullScene_Init(void)
 		InitData.characterPos.z = 0;
 
 		// create thread for "third"
-		CS_Thread_Init(gGT->podium_modelIndex_Third, &R233.s_third[0], (void *)&InitData, 0x600, 0);
+		CS_Thread_Init(gGT->podium_modelIndex_Third, &R233.s_third[0], &InitData, 0x600, 0);
 	}
 
 	// if someone placed second
@@ -600,7 +645,7 @@ void CS_Podium_FullScene_Init(void)
 		InitData.characterPos.z = 0;
 
 		// create thread for "second"
-		CS_Thread_Init(gGT->podium_modelIndex_Second, &R233.s_second[0], (void *)&InitData, 0x200, 0);
+		CS_Thread_Init(gGT->podium_modelIndex_Second, &R233.s_second[0], &InitData, 0x200, 0);
 	}
 
 	InitData.characterPos.x = 0;
@@ -608,14 +653,14 @@ void CS_Podium_FullScene_Init(void)
 	InitData.characterPos.z = 0;
 
 	// create thread for "first"
-	CS_Thread_Init(gGT->podium_modelIndex_First, &R233.s_first[0], (void *)&InitData, 0, 0);
+	CS_Thread_Init(gGT->podium_modelIndex_First, &R233.s_first[0], &InitData, 0, 0);
 
 	InitData.characterPos.x = 0x1a8;
 	InitData.characterPos.y = 0xff80;
 	InitData.characterPos.z = 0x140;
 
 	// create thread for trophy girl (internally called "tawna")
-	CS_Thread_Init(gGT->podium_modelIndex_tawna, &R233.s_tawna[0], (void *)&InitData, -0x2aa, 0);
+	CS_Thread_Init(gGT->podium_modelIndex_tawna, &R233.s_tawna[0], &InitData, -0x2aa, 0);
 
 	CS_Podium_Prize_Init(gGT->podiumRewardID, &R233.s_prize[0], (void *)&InitData);
 

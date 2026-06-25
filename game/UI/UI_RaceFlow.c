@@ -111,7 +111,9 @@ void UI_RaceStart_IntroText1P(void)
 
 					        // if you are in time trial mode
 					        (gameMode & 0x20000) != 0))
+					{
 						goto LAB_80055930;
+					}
 
 					if (-1 < gameMode)
 					{
@@ -217,7 +219,7 @@ LAB_80055930:
 			        sdata->lngStrings[LNG_TRACK],
 
 			        // Track Index (0, 1, 2, 3) + 1
-			        (gGT->cup.trackIndex) + 1);
+			        CTR_PRINTF_PSX_LONG((gGT->cup.trackIndex) + 1));
 
 			// string of top title bar
 			pcVar6 = trackText;
@@ -303,14 +305,18 @@ void UI_RaceEnd_MenuProc(struct RectMenu *menu)
 
 		// if more than 2 screens
 		if (2 < gGT->numPlyrCurrGame)
+		{
 			menu->drawStyle |= 0x100;
+		}
 
 		return;
 	}
 
 	int row = menu->rowSelected;
 	if (row < 0)
+	{
 		return;
+	}
 
 	option = menu->rows[row].stringIndex;
 
@@ -356,7 +362,9 @@ void UI_RaceEnd_MenuProc(struct RectMenu *menu)
 		gGT->hudFlags &= 0xfe;
 
 		if (RaceFlag_IsFullyOffScreen() == 1)
+		{
 			RaceFlag_BeginTransition(1);
+		}
 
 		sdata->Loading.stage = LOAD_RESTART;
 
@@ -369,7 +377,9 @@ void UI_RaceEnd_MenuProc(struct RectMenu *menu)
 		// if did not improve time, then dont
 		// overwrite old ghost with new ghost
 		if ((gGT->gameModeEnd & PLAYER_GHOST_BEAT) == 0)
+		{
 			break;
+		}
 
 		sdata->boolReplayHumanGhost = 1;
 

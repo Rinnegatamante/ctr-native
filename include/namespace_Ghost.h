@@ -11,7 +11,7 @@ struct GhostPacket
 	// 0x10 -- size of packet
 };
 
-_Static_assert(sizeof(struct GhostPacket) == 0x10);
+CTR_STATIC_ASSERT(sizeof(struct GhostPacket) == 0x10);
 
 struct GhostTape
 {
