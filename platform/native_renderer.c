@@ -850,6 +850,7 @@ int NativeRenderer_InitialisePSX(void)
 			GLuint depthstencil;
 			glGenRenderbuffers(1, &depthstencil);
 			glBindRenderbuffer(GL_RENDERBUFFER, depthstencil);
+			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, VRAM_WIDTH, VRAM_HEIGHT);
 			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, depthstencil);
 #endif
 
@@ -885,6 +886,7 @@ int NativeRenderer_InitialisePSX(void)
 			GLuint depthstencil;
 			glGenRenderbuffers(1, &depthstencil);
 			glBindRenderbuffer(GL_RENDERBUFFER, depthstencil);
+			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, VRAM_WIDTH, VRAM_HEIGHT);
 			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, depthstencil);
 #endif
 
@@ -927,6 +929,7 @@ int NativeRenderer_InitialisePSX(void)
 			GLuint depthstencil;
 			glGenRenderbuffers(1, &depthstencil);
 			glBindRenderbuffer(GL_RENDERBUFFER, depthstencil);
+			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, VRAM_WIDTH, VRAM_HEIGHT);
 			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, depthstencil);
 #endif
 
@@ -1553,7 +1556,9 @@ void NativeRenderer_StoreFrameBuffer(int x, int y, int w, int h)
 	// after drawing
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	NativePerf_BeginScope(NATIVE_PERF_BUCKET_FRAMEBUFFER_FLUSH);
+#ifndef __vita__
 	glFlush();
+#endif
 	NativePerf_EndScope(NATIVE_PERF_BUCKET_FRAMEBUFFER_FLUSH);
 
 	NativePerf_BeginScope(NATIVE_PERF_BUCKET_FRAMEBUFFER_ALLOC);
