@@ -1988,7 +1988,9 @@ void NativeRenderer_SetBlendMode(BlendMode blendMode)
 	case BM_NONE:
 		if (s_previousBlendMode != BM_NONE)
 		{
+#ifndef __vita__
 			glBlendColor(1.f, 1.f, 1.f, 1.f);
+#endif
 			glDisable(GL_BLEND);
 		}
 
