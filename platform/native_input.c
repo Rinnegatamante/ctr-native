@@ -351,6 +351,21 @@ internal void NativeInput_ApplyController(s32 slot)
 {
 	struct NativeInputController *nativeController = &s_controllers[slot];
 	struct PlatformInputPadSnapshot *snapshot = &nativeController->snapshot;
+
+#ifdef __vita__
+	s32 rightX;
+	s32 rightY;
+	s32 leftX;
+	s32 leftY;
+	SceCtrlData pad;
+	u16 buttons = 0xffff;
+	sceCtrlPeekBufferNegative(slot, &pad, 1);
+	buttons = pad.buttons & 0xFFFF;
+	rightX = ((s32)pad.rx - 127) * 32767;
+	rightX = ((s32)pad.ry - 127) * 32767;
+	leftX = ((s32)pad.lx - 127) * 32767;
+	leftY = ((s32)pad.ly - 127) * 32767;
+#else
 	const struct NativeInputControllerMapping *mapping = &s_controllerMapping;
 	SDL_Gamepad *controller = nativeController->controller;
 	u16 buttons = 0xffff;
@@ -437,6 +452,7 @@ internal void NativeInput_ApplyController(s32 slot)
 	rightY = NativeInput_ControllerButtonState(controller, mapping->gc_axis_right_y);
 	leftX = NativeInput_ControllerButtonState(controller, mapping->gc_axis_left_x);
 	leftY = NativeInput_ControllerButtonState(controller, mapping->gc_axis_left_y);
+#endif
 
 	if ((buttons != 0xffff) || NativeInput_AxisIsActive(rightX) || NativeInput_AxisIsActive(rightY) || NativeInput_AxisIsActive(leftX) ||
 	    NativeInput_AxisIsActive(leftY))
@@ -463,6 +479,7 @@ internal void NativeInput_ApplyController(s32 slot)
 	snapshot->analog[1] = NativeInput_AxisToByte(rightY);
 	snapshot->analog[2] = NativeInput_AxisToByte(leftX);
 	snapshot->analog[3] = NativeInput_AxisToByte(leftY);
+
 }
 
 internal u16 NativeInput_ReadKeyboard(void)
@@ -802,13 +819,19 @@ void Platform_InputUpdate(void)
 	}
 
 	SDL_PumpEvents();
+#ifdef __vita__
+	keyboardButtons = 0xffff;
+#else
 	keyboardButtons = NativeInput_KeyboardSuppressed() ? 0xffff : NativeInput_ReadKeyboard();
+#endif
 
 	for (slot = 0; slot < NATIVE_INPUT_MAX_CONTROLLERS; slot++)
 	{
 		NativeInput_ResetSnapshot(slot);
 		NativeInput_ApplyController(slot);
+#ifndef __vita__
 		NativeInput_ApplyKeyboard(slot, keyboardButtons);
+#endif
 	}
 	NativeInput_WritePadBus();
 }
