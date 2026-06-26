@@ -409,22 +409,30 @@ typedef struct
 	GLint psxTextureOutputStpLoc;
 } GTEShader;
 
+typedef struct
+{
+	ShaderID shader;
+	GLint textureLoc;
+} RGBAToVRAMShader;
+
 internal int NativeRenderer_Shader_CheckShaderStatus(GLuint shader);
 internal int NativeRenderer_Shader_CheckProgramStatus(GLuint program);
 internal ShaderID NativeRenderer_Shader_Compile(const char *source, bool isPsxShader);
 internal void NativeRenderer_GenerateCommonTextures(void);
 internal TextureID NativeRenderer_CreateRGBATexture(int width, int height, u8 *data);
 internal void NativeRenderer_CompilePSXShader(GTEShader *sh, const char *source);
+internal void NativeRenderer_CompileRGBAToVRAMShader(void);
 internal void NativeRenderer_InitialisePSXShaders(void);
 internal void NativeRenderer_InitRG8LUT(void);
 internal void NativeRenderer_Ortho2D(float left, float right, float bottom, float top, float znear, float zfar);
 internal void NativeRenderer_SetShader(const ShaderID shader);
-internal void NativeRenderer_CopyRGBAFramebufferToVRAM(u32 *src, int x, int y, int w, int h, int update_vram, int flip_y);
+internal void NativeRenderer_CopyRGBAFramebufferToVRAM(const u32 *src, int x, int y, int w, int h, int update_vram, int flip_y);
 
 global_variable GTEShader s_gteShader4;
 global_variable GTEShader s_gteShader8;
 global_variable GTEShader s_gteShader16;
 global_variable GTEShader s_gteShader32Rgba;
+global_variable RGBAToVRAMShader s_rgbaToVramShader;
 
 GLint u_projectionLoc;
 GLint u_bilinearFilterLoc;
@@ -469,14 +477,14 @@ GLint u_psxTextureOutputStpLoc;
 	"	uniform sampler2D s_texture;\n"                              \
 	"	vec2 VRAM(vec2 uv) { return texture2D(s_texture, uv).rg; }\n"
 
-#define GPU_STP_PASS_FUNC                                                                                       \
-	"	float texelVisible(vec2 rg) { return float(rg.x + rg.y > 0.0); }\n"                                      \
-	"	float stpWeight(vec2 rg) { return step(0.5, rg.y); }\n"                                                  \
-	"	bool discardForSemiTransPass(float visible, float stpVisible, float nonStpVisible) {\n"                  \
-	"		if(visible < 0.5) { return true; }\n"                                                                  \
-	"		if(psxSemiTransPass == 1 && nonStpVisible < 0.5) { return true; }\n"                                  \
-	"		if(psxSemiTransPass == 2 && stpVisible < 0.5) { return true; }\n"                                     \
-	"		return false;\n"                                                                                       \
+#define GPU_STP_PASS_FUNC                                                                     \
+	"	float texelVisible(vec2 rg) { return float(rg.x + rg.y > 0.0); }\n"                     \
+	"	float stpWeight(vec2 rg) { return step(0.5, rg.y); }\n"                                 \
+	"	bool discardForSemiTransPass(float visible, float stpVisible, float nonStpVisible) {\n" \
+	"		if(visible < 0.5) { return true; }\n"                                                  \
+	"		if(psxSemiTransPass == 1 && nonStpVisible < 0.5) { return true; }\n"                   \
+	"		if(psxSemiTransPass == 2 && stpVisible < 0.5) { return true; }\n"                      \
+	"		return false;\n"                                                                       \
 	"	}\n"
 
 #define GPU_DITHERING                                             \
@@ -519,10 +527,10 @@ GLint u_psxTextureOutputStpLoc;
 	    "		float s21 = v21 * stpWeight(C21);\n"                                                                                                       \
 	    "		float s12 = v12 * stpWeight(C12);\n"                                                                                                       \
 	    "		float s22 = v22 * stpWeight(C22);\n"                                                                                                       \
-	    "		float n11 = v11 - s11;\n"                                                                                                                   \
-	    "		float n21 = v21 - s21;\n"                                                                                                                   \
-	    "		float n12 = v12 - s12;\n"                                                                                                                   \
-	    "		float n22 = v22 - s22;\n"                                                                                                                   \
+	    "		float n11 = v11 - s11;\n"                                                                                                                  \
+	    "		float n21 = v21 - s21;\n"                                                                                                                  \
+	    "		float n12 = v12 - s12;\n"                                                                                                                  \
+	    "		float n22 = v22 - s22;\n"                                                                                                                  \
 	    "		float ax1 = mix(v11, v21, frac.x);\n"                                                                                                      \
 	    "		float ax2 = mix(v12, v22, frac.x);\n"                                                                                                      \
 	    "		float axm = mix(ax1, ax2, frac.y);\n"                                                                                                      \
@@ -574,6 +582,29 @@ const char *gte_shader_32_rgba = "	uniform sampler2D s_texture;\n"
                                  "		fragColor = dither(color * v_color);\n"
                                  "		fragColor.a = float(psxDrawMaskSet);\n"
                                  "	}\n";
+
+const char *rgba_to_vram_shader = "#ifdef VERTEX\n"
+                                  "	varying vec2 v_texcoord;\n"
+                                  "	void main() {\n"
+                                  "		float x = (gl_VertexID == 1) ? 3.0 : -1.0;\n"
+                                  "		float y = (gl_VertexID == 2) ? 3.0 : -1.0;\n"
+                                  "		v_texcoord = vec2((x + 1.0) * 0.5, 1.0 - ((y + 1.0) * 0.5));\n"
+                                  "		gl_Position = vec4(x, y, 0.0, 1.0);\n"
+                                  "	}\n"
+                                  "#endif\n"
+                                  "#ifdef FRAGMENT\n"
+                                  "	uniform sampler2D s_texture;\n"
+                                  "	varying vec2 v_texcoord;\n"
+                                  "	void main() {\n"
+                                  "		vec4 color = texture2D(s_texture, v_texcoord);\n"
+                                  "		float r = floor(clamp(color.r, 0.0, 1.0) * 31.875);\n"
+                                  "		float g = floor(clamp(color.g, 0.0, 1.0) * 31.875);\n"
+                                  "		float b = floor(clamp(color.b, 0.0, 1.0) * 31.875);\n"
+                                  "		float stp = step(0.5, color.a);\n"
+                                  "		float psxPixel = r + g * 32.0 + b * 1024.0 + stp * 32768.0;\n"
+                                  "		fragColor = vec4(mod(psxPixel, 256.0) / 255.0, floor(psxPixel / 256.0) / 255.0, 0.0, 1.0);\n"
+                                  "	}\n"
+                                  "#endif\n";
 
 #define GTE_PERSPECTIVE_CORRECTION "	gl_Position = Projection * vec4(a_position.xy, 0.0, 1.0);\n"
 
@@ -797,12 +828,19 @@ internal void NativeRenderer_CompilePSXShader(GTEShader *sh, const char *source)
 	sh->psxTextureOutputStpLoc = glGetUniformLocation(sh->shader, "psxTextureOutputStp");
 }
 
+internal void NativeRenderer_CompileRGBAToVRAMShader(void)
+{
+	s_rgbaToVramShader.shader = NativeRenderer_Shader_Compile(rgba_to_vram_shader, false);
+	s_rgbaToVramShader.textureLoc = glGetUniformLocation(s_rgbaToVramShader.shader, "s_texture");
+}
+
 internal void NativeRenderer_InitialisePSXShaders(void)
 {
 	NativeRenderer_CompilePSXShader(&s_gteShader4, gte_shader_4);
 	NativeRenderer_CompilePSXShader(&s_gteShader8, gte_shader_8);
 	NativeRenderer_CompilePSXShader(&s_gteShader16, gte_shader_16);
 	NativeRenderer_CompilePSXShader(&s_gteShader32Rgba, gte_shader_32_rgba);
+	NativeRenderer_CompileRGBAToVRAMShader();
 }
 
 internal void NativeRenderer_InitRG8LUT(void)
@@ -987,7 +1025,7 @@ void NativeRenderer_SetupClipMode(const RECT16 *rect, const DISPENV *displayEnv,
 
 	// [A] isinterlaced dirty hack for widescreen
 	const bool scissorOn = enable && (displayEnv->isinter || (rect->x - displayEnv->disp.x > 0 || rect->y - displayEnv->disp.y > 0 ||
-	                                                         rect->w < displayEnv->disp.w || rect->h < displayEnv->disp.h));
+	                                                          rect->w < displayEnv->disp.w || rect->h < displayEnv->disp.h));
 
 	NativeRenderer_SetScissorState(scissorOn);
 
@@ -1188,6 +1226,7 @@ internal float NativeRenderer_PSXColorComponentFloat(u8 value)
 
 void NativeRenderer_ClearVRAM(int x, int y, int w, int h, u8 r, u8 g, u8 b)
 {
+	NativeRenderer_ReadFramebufferDataToVRAM();
 	s_vramNeedsUpdate = 1;
 
 	u16 *dst = vram + x + y * VRAM_WIDTH;
@@ -1302,6 +1341,8 @@ void NativeRenderer_SaveVRAM(const char *outputFileName, int x, int y, int width
 {
 #define FLIP_Y (VRAM_HEIGHT - i - 1)
 
+	NativeRenderer_ReadFramebufferDataToVRAM();
+
 	FILE *fp = fopen(outputFileName, "wb");
 	if (fp == NULL)
 	{
@@ -1330,49 +1371,32 @@ void NativeRenderer_SaveVRAM(const char *outputFileName, int x, int y, int width
 #undef FLIP_Y
 }
 
-internal void NativeRenderer_CopyRGBAFramebufferToVRAM(u32 *src, int x, int y, int w, int h, int update_vram, int flip_y)
+internal void NativeRenderer_CopyRGBAFramebufferToVRAM(const u32 *src, int x, int y, int w, int h, int update_vram, int flip_y)
 {
 	assert(x >= 0);
 	assert(y >= 0);
 	assert(x + w <= VRAM_WIDTH);
 	assert(y + h <= VRAM_HEIGHT);
 
-	u16 *fb = (u16 *)malloc(w * h * sizeof(u16));
-	u32 *data_src = (u32 *)src;
-	u16 *data_dst = (u16 *)fb;
-
-	for (int i = 0; i < h; i++)
-	{
-		for (int j = 0; j < w; j++)
-		{
-			u32 c = *data_src++;
-
-			u8 r = ((c >> 3) & 0x1F);
-			u8 g = ((c >> 11) & 0x1F);
-			u8 b = ((c >> 19) & 0x1F);
-			// NOTE(aalhendi): framebuffer alpha carries the PS1 E6 mask/STP bit.
-			u8 a = (c >> 31) & 1;
-
-			*data_dst++ = r | (g << 5) | (b << 10) | (a << 15);
-		}
-	}
-
-	u16 *ptr = (u16 *)vram + VRAM_WIDTH * y + x;
-
 	for (int fy = 0; fy < h; fy++)
 	{
 		int py = flip_y ? (h - fy - 1) : fy;
-		u16 *fb_ptr = fb + (h * py / h) * w;
+		const u32 *srcRow = src + py * w;
+		u16 *dstRow = (u16 *)vram + VRAM_WIDTH * (y + fy) + x;
 
 		for (int fx = 0; fx < w; fx++)
 		{
-			ptr[fx] = fb_ptr[w * fx / w];
+			const u32 c = srcRow[fx];
+
+			const u8 r = (c >> 3) & 0x1f;
+			const u8 g = (c >> 11) & 0x1f;
+			const u8 b = (c >> 19) & 0x1f;
+			// NOTE(aalhendi): framebuffer alpha carries the PS1 E6 mask/STP bit.
+			const u8 a = (c >> 31) & 1;
+
+			dstRow[fx] = r | (g << 5) | (b << 10) | (a << 15);
 		}
-
-		ptr += VRAM_WIDTH;
 	}
-
-	free(fb);
 
 	if (update_vram)
 	{
@@ -1429,6 +1453,43 @@ internal int NativeRenderer_RectEquals(const RECT16 *a, const RECT16 *b)
 	return a->x == b->x && a->y == b->y && a->w == b->w && a->h == b->h;
 }
 
+internal void NativeRenderer_CopyRGBATextureToVRAM(TextureID sourceTexture, const RECT16 *dst)
+{
+	if ((sourceTexture == (TextureID)-1) || (dst->w <= 0) || (dst->h <= 0))
+	{
+		return;
+	}
+
+	glBindFramebuffer(GL_FRAMEBUFFER, s_glVramFramebuffer);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, s_vramTexture, 0);
+
+	glDisable(GL_BLEND);
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_SCISSOR_TEST);
+	glDisable(GL_STENCIL_TEST);
+	s_previousBlendMode = BM_NONE;
+	s_previousDepthMode = 0;
+	s_previousScissorState = 0;
+	s_previousStencilMode = -1;
+
+	NativeRenderer_SetViewPort(dst->x, dst->y, dst->w, dst->h);
+	NativeRenderer_SetShader(s_rgbaToVramShader.shader);
+	glUniform1i(s_rgbaToVramShader.textureLoc, 0);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, sourceTexture);
+	s_lastBoundTexture = sourceTexture;
+
+	glBindVertexArray(s_glVertexArray[0]);
+	glDrawArrays(GL_TRIANGLES, 0, 3);
+
+	glBindVertexArray(0);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glEnable(GL_STENCIL_TEST);
+	s_previousStencilMode = -1;
+	s_lastBoundTexture = -1;
+}
+
 internal void NativeRenderer_FlushOffscreenToVRAM(void)
 {
 	if (s_previousOffscreen.w <= 0 || s_previousOffscreen.h <= 0)
@@ -1436,22 +1497,7 @@ internal void NativeRenderer_FlushOffscreenToVRAM(void)
 		return;
 	}
 
-	glBindFramebuffer(GL_FRAMEBUFFER, s_glVramFramebuffer);
-
-	// rebind texture
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, s_vramTexture, 0);
-
-	// setup draw and read framebuffers
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, s_glOffscreenFramebuffer); // source is offscreen render target
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, s_glVramFramebuffer);
-
-	glBlitFramebuffer(0, 0, s_previousOffscreen.w, s_previousOffscreen.h, s_previousOffscreen.x, s_previousOffscreen.y + s_previousOffscreen.h,
-	                  s_previousOffscreen.x + s_previousOffscreen.w, s_previousOffscreen.y, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-
-	// done, unbind
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	NativeRenderer_CopyRGBATextureToVRAM(s_offscreenRenderTexture, &s_previousOffscreen);
 
 	// copy rendering results to the CPU-side PSX VRAM mirror
 	{
@@ -1577,8 +1623,8 @@ void NativeRenderer_StoreFrameBuffer(int x, int y, int w, int h)
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, 0); // source is backbuffer
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, s_glBlitFramebuffer);
 
-		glBlitFramebuffer(s_presentViewport.x, s_presentViewport.y, s_presentViewport.x + s_presentViewport.w, s_presentViewport.y + s_presentViewport.h, x, y + h,
-		                  x + w, y, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+		glBlitFramebuffer(s_presentViewport.x, s_presentViewport.y, s_presentViewport.x + s_presentViewport.w, s_presentViewport.y + s_presentViewport.h, x,
+		                  y + h, x + w, y, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
 		// done, unbind
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
@@ -1588,35 +1634,12 @@ void NativeRenderer_StoreFrameBuffer(int x, int y, int w, int h)
 
 	// after drawing
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	NativePerf_BeginScope(NATIVE_PERF_BUCKET_FRAMEBUFFER_FLUSH);
-	glFlush();
-	NativePerf_EndScope(NATIVE_PERF_BUCKET_FRAMEBUFFER_FLUSH);
 
-	NativePerf_BeginScope(NATIVE_PERF_BUCKET_FRAMEBUFFER_ALLOC);
-	u32 *pixels = (u32 *)malloc((size_t)w * (size_t)h * sizeof(u32));
-	NativePerf_EndScope(NATIVE_PERF_BUCKET_FRAMEBUFFER_ALLOC);
-	if (pixels != NULL)
-	{
-		// NOTE(aalhendi): Screen-feedback effects sample PS1 VRAM as packed
-		// 16-bit pixels. Do not leave the VRAM texture in host RGBA form here;
-		// pack the copied framebuffer synchronously before the next primitive
-		// can sample it.
-		glBindTexture(GL_TEXTURE_2D, s_framebufferTexture);
-		NativePerf_BeginScope(NATIVE_PERF_BUCKET_FRAMEBUFFER_READBACK);
-		glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-		NativePerf_EndScope(NATIVE_PERF_BUCKET_FRAMEBUFFER_READBACK);
-		glBindTexture(GL_TEXTURE_2D, 0);
-
-		NativePerf_BeginScope(NATIVE_PERF_BUCKET_FRAMEBUFFER_PACK);
-		NativeRenderer_CopyRGBAFramebufferToVRAM(pixels, x, y, w, h, 1, 0);
-		NativePerf_EndScope(NATIVE_PERF_BUCKET_FRAMEBUFFER_PACK);
-		NativePerf_BeginScope(NATIVE_PERF_BUCKET_FRAMEBUFFER_VRAM_UPLOAD);
-		NativeRenderer_UpdateVRAM();
-		NativePerf_EndScope(NATIVE_PERF_BUCKET_FRAMEBUFFER_VRAM_UPLOAD);
-		s_lastBoundTexture = -1;
-
-		free(pixels);
-	}
+	// NOTE(aalhendi): Screen-feedback effects sample PS1 VRAM immediately.
+	// Keep the GPU-side packed VRAM current here, but defer the host CPU mirror
+	// readback until DrawSync/MoveImage/StoreImage asks for it.
+	NativeRenderer_CopyRGBATextureToVRAM(s_framebufferTexture, &s_previousFramebuffer);
+	s_framebufferNeedsUpdate = 1;
 	NativePerf_EndScope(NATIVE_PERF_BUCKET_FRAMEBUFFER_STORE);
 }
 
@@ -1637,6 +1660,10 @@ void NativeRenderer_CopyVRAM(u16 *src, int x, int y, int w, int h, int dst_x, in
 		src = vram;
 		stride = VRAM_WIDTH;
 	}
+	else
+	{
+		NativeRenderer_ReadFramebufferDataToVRAM();
+	}
 
 	src += x + y * stride;
 
@@ -1652,6 +1679,8 @@ void NativeRenderer_CopyVRAM(u16 *src, int x, int y, int w, int h, int dst_x, in
 
 void NativeRenderer_ReadVRAM(u16 *dst, int x, int y, int dst_w, int dst_h)
 {
+	NativeRenderer_ReadFramebufferDataToVRAM();
+
 	u16 *src = vram + x + VRAM_WIDTH * y;
 
 	for (int i = 0; i < dst_h; i++)
@@ -1719,7 +1748,7 @@ void NativeRenderer_UpdateVRAM(void)
 
 	glBindTexture(GL_TEXTURE_2D, s_vramTexture);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, VRAM_INTERNAL_FORMAT, VRAM_WIDTH, VRAM_HEIGHT, 0, VRAM_FORMAT, GL_UNSIGNED_BYTE, vram);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, VRAM_WIDTH, VRAM_HEIGHT, VRAM_FORMAT, GL_UNSIGNED_BYTE, vram);
 	NativePerf_EndScope(NATIVE_PERF_BUCKET_RENDERER_UPDATE_VRAM);
 }
 
@@ -1795,6 +1824,8 @@ void NativeRenderer_PresentVRAMRect(int displayX, int displayY, int displayW, in
 
 	local_persist TextureID displayTexture = (TextureID)-1;
 	local_persist u8 *rgba = NULL;
+
+	NativeRenderer_ReadFramebufferDataToVRAM();
 
 	if (displayW <= 0 || displayH <= 0)
 	{
