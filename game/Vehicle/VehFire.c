@@ -5,7 +5,7 @@ void VehFire_Audio(struct Driver *driver, int speed_cap)
 {
 	u32 distortion;
 	u32 volume;
-	u32 extraFlags;
+	u32 echo;
 
 	// if turbo audio cooldown is not done
 	if (driver->VehFire_AudioCooldown != 0)
@@ -16,10 +16,10 @@ void VehFire_Audio(struct Driver *driver, int speed_cap)
 	if (speed_cap >= 0x80)
 	{
 		// max volume
-		volume = 0xff << 0x10;
+		volume = 0xff;
 
 		// distort
-		distortion = 0x6c << 0x8;
+		distortion = 0x6c;
 
 		Voiceline_RequestPlay(0x10, data.characterIDs[driver->driverID], 0x10);
 
@@ -29,35 +29,33 @@ void VehFire_Audio(struct Driver *driver, int speed_cap)
 	if (speed_cap >= 0x40)
 	{
 		// 3/4 volume
-		volume = 0xc0 << 0x10;
+		volume = 0xc0;
 
 		// no distort
-		distortion = 0x80 << 0x8;
+		distortion = HOWL_SFX_DISTORTION_NONE;
 
 		goto Skip;
 	}
 
 	// half volume
-	volume = 0x80 << 0x10;
+	volume = 0x80;
 
 	// distort
-	distortion = 0x94 << 0x8;
+	distortion = 0x94;
 
 Skip:
 
-	// 50% L/R
-	extraFlags = 0x80;
+	echo = 0;
 
 	// if echo is required
 	if ((driver->actionsFlagSet & ACTION_ENGINE_ECHO) != 0)
 	{
-		// add echo
-		extraFlags |= 0x1000000;
+		echo = 1;
 	}
 
 	// 0xD = Turbo Boost Sound
 	// 0x80 = balance L/R
-	OtherFX_Play_LowLevel(0xd, 1, volume | distortion | extraFlags);
+	OtherFX_Play_LowLevel(0xd, 1, HowlSfx_Pack(HOWL_SFX_LR_CENTER, distortion, volume, echo));
 
 	// turbo audio cooldown 0.24s
 	driver->VehFire_AudioCooldown = 0xf0;
@@ -230,7 +228,7 @@ void VehFire_Increment(struct Driver *driver, int reserves, u32 type, int fireLe
 			// 1P flags
 			if (gGT->numPlyrCurrGame == 1)
 			{
-				addFlags = 0x2000000;
+				addFlags = VISIBLE_DURING_GAMEPLAY;
 			}
 
 			// Make turbos invisible and transparent.
@@ -277,8 +275,8 @@ void VehFire_Increment(struct Driver *driver, int reserves, u32 type, int fireLe
 		else
 		{
 			// make fire invisible for the sake of the visibility cooldown as explained in common.h
-			turboInst1->flags |= 0x1000080;
-			turboInst2->flags |= 0x1000080;
+			turboInst1->flags |= DEPTH_FADE | HIDE_MODEL;
+			turboInst2->flags |= DEPTH_FADE | HIDE_MODEL;
 
 			turboObj->fireVisibilityCooldown = 0x60;
 			driver->numTurbos = (s16)CTR_MipsAddLo((u16)driver->numTurbos, 1);

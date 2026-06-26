@@ -827,7 +827,7 @@ void VehStuckProc_RevEngine_PhysLinear(struct Thread *t, struct Driver *d)
 	}
 
 	struct CameraDC *cDC = &gGT->cameraDC[d->driverID];
-	cDC->flags |= 0x10;
+	cDC->flags |= CAMERA_FLAG_MASK_GRAB;
 	cDC->maskGrabHeightOffset = 0x40;
 }
 

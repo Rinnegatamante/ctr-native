@@ -220,7 +220,7 @@ void UI_CupStandings_InputAndDraw(void)
 	else if (gGT->cup.trackIndex != 3)
 	{
 		// If not in Arcade or VS cup
-		if ((gGT->gameMode2 & 0x10) == 0)
+		if ((gGT->gameMode2 & CUP_ANY_KIND) == 0)
 		{
 			index = data.AdvCups[cupID].lngIndex_CupName;
 		}
@@ -532,7 +532,7 @@ void UI_CupStandings_InputAndDraw(void)
 			if (cupTrack < 4)
 			{
 				// If not in Arcade or VS cup
-				if ((gGT->gameMode2 & 0x10) == 0)
+				if ((gGT->gameMode2 & CUP_ANY_KIND) == 0)
 				{
 					index = data.advCupTrackIDs[(4 * cupID) + cupTrack];
 				}
@@ -550,7 +550,7 @@ void UI_CupStandings_InputAndDraw(void)
 			// If the cup is over
 			else
 			{
-				if ((gGT->gameMode2 & 0x10) != 0)
+				if ((gGT->gameMode2 & CUP_ANY_KIND) != 0)
 				{
 					UI_CupStandings_FinalizeCupRanks();
 				}
@@ -580,14 +580,14 @@ void UI_CupStandings_InputAndDraw(void)
 				i = gGT->cup.cupID;
 
 				// If this is an Adventure Cup
-				if ((gGT->gameMode2 & 0x10) == 0)
+				if ((gGT->gameMode2 & CUP_ANY_KIND) == 0)
 				{
 					// Array with the ranking of each player
 					gGT->levelID = i + ADV_CUP;
 
 					// when loading is done,
 					// remove flag for adventure cup
-					sdata->Loading.OnBegin.RemBitsConfig0 |= 0x10000000;
+					sdata->Loading.OnBegin.RemBitsConfig0 |= ADVENTURE_CUP;
 
 					// If player 1 won the cup
 					if (data.cupPositionPerPlayer[0] == gGT->drivers[0]->driverID)
@@ -650,7 +650,7 @@ void UI_CupStandings_InputAndDraw(void)
 						if (CHECK_ADV_BIT(rewardsSet, bitIndex) == 0)
 						{
 							// lets 233 know to prompt the Save Game box
-							gGT->gameMode2 |= 0x1000;
+							gGT->gameMode2 |= CUP_NEW_WIN;
 
 							baseIndex = sdata->UnlockBitIndex.CupCompletion_curr[difficulty];
 
@@ -677,7 +677,7 @@ void UI_CupStandings_InputAndDraw(void)
 								UNLOCK_ADV_BIT(rewardsSet, bitIndex);
 
 								// battle map is now unlocked (233 overlay)
-								gGT->gameMode2 |= 0x2000;
+								gGT->gameMode2 |= CUP_NEW_BATTLE;
 							}
 						}
 					}
