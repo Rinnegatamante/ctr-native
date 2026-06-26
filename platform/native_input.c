@@ -145,6 +145,14 @@ internal s32 NativeInput_NextControllerSlot(s32 slot)
 	return slot;
 }
 
+internal void NativeInput_MoveKeyboardOffControllerSlot(s32 slot)
+{
+	if (s_keyboardControllerSlot == slot)
+	{
+		s_keyboardControllerSlot = NativeInput_NextControllerSlot(s_keyboardControllerSlot);
+	}
+}
+
 internal void NativeInput_MakeDisconnectedSnapshot(struct PlatformInputPadSnapshot *snapshot)
 {
 	if (snapshot == NULL)
@@ -563,9 +571,13 @@ internal void NativeInput_ApplyKeyboard(s32 slot, u16 keyboardButtons)
 		return;
 	}
 
-	snapshot->connected = 1;
-	snapshot->status = 0;
-	snapshot->id = NATIVE_INPUT_PAD_DIGITAL;
+	if (snapshot->connected == 0)
+	{
+		snapshot->connected = 1;
+		snapshot->status = 0;
+		snapshot->id = NATIVE_INPUT_PAD_DIGITAL;
+	}
+
 	buttons = NativeInput_GetSnapshotButtons(snapshot);
 	NativeInput_SetSnapshotButtons(snapshot, buttons & keyboardButtons);
 }
@@ -698,6 +710,7 @@ internal void NativeInput_OpenController(SDL_JoystickID instanceId, s32 slot)
 	controller->instanceId = joystick != NULL ? SDL_GetJoystickID(joystick) : instanceId;
 	controller->analogEnabled = 1;
 	controller->switchingAnalog = 0;
+	NativeInput_MoveKeyboardOffControllerSlot(slot);
 }
 
 internal void NativeInput_OpenKnownControllers(void)
