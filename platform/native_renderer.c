@@ -1379,6 +1379,7 @@ void NativeRenderer_SaveVRAM(const char *outputFileName, int x, int y, int width
 #undef FLIP_Y
 }
 
+static u16 _fb[1024 * 1024];
 internal void NativeRenderer_CopyRGBAFramebufferToVRAM(u32 *src, int x, int y, int w, int h, int update_vram, int flip_y)
 {
 	assert(x >= 0);
@@ -1386,7 +1387,7 @@ internal void NativeRenderer_CopyRGBAFramebufferToVRAM(u32 *src, int x, int y, i
 	assert(x + w <= VRAM_WIDTH);
 	assert(y + h <= VRAM_HEIGHT);
 
-	u16 *fb = (u16 *)malloc(w * h * sizeof(u16));
+	u16 *fb = (u16 *)_fb;
 	u32 *data_src = (u32 *)src;
 	u16 *data_dst = (u16 *)fb;
 
@@ -1421,8 +1422,6 @@ internal void NativeRenderer_CopyRGBAFramebufferToVRAM(u32 *src, int x, int y, i
 		ptr += VRAM_WIDTH;
 	}
 
-	free(fb);
-
 	if (update_vram)
 	{
 		s_vramNeedsUpdate = 1;
@@ -1448,9 +1447,12 @@ void NativeRenderer_ReadFramebufferDataToVRAM(void)
 	{
 		return;
 	}
-
-	u32 *pixels = (u32 *)malloc((size_t)w * (size_t)h * sizeof(u32));
+	
+	u32 *pixels;
+#ifndef __vita__
+	pixels = (u32 *)malloc((size_t)w * (size_t)h * sizeof(u32));
 	if (pixels != NULL)
+#endif
 	{
 		glBindTexture(GL_TEXTURE_2D, s_framebufferTexture);
 		// NOTE(aalhendi): DrawSync can be called immediately before screen-copy
@@ -1460,16 +1462,16 @@ void NativeRenderer_ReadFramebufferDataToVRAM(void)
 #ifndef __vita__
 		glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 #else
-		void *tex_data = vglGetTexDataPointer(GL_TEXTURE_2D);
-		sceClibMemcpy(pixels, tex_data, w * h * sizeof(u32));
+		pixels = (u32 *)vglGetTexDataPointer(GL_TEXTURE_2D);
 #endif
 		glBindTexture(GL_TEXTURE_2D, 0);
 		// NOTE(aalhendi): Keep the CPU-side VRAM mirror packed like PS1 VRAM.
 		// Host texture bindings are invalid after this direct GL texture read.
 		NativeRenderer_CopyRGBAFramebufferToVRAM(pixels, x, y, w, h, 1, 0);
 		s_lastBoundTexture = -1;
-
+#ifndef __vita__
 		free(pixels);
+#endif
 	}
 }
 
@@ -1509,23 +1511,27 @@ internal void NativeRenderer_FlushOffscreenToVRAM(void)
 
 	// copy rendering results to the CPU-side PSX VRAM mirror
 	{
+		u32 *pixels;
+#ifndef __vita__
 		u32 *pixels = (u32 *)malloc((size_t)s_previousOffscreen.w * (size_t)s_previousOffscreen.h * sizeof(u32));
 		if (pixels == NULL)
 		{
 			return;
 		}
+#endif
 
 		glBindTexture(GL_TEXTURE_2D, s_offscreenRenderTexture);
 #ifndef __vita__
 		glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 #else
-		void *tex_data = vglGetTexDataPointer(GL_TEXTURE_2D);
-		sceClibMemcpy(pixels, tex_data, (size_t)s_previousOffscreen.w * (size_t)s_previousOffscreen.h * sizeof(u32));
+		pixels = (u32 *)vglGetTexDataPointer(GL_TEXTURE_2D);
 #endif
 		glBindTexture(GL_TEXTURE_2D, s_lastBoundTexture != (TextureID)-1 ? s_lastBoundTexture : 0);
 
 		NativeRenderer_CopyRGBAFramebufferToVRAM(pixels, s_previousOffscreen.x, s_previousOffscreen.y, s_previousOffscreen.w, s_previousOffscreen.h, 0, 1);
+#ifndef __vita__
 		free(pixels);
+#endif
 	}
 }
 
@@ -1647,16 +1653,17 @@ void NativeRenderer_StoreFrameBuffer(int x, int y, int w, int h)
 
 	// after drawing
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	NativePerf_BeginScope(NATIVE_PERF_BUCKET_FRAMEBUFFER_FLUSH);
+	u32 *pixels;
 #ifndef __vita__
+	NativePerf_BeginScope(NATIVE_PERF_BUCKET_FRAMEBUFFER_FLUSH);
 	glFlush();
-#endif
 	NativePerf_EndScope(NATIVE_PERF_BUCKET_FRAMEBUFFER_FLUSH);
 
 	NativePerf_BeginScope(NATIVE_PERF_BUCKET_FRAMEBUFFER_ALLOC);
-	u32 *pixels = (u32 *)malloc((size_t)w * (size_t)h * sizeof(u32));
+	pixels = (u32 *)malloc((size_t)w * (size_t)h * sizeof(u32));
 	NativePerf_EndScope(NATIVE_PERF_BUCKET_FRAMEBUFFER_ALLOC);
 	if (pixels != NULL)
+#endif
 	{
 		// NOTE(aalhendi): Screen-feedback effects sample PS1 VRAM as packed
 		// 16-bit pixels. Do not leave the VRAM texture in host RGBA form here;
@@ -1667,8 +1674,7 @@ void NativeRenderer_StoreFrameBuffer(int x, int y, int w, int h)
 #ifndef __vita__
 		glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 #else
-		void *tex_data = vglGetTexDataPointer(GL_TEXTURE_2D);
-		sceClibMemcpy(pixels, tex_data, (size_t)w * (size_t)h * sizeof(u32));
+		pixels = (u32 *)vglGetTexDataPointer(GL_TEXTURE_2D);
 #endif
 		NativePerf_EndScope(NATIVE_PERF_BUCKET_FRAMEBUFFER_READBACK);
 		glBindTexture(GL_TEXTURE_2D, 0);
@@ -1680,8 +1686,9 @@ void NativeRenderer_StoreFrameBuffer(int x, int y, int w, int h)
 		NativeRenderer_UpdateVRAM();
 		NativePerf_EndScope(NATIVE_PERF_BUCKET_FRAMEBUFFER_VRAM_UPLOAD);
 		s_lastBoundTexture = -1;
-
+#ifndef __vita__
 		free(pixels);
+#endif
 	}
 	NativePerf_EndScope(NATIVE_PERF_BUCKET_FRAMEBUFFER_STORE);
 }
