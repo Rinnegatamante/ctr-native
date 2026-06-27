@@ -281,10 +281,13 @@ int Platform_BeginScene(void)
 	}
 
 	NativePerf_BeginScope(NATIVE_PERF_BUCKET_PLATFORM_BEGIN_SCENE);
+	
+#ifndef __vita__
 	// NOTE(aalhendi): CTR already throttles through the retail VSync/draw-sync
 	// path. Do not add a second SDL swap wait; some GL drivers charge that wait
 	// to the next frame's first clear instead of SDL_GL_SwapWindow.
 	NativeRenderer_UpdateSwapIntervalState(0);
+#endif
 
 	NativeRenderer_BeginScene();
 
