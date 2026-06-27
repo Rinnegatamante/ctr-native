@@ -404,7 +404,7 @@ void VehPhysProc_Driving_PhysLinear(struct Thread *thread, struct Driver *driver
 	actionsFlagSetNext = actionsFlagSetCopy & VEH_PHYS_PROC_ACTION_CARRY_MASK;
 
 	// disable input if opening adv hub door with key
-	if ((gameMode2 & 0x4004) != 0)
+	if ((gameMode2 & GAME_MODE2_VEH_FREEZE_MASK) != 0)
 	{
 		driver->actionsFlagSet = actionsFlagSetNext;
 		return;

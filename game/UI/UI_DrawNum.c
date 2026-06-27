@@ -95,7 +95,7 @@ void UI_DrawNumRelic(s16 posX, s16 posY)
 
 	gGT = sdata->gGT;
 	num = gGT->currAdvProfile.numRelics;
-	if ((gGT->gameMode2 & 0x1000000) != 0)
+	if ((gGT->gameMode2 & INC_RELIC) != 0)
 	{
 		num--;
 	}
@@ -115,7 +115,7 @@ void UI_DrawNumKey(s16 posX, s16 posY)
 
 	gGT = sdata->gGT;
 	num = gGT->currAdvProfile.numKeys;
-	if ((gGT->gameMode2 & 0x2000000) != 0)
+	if ((gGT->gameMode2 & INC_KEY) != 0)
 	{
 		num--;
 	}
@@ -135,7 +135,7 @@ void UI_DrawNumTrophy(s16 posX, s16 posY)
 
 	gGT = sdata->gGT;
 	num = gGT->currAdvProfile.numTrophies;
-	if ((gGT->gameMode2 & 0x4000000) != 0)
+	if ((gGT->gameMode2 & INC_TROPHY) != 0)
 	{
 		num--;
 	}

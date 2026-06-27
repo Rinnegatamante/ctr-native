@@ -580,16 +580,8 @@ static void VehEmitter_TerrainEffects(struct Thread *thread, struct Driver *d, s
 
 	if (thread->modelIndex == DYNAMIC_PLAYER)
 	{
-		u32 flags = (u32)((s16)d->engineVol) << 16;
-
-		if ((d->actionsFlagSet & ACTION_ENGINE_ECHO) != 0)
-		{
-			flags |= 0x1008080;
-		}
-		else
-		{
-			flags |= 0x8080;
-		}
+		u32 echo = ((d->actionsFlagSet & ACTION_ENGINE_ECHO) != 0);
+		u32 flags = HowlSfx_Pack(HOWL_SFX_LR_CENTER, HOWL_SFX_DISTORTION_NONE, (u32)(s16)d->engineVol, echo);
 
 		OtherFX_RecycleNew((u32 *)&d->driverAudioPtrs[2], wallSound, flags);
 	}
@@ -610,14 +602,9 @@ static void VehEmitter_TerrainAudioAndFeedback(struct Thread *thread, struct Dri
 	}
 
 	int vol = VehCalc_MapToRange(absSpeedApprox, 0, 5000, 0, 200);
-	int distort = VehCalc_MapToRange(absSpeedApprox, 0, 12000, 0x6c, 0xd2) << 8;
-
-	if ((d->actionsFlagSet & ACTION_ENGINE_ECHO) != 0)
-	{
-		distort |= 0x1000000;
-	}
-
-	OtherFX_RecycleNew((u32 *)&d->driverAudioPtrs[1], soundID, ((u32)vol << 16) | (u32)distort | 0x80);
+	int distort = VehCalc_MapToRange(absSpeedApprox, 0, 12000, 0x6c, 0xd2);
+	u32 echo = ((d->actionsFlagSet & ACTION_ENGINE_ECHO) != 0);
+	OtherFX_RecycleNew((u32 *)&d->driverAudioPtrs[1], soundID, HowlSfx_Pack(HOWL_SFX_LR_CENTER, (u32)distort, (u32)vol, echo));
 
 	if ((d->actionsFlagSet & ACTION_BOT) == 0)
 	{
@@ -687,12 +674,9 @@ static void VehEmitter_SkidmarkAudio(struct Thread *thread, struct Driver *d, st
 			distort = 0x92;
 		}
 
-		u32 flags = (u32)((vol + (absTurn >> 1)) << 16) | (u32)(distort << 8) | (0x80u - (((u32)(u8)d->simpTurnState << 24) >> 26));
-
-		if ((d->actionsFlagSet & ACTION_ENGINE_ECHO) != 0)
-		{
-			flags |= 0x1000000;
-		}
+		u32 lr = 0x80u - (((u32)(u8)d->simpTurnState << 24) >> 26);
+		u32 echo = ((d->actionsFlagSet & ACTION_ENGINE_ECHO) != 0);
+		u32 flags = HowlSfx_Pack(lr, (u32)distort, (u32)(vol + (absTurn >> 1)), echo);
 
 		OtherFX_RecycleNew((u32 *)&d->driverAudioPtrs[0], terrain->skidSound, flags);
 	}

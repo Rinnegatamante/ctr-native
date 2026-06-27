@@ -160,7 +160,7 @@ void VehBirth_TeleportSelf(struct Driver *d, u8 spawnFlag, int spawnPosY)
 	gGT->gameMode2 &= ~VEH_FREEZE_DOOR;
 	spawnAtBoss = gGT->gameMode2 & SPAWN_AT_BOSS;
 
-	if ((spawnFlag & 1) == 0)
+	if ((spawnFlag & VEH_BIRTH_SPAWN_USE_LEVEL_POSITION) == 0)
 	{
 		posBottom.x = (s16)CTR_MipsSra(d->posCurr.x, 8);
 		posBottom.y = (s16)CTR_MipsAddLo(CTR_MipsSra(d->posCurr.y, 8), 0x80);
@@ -248,12 +248,12 @@ void VehBirth_TeleportSelf(struct Driver *d, u8 spawnFlag, int spawnPosY)
 	d->posPrev.z = d->posCurr.z;
 	d->quadBlockHeight = CTR_MipsSll(sps->Union.QuadBlockColl.hitPos.y, 8);
 
-	if ((spawnFlag & 1) != 0)
+	if ((spawnFlag & VEH_BIRTH_SPAWN_USE_LEVEL_POSITION) != 0)
 	{
 		if (doorInst != NULL)
 		{
 			d->rotCurr.y = (doorInst->rot.y + 0x800) & 0xfff;
-			gGT->gameMode2 &= ~(SPAWN_AT_BOSS | 2);
+			gGT->gameMode2 &= ~GAME_MODE2_SPAWN_CLEAR_MASK;
 		}
 		else if (spawnOutsideBoss != 0)
 		{
@@ -279,7 +279,7 @@ void VehBirth_TeleportSelf(struct Driver *d, u8 spawnFlag, int spawnPosY)
 				d->rotCurr.y = rotY & 0xfff;
 			}
 
-			gGT->gameMode2 &= ~(SPAWN_AT_BOSS | 2);
+			gGT->gameMode2 &= ~GAME_MODE2_SPAWN_CLEAR_MASK;
 		}
 		else if ((gGT->gameMode1 & ADVENTURE_ARENA) == 0)
 		{
@@ -333,7 +333,7 @@ void VehBirth_TeleportSelf(struct Driver *d, u8 spawnFlag, int spawnPosY)
 	d->rotPrev.y = d->rotCurr.y;
 	d->rotPrev.z = d->rotCurr.z;
 
-	if ((doorInst != NULL) && ((spawnFlag & 1) != 0))
+	if ((doorInst != NULL) && ((spawnFlag & VEH_BIRTH_SPAWN_USE_LEVEL_POSITION) != 0))
 	{
 		d->speed = 0xa00;
 	}
@@ -350,7 +350,7 @@ void VehBirth_TeleportSelf(struct Driver *d, u8 spawnFlag, int spawnPosY)
 
 	d->actionsFlagSet &= ~(ACTION_AIRBORNE | ACTION_HIGH_JUMP);
 
-	if ((spawnFlag & 2) == 0)
+	if ((spawnFlag & VEH_BIRTH_SPAWN_INIT_RACE_STATE) == 0)
 	{
 		return;
 	}
@@ -453,7 +453,7 @@ void VehBirth_TeleportAll(struct GameTracker *gGT, u32 spawnFlags)
 
 		else
 		{
-			VehBirth_TeleportSelf(d, spawnFlags | 1, 0);
+			VehBirth_TeleportSelf(d, spawnFlags | VEH_BIRTH_SPAWN_USE_LEVEL_POSITION, 0);
 		}
 	}
 }
@@ -586,7 +586,7 @@ void VehBirth_EngineAudio_AllPlayers(void)
 
 		int engine = data.MetaDataCharacters[data.characterIDs[driverID]].engineID;
 
-		EngineAudio_InitOnce((engine * 4) + driverID, 0x8080);
+		EngineAudio_InitOnce((engine * 4) + driverID, HOWL_SFX_CENTER_NO_DISTORTION);
 	}
 }
 
@@ -658,7 +658,7 @@ void VehBirth_NonGhost(struct Thread *t, int index)
 	struct GameTracker *gGT = sdata->gGT;
 
 	int id = data.characterIDs[0];
-	if ((gGT->gameMode1 & 0x2000) == 0)
+	if ((gGT->gameMode1 & MAIN_MENU) == 0)
 	{
 		id = data.characterIDs[index];
 	}
@@ -710,7 +710,7 @@ void VehBirth_NonGhost(struct Thread *t, int index)
 	VehBirth_SetConsts(d);
 
 	// if you are in cutscene or in main menu
-	if ((gGT->gameMode1 & 0x20002000) != 0)
+	if ((gGT->gameMode1 & GAME_MODE_MENU_OR_CUTSCENE_MASK) != 0)
 	{
 		// dont update, make invisible
 		t->funcThTick = VehBirth_NullThread;
